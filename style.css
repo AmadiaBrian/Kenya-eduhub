@@ -1,0 +1,185 @@
+/* Masterclass CSS - Kenya EduHub */
+:root {
+  --primary: #00695c;
+  --secondary: #004d40;
+  --accent: #00bfa5;
+  --light: #f9f9f9;
+  --dark: #263238;
+  --text: #333;
+  --radius: 12px;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: var(--light);
+  color: var(--text);
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+/* Hero Section */
+.hero {
+  background: linear-gradient(to right, var(--primary), var(--accent));
+  color: white;
+  padding: 80px 20px;
+  text-align: center;
+  animation: fadeIn 1s ease-in;
+}
+
+.hero-content h1 {
+  font-size: 3rem;
+  margin-bottom: 10px;
+}
+
+.hero-content p {
+  font-size: 1.2rem;
+  margin-bottom: 30px;
+}
+
+.btn {
+  background-color: white;
+  color: var(--primary);
+  padding: 12px 28px;
+  border-radius: var(--radius);
+  text-decoration: none;
+  font-weight: bold;
+  transition: background 0.3s ease, transform 0.3s ease;
+  display: inline-block;
+}
+
+.btn:hover {
+  background-color: var(--accent);
+  color: white;
+  transform: scale(1.05);
+}
+
+/* Features Section */
+.features {
+  padding: 60px 20px;
+  background-color: var(--light);
+  text-align: center;
+}
+
+.section-title {
+  font-size: 2.2rem;
+  margin-bottom: 40px;
+  color: var(--dark);
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 30px;
+  max-width: 1200px;
+  margin: 0 auto;
+  animation: fadeUp 1s ease-in;
+}
+
+.feature-card {
+  background: white;
+  padding: 30px 20px;
+  border-radius: var(--radius);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.feature-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 8px 16px rgba(0, 105, 92, 0.2);
+}
+
+.icon {
+  font-size: 2.5rem;
+  color: var(--primary);
+  margin-bottom: 15px;
+}
+
+/* Resources Preview Section */
+.resources-preview {
+  padding: 60px 20px;
+  background-color: #e0f2f1;
+  text-align: center;
+}
+
+.resource-list {
+  list-style: none;
+  margin: 20px auto;
+  max-width: 600px;
+  text-align: left;
+}
+
+.resource-list li {
+  font-size: 1.1rem;
+  padding: 10px 0;
+  border-bottom: 1px solid #ccc;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  animation: fadeUp 0.8s ease forwards;
+}
+
+.resource-list i {
+  color: var(--secondary);
+}
+
+/* Footer */
+.footer {
+  background-color: var(--dark);
+  color: #ccc;
+  padding: 20px;
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+.footer a {
+  color: var(--accent);
+  text-decoration: none;
+  margin: 0 8px;
+  transition: color 0.3s ease;
+}
+
+.footer a:hover {
+  color: white;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive Typography */
+@media (max-width: 768px) {
+  .hero-content h1 {
+    font-size: 2rem;
+  }
+  .section-title {
+    font-size: 1.6rem;
+  }
+  .btn {
+    padding: 10px 20px;
+  }
+}

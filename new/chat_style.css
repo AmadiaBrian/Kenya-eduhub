@@ -1,0 +1,162 @@
+/* chat_style.css */
+
+/* General Settings */
+body {
+    margin: 0;
+    font-family: 'Poppins', sans-serif;
+    background: #e5ddd5;
+    height: 100vh;
+    overflow: hidden;
+}
+
+/* App Layout */
+.app-container {
+    display: flex;
+    height: 100vh;
+}
+
+/* Sidebar */
+.sidebar {
+    width: 300px;
+    background: #075e54;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    overflow-y: auto;
+}
+
+.sidebar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logout-btn {
+    background: #25d366;
+    padding: 8px 12px;
+    color: white;
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+.logout-btn:hover {
+    background: #128c7e;
+}
+
+/* Section titles */
+.section h3 {
+    margin-top: 20px;
+    margin-bottom: 10px;
+    font-size: 18px;
+}
+
+/* Conversations */
+.conversation {
+    background: rgba(255,255,255,0.1);
+    padding: 10px;
+    margin-bottom: 8px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.conversation:hover {
+    background: rgba(255,255,255,0.2);
+}
+
+.conversation.active {
+    background: #25d366;
+    font-weight: bold;
+}
+
+.conversation.new-chat {
+    background: rgba(255,255,255,0.05);
+}
+
+/* Chat Area */
+.chat-area {
+    flex: 1;
+    background: #ece5dd;
+    display: flex;
+    flex-direction: column;
+}
+
+.chat-header {
+    background: #128c7e;
+    color: white;
+    padding: 20px;
+    font-size: 20px;
+}
+
+/* Messages */
+.messages {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* Individual Message */
+.message {
+    max-width: 60%;
+    padding: 10px;
+    border-radius: 10px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+.message.sent {
+    align-self: flex-end;
+    background: #dcf8c6;
+    text-align: right;
+}
+
+.message.received {
+    align-self: flex-start;
+    background: white;
+    text-align: left;
+}
+
+.message small {
+    font-size: 10px;
+    color: gray;
+    margin-top: 5px;
+}
+
+/* Message Input */
+.message-input {
+    display: flex;
+    padding: 10px;
+    background: white;
+    border-top: 1px solid #ccc;
+}
+
+.message-input input[type="text"] {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    border-radius: 30px;
+    background: #f0f0f0;
+    margin-right: 10px;
+}
+
+.message-input button {
+    padding: 10px 20px;
+    background: #25d366;
+    border: none;
+    border-radius: 30px;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.message-input button:hover {
+    background: #128c7e;
+}
