@@ -1,0 +1,45 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://kenyaeduhub.kesug.com/sitemap.xml
+
+# Allow only homepage and login page for indexing
+Allow: /
+Allow: /auth/login.php
+
+# Block all other pages from search engine indexing
+Disallow: /auth/register.php
+Disallow: /dashboard/
+Disallow: /admin/
+Disallow: /api/
+Disallow: /includes/
+Disallow: /config.php
+Disallow: *.log
+Disallow: /temp/
+Disallow: /cache/
+
+# Crawl delay for respectful crawling
+Crawl-delay: 1
+
+# Specific instructions for major search engines
+User-agent: Googlebot
+Allow: /
+Allow: /auth/login.php
+Disallow: /auth/register.php
+Disallow: /dashboard/
+Crawl-delay: 1
+
+User-agent: Bingbot
+Allow: /
+Allow: /auth/login.php
+Disallow: /auth/register.php
+Disallow: /dashboard/
+Crawl-delay: 1
+
+User-agent: Slurp
+Allow: /
+Allow: /auth/login.php
+Disallow: /auth/register.php
+Disallow: /dashboard/
+Crawl-delay: 1

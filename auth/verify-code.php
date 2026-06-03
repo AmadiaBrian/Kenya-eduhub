@@ -1,0 +1,337 @@
+<?php
+session_start();
+require_once '../config.php';
+
+$email = $_SESSION['pending_user_email'] ?? null;
+$message = "";
+$step = $email ? 2 : 1; // Step 1: Enter email, Step 2: Enter code
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (isset($_POST['email']) && $step === 1) {
+        // Step 1: User submits email
+        $email = trim($_POST['email']);
+        if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $stmt = $conn->prepare("SELECT id, is_verified FROM users WHERE email = ?");
+            $stmt->bind_param("s", $email);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            
+            if ($result->num_rows > 0) {
+                $user = $result->fetch_assoc();
+                if ($user['is_verified']) {
+                    $message = "Account already verified.";
+                } else {
+                    $_SESSION['pending_user_email'] = $email;
+                    $step = 2;
+                    $message = "Enter the verification code sent to your email.";
+                }
+            } else {
+                $message = "Email not found.";
+            }
+            $stmt->close();
+        } else {
+            $message = "Invalid email address.";
+        }
+    } elseif (isset($_POST['code']) && $step === 2) {
+        // Step 2: User submits verification code
+        $code = trim($_POST['code']);
+
+        $stmt = $conn->prepare("SELECT verification_code, is_verified, code_expires_at FROM users WHERE email = ?");
+        $stmt->bind_param("s", $email);
+        $stmt->execute();
+        $stmt->bind_result($correct_code, $is_verified, $expires_at);
+        $stmt->fetch();
+        $stmt->close();
+
+        if ($is_verified) {
+            $message = "Account already verified.";
+        } elseif (new DateTime() > new DateTime($expires_at)) {
+            $message = "Code expired. Please request a new code.";
+        } elseif ($code === $correct_code) {
+            $conn->query("UPDATE users SET is_verified = 1, verification_code = NULL WHERE email = '$email'");
+            unset($_SESSION['pending_user_email']);
+            $_SESSION['login_success'] = "✅ Your account has been verified. Please log in.";
+            header("Location: login.php");
+            exit();
+        } else {
+            $message = "Incorrect code.";
+        }
+    }
+}
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify Code - Kenya EduHub</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/auth-animations.css">
+    <style>
+        /* Base */
+        body {
+            background: #000000 !important;
+            background-image: none !important;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem;
+            color: #fff;
+        }
+
+        body::before,
+        body::after {
+            display: none !important;
+        }
+
+        html {
+            background: #000000 !important;
+            background-image: none !important;
+        }
+
+        /* Card */
+        .login-card {
+            background: #000000;
+            max-width: 420px;
+            width: 100%;
+            padding: 3rem 2.5rem 2.5rem;
+            border-radius: 0;
+            box-shadow: none;
+            border: none;
+            animation: none;
+            user-select: none;
+            will-change: auto;
+            transform: none;
+            contain: layout style paint;
+            position: relative;
+            overflow: hidden;
+            transition: none;
+        }
+
+        .login-card::before {
+            display: none;
+        }
+
+        .login-card:hover {
+            transform: none;
+            box-shadow: none;
+            background: #000000;
+            border: none;
+        }
+
+        .login-card h3 {
+            font-weight: 700;
+            color: #666;
+            margin-bottom: 1.75rem;
+            text-align: center;
+            text-shadow: none;
+        }
+
+        /* Form inputs */
+        input.form-control {
+            height: 48px;
+            font-size: 1rem;
+            border-radius: 0;
+            border: 2px solid #fff;
+            background: #000;
+            color: #fff !important;
+            transition: none;
+            will-change: auto;
+        }
+
+        input.form-control::placeholder {
+            color: #888 !important;
+            opacity: 1;
+        }
+
+        input.form-control:-webkit-autofill,
+        input.form-control:-webkit-autofill:hover,
+        input.form-control:-webkit-autofill:focus {
+            -webkit-text-fill-color: #fff !important;
+            -webkit-box-shadow: 0 0 0 1000px #000 inset;
+            transition: background-color 5000s ease-in-out 0s;
+        }
+
+        input.form-control:focus {
+            border: 2px solid #333;
+            box-shadow: none;
+            outline: none;
+            transform: none;
+            background: #000;
+        }
+
+        
+        /* Button */
+        button.btn-primary {
+            width: 100%;
+            height: 48px;
+            font-weight: 700;
+            font-size: 1.125rem;
+            border-radius: 0;
+            background: #000;
+            border: 1px solid #333;
+            color: #fff;
+            transition: none;
+            box-shadow: none;
+            user-select: none;
+            will-change: auto;
+            position: relative;
+            overflow: hidden;
+        }
+
+        button.btn-primary:hover,
+        button.btn-primary:focus-visible {
+            background: #111;
+            transform: none;
+            box-shadow: none;
+            outline: none;
+            border: 1px solid #444;
+        }
+
+        /* Link styling */
+        p.text-center small {
+            color: #495057;
+            user-select: none;
+        }
+
+        p.text-center small a {
+            color: #4ea1ff;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.25s ease;
+        }
+
+        p.text-center small a:hover,
+        p.text-center small a:focus-visible {
+            color: #1e3c72;
+            text-decoration: underline;
+            outline-offset: 2px;
+            outline: 2px solid #1e3c72;
+        }
+
+        /* Alert styling */
+        .alert {
+            background-color: #000;
+            border-radius: 0;
+            padding: 0.9rem 1rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            font-weight: 600;
+            box-shadow: none;
+            user-select: none;
+            animation: none;
+        }
+
+        .alert-warning {
+            background-color: #000;
+            color: #ff0000;
+            border: 1px solid #ff0000;
+        }
+
+        .alert-error {
+            background-color: #000;
+            color: #ff0000;
+            border: 1px solid #ff0000;
+        }
+
+        /* Animations */
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px) translateZ(0);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) translateZ(0);
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .login-card {
+                padding: 2rem 1.5rem 2rem;
+            }
+            button.btn-primary {
+                font-size: 1rem;
+                height: 44px;
+            }
+        }
+
+        /* Reduced motion support */
+        @media (prefers-reduced-motion: reduce) {
+            .login-card {
+                animation: none;
+            }
+            
+            button.btn-primary:hover,
+            button.btn-primary:focus-visible {
+                transform: none;
+            }
+        }
+    </style>
+</head>
+<body>
+<main class="login-card" role="main" aria-label="Email Verification Form">
+    <div class="text-center mb-4">
+        <img src="../assets/favicon.ico" alt="Kenya EduHub Logo" style="height: 60px; margin-bottom: 1rem;">
+    </div>
+    <?php if ($step === 1): ?>
+        <h3>Verify Email</h3>
+        <?php if (!empty($message)): ?>
+            <div class="alert alert-warning" role="alert" aria-live="assertive"><?= $message ?></div>
+        <?php endif; ?>
+        <form method="post">
+            <div class="mb-4">
+                <label for="email" class="visually-hidden">Email address</label>
+                <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    class="form-control"
+                    placeholder="Enter your email"
+                    required
+                    autocomplete="email"
+                />
+            </div>
+            <button type="submit" class="btn btn-primary" aria-label="Continue to verification code">
+                Continue
+            </button>
+        </form>
+    <?php else: ?>
+        <h3>Enter Verification Code</h3>
+        <?php if (!empty($message)): ?>
+            <div class="alert alert-warning" role="alert" aria-live="assertive"><?= $message ?></div>
+        <?php endif; ?>
+        <form method="post">
+            <div class="mb-4">
+                <label for="code" class="visually-hidden">Verification code</label>
+                <input
+                    type="text"
+                    id="code"
+                    name="code"
+                    class="form-control"
+                    placeholder="Enter 6-digit code"
+                    maxlength="6"
+                    required
+                    autocomplete="one-time-code"
+                />
+            </div>
+            <button type="submit" class="btn btn-primary" aria-label="Verify email address">
+                Verify Code
+            </button>
+        </form>
+        <div class="text-center mt-4">
+            <p class="small">Wrong email? <a href="?step=1">Change email</a></p>
+        </div>
+    <?php endif; ?>
+    
+    <div class="text-center mt-4">
+        <p class="small"><a href="login.php">Back to Login</a></p>
+    </div>
+</main>
+</body>
+</html>

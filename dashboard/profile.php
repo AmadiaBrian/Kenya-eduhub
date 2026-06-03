@@ -1,0 +1,1396 @@
+<?php
+session_start();
+require_once '../config.php';
+require_once '../includes/helpers.php';
+
+// Check if user is logged in
+if (!isset($_SESSION['user_id'])) {
+    header("Location: ../auth/login.php");
+    exit();
+}
+
+$user_id = $_SESSION['user_id'];
+
+// Get user info
+$stmt = $conn->prepare("SELECT * FROM users WHERE id = ?");
+$stmt->bind_param("i", $user_id);
+$stmt->execute();
+$result = $stmt->get_result();
+$user = $result->fetch_assoc();
+
+// Handle profile update
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    $name = $_POST['name'] ?? '';
+    $email = $_POST['email'] ?? '';
+    
+    // Validate email
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $error = "Invalid email format";
+    } else {
+        // Check if email is already taken by another user
+        $check_stmt = $conn->prepare("SELECT id FROM users WHERE email = ? AND id != ?");
+        $check_stmt->bind_param("si", $email, $user_id);
+        $check_stmt->execute();
+        $check_result = $check_stmt->get_result();
+        
+        if ($check_result->num_rows > 0) {
+            $error = "Email is already taken by another user";
+        } else {
+            // Update user profile
+            $update_stmt = $conn->prepare("UPDATE users SET name = ?, email = ? WHERE id = ?");
+            $update_stmt->bind_param("ssi", $name, $email, $user_id);
+            
+            if ($update_stmt->execute()) {
+                $success = "Profile updated successfully!";
+                // Refresh user data
+                $stmt->execute();
+                $result = $stmt->get_result();
+                $user = $result->fetch_assoc();
+            } else {
+                $error = "Failed to update profile";
+            }
+        }
+    }
+}
+
+// Handle password change
+if (isset($_POST['change_password'])) {
+    $current_password = $_POST['current_password'] ?? '';
+    $new_password = $_POST['new_password'] ?? '';
+    $confirm_password = $_POST['confirm_password'] ?? '';
+    
+    // Verify current password
+    if (password_verify($current_password, $user['password'])) {
+        if (strlen($new_password) < 6) {
+            $password_error = "New password must be at least 6 characters";
+        } elseif ($new_password !== $confirm_password) {
+            $password_error = "Passwords do not match";
+        } else {
+            $hashed_password = password_hash($new_password, PASSWORD_DEFAULT);
+            $password_stmt = $conn->prepare("UPDATE users SET password = ? WHERE id = ?");
+            $password_stmt->bind_param("si", $hashed_password, $user_id);
+            
+            if ($password_stmt->execute()) {
+                $password_success = "Password changed successfully!";
+            } else {
+                $password_error = "Failed to change password";
+            }
+        }
+    } else {
+        $password_error = "Current password is incorrect";
+    }
+}
+
+// Get general statistics (since resources are shared globally)
+$resource_stmt = $conn->query("SELECT COUNT(*) as total_resources FROM resources");
+$resource_stats = $resource_stmt->fetch_assoc();
+
+$download_stmt = $conn->query("SELECT SUM(downloads) as total_downloads FROM resources");
+$download_stats = $download_stmt->fetch_assoc();
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile - Kenya EduHub</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+    /* Custom Header Styles */
+    .custom-header {
+        background: #000000;
+        padding: 15px 20px;
+        padding-left: 240px;
+        border-bottom: 3px solid #FFD700;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+    }
+
+    .custom-header-content {
+        max-width: 1200px;
+        margin: 0 auto;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .custom-logo {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-weight: bold;
+        font-size: 22px;
+        color: white;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+
+    .custom-logo span:first-child {
+        background: linear-gradient(45deg, #FFD700, #FFA500);
+        color: white;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+        box-shadow: 0 4px 12px rgba(255, 215, 0, 0.4);
+        border: 2px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .custom-nav {
+        display: flex;
+        gap: 25px;
+    }
+
+    .custom-nav a {
+        color: white;
+        text-decoration: none;
+        font-weight: 600;
+        padding: 10px 18px;
+        border-radius: 25px;
+        transition: all 0.3s ease;
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(5px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+    }
+
+    .custom-nav a:hover {
+        background: rgba(255, 255, 255, 0.25);
+        color: #0078D4;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0, 120, 212, 0.3);
+        border-color: rgba(0, 120, 212, 0.4);
+    }
+
+    /* Mobile Header */
+    @media (max-width: 768px) {
+        .custom-header {
+            padding-left: 20px;
+        }
+        
+        .custom-header-content {
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .custom-nav {
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 12px;
+        }
+        
+        .custom-nav a {
+            padding: 8px 14px;
+            font-size: 14px;
+        }
+    }
+
+    /* Mobile Menu Toggle */
+    .mobile-menu-toggle {
+        display: none;
+        position: fixed;
+        top: 16px;
+        left: 16px;
+        z-index: 1001;
+        background: transparent;
+        border: none;
+        padding: 12px;
+        cursor: pointer;
+        width: 48px;
+        height: 48px;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .mobile-menu-toggle span {
+        display: block;
+        width: 100%;
+        height: 4px;
+        background: #ffffff;
+        border-radius: 3px;
+        transition: all 0.3s ease;
+        margin: 0;
+    }
+
+    .mobile-menu-toggle:hover span:nth-child(1) {
+        transform: translateY(-1px);
+    }
+
+    .mobile-menu-toggle:hover span:nth-child(3) {
+        transform: translateY(1px);
+    }
+
+    /* Show hamburger only on mobile */
+    @media (max-width: 768px) {
+        body .mobile-menu-toggle {
+            display: flex !important;
+            align-items: center;
+            justify-content: center;
+        }
+    }
+
+    /* Professional Hero Section */
+    .hero-section {
+        background: #1a1a1a;
+        backdrop-filter: blur(15px) saturate(1.2);
+        border: 1px solid #333333;
+        border-radius: 12px;
+        padding: 40px 32px;
+        margin-bottom: 32px;
+        color: #ffffff;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    }
+
+    .hero-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('../assets/images/Anjeline-C0XI691E.jpg');
+        background-size: cover;
+        background-position: center;
+        opacity: 0.6;
+        animation: imageCycle 12s infinite ease-in-out;
+        transition: all 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+        filter: brightness(1.1) contrast(1.2);
+    }
+
+    @keyframes imageCycle {
+        0%, 100% { 
+            background: url('../assets/images/Anjeline-C0XI691E.jpg');
+            background-position: center;
+            backdrop-filter: blur(8px);
+        }
+        33% { 
+            background: url('../assets/images/logo2-UFkwg77b.png');
+            background-position: center;
+            backdrop-filter: blur(10px);
+        }
+        66% { 
+            background: url('../assets/images/logo-DRV3mraH.png');
+            background-position: center;
+            backdrop-filter: blur(12px);
+        }
+    }
+
+    .hero-content {
+        display: flex;
+        align-items: center;
+        gap: 32px;
+        position: relative;
+        z-index: 1;
+    }
+
+    .hero-avatar {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(45deg, #FFD700, #FFA500);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 24px;
+        color: #ffffff;
+        box-shadow: 0 12px 40px rgba(0,0,0,0.3);
+        flex-shrink: 0;
+        backdrop-filter: blur(12px) saturate(1.2);
+        background: rgba(255, 255, 255, 0.15);
+        border: 2px solid rgba(255, 255, 255, 0.5);
+        position: relative;
+        z-index: 3;
+    }
+
+    .hero-text {
+        flex: 1;
+        backdrop-filter: blur(8px) saturate(1.1);
+        background: rgba(255, 255, 255, 0.08);
+        border-radius: 8px;
+        padding: 16px;
+        border: 1px solid rgba(255, 255, 255, 0.4);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+        position: relative;
+        z-index: 2;
+    }
+
+    .hero-text h1 {
+        font-size: 32px;
+        font-weight: 700;
+        margin-bottom: 8px;
+        color: #ffffff;
+        text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+        overflow: hidden;
+        border-right: 3px solid #ffffff;
+        white-space: nowrap;
+        animation: typing 3.5s steps(40, end), blink-caret 0.75s step-end infinite;
+    }
+
+    .hero-text p {
+        font-size: 16px;
+        opacity: 0.9;
+        margin-bottom: 16px;
+        line-height: 1.5;
+        color: #cccccc;
+    }
+
+    .hero-stats {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        backdrop-filter: blur(3px);
+    }
+
+    .hero-stat {
+        background: rgba(255,255,255,0.1);
+        backdrop-filter: blur(12px) saturate(1.3);
+        padding: 8px 16px;
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        color: #ffffff;
+        border: 1px solid rgba(255, 255, 255, 0.4);
+        box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+        position: relative;
+        z-index: 2;
+    }
+
+    /* Typewriter Effect */
+    @keyframes typing {
+        from { width: 0 }
+        to { width: 100% }
+    }
+
+    @keyframes blink-caret {
+        from, to { border-color: transparent }
+        50% { border-color: #ffffff; }
+    }
+
+    /* Mobile Hero Section */
+    @media (max-width: 768px) {
+        .hero-section {
+            padding: 24px 20px;
+            margin-bottom: 24px;
+        }
+
+        .hero-content {
+            flex-direction: column;
+            text-align: center;
+            gap: 20px;
+        }
+
+        .hero-avatar {
+            width: 60px;
+            height: 60px;
+            font-size: 20px;
+        }
+
+        .hero-text h1 {
+            font-size: 24px;
+        }
+
+        .hero-text p {
+            font-size: 14px;
+            margin-bottom: 12px;
+        }
+
+        .hero-stats {
+            justify-content: center;
+        }
+    }
+
+        :root {
+            --ms-primary: #0078d4;
+            --ms-primary-dark: #106ebe;
+            --ms-secondary: #6264a7;
+            --ms-success: #107c10;
+            --ms-warning: #ff8c00;
+            --ms-error: #d83b01;
+            --ms-neutral-light: #f3f2f1;
+            --ms-neutral: #edebe9;
+            --ms-neutral-dark: #605e5c;
+            --ms-text-primary: #323130;
+            --ms-text-secondary: #ffffff;
+            --ms-border: #d2d0ce;
+            --ms-shadow-light: 0 1.6px 3.6px rgba(0, 0, 0, 0.132), 0 0.3px 0.9px rgba(0, 0, 0, 0.108);
+            --ms-shadow-medium: 0 6.4px 14.4px rgba(0, 0, 0, 0.132), 0 1.2px 3.6px rgba(0, 0, 0, 0.108);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #000000;
+            color: #ffffff;
+            line-height: 1.6;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 220px;
+            height: 100vh;
+            background: #1a1a1a;
+            box-shadow: 2px 0 8px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar-header {
+            padding: 24px;
+            border-bottom: 1px solid #333333;
+        }
+
+        .sidebar-header h3 {
+            background: linear-gradient(45deg, #FFD700, #FFA500);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            color: transparent;
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .sidebar-header p {
+            color: #cccccc;
+            font-size: 12px;
+        }
+
+        .sidebar-menu {
+            padding: 16px 0;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 24px;
+            color: #ffffff;
+            text-decoration: none;
+            transition: all 0.167s cubic-bezier(0.1, 0.9, 0.2, 1);
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .menu-item:hover {
+            background: #333333;
+            color: #0078D4;
+        }
+
+        .menu-item.active {
+            background: rgba(0, 120, 212, 0.1);
+            color: #0078D4;
+            border-right: 3px solid #0078D4;
+        }
+
+        .menu-item i {
+            width: 20px;
+            margin-right: 12px;
+            font-size: 16px;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 220px;
+            padding: 24px;
+            background: #000000;
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .header {
+            background: #1a1a1a;
+            border-radius: 4px;
+            padding: 24px 32px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+            margin-bottom: 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #333333;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 600;
+            color: #ffffff;
+            letter-spacing: -0.02em;
+            margin-bottom: 4px;
+        }
+
+        .header p {
+            color: #cccccc;
+            font-size: 14px;
+            font-weight: 400;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #FFD700, #FFA500);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 16px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Card Styles */
+        .card {
+            background: #1a1a1a;
+            border-radius: 4px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+            margin-bottom: 24px;
+            border: 1px solid #333333;
+        }
+
+        .card-header {
+            padding: 24px 32px;
+            border-bottom: 1px solid #333333;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        .card-body {
+            padding: 32px;
+        }
+
+        /* Profile Form */
+        .profile-form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            padding: 12px 16px;
+            border: 1px solid #333333;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: all 0.167s cubic-bezier(0.1, 0.9, 0.2, 1);
+            background: #1a1a1a;
+            color: #ffffff;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #0078D4;
+            box-shadow: 0 0 0 2px rgba(0, 120, 212, 0.1);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            padding-top: 24px;
+            border-top: 1px solid #333333;
+            margin-top: 24px;
+        }
+
+        /* Button Styles */
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.167s cubic-bezier(0.1, 0.9, 0.2, 1);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: #000000;
+            color: #ffffff;
+            border: 1px solid #ffffff;
+        }
+
+        .btn-primary:hover {
+            background: #333333;
+            border-color: #ffffff;
+            box-shadow: 0 2px 8px rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-outline {
+            background: #000000;
+            color: #ffffff;
+            border: 1px solid #ffffff;
+        }
+
+        .btn-outline:hover {
+            background: #333333;
+            border-color: #ffffff;
+        }
+
+        .btn-danger {
+            background: var(--ms-error);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #b32b01;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 32px;
+        }
+
+        .stat-card {
+            background: #1a1a1a;
+            border-radius: 4px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+            border: 1px solid #333333;
+            text-align: center;
+        }
+
+        /* Member Since Stat Card - Mobile Full Width */
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-grid .stat-card:nth-child(3) {
+                grid-column: 1 / -1;
+                text-align: center;
+                justify-content: center;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                min-height: 120px;
+            }
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 8px;
+        }
+
+        .stat-label {
+            color: #cccccc;
+            font-size: 14px;
+        }
+
+        /* Alert Styles */
+        .alert {
+            padding: 16px;
+            border-radius: 4px;
+            margin-bottom: 24px;
+            font-size: 14px;
+        }
+
+        .alert-success {
+            background: rgba(16, 124, 16, 0.1);
+            border: 1px solid var(--ms-success);
+            color: var(--ms-success);
+        }
+
+        .alert-error {
+            background: rgba(196, 43, 28, 0.1);
+            border: 1px solid var(--ms-error);
+            color: var(--ms-error);
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+                padding: 16px;
+            }
+            
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 16px;
+            }
+            
+            .profile-form {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-actions {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        .mobile-menu-toggle {
+            display: none;
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1001;
+            background: transparent;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 12px;
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        @media (max-width: 768px) {
+            .mobile-menu-toggle {
+                display: block;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Custom Header -->
+    <div class="custom-header">
+        <div class="custom-header-content">
+            <div class="custom-logo">
+                <span>KE</span>
+                <span>Kenya EduHub</span>
+            </div>
+                    </div>
+    </div>
+
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle" onclick="toggleSidebar()">
+        <span></span>
+        <span></span>
+        <span></span>
+    </button>
+
+    <!-- Sidebar -->
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div style="display: flex; align-items: center; gap: 8px;">
+            <div style="width: 32px; height: 32px; background: linear-gradient(45deg, #FFD700, #FFA500); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                <span style="color: white; font-weight: bold; font-size: 14px;">KE</span>
+            </div>
+            <h3 style="background: linear-gradient(45deg, #FFD700, #FFA500); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; color: transparent; margin: 0;">nya EduHub</h3>
+        </div>
+            <p>Educational Resources Platform</p>
+        </div>
+        <nav class="sidebar-menu">
+            <a href="index.php" class="menu-item">
+                <i class="fas fa-dashboard"></i> Dashboard
+            </a>
+            <a href="index.php#resourcesSection" class="menu-item">
+                <i class="fas fa-book"></i> My Resources
+            </a>
+            <a href="index.php#uploadSection" class="menu-item">
+                <i class="fas fa-upload"></i> Upload Resource
+            </a>
+                        <a href="profile.php" class="menu-item">
+                <i class="fas fa-user"></i> Profile
+            </a>
+            <a href="settings.php" class="menu-item active">
+                <i class="fas fa-cog"></i> Settings
+            </a>
+            <a href="../auth/logout.php" class="menu-item">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Professional Hero Section -->
+        <div class="hero-section fade-in">
+            <div class="hero-content">
+                <div class="hero-avatar">
+                    <?php echo strtoupper(substr($user['name'] ?? $user['full_name'] ?? 'U', 0, 1)); ?>
+                </div>
+                <div class="hero-text">
+                    <h1>Profile Management</h1>
+                    <p>Manage your account settings and personal information</p>
+                    <div class="hero-stats">
+                        <span class="hero-stat">
+                            <i class="fas fa-user"></i>
+                            <?php echo htmlspecialchars($user['name'] ?? $user['full_name'] ?? 'User'); ?>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Header -->
+        <header class="header">
+            <div>
+                <h1>My Profile</h1>
+                <p class="text-muted mb-0">Manage your account information and preferences</p>
+            </div>
+            <div class="user-info">
+                <div class="user-avatar">
+                    <?php echo strtoupper(substr($user['name'] ?? 'U', 0, 1)); ?>
+                </div>
+                <div>
+                    <div class="fw-bold"><?php echo htmlspecialchars($user['name'] ?? 'User'); ?></div>
+                    <div class="text-muted small"><?php echo htmlspecialchars($user['email']); ?></div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Stats -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value"><?php echo $resource_stats['total_resources'] ?? 0; ?></div>
+                <div class="stat-label">Platform Resources</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value"><?php echo $download_stats['total_downloads'] ?? 0; ?></div>
+                <div class="stat-label">Total Downloads</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value"><?php echo date('M j, Y', strtotime($user['created_at'] ?? 'now')); ?></div>
+                <div class="stat-label">Member Since</div>
+            </div>
+        </div>
+
+        <!-- Profile Information -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Profile Information</h3>
+            </div>
+            <div class="card-body">
+                <?php if (isset($success)): ?>
+                    <div class="alert alert-success">
+                        <i class="fas fa-check-circle"></i> <?php echo $success; ?>
+                    </div>
+                <?php endif; ?>
+                
+                <?php if (isset($error)): ?>
+                    <div class="alert alert-error">
+                        <i class="fas fa-exclamation-circle"></i> <?php echo $error; ?>
+                    </div>
+                <?php endif; ?>
+
+                <form method="POST" class="profile-form">
+                    <div class="form-group">
+                        <label for="name">Full Name *</label>
+                        <input type="text" id="name" name="name" value="<?php echo htmlspecialchars($user['name'] ?? ''); ?>" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="email">Email Address *</label>
+                        <input type="email" id="email" name="email" value="<?php echo htmlspecialchars($user['email']); ?>" required>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Save Changes
+                        </button>
+                        <button type="reset" class="btn btn-outline">
+                            <i class="fas fa-times"></i> Cancel
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Change Password -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Change Password</h3>
+            </div>
+            <div class="card-body">
+                <?php if (isset($password_success)): ?>
+                    <div class="alert alert-success">
+                        <i class="fas fa-check-circle"></i> <?php echo $password_success; ?>
+                    </div>
+                <?php endif; ?>
+                
+                <?php if (isset($password_error)): ?>
+                    <div class="alert alert-error">
+                        <i class="fas fa-exclamation-circle"></i> <?php echo $password_error; ?>
+                    </div>
+                <?php endif; ?>
+
+                <form method="POST" class="profile-form">
+                    <div class="form-group">
+                        <label for="current_password">Current Password *</label>
+                        <input type="password" id="current_password" name="current_password" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="new_password">New Password *</label>
+                        <input type="password" id="new_password" name="new_password" required minlength="6">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="confirm_password">Confirm New Password *</label>
+                        <input type="password" id="confirm_password" name="confirm_password" required minlength="6">
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="submit" name="change_password" class="btn btn-primary">
+                            <i class="fas fa-key"></i> Change Password
+                        </button>
+                        <button type="reset" class="btn btn-outline">
+                            <i class="fas fa-times"></i> Cancel
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <!-- Professional Footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-grid">
+                <!-- Brand Column -->
+                <div class="footer-brand">
+                    <a href="index.php" class="footer-logo">
+                        <div style="width: 32px; height: 32px; background: linear-gradient(45deg, #FFD700, #FFA500); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 8px;">
+                            <span style="color: white; font-weight: bold; font-size: 14px;">KE</span>
+                        </div>
+                        Kenya EduHub
+                    </a>
+                    <div class="footer-description">
+                        East Africa's premier educational platform, providing quality learning resources and collaborative tools for students and educators across Kenya and beyond.
+                    </div>
+                    <div class="footer-contact">
+                        <div class="footer-contact-item">
+                            <i class="fas fa-phone"></i>
+                            <span>+254 717 016 902</span>
+                        </div>
+                        <div class="footer-contact-item">
+                            <i class="fas fa-envelope"></i>
+                            <span>otienobrian029@gmail.com</span>
+                        </div>
+                        <div class="footer-contact-item">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span>Nairobi, Kenya</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Services Column -->
+                <div class="footer-column">
+                    <h3>Services</h3>
+                    <div class="footer-links">
+                        <a href="index.php#uploadSection">Resource Library</a>
+                        <a href="index.php#resourcesSection">Study Materials</a>
+                        <a href="index.php#resourcesSection">Past Papers</a>
+                        <a href="profile.php">Account Settings</a>
+                    </div>
+                </div>
+                
+                <!-- Platform Column -->
+                <div class="footer-column">
+                    <h3>Platform</h3>
+                    <div class="footer-links">
+                        <a href="index.php#resourcesSection">Resources</a>
+                        <a href="settings.php">Settings</a>
+                        <a href="profile.php">Profile</a>
+                        <a href="index.php#uploadSection">Upload</a>
+                    </div>
+                </div>
+                
+                <!-- Legal Column -->
+                <div class="footer-column">
+                    <h3>Legal</h3>
+                    <div class="footer-links">
+                        <a href="index.php#uploadSection">Upload Resources</a>
+                        <a href="index.php#resourcesSection">View Resources</a>
+                        <a href="settings.php">Account Settings</a>
+                        <a href="../auth/logout.php">Logout</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <div>
+                    <p>&copy; 2026 Kenya EduHub. All rights reserved.</p>
+                    <p>Empowering education across Kenya</p>
+                </div>
+                <div class="footer-bottom-links">
+                    <a href="index.php#uploadSection">Upload</a>
+                    <a href="index.php#resourcesSection">Resources</a>
+                    <a href="settings.php">Settings</a>
+                    <a href="index.php">Dashboard</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Toggle Sidebar
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('active');
+        }
+
+        // Close sidebar when clicking outside on mobile
+        document.addEventListener('click', function(event) {
+            const sidebar = document.getElementById('sidebar');
+            const toggle = document.querySelector('.mobile-menu-toggle');
+            
+            if (window.innerWidth <= 768 && 
+                !sidebar.contains(event.target) && 
+                !toggle.contains(event.target)) {
+                sidebar.classList.remove('active');
+            }
+        });
+
+        // Typewriter effect for hero heading
+        document.addEventListener('DOMContentLoaded', function() {
+            const heroHeading = document.querySelector('.hero-text h1');
+            if (heroHeading) {
+                const originalText = heroHeading.textContent;
+                heroHeading.textContent = '';
+                heroHeading.style.width = '0';
+                
+                setTimeout(() => {
+                    typeWriter(heroHeading, originalText, 0);
+                }, 500);
+            }
+        });
+
+        function typeWriter(element, text, index) {
+            if (index < text.length) {
+                element.textContent += text.charAt(index);
+                element.style.width = 'auto';
+                setTimeout(() => {
+                    typeWriter(element, text, index + 1);
+                }, 50);
+            } else {
+                // Remove the blinking cursor after typing is complete
+                setTimeout(() => {
+                    element.style.borderRight = 'none';
+                }, 1000);
+            }
+        }
+
+        // Password confirmation validation
+        document.addEventListener('DOMContentLoaded', function() {
+            const newPassword = document.getElementById('new_password');
+            const confirmPassword = document.getElementById('confirm_password');
+            const changePasswordForm = document.querySelector('form[name="change_password"]');
+            
+            if (newPassword && confirmPassword) {
+                confirmPassword.addEventListener('input', function() {
+                    if (newPassword.value !== confirmPassword.value) {
+                        confirmPassword.setCustomValidity('Passwords do not match');
+                    } else {
+                        confirmPassword.setCustomValidity('');
+                    }
+                });
+            }
+        });
+    </script>
+    
+    <!-- Footer Styles -->
+    <style>
+        /* Footer */
+        footer {
+            background: #000000;
+            color: white;
+            padding: 4rem 2rem 2rem 242px;
+            margin-top: 4rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        footer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.1), transparent);
+        }
+        
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 3rem;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 2rem;
+        }
+        
+        .footer-brand {
+            grid-column: 1;
+        }
+        
+        .footer-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            color: white;
+            text-decoration: none;
+            font-size: 1.5rem;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            background: linear-gradient(45deg, #FFD700, #FFA500);
+            padding: 8px 16px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(255, 215, 0, 0.4);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .footer-logo:hover {
+            color: #0078D4;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 120, 212, 0.3);
+        }
+        
+        .footer-description {
+            color: #b0b0b0;
+            line-height: 1.7;
+            margin-bottom: 1.5rem;
+            font-size: 0.95rem;
+        }
+        
+        .footer-contact {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        
+        .footer-contact-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            color: #b0b0b0;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        
+        .footer-contact-item:hover {
+            color: #0078D4;
+        }
+        
+        .footer-contact-item i {
+            width: 20px;
+            text-align: center;
+        }
+        
+        .footer-column h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            color: white;
+            position: relative;
+        }
+        
+        .footer-column h3::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 0;
+            width: 40px;
+            height: 3px;
+            background: linear-gradient(135deg, #0078D4 0%, #106EBE 100%);
+        }
+        
+        .footer-links {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .footer-links a {
+            color: #b0b0b0;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            position: relative;
+            padding-left: 0;
+        }
+        
+        .footer-links a::before {
+            content: '';
+            position: absolute;
+            left: -15px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 0;
+            height: 1px;
+            background: #667eea;
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+        
+        .footer-links a:hover {
+            color: #667eea;
+            padding-left: 10px;
+        }
+        
+        .footer-links a:hover::before {
+            opacity: 1;
+        }
+        
+        .footer-social {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        
+        .footer-social a {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            color: #b0b0b0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        .footer-social a:hover {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+        
+        .footer-bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 0.85rem;
+        }
+        
+        .footer-bottom-links {
+            display: flex;
+            gap: 2rem;
+        }
+        
+        .footer-bottom-links a {
+            color: #808080;
+            text-decoration: none;
+            transition: color 0.3s ease;
+            font-size: 0.85rem;
+        }
+        
+        .footer-bottom-links a:hover {
+            color: #667eea;
+        }
+
+        @media (max-width: 768px) {
+            footer {
+                padding: 4rem 2rem 2rem;
+            }
+            
+            .footer-grid {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+                text-align: center;
+            }
+            
+            .footer-brand {
+                text-align: center;
+            }
+            
+            .footer-logo {
+                justify-content: center;
+            }
+            
+            .footer-contact {
+                align-items: center;
+            }
+            
+            .footer-bottom {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+            
+            .footer-bottom-links {
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+</body>
+</html>

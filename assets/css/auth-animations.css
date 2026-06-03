@@ -1,0 +1,12 @@
+/* Auth Pages Styling - Background Image Removed */
+body {
+    position: relative;
+    overflow: hidden;
+}
+
+/* Removed background image overlays for pure black background */
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    /* Animations disabled for reduced motion preference */
+}

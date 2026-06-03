@@ -1,0 +1,20 @@
+# RewriteEngine On
+
+# Hide .php extension from URLs (works for all folders)
+RewriteCond %{THE_REQUEST} \s/(.+?)\.php[\s?] [NC]
+RewriteRule ^ /%1 [R=301,L]
+
+# Internally rewrite to .php file (works for all folders)
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME}.php -f
+RewriteRule ^(.+?)/?$ $1.php [L]
+
+# Allow access to files and assets
+RewriteCond %{REQUEST_URI} \.(pdf|doc|docx|zip|rar|jpg|jpeg|png|gif|css|js|ico)$ [NC]
+RewriteRule ^ - [L]
+
+# Prevent direct access to .php files only (but allow internal rewrites)
+RewriteCond %{ENV:REDIRECT_STATUS} ^$
+RewriteCond %{THE_REQUEST} \.php[\s?] [NC]
+RewriteRule ^ - [F]
