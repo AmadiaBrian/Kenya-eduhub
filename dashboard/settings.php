@@ -65,7 +65,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         text-shadow: 0 2px 4px rgba(0,0,0,0.3);
     }
 
-    .custom-logo span:first-child {
+    .custom-logo > span:first-child {
         background: linear-gradient(45deg, #FFD700, #FFA500);
         color: white;
         width: 40px;
@@ -775,8 +775,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <div class="custom-header">
         <div class="custom-header-content">
             <div class="custom-logo">
-                <span>KE</span>
-                <span>Kenya EduHub</span>
+                <div style="width: 50px; height: 50px; background: var(--primary-gold); border: 3px solid var(--primary-orange); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 2px;">
+                    <span style="font-weight: bold; font-size: 24px;">
+                        <span style="color: var(--primary-orange); font-size: 28px;">K</span><span style="color: #008000; font-size: 24px;">E</span>
+                    </span>
+                </div>
+                <span class="brand-name"><span style="color: var(--primary-orange);">Kenya</span> <span style="color: #008000;">EduHub</span></span>
             </div>
                     </div>
     </div>
@@ -792,10 +796,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <aside class="sidebar" id="sidebar">
         <div class="sidebar-header">
             <div style="display: flex; align-items: center; gap: 8px;">
-            <div style="width: 32px; height: 32px; background: linear-gradient(45deg, #FFD700, #FFA500); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                <span style="color: white; font-weight: bold; font-size: 14px;">KE</span>
+            <div style="width: 50px; height: 50px; background: var(--primary-gold); border: 3px solid var(--primary-orange); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 2px;">
+                <span style="font-weight: bold; font-size: 24px;">
+                    <span style="color: var(--primary-orange); font-size: 28px;">K</span><span style="color: #008000; font-size: 24px;">E</span>
+                </span>
             </div>
-            <h3 style="background: linear-gradient(45deg, #FFD700, #FFA500); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; color: transparent; margin: 0;">nya EduHub</h3>
+            <h3 style="margin: 0;"><span style="color: var(--primary-orange);">Kenya</span> <span style="color: #008000;">EduHub</span></h3>
         </div>
             <p>Educational Resources Platform</p>
         </div>
@@ -981,20 +987,23 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         </div>
     </main>
 
+    
     <!-- Professional Footer -->
-    <footer>
+    <footer role="contentinfo">
         <div class="footer-content">
             <div class="footer-grid">
                 <!-- Brand Column -->
                 <div class="footer-brand">
                     <a href="index.php" class="footer-logo">
-                        <div style="width: 32px; height: 32px; background: linear-gradient(45deg, #FFD700, #FFA500); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 8px;">
-                            <span style="color: white; font-weight: bold; font-size: 14px;">KE</span>
+                        <div style="width: 50px; height: 50px; background: var(--primary-gold); border: 3px solid var(--primary-orange); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 2px;">
+                            <span style="font-weight: bold; font-size: 24px;">
+                                <span style="color: var(--primary-orange); font-size: 28px;">K</span><span style="color: #008000; font-size: 24px;">E</span>
+                            </span>
                         </div>
-                        Kenya EduHub
+                        <span style="color: var(--primary-orange);">Kenya</span> <span style="color: #008000;">EduHub</span>
                     </a>
                     <div class="footer-description">
-                        East Africa's premier educational platform, providing quality learning resources and collaborative tools for students and educators across Kenya and beyond.
+                        <span class="text-white">East Africa's</span> <span class="text-orange">premier</span> <span class="text-white">educational platform, providing quality</span> <span class="text-golden">learning resources</span> <span class="text-white">and collaborative tools for students and educators across</span> <span class="text-orange">Kenya</span> <span class="text-white">and beyond.</span>
                     </div>
                     <div class="footer-contact">
                         <div class="footer-contact-item">
@@ -1014,48 +1023,45 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 
                 <!-- Services Column -->
                 <div class="footer-column">
-                    <h3>Services</h3>
+                    <h3><span class="text-golden">Services</span></h3>
                     <div class="footer-links">
-                        <a href="index.php#uploadSection">Resource Library</a>
-                        <a href="index.php#resourcesSection">Study Materials</a>
-                        <a href="index.php#resourcesSection">Past Papers</a>
-                        <a href="profile.php">Account Settings</a>
+                        <a href="auth/login.php"><span class="text-white">Resource</span> <span class="text-orange">Library</span></a>
+                        <a href="auth/login.php"><span class="text-white">Study</span> <span class="text-golden">Materials</span></a>
+                        <a href="auth/login.php"><span class="text-orange">Past</span> <span class="text-white">Papers</span></a>
+                        <a href="auth/login.php"><span class="text-white">Research</span> <span class="text-golden">Papers</span></a>
+                        <a href="auth/login.php"><span class="text-white">Teaching</span> <span class="text-orange">Guides</span></a>
                     </div>
                 </div>
                 
-                <!-- Platform Column -->
+                <!-- Company Column -->
                 <div class="footer-column">
-                    <h3>Platform</h3>
+                    <h3><span class="text-orange">Platform</span></h3>
                     <div class="footer-links">
-                        <a href="index.php#resourcesSection">Resources</a>
-                        <a href="settings.php">Settings</a>
-                        <a href="profile.php">Profile</a>
-                        <a href="index.php#uploadSection">Upload</a>
+                        <a href="#features"><span class="text-golden">Features</span></a>
+                        <a href="#resources"><span class="text-white">Resources</span></a>
+                        <a href="#"><span class="text-white">About</span> <span class="text-orange">Us</span></a>
+                        <a href="#"><span class="text-white">Our</span> <span class="text-golden">Team</span></a>
+                        <a href="#"><span class="text-orange">Contact</span></a>
+                        <p><span class="text-golden">Empowering</span> <span class="text-white">education across</span> <span class="text-orange">Kenya</span></p>
                     </div>
                 </div>
                 
                 <!-- Legal Column -->
                 <div class="footer-column">
-                    <h3>Legal</h3>
+                    <h3><span class="text-white">Legal</span></h3>
                     <div class="footer-links">
-                        <a href="index.php#uploadSection">Upload Resources</a>
-                        <a href="index.php#resourcesSection">View Resources</a>
-                        <a href="profile.php">Profile</a>
-                        <a href="../auth/logout.php">Logout</a>
+                        <a href="#"><span class="text-white">Privacy</span> <span class="text-golden">Policy</span></a>
+                        <a href="#"><span class="text-white">Terms of</span> <span class="text-orange">Service</span></a>
+                        <a href="#"><span class="text-white">Usage</span> <span class="text-golden">Guidelines</span></a>
+                        <a href="#"><span class="text-white">Copyright</span> <span class="text-orange">Policy</span></a>
+                        <a href="#"><span class="text-white">Cookie</span> <span class="text-golden">Policy</span></a>
                     </div>
                 </div>
             </div>
             
             <div class="footer-bottom">
                 <div>
-                    <p>&copy; 2026 Kenya EduHub. All rights reserved.</p>
-                    <p>Empowering education across Kenya</p>
-                </div>
-                <div class="footer-bottom-links">
-                    <a href="index.php#uploadSection">Upload</a>
-                    <a href="index.php#resourcesSection">Resources</a>
-                    <a href="profile.php">Profile</a>
-                    <a href="index.php">Dashboard</a>
+                    <p><span class="text-white">&copy; 2026</span> <span class="text-orange">Kenya</span> <span class="text-golden">EduHub</span><span class="text-white">. All rights reserved.</span></p>
                 </div>
             </div>
         </div>
@@ -1367,6 +1373,264 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             .footer-bottom-links {
                 justify-content: center;
                 flex-wrap: wrap;
+            }
+        }
+
+        /* Homepage color accents */
+        :root {
+            --primary-orange: #FF6B35;
+            --primary-gold: #FFD700;
+        }
+
+        .text-orange {
+            color: var(--primary-orange) !important;
+        }
+
+        .text-golden {
+            color: var(--primary-gold) !important;
+        }
+
+        .text-white {
+            color: #ffffff !important;
+        }
+
+        .custom-header {
+            background: #000000;
+            border-bottom-color: var(--primary-gold);
+        }
+
+        .custom-logo {
+            color: #ffffff;
+        }
+
+        .custom-logo .brand-name,
+        .custom-logo .brand-name span {
+            background: transparent;
+            width: auto;
+            height: auto;
+            border: 0;
+            border-radius: 0;
+            box-shadow: none;
+            display: inline;
+            font-size: inherit;
+            margin: 0;
+            padding: 0;
+            text-shadow: none;
+        }
+
+        .sidebar-header h3 {
+            background: transparent !important;
+            -webkit-background-clip: border-box !important;
+            background-clip: border-box !important;
+            -webkit-text-fill-color: currentColor !important;
+            color: #ffffff !important;
+        }
+
+        .header h1,
+        .hero-text h1 {
+            color: #ffffff;
+        }
+
+        .header h1::first-letter,
+        .hero-text h1::first-letter,
+        .card-title::first-letter,
+        .settings-section h3::first-letter {
+            color: var(--primary-orange);
+        }
+
+        .header p,
+        .hero-text p,
+        .sidebar-header p,
+        .form-group label,
+        .toggle-label {
+            color: #ffffff;
+        }
+
+        .card-title,
+        .settings-section h3 {
+            color: var(--primary-gold);
+        }
+
+        .stat-value,
+        .hero-stat-number {
+            color: var(--primary-gold);
+        }
+
+        .stat-label,
+        .hero-stat-label {
+            color: #ffffff;
+        }
+
+        .menu-item i,
+        .settings-section h3 i {
+            color: var(--primary-orange);
+        }
+
+        .menu-item:hover,
+        .menu-item.active {
+            color: var(--primary-gold);
+        }
+
+        /* Homepage footer styling */
+        footer {
+            --primary-orange: #FF6B35;
+            --primary-gold: #FFD700;
+            background: #000000;
+            color: white;
+            padding: 4rem 2rem 2rem;
+            margin-top: 4rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        footer .text-orange {
+            color: var(--primary-orange) !important;
+        }
+
+        footer .text-golden {
+            color: var(--primary-gold) !important;
+        }
+
+        footer .text-white {
+            color: #ffffff !important;
+        }
+
+        @media (min-width: 769px) {
+            footer {
+                margin-left: 220px;
+            }
+        }
+
+        footer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: auto;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        }
+
+        .footer-grid {
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 3rem;
+            padding-bottom: 3rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: left;
+        }
+
+        .footer-logo {
+            color: white;
+            background: transparent;
+            padding: 0;
+            border: 0;
+            border-radius: 0;
+            box-shadow: none;
+            margin-bottom: 0;
+        }
+
+        .footer-logo:hover {
+            color: var(--primary-orange);
+            transform: translateY(-2px);
+            box-shadow: none;
+        }
+
+        .footer-description {
+            max-width: 400px;
+        }
+
+        .footer-contact-item {
+            font-size: 0.9rem;
+        }
+
+        .footer-contact-item:hover {
+            color: #667eea;
+        }
+
+        .footer-column h3 {
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .footer-column h3::after {
+            width: 30px;
+            height: 2px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .footer-links a {
+            font-weight: 400;
+            font-size: 0.9rem;
+        }
+
+        .footer-links a::before {
+            width: 6px;
+            height: 6px;
+            background: #667eea;
+            border-radius: 50%;
+        }
+
+        .footer-links a:hover {
+            color: #667eea;
+        }
+
+        .footer-social a {
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .footer-social a:hover {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .footer-bottom {
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            color: #808080;
+        }
+
+        @media (max-width: 768px) {
+            footer {
+                margin-left: 0;
+            }
+
+            .footer-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 2rem;
+                text-align: left;
+            }
+
+            .footer-brand {
+                grid-column: 1 / -1;
+                text-align: left;
+                padding-left: 0;
+            }
+
+            .footer-logo {
+                justify-content: flex-start;
+            }
+
+            .footer-description {
+                display: none;
+            }
+
+            .footer-contact {
+                align-items: stretch;
+                justify-content: flex-start;
+            }
+
+            .footer-bottom {
+                flex-direction: column;
+                text-align: center;
+                gap: 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .footer-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
             }
         }
     </style>

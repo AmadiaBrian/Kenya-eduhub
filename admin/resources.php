@@ -5,7 +5,7 @@ require_once '../includes/helpers.php';
 
 // Check if user is logged in and is admin
 if (!isset($_SESSION['user_id'])) {
-    header("Location: ../auth/login.php");
+    header("Location: login.php");
     exit();
 }
 
@@ -343,7 +343,7 @@ $subjects = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
             text-shadow: 0 2px 4px rgba(0,0,0,0.3);
         }
 
-        .custom-logo span:first-child {
+        .custom-logo > span:first-child {
             background: linear-gradient(45deg, #FFD700, #FFA500);
             color: white;
             width: 40px;
@@ -1166,8 +1166,12 @@ $subjects = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
     <div class="custom-header">
         <div class="custom-header-content">
             <div class="custom-logo">
-                <span>KE</span>
-                <span>Kenya EduHub Admin</span>
+                <div style="width: 50px; height: 50px; background: var(--primary-gold); border: 3px solid var(--primary-orange); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 2px;">
+                    <span style="font-weight: bold; font-size: 24px;">
+                        <span style="color: var(--primary-orange); font-size: 28px;">K</span><span style="color: #008000; font-size: 24px;">E</span>
+                    </span>
+                </div>
+                <span class="brand-name"><span style="color: var(--primary-orange);">Kenya</span> <span style="color: #008000;">EduHub</span> <span style="color: var(--primary-gold);">Admin</span></span>
             </div>
         </div>
     </div>
@@ -1183,10 +1187,12 @@ $subjects = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
     <aside class="sidebar" id="sidebar">
         <div class="sidebar-header">
             <div style="display: flex; align-items: center; gap: 8px;">
-                <div style="width: 32px; height: 32px; background: linear-gradient(45deg, #FFD700, #FFA500); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                    <span style="color: white; font-weight: bold; font-size: 14px;">KE</span>
-                </div>
-                <h3 style="background: linear-gradient(45deg, #FFD700, #FFA500); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; color: transparent; margin: 0;">nya EduHub</h3>
+                <div style="width: 50px; height: 50px; background: var(--primary-gold); border: 3px solid var(--primary-orange); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 2px;">
+                <span style="font-weight: bold; font-size: 24px;">
+                    <span style="color: var(--primary-orange); font-size: 28px;">K</span><span style="color: #008000; font-size: 24px;">E</span>
+                </span>
+            </div>
+            <h3 style="margin: 0;"><span style="color: var(--primary-orange);">Kenya</span> <span style="color: #008000;">EduHub</span></h3>
             </div>
             <p>Educational Resources Platform</p>
         </div>
@@ -1401,20 +1407,22 @@ $subjects = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
             </div>
         </div>
     </main>
-<!-- Professional Footer -->
+    <!-- Professional Footer -->
     <footer>
         <div class="footer-content">
             <div class="footer-grid">
                 <!-- Brand Column -->
                 <div class="footer-brand">
                     <a href="index.php" class="footer-logo">
-                        <div style="width: 32px; height: 32px; background: linear-gradient(45deg, #FFD700, #FFA500); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 8px;">
-                            <span style="color: white; font-weight: bold; font-size: 14px;">KE</span>
+                        <div style="width: 50px; height: 50px; background: var(--primary-gold); border: 3px solid var(--primary-orange); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 2px;">
+                            <span style="font-weight: bold; font-size: 24px;">
+                                <span style="color: var(--primary-orange); font-size: 28px;">K</span><span style="color: #008000; font-size: 24px;">E</span>
+                            </span>
                         </div>
-                        Kenya EduHub
+                        <span style="color: var(--primary-orange);">Kenya</span> <span style="color: #008000;">EduHub</span>
                     </a>
                     <div class="footer-description">
-                        East Africa's premier educational platform, providing quality learning resources and collaborative tools for students and educators across Kenya and beyond.
+                        <span class="text-white">East Africa's</span> <span class="text-orange">premier</span> <span class="text-white">educational platform, providing quality</span> <span class="text-golden">learning resources</span> <span class="text-white">and collaborative tools for students and educators across</span> <span class="text-orange">Kenya</span> <span class="text-white">and beyond.</span>
                     </div>
                     <div class="footer-contact">
                         <div class="footer-contact-item">
@@ -1434,48 +1442,45 @@ $subjects = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
                 
                 <!-- Services Column -->
                 <div class="footer-column">
-                    <h3>Services</h3>
+                    <h3><span class="text-golden">Services</span></h3>
                     <div class="footer-links">
-                        <a href="#uploadSection">Resource Library</a>
-                        <a href="#resourcesSection">Study Materials</a>
-                        <a href="#resourcesSection">Past Papers</a>
-                        <a href="profile.php">Account Settings</a>
+                        <a href="../auth/login.php"><span class="text-white">Resource</span> <span class="text-orange">Library</span></a>
+                        <a href="../auth/login.php"><span class="text-white">Study</span> <span class="text-golden">Materials</span></a>
+                        <a href="../auth/login.php"><span class="text-orange">Past</span> <span class="text-white">Papers</span></a>
+                        <a href="../auth/login.php"><span class="text-white">Research</span> <span class="text-golden">Papers</span></a>
+                        <a href="../auth/login.php"><span class="text-white">Teaching</span> <span class="text-orange">Guides</span></a>
                     </div>
                 </div>
                 
-                <!-- Platform Column -->
+                <!-- Company Column -->
                 <div class="footer-column">
-                    <h3>Platform</h3>
+                    <h3><span class="text-orange">Platform</span></h3>
                     <div class="footer-links">
-                        <a href="#resourcesSection">Resources</a>
-                        <a href="settings.php">Settings</a>
-                        <a href="profile.php">Profile</a>
-                        <a href="#uploadSection">Upload</a>
+                        <a href="../#features"><span class="text-golden">Features</span></a>
+                        <a href="../#resources"><span class="text-white">Resources</span></a>
+                        <a href="#"><span class="text-white">About</span> <span class="text-orange">Us</span></a>
+                        <a href="#"><span class="text-white">Our</span> <span class="text-golden">Team</span></a>
+                        <a href="#"><span class="text-orange">Contact</span></a>
+                        <p><span class="text-golden">Empowering</span> <span class="text-white">education across</span> <span class="text-orange">Kenya</span></p>
                     </div>
                 </div>
                 
                 <!-- Legal Column -->
                 <div class="footer-column">
-                    <h3>Legal</h3>
+                    <h3><span class="text-white">Legal</span></h3>
                     <div class="footer-links">
-                        <a href="#">Privacy Policy</a>
-                        <a href="#">Terms of Service</a>
-                        <a href="#">Usage Guidelines</a>
-                        <a href="../auth/logout.php">Logout</a>
+                        <a href="#"><span class="text-white">Privacy</span> <span class="text-golden">Policy</span></a>
+                        <a href="#"><span class="text-white">Terms of</span> <span class="text-orange">Service</span></a>
+                        <a href="#"><span class="text-white">Usage</span> <span class="text-golden">Guidelines</span></a>
+                        <a href="#"><span class="text-white">Copyright</span> <span class="text-orange">Policy</span></a>
+                        <a href="#"><span class="text-white">Cookie</span> <span class="text-golden">Policy</span></a>
                     </div>
                 </div>
             </div>
             
             <div class="footer-bottom">
                 <div>
-                    <p>&copy; 2026 Kenya EduHub. All rights reserved.</p>
-                    <p>Empowering education across Kenya</p>
-                </div>
-                <div class="footer-bottom-links">
-                    <a href="#">Privacy</a>
-                    <a href="#">Terms</a>
-                    <a href="#">Support</a>
-                    <a href="#">Contact</a>
+                    <p><span class="text-white">&copy; 2026</span> <span class="text-orange">Kenya</span> <span class="text-golden">EduHub</span><span class="text-white">. All rights reserved.</span></p>
                 </div>
             </div>
         </div>
@@ -1823,5 +1828,432 @@ $subjects = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
             }
         }
     </style>
+
+    <style>
+        /* Dashboard-matched admin branding and responsive footer */
+        :root {
+            --primary-orange: #FF6B35;
+            --primary-gold: #FFD700;
+        }
+
+        .text-orange { color: var(--primary-orange) !important; }
+        .text-golden { color: var(--primary-gold) !important; }
+        .text-white { color: #ffffff !important; }
+
+        .custom-header {
+            background: #000000;
+            border-bottom-color: var(--primary-gold);
+        }
+
+        .custom-logo .brand-name,
+        .custom-logo .brand-name span {
+            background: transparent;
+            width: auto;
+            height: auto;
+            border: 0;
+            border-radius: 0;
+            box-shadow: none;
+            display: inline;
+            font-size: inherit;
+            margin: 0;
+            padding: 0;
+            text-shadow: none;
+        }
+
+        .sidebar-header h3 {
+            background: transparent !important;
+            -webkit-background-clip: border-box !important;
+            background-clip: border-box !important;
+            -webkit-text-fill-color: currentColor !important;
+            color: #ffffff !important;
+        }
+
+        .header h1,
+        .card-title,
+        .section-title,
+        .stat-value {
+            color: var(--primary-gold) !important;
+        }
+
+        .header h1::first-letter,
+        .card-title::first-letter,
+        .section-title::first-letter {
+            color: var(--primary-orange);
+        }
+
+        .menu-item i,
+        .footer-contact-item i {
+            color: var(--primary-orange);
+        }
+
+        .menu-item:hover,
+        .menu-item.active {
+            color: var(--primary-gold) !important;
+        }
+
+        footer {
+            --primary-orange: #FF6B35;
+            --primary-gold: #FFD700;
+            background: #000000;
+            color: white;
+            padding: 4rem 2rem 2rem;
+            margin-top: 4rem;
+            margin-left: 220px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        footer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: auto;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        }
+
+        .footer-grid {
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 3rem;
+            padding-bottom: 3rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: left;
+        }
+
+        .footer-logo {
+            color: white;
+            background: transparent;
+            padding: 0;
+            border: 0;
+            border-radius: 0;
+            box-shadow: none;
+            margin-bottom: 0;
+        }
+
+        .footer-logo:hover {
+            color: var(--primary-orange);
+            transform: translateY(-2px);
+            box-shadow: none;
+        }
+
+        .footer-description {
+            max-width: 400px;
+        }
+
+        .footer-contact-item {
+            font-size: 0.9rem;
+        }
+
+        .footer-contact-item:hover,
+        .footer-links a:hover,
+        .footer-bottom-links a:hover {
+            color: #667eea;
+        }
+
+        .footer-column h3 {
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .footer-column h3::after {
+            width: 30px;
+            height: 2px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .footer-links a {
+            font-weight: 400;
+            font-size: 0.9rem;
+        }
+
+        .footer-links a::before {
+            width: 6px;
+            height: 6px;
+            background: #667eea;
+            border-radius: 50%;
+        }
+
+        .footer-bottom {
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            color: #808080;
+        }
+
+        @media (max-width: 768px) {
+            .custom-header {
+                padding-left: 20px;
+            }
+
+            footer {
+                margin-left: 0;
+                padding: 4rem 2rem 2rem;
+            }
+
+            .footer-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 2rem;
+                text-align: left;
+            }
+
+            .footer-brand {
+                grid-column: 1 / -1;
+                text-align: left;
+                padding-left: 0;
+            }
+
+            .footer-logo {
+                justify-content: flex-start;
+            }
+
+            .footer-description {
+                display: none;
+            }
+
+            .footer-contact {
+                align-items: stretch;
+                justify-content: flex-start;
+            }
+
+            .footer-bottom {
+                flex-direction: column;
+                text-align: center;
+                gap: 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .footer-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+        }
+    </style>
+
+    <style>
+        /* Dashboard footer parity */
+        :root {
+            --primary-orange: #FF6B35;
+            --primary-gold: #FFD700;
+        }
+
+        .text-orange { color: var(--primary-orange) !important; }
+        .text-golden { color: var(--primary-gold) !important; }
+        .text-white { color: #ffffff !important; }
+
+        footer {
+            background: #000000 !important;
+            color: white !important;
+            padding: 4rem 2rem 2rem !important;
+            margin-top: 4rem !important;
+            margin-left: 220px !important;
+            position: relative !important;
+            overflow: hidden !important;
+        }
+
+        footer::before {
+            content: '' !important;
+            position: absolute !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            bottom: auto !important;
+            height: 1px !important;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent) !important;
+        }
+
+        .footer-content {
+            max-width: 1200px !important;
+            margin: 0 auto !important;
+            position: relative !important;
+            z-index: 1 !important;
+        }
+
+        .footer-grid {
+            display: grid !important;
+            grid-template-columns: 2fr 1fr 1fr 1fr !important;
+            gap: 2rem !important;
+            margin-bottom: 3rem !important;
+            padding-bottom: 3rem !important;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+            text-align: left !important;
+        }
+
+        .footer-logo {
+            display: flex !important;
+            align-items: center !important;
+            gap: 0.75rem !important;
+            color: white !important;
+            text-decoration: none !important;
+            font-size: 1.5rem !important;
+            font-weight: bold !important;
+            background: transparent !important;
+            padding: 0 !important;
+            border: 0 !important;
+            border-radius: 0 !important;
+            box-shadow: none !important;
+            margin-bottom: 0 !important;
+        }
+
+        .footer-logo:hover {
+            color: var(--primary-orange) !important;
+            transform: translateY(-2px) !important;
+            box-shadow: none !important;
+        }
+
+        .footer-description {
+            color: #b0b0b0 !important;
+            line-height: 1.7 !important;
+            margin-bottom: 1.5rem !important;
+            font-size: 0.95rem !important;
+            max-width: 400px !important;
+        }
+
+        .footer-contact {
+            display: flex !important;
+            flex-direction: column !important;
+            gap: 0.75rem !important;
+        }
+
+        .footer-contact-item {
+            display: flex !important;
+            align-items: center !important;
+            gap: 0.75rem !important;
+            color: #b0b0b0 !important;
+            text-decoration: none !important;
+            font-size: 0.9rem !important;
+        }
+
+        .footer-contact-item i {
+            width: 20px !important;
+            text-align: center !important;
+            color: var(--primary-orange) !important;
+        }
+
+        .footer-contact-item:hover,
+        .footer-links a:hover {
+            color: #667eea !important;
+        }
+
+        .footer-column h3 {
+            font-size: 1.1rem !important;
+            font-weight: 600 !important;
+            margin-bottom: 1.5rem !important;
+            color: white !important;
+            position: relative !important;
+            text-transform: uppercase !important;
+            letter-spacing: 1px !important;
+        }
+
+        .footer-column h3::after {
+            content: '' !important;
+            position: absolute !important;
+            bottom: -8px !important;
+            left: 0 !important;
+            width: 30px !important;
+            height: 2px !important;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+        }
+
+        .footer-links {
+            display: flex !important;
+            flex-direction: column !important;
+            gap: 0.75rem !important;
+        }
+
+        .footer-links a,
+        .footer-links p {
+            color: #b0b0b0 !important;
+            text-decoration: none !important;
+            font-weight: 400 !important;
+            font-size: 0.9rem !important;
+            margin: 0 !important;
+            position: relative !important;
+            padding-left: 0 !important;
+        }
+
+        .footer-links a::before {
+            content: '' !important;
+            position: absolute !important;
+            left: -15px !important;
+            top: 50% !important;
+            transform: translateY(-50%) !important;
+            width: 6px !important;
+            height: 6px !important;
+            background: #667eea !important;
+            border-radius: 50% !important;
+            opacity: 0 !important;
+            transition: all 0.3s ease !important;
+        }
+
+        .footer-links a:hover {
+            padding-left: 10px !important;
+        }
+
+        .footer-links a:hover::before {
+            opacity: 1 !important;
+        }
+
+        .footer-bottom {
+            display: flex !important;
+            justify-content: space-between !important;
+            align-items: center !important;
+            padding-top: 2rem !important;
+            border-top: 1px solid rgba(255, 255, 255, 0.05) !important;
+            color: #808080 !important;
+            font-size: 0.85rem !important;
+        }
+
+        .footer-bottom p {
+            margin: 0 !important;
+        }
+
+        @media (max-width: 768px) {
+            footer {
+                margin-left: 0 !important;
+                padding: 4rem 2rem 2rem !important;
+            }
+
+            .footer-grid {
+                grid-template-columns: 1fr 1fr !important;
+                gap: 2rem !important;
+                text-align: left !important;
+            }
+
+            .footer-brand {
+                grid-column: 1 / -1 !important;
+                text-align: left !important;
+                padding-left: 0 !important;
+            }
+
+            .footer-logo {
+                justify-content: flex-start !important;
+            }
+
+            .footer-description {
+                display: none !important;
+            }
+
+            .footer-contact {
+                align-items: stretch !important;
+                justify-content: flex-start !important;
+            }
+
+            .footer-bottom {
+                flex-direction: column !important;
+                text-align: center !important;
+                gap: 1rem !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .footer-grid {
+                grid-template-columns: 1fr !important;
+                gap: 1.5rem !important;
+            }
+        }
+    </style>
 </body>
 </html>
+

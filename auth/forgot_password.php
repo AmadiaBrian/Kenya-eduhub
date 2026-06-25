@@ -324,12 +324,47 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['new_password']) && $s
                 transform: none;
             }
         }
+        :root {
+            --primary-orange: #FF6B35;
+            --primary-gold: #FFD700;
+        }
+
+        .auth-brand-logo {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            color: white;
+            text-decoration: none;
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 1.5rem;
+        }
+
+        .auth-brand-logo .brand-text {
+            line-height: 1;
+        }
+
+        .login-card h3 {
+            color: #ffffff;
+        }
+
+        .login-card h3::first-letter {
+            color: var(--primary-orange);
+        }
     </style>
 </head>
 <body>
     <main class="login-card" role="main" aria-label="Password Reset Form">
         <div class="text-center mb-4">
-            <img src="../assets/favicon.ico" alt="Kenya EduHub Logo" style="height: 60px; margin-bottom: 1rem;">
+            <div class="auth-brand-logo" aria-label="Kenya EduHub Logo">
+                <div style="width: 50px; height: 50px; background: var(--primary-gold); border: 3px solid var(--primary-orange); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 2px;">
+                    <span style="font-weight: bold; font-size: 24px;">
+                        <span style="color: var(--primary-orange); font-size: 28px;">K</span><span style="color: #008000; font-size: 24px;">E</span>
+                    </span>
+                </div>
+                <span class="brand-text"><span style="color: var(--primary-orange);">Kenya</span> <span style="color: #008000;">EduHub</span></span>
+            </div>
             <h3>Forgot Password?</h3>
             <p style="color: #6c757d; margin-bottom: 1.5rem;">Enter your email address and we'll send you a link to reset your password.</p>
         </div>

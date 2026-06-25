@@ -672,10 +672,250 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 margin: 0.5rem;
             }
         }
+
+        /* Auth page match */
+        :root {
+            --primary-orange: #FF6B35;
+            --primary-gold: #FFD700;
+        }
+
+        html,
+        body {
+            background: #000000 !important;
+            background-image: none !important;
+        }
+
+        body {
+            margin: 0;
+            padding: 1rem;
+            color: #ffffff;
+            overflow: auto;
+        }
+
+        body::before,
+        body::after,
+        .login-card::before {
+            display: none !important;
+        }
+
+        .login-card,
+        .login-card:hover {
+            background: #000000;
+            max-width: 420px;
+            padding: 3rem 2.5rem 2.5rem;
+            border: none;
+            border-radius: 0;
+            box-shadow: none;
+            animation: none;
+            transform: none;
+            transition: none;
+        }
+
+        .logo-img {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .auth-brand-logo {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            color: #ffffff;
+            text-decoration: none;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .auth-brand-logo .brand-mark {
+            width: 50px;
+            height: 50px;
+            background: var(--primary-gold);
+            border: 3px solid var(--primary-orange);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 2px;
+        }
+
+        .auth-brand-logo .brand-text {
+            line-height: 1;
+        }
+
+        .login-card h3 {
+            color: #ffffff;
+            text-shadow: none;
+        }
+
+        .login-card h3::first-letter {
+            color: var(--primary-orange);
+        }
+
+        .admin-badge,
+        .admin-security-notice,
+        .form-text,
+        .form-floating label {
+            display: none;
+        }
+
+        .text-muted,
+        .form-check-label {
+            color: #666666 !important;
+        }
+
+        input.form-control,
+        .form-floating > .form-control {
+            height: 48px;
+            font-size: 1rem;
+            border-radius: 0;
+            border: 2px solid #ffffff;
+            background: #000000;
+            color: #ffffff !important;
+            transition: none;
+            box-shadow: none;
+            padding: 0.375rem 0.75rem;
+        }
+
+        input.form-control::placeholder {
+            color: #888888 !important;
+            opacity: 1;
+        }
+
+        input.form-control:-webkit-autofill,
+        input.form-control:-webkit-autofill:hover,
+        input.form-control:-webkit-autofill:focus {
+            -webkit-text-fill-color: #ffffff !important;
+            -webkit-box-shadow: 0 0 0 1000px #000000 inset;
+            transition: background-color 5000s ease-in-out 0s;
+        }
+
+        input.form-control:focus,
+        .form-floating > .form-control:focus {
+            border: 2px solid #333333;
+            background: #000000;
+            color: #ffffff !important;
+            outline: none;
+            box-shadow: none;
+            transform: none;
+        }
+
+        .form-check-input {
+            background-color: #000000;
+            border: 1px solid #ffffff;
+            border-radius: 0;
+        }
+
+        .form-check-input:checked {
+            background-color: var(--primary-orange);
+            border-color: var(--primary-orange);
+        }
+
+        button.btn-primary,
+        button.btn-primary:hover,
+        button.btn-primary:focus-visible {
+            width: 100%;
+            height: 48px;
+            font-weight: 700;
+            font-size: 1.125rem;
+            border-radius: 0;
+            background: #000000;
+            border: 1px solid #333333;
+            color: #ffffff;
+            box-shadow: none;
+            transform: none;
+            transition: none;
+            outline: none;
+        }
+
+        button.btn-primary:hover,
+        button.btn-primary:focus-visible {
+            background: #111111;
+            border-color: #444444;
+        }
+
+        .password-toggle,
+        .password-toggle:hover,
+        .password-toggle:focus {
+            color: #666666;
+            background: transparent;
+            border: none;
+            border-radius: 0;
+            outline: none;
+        }
+
+        .password-toggle:hover {
+            color: #888888;
+        }
+
+        .alert-danger,
+        .alert-success {
+            background: #000000;
+            border-radius: 0;
+            text-align: center;
+            box-shadow: none;
+        }
+
+        .alert-danger {
+            color: #ff0000;
+            border: 1px solid #ff0000;
+        }
+
+        .alert-success {
+            color: #666666;
+            border: 1px solid #333333;
+        }
+
+        .admin-footer-links {
+            display: block;
+            margin-top: 1.5rem;
+            padding-top: 0;
+            border-top: none;
+            text-align: center;
+        }
+
+        .admin-footer-links a {
+            display: inline-flex;
+            margin: 0.35rem 0.75rem;
+            color: #888888;
+            font-weight: 600;
+        }
+
+        .admin-footer-links a:hover,
+        .admin-footer-links a:focus-visible {
+            color: #aaaaaa;
+            text-decoration: underline;
+            outline: none;
+        }
+
+        @media (max-width: 480px) {
+            .login-card {
+                padding: 2rem 1.5rem;
+                margin: 0;
+            }
+
+            button.btn-primary {
+                height: 44px;
+                font-size: 1rem;
+            }
+        }
     </style>
 </head>
 <body>
-    <div class="login-card">
+    <main class="login-card" role="main" aria-label="Admin Login Form">
+        <div class="logo-img">
+            <div class="auth-brand-logo" aria-label="Kenya EduHub Logo">
+                <div class="brand-mark">
+                    <span style="font-weight: bold; font-size: 24px;">
+                        <span style="color: var(--primary-orange); font-size: 28px;">K</span><span style="color: #008000; font-size: 24px;">E</span>
+                    </span>
+                </div>
+                <span class="brand-text"><span style="color: var(--primary-orange);">Kenya</span> <span style="color: #008000;">EduHub</span></span>
+            </div>
+        </div>
+
         <!-- Admin Badge -->
         <div class="admin-badge">
             <i class="fas fa-shield-alt"></i>
@@ -710,30 +950,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <!-- Security: CSRF Token -->
             <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['admin_csrf_token']) ?>">
             
-            <div class="form-floating mb-3">
+            <div class="mb-4">
+                <label for="email" class="visually-hidden">Admin email address</label>
                 <input type="email" class="form-control" id="email" name="email" 
-                       placeholder="name@example.com" required
+                       placeholder="Admin Email" required
                        autocomplete="username"
-                       aria-describedby="emailHelp"
                        value="<?php echo htmlspecialchars($_POST['email'] ?? ''); ?>">
-                <label for="email">Admin Email</label>
-                <div id="emailHelp" class="form-text">Enter your administrator email address</div>
             </div>
             
-            <div class="form-floating mb-4">
-                <input type="password" class="form-control" id="password" name="password" 
+            <div class="mb-4 position-relative">
+                <label for="password" class="visually-hidden">Password</label>
+                <input type="password" class="form-control pe-5" id="password" name="password" 
                        placeholder="Password" required
-                       autocomplete="current-password"
-                       aria-describedby="passwordHelp">
-                <label for="password">Password</label>
-                <div id="passwordHelp" class="form-text">Enter your administrator password</div>
-            </div>
-
-            <div class="form-check mb-3">
-                <input type="checkbox" class="form-check-input" id="remember" name="remember">
-                <label class="form-check-label" for="remember">
-                    Remember me for 30 days
-                </label>
+                       autocomplete="current-password">
+                <span class="password-toggle" onclick="togglePassword()" role="button" tabindex="0" aria-label="Show or hide password">
+                    <i class="fa-solid fa-eye" id="passwordToggleIcon"></i>
+                </span>
             </div>
 
             <button type="submit" class="btn btn-primary" id="loginBtn">
@@ -750,7 +982,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <i class="fas fa-home me-1"></i> Homepage
             </a>
         </div>
-    </div>
+    </main>
 
     <script>
         // Form submission handling
@@ -851,8 +1083,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         });
 
         // Add ripple animation
-        const style = document.createElement('style');
-        style.textContent = `
+        const rippleStyle = document.createElement('style');
+        rippleStyle.textContent = `
             @keyframes ripple {
                 to {
                     transform: scale(4);
@@ -860,7 +1092,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
             }
         `;
-        document.head.appendChild(style);
+        document.head.appendChild(rippleStyle);
     </script>
 </body>
 </html>

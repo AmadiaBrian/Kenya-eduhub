@@ -86,7 +86,7 @@ try {
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
     <!-- Structured Data for Educational Resources -->
     <script type="application/ld+json">
@@ -143,6 +143,14 @@ try {
         }
 
         :root {
+            /* Professional Color Palette */
+            --primary-orange: #FF6B35;
+            --primary-gold: #FFD700;
+            --primary-gold-dark: #DAA520;
+            --primary-gold-light: #FFF8DC;
+            --text-white: #FFFFFF;
+            --text-cream: #FFF8E7;
+            
             /* Government Official Colors */
             --gov-primary: #0066cc;
             --gov-primary-dark: #004d99;
@@ -166,9 +174,11 @@ try {
             --gov-gray-800: #212529;
             --gov-gray-900: #000814;
             
-            /* Typography */
-            --gov-font-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            --gov-font-secondary: 'Georgia', serif;
+            /* Professional Typography */
+            --font-heading: 'Playfair Display', Georgia, serif;
+            --font-body: 'Poppins', 'Segoe UI', Roboto, sans-serif;
+            --gov-font-primary: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            --gov-font-secondary: 'Playfair Display', Georgia, serif;
             
             /* Shadows */
             --gov-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.12);
@@ -194,7 +204,7 @@ try {
         }
 
         body {
-            font-family: var(--gov-font-primary);
+            font-family: var(--font-body);
             line-height: 1.6;
             color: #ffffff;
             background: #000000;
@@ -284,9 +294,9 @@ try {
 
         .nav-btn {
             padding: var(--gov-spacing-sm) var(--gov-spacing-lg);
-            border: 2px solid #ffffff;
+            border: 2px solid rgba(255, 215, 0, 0.3);
             background: #000000;
-            color: #ffffff;
+            color: var(--primary-gold);
             text-decoration: none;
             border-radius: var(--gov-border-radius);
             font-weight: 600;
@@ -299,42 +309,32 @@ try {
         }
 
         .nav-btn:hover {
-            background: #333333;
-            color: #ffffff;
+            background: rgba(255, 215, 0, 0.1);
+            color: var(--primary-orange);
+            border-color: var(--primary-gold);
             transform: translateY(-2px);
-            box-shadow: var(--gov-shadow);
+            box-shadow: 0 4px 12px rgba(255, 215, 0, 0.3);
         }
 
         .nav-btn.primary {
             background: #000000;
-            color: #ffffff;
-            border-color: #ffffff;
+            color: var(--primary-gold);
+            border-color: rgba(255, 215, 0, 0.5);
         }
 
         .nav-btn.primary:hover {
-            background: #333333;
-            border-color: #ffffff;
+            background: rgba(255, 215, 0, 0.15);
+            color: var(--primary-orange);
+            border-color: var(--primary-gold);
         }
 
-        /* Government Hero Section */
+        /* Professional Hero Section */
         .hero {
-            background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%);
-            color: var(--gov-white);
+            background: #000000;
+            color: var(--text-white);
             padding: var(--gov-spacing-2xl) 0;
             position: relative;
             overflow: hidden;
-        }
-
-        .hero::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(135deg, #333333 0%, #555555 100%);
-            opacity: 0.1;
-            z-index: 1;
         }
 
         .hero-content {
@@ -347,18 +347,50 @@ try {
         }
 
         .hero h1 {
-            font-size: clamp(2.5rem, 5vw, 4rem);
+            font-size: clamp(2.5rem, 5vw, 4.5rem);
             font-weight: 700;
             margin-bottom: var(--gov-spacing-lg);
             line-height: 1.2;
-            color: var(--gov-white);
+            color: var(--text-white);
+            font-family: var(--font-heading);
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .hero h1 em {
+            color: var(--primary-orange);
+            font-style: normal;
+            background: linear-gradient(135deg, var(--primary-orange), var(--primary-gold));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .text-orange {
+            color: var(--primary-orange) !important;
+        }
+
+        .text-golden {
+            color: var(--primary-gold) !important;
+        }
+
+        .text-white {
+            color: var(--text-white) !important;
         }
 
         .hero-subtitle {
             font-size: clamp(1.1rem, 2vw, 1.5rem);
             margin-bottom: var(--gov-spacing-xl);
-            opacity: 0.9;
+            opacity: 0.95;
             line-height: 1.6;
+            color: var(--text-cream);
+            font-family: var(--font-body);
+            font-weight: 400;
+        }
+
+        .hero-subtitle em {
+            color: var(--primary-gold);
+            font-style: normal;
+            font-weight: 600;
         }
 
         .hero-stats {
@@ -380,16 +412,21 @@ try {
         .hero-stat-number {
             font-size: 2.5rem;
             font-weight: 700;
-            color: var(--gov-white);
+            color: var(--primary-gold);
             display: block;
             margin-bottom: var(--gov-spacing-sm);
+            font-family: var(--font-heading);
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
         }
 
         .hero-stat-label {
             font-size: 0.9rem;
             text-transform: uppercase;
             letter-spacing: 1px;
-            opacity: 0.8;
+            opacity: 0.9;
+            color: var(--text-cream);
+            font-family: var(--font-body);
+            font-weight: 500;
         }
 
         .cta-buttons {
@@ -433,34 +470,37 @@ try {
 
         .cta-btn.primary {
             background: #000000;
-            color: #ffffff;
-            border: 2px solid #ffffff;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            color: var(--primary-gold);
+            border: 2px solid rgba(255, 215, 0, 0.3);
+            box-shadow: 0 10px 30px rgba(255, 215, 0, 0.2);
         }
 
         .cta-btn.primary:hover {
             transform: translateY(-6px) scale(1.05);
-            box-shadow: 0 20px 50px rgba(0,0,0,0.7);
-            background: #333333;
+            box-shadow: 0 20px 50px rgba(255, 215, 0, 0.4);
+            background: rgba(255, 215, 0, 0.1);
+            color: var(--primary-orange);
+            border-color: var(--primary-gold);
         }
 
         .cta-btn.secondary {
-            background: #000000;
-            color: #ffffff;
-            border: 2px solid #ffffff;
+            background: transparent;
+            color: var(--primary-gold);
+            border: 2px solid rgba(255, 215, 0, 0.3);
         }
 
         .cta-btn.secondary:hover {
-            background: #333333;
-            border-color: #ffffff;
+            background: rgba(255, 215, 0, 0.1);
+            border-color: var(--primary-orange);
+            color: var(--primary-orange);
             transform: translateY(-4px) scale(1.02);
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
+            box-shadow: 0 15px 35px rgba(255, 215, 0, 0.3);
         }
 
         /* Government Services Section */
         .features {
             padding: var(--gov-spacing-2xl) 0;
-            background: #1a1a1a;
+            background: #000000;
         }
         
         .section-title {
@@ -487,7 +527,7 @@ try {
         }
 
         .feature-card {
-            background: #2a2a2a;
+            background: #1a1a1a;
             border: 1px solid #333333;
             border-radius: var(--gov-border-radius-lg);
             padding: var(--gov-spacing-xl);
@@ -498,18 +538,18 @@ try {
 
         .feature-card:hover {
             transform: translateY(-8px) scale(1.02);
-            box-shadow: 0 20px 40px rgba(0, 102, 204, 0.3);
-            border-color: var(--gov-primary);
-            background: #333333;
+            box-shadow: 0 20px 40px rgba(255, 107, 53, 0.3);
+            border-color: var(--primary-orange);
+            background: #2a2a2a;
         }
 
         .feature-card:hover .feature-icon {
             transform: scale(1.1) rotate(5deg);
-            color: var(--gov-primary-light);
+            color: var(--primary-gold);
         }
 
         .feature-card:hover h3 {
-            color: var(--gov-primary-light);
+            color: var(--primary-orange);
             transform: translateY(-2px);
         }
 
@@ -519,7 +559,7 @@ try {
 
         .feature-icon {
             font-size: 3rem;
-            color: var(--gov-primary);
+            color: var(--primary-orange);
             margin-bottom: var(--gov-spacing-md);
             transition: all 0.3s ease;
         }
@@ -541,7 +581,7 @@ try {
 
         /* Government Stats Section */
         .stats {
-            background: #0a0a0a;
+            background: #000000;
             color: var(--gov-white);
             padding: var(--gov-spacing-2xl) 0;
         }
@@ -625,7 +665,7 @@ try {
 
         /* Footer */
         footer {
-            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #0a0a0a 100%);
+            background: #000000;
             color: white;
             padding: 4rem 2rem 2rem;
             position: relative;
@@ -650,7 +690,7 @@ try {
         .footer-grid {
             display: grid;
             grid-template-columns: 2fr 1fr 1fr 1fr;
-            gap: 3rem;
+            gap: 2rem;
             margin-bottom: 3rem;
             padding-bottom: 3rem;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
@@ -669,17 +709,11 @@ try {
             font-size: 1.5rem;
             font-weight: bold;
             transition: all 0.3s ease;
-            background: linear-gradient(45deg, #FFD700, #FFA500);
-            padding: 8px 16px;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(255, 215, 0, 0.4);
-            border: 2px solid rgba(255, 255, 255, 0.3);
         }
         
         .footer-logo:hover {
-            color: #667eea;
+            color: var(--primary-orange);
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(255, 215, 0, 0.3);
         }
         
         .footer-description {
@@ -957,33 +991,34 @@ try {
             }
             
             .nav-buttons .nav-btn {
-                color: #ffffff;
+                color: var(--primary-gold);
                 background: #000000;
-                border: 1px solid #ffffff;
-                padding: 8px 12px;
+                border: 1px solid rgba(255, 215, 0, 0.3);
+                padding: 10px 16px;
                 margin: 5px 0;
                 border-radius: 4px;
                 text-align: center;
                 transition: all 0.3s ease;
-                font-size: 12px;
+                font-size: 14px;
             }
             
             .nav-buttons .nav-btn:hover {
-                background: #333333;
-                border-color: #ffffff;
-                color: #ffffff;
+                background: rgba(255, 215, 0, 0.1);
+                border-color: var(--primary-gold);
+                color: var(--primary-orange);
                 transform: translateX(5px);
             }
             
             .nav-buttons .nav-btn.primary {
                 background: #000000;
-                border-color: #ffffff;
-                color: #ffffff;
+                border-color: rgba(255, 215, 0, 0.5);
+                color: var(--primary-gold);
             }
             
             .nav-buttons .nav-btn.primary:hover {
-                background: #333333;
-                border-color: #ffffff;
+                background: rgba(255, 215, 0, 0.15);
+                border-color: var(--primary-gold);
+                color: var(--primary-orange);
             }
             
             /* Overlay for sidebar */
@@ -1006,56 +1041,149 @@ try {
             }
             
             .hero h1 {
-                font-size: 2.5rem;
+                font-size: 2rem;
+                line-height: 1.3;
             }
             
-            .hero .subtitle {
-                font-size: 1.1rem;
+            .hero-subtitle {
+                font-size: 1rem;
+                padding: 0 1rem;
+            }
+            
+            .hero-stats {
+                grid-template-columns: 1fr 1fr;
+                gap: 1rem;
+                padding: 1.5rem;
+            }
+            
+            .hero-stat-number {
+                font-size: 2rem;
+            }
+            
+            .hero-stat-label {
+                font-size: 0.8rem;
             }
             
             .cta-buttons {
                 flex-direction: column;
                 align-items: center;
                 gap: 1rem;
+                padding: 0 1rem;
             }
             
             .cta-btn {
-                width: 250px;
+                width: 100%;
+                max-width: 280px;
                 justify-content: center;
+                padding: 1rem 1.5rem;
             }
             
             .section-title {
-                font-size: 2.2rem;
+                font-size: 1.8rem;
+                padding: 0 1rem;
+            }
+            
+            .section-subtitle {
+                font-size: 1rem;
+                padding: 0 1rem;
             }
             
             .features {
-                padding: 4rem 1rem;
+                padding: 3rem 1rem;
+            }
+            
+            .features-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
             }
             
             .feature-card {
-                padding: 2rem;
+                padding: 1.5rem;
+            }
+            
+            .feature-icon {
+                font-size: 2.5rem;
+            }
+            
+            .feature-card h3 {
+                font-size: 1.1rem;
+            }
+            
+            .feature-card p {
+                font-size: 0.9rem;
             }
             
             .stats {
-                padding: 4rem 1rem;
+                padding: 3rem 1rem;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 1rem;
+            }
+            
+            .stat-item {
+                padding: 1.5rem;
             }
             
             .stat-item h3 {
-                font-size: 2.5rem;
+                font-size: 2rem;
+            }
+            
+            .stat-item p {
+                font-size: 0.85rem;
             }
 
             .footer-grid {
-                grid-template-columns: 1fr;
+                grid-template-columns: 1fr 1fr;
                 gap: 2rem;
-                text-align: center;
             }
             
             .footer-brand {
-                text-align: center;
+                grid-column: 1 / -1;
+                text-align: left;
+                padding-left: 0;
             }
             
             .footer-logo {
-                justify-content: center;
+                justify-content: flex-start;
+            }
+            
+            .footer-description {
+                display: none;
+            }
+            
+            .footer-contact {
+                justify-content: flex-start;
+            }
+            
+            .footer-bottom {
+                flex-direction: column;
+                text-align: center;
+                gap: 1rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .footer-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+            
+            .hero-stats {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .hero h1 {
+                font-size: 1.8rem;
+            }
+            
+            .section-title {
+                font-size: 1.5rem;
             }
         }
         
@@ -1072,8 +1200,12 @@ try {
     <nav role="navigation" aria-label="Main Navigation">
         <div class="nav-container">
             <a href="index.php" class="logo" itemprop="url">
-                <i class="fas fa-graduation-cap"></i>
-                <span itemprop="name">Kenya EduHub</span>
+                <div style="width: 50px; height: 50px; background: var(--primary-gold); border: 3px solid var(--primary-orange); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 2px;">
+                    <span style="font-weight: bold; font-size: 24px;">
+                        <span style="color: var(--primary-orange); font-size: 28px;">K</span><span style="color: #008000; font-size: 24px;">E</span>
+                    </span>
+                </div>
+                <span itemprop="name"><span style="color: var(--primary-orange);">Kenya</span> <span style="color: #008000;">EduHub</span></span>
             </a>
             <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Toggle mobile menu">
                 <span></span>
@@ -1095,25 +1227,25 @@ try {
     <!-- Hero Section -->
     <header class="hero" role="banner">
         <div class="hero-content">
-            <h1 itemprop="description">Free Educational Resources & <em>Past Papers</em> in Kenya</h1>
-            <p class="hero-subtitle">Download <em>FREE</em> KCSE past papers, KCPE past papers, study notes, and educational materials. Kenya's <em>trusted platform</em> for students and teachers seeking quality learning resources.</p>
+            <h1 itemprop="description"><span class="text-white">Free</span> <span class="text-orange">Educational</span> <span class="text-golden">Resources</span> & <span class="text-white">Past Papers</span> <span class="text-orange">in Kenya</span></h1>
+            <p class="hero-subtitle"><span class="text-golden">Download</span> <span class="text-orange">FREE</span> <span class="text-white">KCSE past papers, KCPE past papers, study notes, and educational materials.</span> <span class="text-golden">Kenya's</span> <span class="text-orange">trusted platform</span> <span class="text-white">for students and teachers seeking quality learning resources.</span></p>
             
             <div class="hero-stats">
                 <div class="hero-stat">
                     <span class="hero-stat-number"><?php echo $total_users; ?>+</span>
-                    <span class="hero-stat-label">Active Students</span>
+                    <span class="hero-stat-label"><span class="text-orange">Active</span> <span class="text-white">Students</span></span>
                 </div>
                 <div class="hero-stat">
                     <span class="hero-stat-number"><?php echo $total_resources; ?>+</span>
-                    <span class="hero-stat-label">Learning Resources</span>
+                    <span class="hero-stat-label"><span class="text-golden">Learning</span> <span class="text-white">Resources</span></span>
                 </div>
                 <div class="hero-stat">
                     <span class="hero-stat-number"><?php echo $total_downloads; ?>+</span>
-                    <span class="hero-stat-label">Downloads</span>
+                    <span class="hero-stat-label"><span class="text-orange">Downloads</span></span>
                 </div>
                 <div class="hero-stat">
                     <span class="hero-stat-number">50+</span>
-                    <span class="hero-stat-label">Institutions</span>
+                    <span class="hero-stat-label"><span class="text-golden">Institutions</span></span>
                 </div>
             </div>
             
@@ -1134,50 +1266,50 @@ try {
     <main>
         <section class="features" id="features" aria-labelledby="features-heading">
             <div class="container">
-                <h2 id="features-heading" class="section-title">Free Educational Resources & <em>Study Materials</em></h2>
-                <p class="section-subtitle">Access <em>thousands</em> of free KCSE past papers, KCPE past papers, study notes, and educational resources for Kenyan students</p>
+                <h2 id="features-heading" class="section-title"><span class="text-white">Free</span> <span class="text-orange">Educational</span> <span class="text-golden">Resources</span> & <span class="text-white">Study Materials</span></h2>
+                <p class="section-subtitle"><span class="text-golden">Access</span> <span class="text-orange">thousands</span> <span class="text-white">of free KCSE past papers, KCPE past papers, study notes, and educational resources for Kenyan students</span></p>
             <div class="features-grid">
                 <div class="feature-card">
                     <div class="feature-icon">
                         <i class="fas fa-file-alt"></i>
                     </div>
-                    <h3>Free <em>KCSE Past Papers</em></h3>
-                    <p>Download KCSE past papers from 2005 to 2024 for all subjects. <em>Free access</em> to previous exam papers for revision and practice.</p>
+                    <h3><span class="text-white">Free</span> <span class="text-orange">KCSE</span> <span class="text-golden">Past Papers</span></h3>
+                    <p><span class="text-white">Download KCSE past papers from 2005 to 2024 for all subjects.</span> <span class="text-orange">Free access</span> <span class="text-white">to previous exam papers for revision and practice.</span></p>
                 </div>
                 <div class="feature-card">
                     <div class="feature-icon">
                         <i class="fas fa-book"></i>
                     </div>
-                    <h3>Free <em>KCPE Past Papers</em></h3>
-                    <p>Access KCPE past papers and <em>revision materials</em> for primary school students preparing for national examinations.</p>
+                    <h3><span class="text-white">Free</span> <span class="text-orange">KCPE</span> <span class="text-golden">Past Papers</span></h3>
+                    <p><span class="text-white">Access KCPE past papers and</span> <span class="text-golden">revision materials</span> <span class="text-white">for primary school students preparing for national examinations.</span></p>
                 </div>
                 <div class="feature-card">
                     <div class="feature-icon">
                         <i class="fas fa-sticky-note"></i>
                     </div>
-                    <h3>Study Notes & <em>Guides</em></h3>
-                    <p><em>Comprehensive</em> study notes, revision guides, and learning materials for all subjects and education levels in Kenya.</p>
+                    <h3><span class="text-orange">Study</span> <span class="text-golden">Notes</span> <span class="text-white">& Guides</span></h3>
+                    <p><span class="text-orange">Comprehensive</span> <span class="text-white">study notes, revision guides, and learning materials for all subjects and education levels in Kenya.</span></p>
                 </div>
                 <div class="feature-card">
                     <div class="feature-icon">
                         <i class="fas fa-search"></i>
                     </div>
-                    <h3>Smart Search</h3>
-                    <p>Find exactly what you need with our powerful search functionality. Filter by subject, level, and resource type.</p>
+                    <h3><span class="text-golden">Smart</span> <span class="text-white">Search</span></h3>
+                    <p><span class="text-white">Find exactly what you need with our powerful search functionality.</span> <span class="text-orange">Filter</span> <span class="text-white">by subject, level, and resource type.</span></p>
                 </div>
                 <div class="feature-card">
                     <div class="feature-icon">
                         <i class="fas fa-download"></i>
                     </div>
-                    <h3>Free Downloads</h3>
-                    <p>Unlimited free downloads of educational resources. No registration required for basic access to learning materials.</p>
+                    <h3><span class="text-orange">Free</span> <span class="text-golden">Downloads</span></h3>
+                    <p><span class="text-white">Unlimited free downloads of educational resources.</span> <span class="text-golden">No registration</span> <span class="text-white">required for basic access to learning materials.</span></p>
                 </div>
                 <div class="feature-card">
                     <div class="feature-icon">
                         <i class="fas fa-mobile-alt"></i>
                     </div>
-                    <h3>Mobile Friendly</h3>
-                    <p>Access Kenya EduHub from any device. Our responsive design ensures a great experience on phones, tablets, and desktops.</p>
+                    <h3><span class="text-golden">Mobile</span> <span class="text-white">Friendly</span></h3>
+                    <p><span class="text-white">Access Kenya EduHub from any device.</span> <span class="text-orange">Our responsive design</span> <span class="text-white">ensures a great experience on phones, tablets, and desktops.</span></p>
                 </div>
             </div>
         </div>
@@ -1186,23 +1318,23 @@ try {
     <!-- Stats Section -->
     <section class="stats" id="resources" aria-labelledby="stats-heading">
         <div class="container">
-            <h2 id="stats-heading" class="section-title">Free Educational Resources Statistics</h2>
+            <h2 id="stats-heading" class="section-title"><span class="text-white">Free</span> <span class="text-orange">Educational</span> <span class="text-golden">Resources</span> <span class="text-white">Statistics</span></h2>
             <div class="stats-grid">
                 <div class="stat-item">
                     <h3><?php echo $total_users; ?>+</h3>
-                    <p>Active Students</p>
+                    <p><span class="text-orange">Active</span> <span class="text-white">Students</span></p>
                 </div>
                 <div class="stat-item">
                     <h3><?php echo $total_resources; ?>+</h3>
-                    <p>Free Resources</p>
+                    <p><span class="text-golden">Free</span> <span class="text-white">Resources</span></p>
                 </div>
                 <div class="stat-item">
                     <h3><?php echo $total_downloads; ?>+</h3>
-                    <p>Free Downloads</p>
+                    <p><span class="text-golden">Free</span> <span class="text-white">Downloads</span></p>
                 </div>
                 <div class="stat-item">
                     <h3>50+</h3>
-                    <p>Schools Covered</p>
+                    <p><span class="text-golden">Schools</span> <span class="text-white">Covered</span></p>
                 </div>
             </div>
         </div>
@@ -1216,13 +1348,15 @@ try {
                 <!-- Brand Column -->
                 <div class="footer-brand">
                     <a href="index.php" class="footer-logo">
-                        <div style="width: 32px; height: 32px; background: linear-gradient(45deg, #FFD700, #FFA500); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 8px;">
-                            <span style="color: white; font-weight: bold; font-size: 14px;">KE</span>
+                        <div style="width: 50px; height: 50px; background: var(--primary-gold); border: 3px solid var(--primary-orange); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 2px;">
+                            <span style="font-weight: bold; font-size: 24px;">
+                                <span style="color: var(--primary-orange); font-size: 28px;">K</span><span style="color: #008000; font-size: 24px;">E</span>
+                            </span>
                         </div>
-                        Kenya EduHub
+                        <span style="color: var(--primary-orange);">Kenya</span> <span style="color: #008000;">EduHub</span>
                     </a>
                     <div class="footer-description">
-                        East Africa's premier educational platform, providing quality learning resources and collaborative tools for students and educators across Kenya and beyond.
+                        <span class="text-white">East Africa's</span> <span class="text-orange">premier</span> <span class="text-white">educational platform, providing quality</span> <span class="text-golden">learning resources</span> <span class="text-white">and collaborative tools for students and educators across</span> <span class="text-orange">Kenya</span> <span class="text-white">and beyond.</span>
                     </div>
                     <div class="footer-contact">
                         <div class="footer-contact-item">
@@ -1242,50 +1376,45 @@ try {
                 
                 <!-- Services Column -->
                 <div class="footer-column">
-                    <h3>Services</h3>
+                    <h3><span class="text-golden">Services</span></h3>
                     <div class="footer-links">
-                        <a href="auth/login.php">Resource Library</a>
-                        <a href="auth/login.php">Study Materials</a>
-                        <a href="auth/login.php">Past Papers</a>
-                        <a href="auth/login.php">Research Papers</a>
-                        <a href="auth/login.php">Teaching Guides</a>
+                        <a href="auth/login.php"><span class="text-white">Resource</span> <span class="text-orange">Library</span></a>
+                        <a href="auth/login.php"><span class="text-white">Study</span> <span class="text-golden">Materials</span></a>
+                        <a href="auth/login.php"><span class="text-orange">Past</span> <span class="text-white">Papers</span></a>
+                        <a href="auth/login.php"><span class="text-white">Research</span> <span class="text-golden">Papers</span></a>
+                        <a href="auth/login.php"><span class="text-white">Teaching</span> <span class="text-orange">Guides</span></a>
                     </div>
                 </div>
                 
                 <!-- Company Column -->
                 <div class="footer-column">
-                    <h3>Platform</h3>
+                    <h3><span class="text-orange">Platform</span></h3>
                     <div class="footer-links">
-                        <a href="#features">Features</a>
-                        <a href="#resources">Resources</a>
-                        <a href="#">About Us</a>
-                        <a href="#">Our Team</a>
-                        <a href="#">Contact</a>
+                        <a href="#features"><span class="text-golden">Features</span></a>
+                        <a href="#resources"><span class="text-white">Resources</span></a>
+                        <a href="#"><span class="text-white">About</span> <span class="text-orange">Us</span></a>
+                        <a href="#"><span class="text-white">Our</span> <span class="text-golden">Team</span></a>
+                        <a href="#"><span class="text-orange">Contact</span></a>
+                        <p><span class="text-golden">Empowering</span> <span class="text-white">education across</span> <span class="text-orange">Kenya</span></p>
                     </div>
                 </div>
                 
                 <!-- Legal Column -->
                 <div class="footer-column">
-                    <h3>Legal</h3>
+                    <h3><span class="text-white">Legal</span></h3>
                     <div class="footer-links">
-                        <a href="#">Privacy Policy</a>
-                        <a href="#">Terms of Service</a>
-                        <a href="#">Usage Guidelines</a>
-                        <a href="#">Copyright Policy</a>
-                        <a href="#">Cookie Policy</a>
+                        <a href="#"><span class="text-white">Privacy</span> <span class="text-golden">Policy</span></a>
+                        <a href="#"><span class="text-white">Terms of</span> <span class="text-orange">Service</span></a>
+                        <a href="#"><span class="text-white">Usage</span> <span class="text-golden">Guidelines</span></a>
+                        <a href="#"><span class="text-white">Copyright</span> <span class="text-orange">Policy</span></a>
+                        <a href="#"><span class="text-white">Cookie</span> <span class="text-golden">Policy</span></a>
                     </div>
                 </div>
             </div>
             
             <div class="footer-bottom">
                 <div>
-                    <p>&copy; 2026 Kenya EduHub. All rights reserved.</p>
-                    <p>Empowering education across Kenya</p>
-                </div>
-                <div class="footer-bottom-links">
-                    <a href="#">Privacy Policy</a>
-                    <a href="#">Terms of Service</a>
-                    <a href="#">Cookie Policy</a>
+                    <p><span class="text-white">&copy; 2026</span> <span class="text-orange">Kenya</span> <span class="text-golden">EduHub</span><span class="text-white">. All rights reserved.</span></p>
                 </div>
             </div>
         </div>
