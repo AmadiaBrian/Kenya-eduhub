@@ -58,7 +58,7 @@ try {
         $description = sanitizeStrict($_POST['description'] ?? '');
         
         // Security: Validate required fields
-        if (empty($title) || empty($level) || empty($subject) || empty($type)) {
+        if (empty($title) || empty($level) || empty($subject) || empty($type) || empty($description)) {
             http_response_code(400);
             echo json_encode(['success' => false, 'message' => 'Missing required fields']);
             exit();

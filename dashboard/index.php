@@ -1988,8 +1988,8 @@ $can_download = count($user_resources) >= 2;
                         </div>
                         
                         <div class="form-group full-width">
-                            <label for="description">Description</label>
-                            <textarea id="description" name="description" rows="3" placeholder="Brief description of the resource..."></textarea>
+                            <label for="description">Description *</label>
+                            <textarea id="description" name="description" rows="3" required placeholder="Brief description of the resource..."></textarea>
                         </div>
                         
                         <div class="form-group full-width">
@@ -2721,6 +2721,11 @@ $can_download = count($user_resources) >= 2;
             // Handle form submission
             uploadForm.addEventListener('submit', function(e) {
                 e.preventDefault();
+
+                if (!uploadForm.checkValidity()) {
+                    uploadForm.reportValidity();
+                    return;
+                }
                 
                 // Show loading state
                 uploadBtn.classList.add('btn-loading');
