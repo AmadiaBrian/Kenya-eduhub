@@ -105,8 +105,18 @@ $updateStmt->bind_param("i", $resourceId);
 if ($updateStmt->execute()) {
     // Check if this is a download request (not just count update)
     if (isset($_GET['download']) && $_GET['download'] === 'true') {
-        // Get file path - it's already relative to the API folder
-        $filePath = $resource['filename'];
+        $storedFile = $resource['filename'];
+        $filePath = $storedFile;
+
+        if (!file_exists($filePath)) {
+            $normalizedFile = ltrim(str_replace('\\', '/', $storedFile), '/');
+
+            if (strpos($normalizedFile, 'api/') === 0) {
+                $filePath = dirname(__DIR__) . '/' . $normalizedFile;
+            } else {
+                $filePath = __DIR__ . '/' . $normalizedFile;
+            }
+        }
         
         if (file_exists($filePath)) {
             // Set headers for file download
