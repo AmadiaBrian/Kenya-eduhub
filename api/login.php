@@ -16,6 +16,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
 
 include_once '../config.php';
 
+// Start session
+session_start();
+
 // Test database connection
 if (!$conn) {
     error_log("Login API - Database connection failed");
@@ -79,11 +82,25 @@ if (!empty($data->email) && !empty($data->password)) {
         } else {
             // Account is verified, now verify password
             if (password_verify($password, $user['password'])) {
-                // Login successful
-                error_log("Login API - Password verified, login successful");
+                // Login successful - set session
+                $_SESSION['user_id'] = $user['id'];
+                $_SESSION['user_email'] = $user['email'];
+                $_SESSION['user_name'] = $user['name'];
+                $_SESSION['user_role'] = $user['role'];
+                
+                // Generate CSRF token for mobile API (direct implementation)
+                if (!isset($_SESSION['csrf_lite_token'])) {
+                    $_SESSION['csrf_lite_token'] = bin2hex(random_bytes(16));
+                    $_SESSION['csrf_lite_time'] = time();
+                }
+                $csrf_token = $_SESSION['csrf_lite_token'];
+                
+                error_log("Login API - Password verified, login successful, session set");
                 echo json_encode([
                     "success" => true,
                     "message" => "Login successful",
+                    "session_id" => session_id(),
+                    "csrf_token" => $csrf_token,
                     "user" => [
                         "id" => $user['id'],
                         "name" => $user['name'],

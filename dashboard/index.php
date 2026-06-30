@@ -28,6 +28,11 @@ if (!checkRateLimit($dashboard_identifier, 100, 300)) { // 100 requests per 5 mi
 }
 
 // Custom Header
+
+// Output CSRF token to JavaScript for AJAX requests
+$csrf_token = generateCSRFLite();
+echo '<script>window.currentCSRFToken = "' . $csrf_token . '";</script>';
+
 ?>
 <div class="custom-header">
     <div class="custom-header-content">
@@ -987,6 +992,37 @@ $can_download = count($user_resources) >= 2;
             min-width: 0;
         }
 
+        .resource-uploader {
+            margin-top: 4px;
+            padding-top: 4px;
+            border-top: 1px solid #333333;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .resource-uploader small {
+            font-size: 11px;
+            line-height: 1.3;
+            color: #888888;
+        }
+
+        .resource-uploader strong {
+            color: var(--primary-gold);
+        }
+
+        .badge-my-upload {
+            background: #008000;
+            color: #ffffff;
+            font-size: 9px;
+            font-weight: 800;
+            padding: 2px 8px;
+            border-radius: 3px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
         .resource-title {
             font-weight: 600;
             color: #ffffff;
@@ -1839,7 +1875,7 @@ $can_download = count($user_resources) >= 2;
             <p>Educational Resources Platform</p>
         </div>
         <nav class="sidebar-menu">
-            <a href="index.php" class="menu-item">
+            <a href="index.php" class="menu-item active">
                 <i class="fas fa-dashboard"></i> Dashboard
             </a>
             <a href="index.php#resourcesSection" class="menu-item">
@@ -1854,7 +1890,7 @@ $can_download = count($user_resources) >= 2;
                         <a href="profile.php" class="menu-item">
                 <i class="fas fa-user"></i> Profile
             </a>
-            <a href="settings.php" class="menu-item active">
+            <a href="settings.php" class="menu-item">
                 <i class="fas fa-cog"></i> Settings
             </a>
             <a href="../auth/logout.php" class="menu-item">
@@ -2118,7 +2154,7 @@ $can_download = count($user_resources) >= 2;
                                     break;
                             }
                             ?>
-                            <div class="resource-card" data-filename="<?php echo htmlspecialchars(basename($resource['filename'])); ?>">
+                            <div class="resource-card" data-filename="<?php echo htmlspecialchars(basename($resource['filename'])); ?>" data-user-id="<?php echo $resource['user_id'] ?? ''; ?>">
                                 <div class="resource-header">
                                     <div class="resource-icon <?php echo $iconClass; ?>">
                                         <i class="fas <?php echo $iconFa; ?>"></i>
@@ -2126,6 +2162,12 @@ $can_download = count($user_resources) >= 2;
                                     <div class="resource-info">
                                         <div class="resource-title"><?php echo htmlspecialchars($resource['title']); ?></div>
                                         <div class="resource-subject"><?php echo htmlspecialchars($resource['subject']); ?></div>
+                                        <div class="resource-uploader">
+                                            <small>Uploaded by <strong><?php echo $resource['user_id'] == $_SESSION['user_id'] ? 'You' : htmlspecialchars($resource['name'] ?? 'Unknown'); ?></strong></small>
+                                            <?php if ($resource['user_id'] == $_SESSION['user_id']): ?>
+                                            <span class="badge-my-upload">My Upload</span>
+                                            <?php endif; ?>
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="resource-description">
@@ -2141,7 +2183,7 @@ $can_download = count($user_resources) >= 2;
                                     </div>
                                 </div>
                                 <div class="resource-actions">
-                                    <a href="#" class="btn-download" onclick="downloadResource(<?php echo $resource['id']; ?>, this)">
+                                    <a href="#" class="btn-download" onclick="downloadResource(<?php echo $resource['id']; ?>, this, <?php echo $resource['user_id'] == $_SESSION['user_id'] ? 'true' : 'false'; ?>)">
                                         <i class="fas fa-download"></i> Download
                                     </a>
                                     
@@ -2410,9 +2452,9 @@ $can_download = count($user_resources) >= 2;
         });
 
         // Download Resource Function
-        function downloadResource(resourceId, button) {
-            // Check if user has uploaded at least 2 resources
-            const canDownload = <?php echo $can_download ? 'true' : 'false'; ?>;
+        function downloadResource(resourceId, button, isMyUpload = false) {
+            // Check if user has uploaded at least 2 resources or if this is their own upload
+            const canDownload = <?php echo $can_download ? 'true' : 'false'; ?> || isMyUpload;
             const userResourceCount = <?php echo count($user_resources); ?>;
             
             if (!canDownload) {
@@ -2738,13 +2780,45 @@ $can_download = count($user_resources) >= 2;
                 // Create FormData
                 const formData = new FormData(uploadForm);
                 
-                // Send to API
+                // Use fresh CSRF token from server
+                if (window.currentCSRFToken) {
+                    formData.set('csrf_token', window.currentCSRFToken);
+                    console.log('Using fresh CSRF token:', window.currentCSRFToken);
+                }
+                
+                // Get session ID from cookies
+                const sessionId = document.cookie.match(/PHPSESSID=([^;]+)/);
+                console.log('Session ID:', sessionId ? sessionId[1] : 'not found');
+                
+                // Send to API exactly like Android app - explicit Cookie header
                 fetch('../api/upload.php', {
                     method: 'POST',
                     body: formData,
-                    credentials: 'include'
+                    headers: sessionId ? {
+                        'Cookie': `PHPSESSID=${sessionId[1]}`
+                    } : {}
                 })
-                .then(response => response.json())
+                .then(async response => {
+                    const text = await response.text();
+                    console.log('Response text:', text);
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    
+                    try {
+                        // Strip PHP notices/errors from response before parsing JSON
+                        const jsonStart = text.indexOf('{');
+                        const jsonEnd = text.lastIndexOf('}');
+                        if (jsonStart !== -1 && jsonEnd !== -1) {
+                            const jsonText = text.substring(jsonStart, jsonEnd + 1);
+                            return JSON.parse(jsonText);
+                        }
+                        return JSON.parse(text);
+                    } catch (e) {
+                        throw new Error(`Invalid JSON response: ${text.substring(0, 200)}`);
+                    }
+                })
                 .then(data => {
                     if (data.success) {
                         // Show success message
@@ -2780,7 +2854,7 @@ $can_download = count($user_resources) >= 2;
                     console.error('Upload error:', error);
                     uploadMessage.className = 'upload-message error';
                     uploadMessage.innerHTML = `
-                        <i class="fas fa-exclamation-circle"></i> Upload failed. Please try again.
+                        <i class="fas fa-exclamation-circle"></i> Upload failed: ${error.message || 'Please try again.'}
                     `;
                     uploadMessage.style.display = 'block';
                 })
@@ -2907,23 +2981,23 @@ $can_download = count($user_resources) >= 2;
                 }
                 
                 return `
-                    <div class="resource-card" data-filename="${htmlspecialchars(basename(resource.filename))}">
+                    <div class="resource-card" data-filename="${resource.filename.split('/').pop()}">
                         <div class="resource-header">
                             <div class="resource-icon ${iconClass}">
                                 <i class="fas ${iconFa}"></i>
                             </div>
                             <div class="resource-info">
-                                <div class="resource-title">${htmlspecialchars(resource.title)}</div>
-                                <div class="resource-subject">${htmlspecialchars(resource.subject)}</div>
+                                <div class="resource-title">${resource.title}</div>
+                                <div class="resource-subject">${resource.subject}</div>
                             </div>
                         </div>
                         <div class="resource-description">
-                            ${htmlspecialchars(resource.description || 'No description available')}
+                            ${resource.description || 'No description available'}
                         </div>
                         <div class="resource-meta">
                             <div class="resource-meta-left">
-                                <span><i class="fas fa-graduation-cap"></i> ${htmlspecialchars(resource.level)}</span>
-                                <span><i class="fas fa-calendar"></i> ${date('M d, Y', strtotime(resource.created_at))}</span>
+                                <span><i class="fas fa-graduation-cap"></i> ${resource.level}</span>
+                                <span><i class="fas fa-calendar"></i> ${new Date(resource.created_at).toLocaleDateString('en-US', {month: 'short', day: 'numeric', year: 'numeric'})}</span>
                             </div>
                             <div class="resource-stats">
                                 <i class="fas fa-download"></i> ${resource.downloads || 0}

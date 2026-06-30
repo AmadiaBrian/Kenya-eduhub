@@ -1,27 +1,47 @@
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AppButton, AppFooter, Field, Screen, TopBar, palette } from '@/components/app-ui';
+import { AlertModal } from '@/components/alert-modal';
 import { requestPasswordReset, resetPassword, verifyResetCode } from '@/lib/api';
 
 export default function ForgotPasswordScreen() {
   const [email, setEmail] = useState('');
   const [code, setCode] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [codeSent, setCodeSent] = useState(false);
   const [codeVerified, setCodeVerified] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [alertModal, setAlertModal] = useState<{
+    visible: boolean;
+    title: string;
+    message: string;
+    type: 'success' | 'error' | 'info' | 'warning';
+  }>({ visible: false, title: '', message: '', type: 'info' });
+
+  const showAlert = (title: string, message: string, type: 'success' | 'error' | 'info' | 'warning' = 'info') => {
+    setAlertModal({ visible: true, title, message, type });
+  };
 
   const sendCode = async () => {
     setLoading(true);
     try {
       const response = await requestPasswordReset(email.trim());
       setCodeSent(true);
-      Alert.alert('Check your email', response.message || 'Password reset code sent.');
+      showAlert(
+        'Check Your Email',
+        response.message || 'A password reset code has been sent to your email address.',
+        'success'
+      );
     } catch (err) {
-      Alert.alert('Request failed', err instanceof Error ? err.message : 'Please try again.');
+      showAlert(
+        'Request Failed',
+        err instanceof Error ? err.message : 'We couldn\'t send the reset code. Please check your email and try again.',
+        'error'
+      );
     } finally {
       setLoading(false);
     }
@@ -32,22 +52,58 @@ export default function ForgotPasswordScreen() {
     try {
       const response = await verifyResetCode(email.trim(), code.trim());
       setCodeVerified(true);
-      Alert.alert('Code verified', response.message || 'Enter your new password.');
+      showAlert(
+        'Code Verified',
+        response.message || 'Great! Your code has been verified. Please enter your new password.',
+        'success'
+      );
     } catch (err) {
-      Alert.alert('Verification failed', err instanceof Error ? err.message : 'Please try again.');
+      showAlert(
+        'Verification Failed',
+        err instanceof Error ? err.message : 'The code you entered is incorrect. Please check and try again.',
+        'error'
+      );
     } finally {
       setLoading(false);
     }
   };
 
   const submitReset = async () => {
+    if (password !== confirmPassword) {
+      showAlert(
+        'Passwords Do Not Match',
+        'Please make sure your new password and confirm password match.',
+        'error'
+      );
+      return;
+    }
+
+    if (password.length < 6) {
+      showAlert(
+        'Password Too Short',
+        'Password must be at least 6 characters long.',
+        'error'
+      );
+      return;
+    }
+
     setLoading(true);
     try {
       const response = await resetPassword(email.trim(), code.trim(), password);
-      Alert.alert('Password updated', response.message || 'You can now sign in.');
-      router.replace('/login');
+      showAlert(
+        'Password Updated Successfully',
+        response.message || 'Your password has been changed. You can now sign in with your new password.',
+        'success'
+      );
+      setTimeout(() => {
+        router.replace('/login');
+      }, 2000);
     } catch (err) {
-      Alert.alert('Reset failed', err instanceof Error ? err.message : 'Please try again.');
+      showAlert(
+        'Password Reset Failed',
+        err instanceof Error ? err.message : 'We couldn\'t update your password. Please try again.',
+        'error'
+      );
     } finally {
       setLoading(false);
     }
@@ -75,7 +131,8 @@ export default function ForgotPasswordScreen() {
                 {codeVerified ? (
                   <>
                     <Field label="New password" icon="lock-closed-outline" value={password} onChangeText={setPassword} secureTextEntry placeholder="At least 6 characters" />
-                    <AppButton icon="save-outline" loading={loading} disabled={!email || !code || password.length < 6} onPress={submitReset}>
+                    <Field label="Confirm password" icon="lock-closed-outline" value={confirmPassword} onChangeText={setConfirmPassword} secureTextEntry placeholder="Re-enter your password" />
+                    <AppButton icon="save-outline" loading={loading} disabled={!email || !code || password.length < 6 || password !== confirmPassword} onPress={submitReset}>
                       Update password
                     </AppButton>
                   </>
@@ -96,6 +153,13 @@ export default function ForgotPasswordScreen() {
           <AppFooter />
         </ScrollView>
       </SafeAreaView>
+      <AlertModal
+        visible={alertModal.visible}
+        title={alertModal.title}
+        message={alertModal.message}
+        type={alertModal.type}
+        onClose={() => setAlertModal({ ...alertModal, visible: false })}
+      />
     </Screen>
   );
 }
@@ -127,9 +191,9 @@ const styles = StyleSheet.create({
   },
   form: {
     borderRadius: 4,
-    backgroundColor: palette.panel,
+    backgroundColor: 'transparent',
     borderColor: palette.border,
-    borderWidth: 1,
+    borderWidth: 0,
     padding: 16,
     gap: 14,
   },

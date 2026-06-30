@@ -1,7 +1,7 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { router } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { AppState, AppStateStatus, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AppButton, AppFooter, Badge, BrandLogo, Screen, Stat, TopBar, palette } from '@/components/app-ui';
@@ -9,9 +9,11 @@ import { useAuth } from '@/contexts/auth';
 import { Resource, getResources } from '@/lib/api';
 
 const highlights = [
-  { icon: 'library-outline', title: 'Study library', body: 'Browse notes, past papers, schemes, guides, and classroom materials.' },
-  { icon: 'search-outline', title: 'Smart discovery', body: 'Search by title, subject, level, document type, or description.' },
-  { icon: 'cloud-download-outline', title: 'Direct access', body: 'Open resources from the same PHP backend used by the web dashboard.' },
+  { icon: 'document-text-outline', title: 'Free KCSE Past Papers', body: 'Download KCSE past papers from 2005 to 2024 for all subjects. Free access to previous exam papers for revision and practice.' },
+  { icon: 'book-outline', title: 'Free KCPE Past Papers', body: 'Access KCPE past papers and revision materials for primary school students preparing for national examinations.' },
+  { icon: 'library-outline', title: 'Study Notes & Guides', body: 'Comprehensive study notes, revision guides, and learning materials for all subjects and education levels in Kenya.' },
+  { icon: 'search-outline', title: 'Smart Search', body: 'Find exactly what you need with our powerful search functionality. Filter by subject, level, and resource type.' },
+  { icon: 'cloud-download-outline', title: 'Free Downloads', body: 'Unlimited free downloads of educational resources. No registration required for basic access to learning materials.' },
 ] as const;
 
 export default function HomeScreen() {
@@ -22,21 +24,53 @@ export default function HomeScreen() {
   useEffect(() => {
     let mounted = true;
 
-    getResources()
-      .then((items) => {
+    const loadResources = async () => {
+      try {
+        const items = await getResources();
         if (mounted) {
           setResources(items);
           setApiStatus('online');
         }
-      })
-      .catch(() => {
+      } catch (_err) {
         if (mounted) {
           setApiStatus('offline');
         }
-      });
+      }
+    };
+
+    let pollingInterval: NodeJS.Timeout | null = null;
+    
+    const startPolling = () => {
+      // Only poll when app is active - every 2 minutes for scalability
+      pollingInterval = setInterval(() => {
+        loadResources();
+      }, 120000); // 2 minutes
+    };
+    
+    const stopPolling = () => {
+      if (pollingInterval) {
+        clearInterval(pollingInterval);
+        pollingInterval = null;
+      }
+    };
+    
+    // Handle app state changes
+    const subscription = AppState.addEventListener('change', (nextAppState: AppStateStatus) => {
+      if (nextAppState === 'active') {
+        loadResources(); // Refresh immediately when app becomes active
+        startPolling();
+      } else {
+        stopPolling(); // Stop polling when app goes to background
+      }
+    });
+    
+    loadResources();
+    startPolling();
 
     return () => {
       mounted = false;
+      stopPolling();
+      subscription.remove();
     };
   }, []);
 
@@ -51,12 +85,12 @@ export default function HomeScreen() {
     <Screen>
       <SafeAreaView style={styles.safe}>
         <TopBar
-          right={
+          right={user?.role === 'admin' ? (
             <View style={[styles.statusPill, apiStatus === 'offline' && styles.statusOffline]}>
               <View style={[styles.statusDot, apiStatus === 'offline' && styles.statusDotOffline]} />
               <Text style={styles.statusText}>{apiStatus === 'online' ? 'API online' : apiStatus === 'offline' ? 'API offline' : 'Checking'}</Text>
             </View>
-          }
+          ) : undefined}
         />
         <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
           <View style={styles.hero}>
@@ -116,7 +150,7 @@ export default function HomeScreen() {
               <Text style={styles.orange}>thousands </Text>
               <Text style={styles.white}>of resources</Text>
             </Text>
-            <Text style={styles.sectionText}>Live data comes directly from your `api/resources.php` backend endpoint.</Text>
+            <Text style={styles.sectionText}>{user?.role === 'admin' ? 'Live data comes directly from your `api/resources.php` backend endpoint.' : 'Browse thousands of educational resources at your fingertips.'}</Text>
           </View>
 
           {subjects.length > 0 ? (
@@ -189,9 +223,9 @@ const styles = StyleSheet.create({
     gap: 18,
   },
   hero: {
-    backgroundColor: palette.panel,
+    backgroundColor: 'transparent',
     borderRadius: 4,
-    borderWidth: 1,
+    borderWidth: 0,
     borderColor: palette.border,
     padding: 18,
     gap: 18,
@@ -226,7 +260,7 @@ const styles = StyleSheet.create({
     gap: 6,
     borderWidth: 1,
     borderColor: palette.border,
-    backgroundColor: palette.panel,
+    backgroundColor: 'transparent',
     borderRadius: 999,
     paddingHorizontal: 10,
     paddingVertical: 6,
@@ -256,9 +290,9 @@ const styles = StyleSheet.create({
     flex: 1,
     minHeight: 126,
     borderRadius: 4,
-    borderWidth: 1,
+    borderWidth: 0,
     borderColor: palette.border,
-    backgroundColor: palette.panel,
+    backgroundColor: 'transparent',
     padding: 14,
     gap: 8,
   },
@@ -308,9 +342,9 @@ const styles = StyleSheet.create({
   },
   previewPanel: {
     borderRadius: 4,
-    borderWidth: 1,
+    borderWidth: 0,
     borderColor: palette.border,
-    backgroundColor: palette.panel,
+    backgroundColor: 'transparent',
     padding: 14,
     gap: 12,
   },
@@ -366,9 +400,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: 12,
     borderRadius: 4,
-    backgroundColor: palette.panel,
+    backgroundColor: 'transparent',
     borderColor: palette.border,
-    borderWidth: 1,
+    borderWidth: 0,
     padding: 14,
   },
   featureIcon: {

@@ -1,9 +1,10 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
-import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AppButton, AppFooter, Field, Screen, TopBar, palette } from '@/components/app-ui';
+import { AlertModal } from '@/components/alert-modal';
 import { resendVerification, verifyAccount } from '@/lib/api';
 
 export default function VerifyScreen() {
@@ -12,15 +13,35 @@ export default function VerifyScreen() {
   const [code, setCode] = useState('');
   const [loading, setLoading] = useState(false);
   const [resending, setResending] = useState(false);
+  const [alertModal, setAlertModal] = useState<{
+    visible: boolean;
+    title: string;
+    message: string;
+    type: 'success' | 'error' | 'info' | 'warning';
+  }>({ visible: false, title: '', message: '', type: 'info' });
+
+  const showAlert = (title: string, message: string, type: 'success' | 'error' | 'info' | 'warning' = 'info') => {
+    setAlertModal({ visible: true, title, message, type });
+  };
 
   const submit = async () => {
     setLoading(true);
     try {
       const response = await verifyAccount(email.trim(), code.trim());
-      Alert.alert('Verified', response.message || 'You can now sign in.');
-      router.replace('/login');
+      showAlert(
+        'Account Verified Successfully',
+        response.message || 'Great! Your account has been verified. You can now sign in.',
+        'success'
+      );
+      setTimeout(() => {
+        router.replace('/login');
+      }, 2000);
     } catch (err) {
-      Alert.alert('Verification failed', err instanceof Error ? err.message : 'Please try again.');
+      showAlert(
+        'Verification Failed',
+        err instanceof Error ? err.message : 'We couldn\'t verify your account. Please check the code and try again.',
+        'error'
+      );
     } finally {
       setLoading(false);
     }
@@ -30,9 +51,17 @@ export default function VerifyScreen() {
     setResending(true);
     try {
       const response = await resendVerification(email.trim());
-      Alert.alert('Verification code', response.message || 'A new code has been sent.');
+      showAlert(
+        'Verification Code Sent',
+        response.message || 'A new verification code has been sent to your email address.',
+        'success'
+      );
     } catch (err) {
-      Alert.alert('Could not resend', err instanceof Error ? err.message : 'Please try again.');
+      showAlert(
+        'Could Not Resend Code',
+        err instanceof Error ? err.message : 'We couldn\'t send a new code. Please try again later.',
+        'error'
+      );
     } finally {
       setResending(false);
     }
@@ -65,6 +94,13 @@ export default function VerifyScreen() {
           <AppFooter />
         </ScrollView>
       </SafeAreaView>
+      <AlertModal
+        visible={alertModal.visible}
+        title={alertModal.title}
+        message={alertModal.message}
+        type={alertModal.type}
+        onClose={() => setAlertModal({ ...alertModal, visible: false })}
+      />
     </Screen>
   );
 }
@@ -96,9 +132,9 @@ const styles = StyleSheet.create({
   },
   form: {
     borderRadius: 4,
-    backgroundColor: palette.panel,
+    backgroundColor: 'transparent',
     borderColor: palette.border,
-    borderWidth: 1,
+    borderWidth: 0,
     padding: 16,
     gap: 14,
   },

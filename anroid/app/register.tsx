@@ -1,9 +1,10 @@
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AppButton, AppFooter, Field, Screen, TopBar, palette } from '@/components/app-ui';
+import { AlertModal } from '@/components/alert-modal';
 import { register } from '@/lib/api';
 
 export default function RegisterScreen() {
@@ -11,15 +12,35 @@ export default function RegisterScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [alertModal, setAlertModal] = useState<{
+    visible: boolean;
+    title: string;
+    message: string;
+    type: 'success' | 'error' | 'info' | 'warning';
+  }>({ visible: false, title: '', message: '', type: 'info' });
+
+  const showAlert = (title: string, message: string, type: 'success' | 'error' | 'info' | 'warning' = 'info') => {
+    setAlertModal({ visible: true, title, message, type });
+  };
 
   const submit = async () => {
     setLoading(true);
     try {
       const response = await register(name.trim(), email.trim(), password);
-      Alert.alert('Account created', response.message || 'Check your email for the verification code.');
-      router.replace({ pathname: '/verify', params: { email: email.trim() } });
+      showAlert(
+        'Account Created Successfully',
+        response.message || 'Great! Your account has been created. Please check your email for the verification code.',
+        'success'
+      );
+      setTimeout(() => {
+        router.replace({ pathname: '/verify', params: { email: email.trim() } });
+      }, 2000);
     } catch (err) {
-      Alert.alert('Registration failed', err instanceof Error ? err.message : 'Please try again.');
+      showAlert(
+        'Registration Failed',
+        err instanceof Error ? err.message : 'We couldn\'t create your account. Please check your information and try again.',
+        'error'
+      );
     } finally {
       setLoading(false);
     }
@@ -52,6 +73,13 @@ export default function RegisterScreen() {
           <AppFooter />
         </ScrollView>
       </SafeAreaView>
+      <AlertModal
+        visible={alertModal.visible}
+        title={alertModal.title}
+        message={alertModal.message}
+        type={alertModal.type}
+        onClose={() => setAlertModal({ ...alertModal, visible: false })}
+      />
     </Screen>
   );
 }
@@ -83,9 +111,9 @@ const styles = StyleSheet.create({
   },
   form: {
     borderRadius: 4,
-    backgroundColor: palette.panel,
+    backgroundColor: 'transparent',
     borderColor: palette.border,
-    borderWidth: 1,
+    borderWidth: 0,
     padding: 16,
     gap: 14,
   },

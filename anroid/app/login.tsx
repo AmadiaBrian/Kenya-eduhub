@@ -1,9 +1,10 @@
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AppButton, AppFooter, Field, Screen, TopBar, palette } from '@/components/app-ui';
+import { AlertModal } from '@/components/alert-modal';
 import { useAuth } from '@/contexts/auth';
 
 export default function LoginScreen() {
@@ -11,6 +12,16 @@ export default function LoginScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [alertModal, setAlertModal] = useState<{
+    visible: boolean;
+    title: string;
+    message: string;
+    type: 'success' | 'error' | 'info' | 'warning';
+  }>({ visible: false, title: '', message: '', type: 'info' });
+
+  const showAlert = (title: string, message: string, type: 'success' | 'error' | 'info' | 'warning' = 'info') => {
+    setAlertModal({ visible: true, title, message, type });
+  };
 
   const submit = async () => {
     setLoading(true);
@@ -18,7 +29,11 @@ export default function LoginScreen() {
       await signIn(email.trim(), password);
       router.replace('/dashboard');
     } catch (err) {
-      Alert.alert('Sign in failed', err instanceof Error ? err.message : 'Please try again.');
+      showAlert(
+        'Sign In Failed',
+        err instanceof Error ? err.message : 'We couldn\'t sign you in. Please check your email and password and try again.',
+        'error'
+      );
     } finally {
       setLoading(false);
     }
@@ -52,6 +67,13 @@ export default function LoginScreen() {
           <AppFooter />
         </ScrollView>
       </SafeAreaView>
+      <AlertModal
+        visible={alertModal.visible}
+        title={alertModal.title}
+        message={alertModal.message}
+        type={alertModal.type}
+        onClose={() => setAlertModal({ ...alertModal, visible: false })}
+      />
     </Screen>
   );
 }
@@ -85,9 +107,9 @@ const styles = StyleSheet.create({
   },
   form: {
     borderRadius: 4,
-    backgroundColor: palette.panel,
+    backgroundColor: 'transparent',
     borderColor: palette.border,
-    borderWidth: 1,
+    borderWidth: 0,
     padding: 16,
     gap: 14,
   },

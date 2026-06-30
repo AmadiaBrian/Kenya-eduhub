@@ -25,7 +25,7 @@ export default function RootLayout() {
     const timer = setTimeout(async () => {
       setIsReady(true);
       await SplashScreen.hideAsync();
-    }, 900);
+    }, 5000);
 
     return () => clearTimeout(timer);
   }, []);

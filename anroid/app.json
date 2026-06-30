@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "anroid",
-    "slug": "anroid",
+    "name": "Kenya EduHub",
+    "slug": "kenya-eduhub",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/app-icon.png",
-    "scheme": "anroid",
+    "scheme": "kenya-eduhub",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
@@ -19,7 +19,8 @@
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.anonymous.kenyaeduhub"
     },
     "web": {
       "output": "static",
@@ -38,11 +39,11 @@
             "backgroundColor": "#000000"
           }
         }
-      ]
+      ],
+      "expo-secure-store"
     ],
     "experiments": {
-      "typedRoutes": true,
-      "reactCompiler": true
+      "typedRoutes": true
     }
   }
 }

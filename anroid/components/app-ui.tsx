@@ -155,8 +155,10 @@ export function AppFooter() {
         </View>
       </View>
       <Text style={styles.footerText}>
-        <Text style={styles.footerWhite}>Empowering education across </Text>
+        <Text style={styles.footerWhite}>© 2026 </Text>
         <Text style={styles.brandKenya}>Kenya</Text>
+        <Text style={styles.brandEduhub}> EduHub</Text>
+        <Text style={styles.footerWhite}>. All rights reserved.</Text>
       </Text>
       <Text style={styles.footerMeta}>Resources / Past Papers / Study Notes</Text>
     </View>
@@ -167,10 +169,14 @@ export function FullScreenLoader() {
   return (
     <View style={styles.loaderScreen}>
       <BrandLogo />
-      <View style={styles.loaderCard}>
-        <ActivityIndicator color={palette.gold} size="large" />
-        <Text style={styles.loaderTitle}>Loading Kenya EduHub</Text>
-        <Text style={styles.loaderText}>Preparing your learning dashboard</Text>
+      <ActivityIndicator color={palette.gold} size="large" style={styles.loaderSpinner} />
+      <View style={styles.loaderFooter}>
+        <Text style={styles.loaderFooterText}>
+          <Text style={styles.footerWhite}>© 2026 </Text>
+          <Text style={styles.brandKenya}>Kenya</Text>
+          <Text style={styles.brandEduhub}> EduHub</Text>
+          <Text style={styles.footerWhite}>. All rights reserved.</Text>
+        </Text>
       </View>
     </View>
   );
@@ -204,45 +210,36 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     padding: 24,
-    gap: 26,
+    gap: 40,
   },
-  loaderCard: {
-    width: '100%',
-    maxWidth: 340,
-    borderRadius: 4,
-    backgroundColor: palette.panel,
-    borderColor: palette.border,
-    borderWidth: 1,
-    padding: 22,
+  loaderSpinner: {
+    marginTop: 20,
+  },
+  loaderFooter: {
+    position: 'absolute',
+    bottom: 20,
+    left: 0,
+    right: 0,
     alignItems: 'center',
-    gap: 10,
   },
-  loaderTitle: {
-    color: '#FFFFFF',
-    fontWeight: '900',
-    fontSize: 17,
-    marginTop: 4,
-  },
-  loaderText: {
-    color: palette.muted,
-    fontWeight: '700',
-    fontSize: 13,
+  loaderFooterText: {
+    fontSize: 12,
     textAlign: 'center',
   },
   button: {
     minHeight: 52,
-    borderRadius: 4,
+    borderRadius: 26,
     paddingHorizontal: 18,
     alignItems: 'center',
     justifyContent: 'center',
     flexDirection: 'row',
     gap: 8,
-    backgroundColor: palette.blue,
+    backgroundColor: palette.orange,
   },
   secondaryButton: {
-    backgroundColor: '#000000',
-    borderColor: '#FFFFFF',
-    borderWidth: 1,
+    backgroundColor: palette.gold,
+    borderColor: palette.orange,
+    borderWidth: 2,
   },
   ghostButton: {
     backgroundColor: 'transparent',
@@ -256,7 +253,7 @@ const styles = StyleSheet.create({
     fontSize: 15,
   },
   secondaryButtonText: {
-    color: '#FFFFFF',
+    color: '#000000',
   },
   ghostButtonText: {
     color: palette.gold,
@@ -271,10 +268,10 @@ const styles = StyleSheet.create({
   },
   inputWrap: {
     minHeight: 52,
-    borderRadius: 4,
+    borderRadius: 26,
     borderWidth: 1,
     borderColor: palette.border,
-    backgroundColor: palette.panel,
+    backgroundColor: 'transparent',
     paddingHorizontal: 14,
     flexDirection: 'row',
     alignItems: 'center',

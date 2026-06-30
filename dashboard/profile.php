@@ -865,10 +865,10 @@ $download_stats = $download_stmt->fetch_assoc();
             <a href="index.php#uploadSection" class="menu-item">
                 <i class="fas fa-upload"></i> Upload Resource
             </a>
-                        <a href="profile.php" class="menu-item">
+                        <a href="profile.php" class="menu-item active">
                 <i class="fas fa-user"></i> Profile
             </a>
-            <a href="settings.php" class="menu-item active">
+            <a href="settings.php" class="menu-item">
                 <i class="fas fa-cog"></i> Settings
             </a>
             <a href="../auth/logout.php" class="menu-item">

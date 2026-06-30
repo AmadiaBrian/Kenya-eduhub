@@ -2,6 +2,12 @@
 session_start();
 require_once '../config.php';
 require_once '../includes/helpers.php';
+require_once '../includes/security_lite.php';
+
+// Output CSRF token to JavaScript for AJAX requests
+$csrf_token = generateCSRFLite();
+echo '<script>window.currentCSRFToken = "' . $csrf_token . '";</script>';
+
 
 // Check if user is logged in and is admin
 if (!isset($_SESSION['user_id'])) {
@@ -808,6 +814,23 @@ try {
         .resource-uploader i {
             margin-right: 4px;
             opacity: 0.7;
+        }
+
+        .resource-uploader strong {
+            color: #FFD700;
+            font-weight: 700;
+        }
+
+        .badge-my-upload {
+            background: #008000;
+            color: #ffffff;
+            font-size: 9px;
+            font-weight: 800;
+            padding: 2px 8px;
+            border-radius: 3px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-left: 8px;
         }
 
         .resource-meta {
@@ -1700,7 +1723,7 @@ try {
                                     break;
                             }
                             ?>
-                            <div class="resource-card" data-filename="<?php echo htmlspecialchars($resource['filename']); ?>">
+                            <div class="resource-card" data-filename="<?php echo htmlspecialchars($resource['filename']); ?>" data-user-id="<?php echo $resource['user_id'] ?? ''; ?>">
                                 <div class="resource-header">
                                     <div class="resource-icon <?php echo $iconClass; ?>">
                                         <i class="fas <?php echo $iconFa; ?>"></i>
@@ -1711,17 +1734,22 @@ try {
                                         <div class="resource-uploader">
                                             <small class="text-muted">
                                                 <i class="fas fa-user"></i> 
-                                                Uploaded by: <?php 
-                                                if (!empty($resource['name'])) {
+                                                Uploaded by: <strong><?php 
+                                                if ($resource['user_id'] == $_SESSION['user_id']) {
+                                                    echo 'You';
+                                                } elseif (!empty($resource['name'])) {
                                                     echo htmlspecialchars($resource['name']);
                                                 } elseif (!empty($resource['email'])) {
                                                     echo htmlspecialchars($resource['email']);
                                                 } else {
                                                     echo 'Unknown';
                                                 }
-                                                ?>
-                                                <?php if (!empty($resource['name']) && !empty($resource['email'])): ?>
+                                                ?></strong>
+                                                <?php if (!empty($resource['name']) && !empty($resource['email']) && $resource['user_id'] != $_SESSION['user_id']): ?>
                                                 (<?php echo htmlspecialchars($resource['email']); ?>)
+                                                <?php endif; ?>
+                                                <?php if ($resource['user_id'] == $_SESSION['user_id']): ?>
+                                                <span class="badge-my-upload">My Upload</span>
                                                 <?php endif; ?>
                                             </small>
                                         </div>
@@ -1831,19 +1859,8 @@ try {
                                     <div class="resource-uploader">
                                         <small class="text-muted">
                                             <i class="fas fa-user"></i> 
-                                            <!-- DEBUG: user_id=<?php echo $resource['user_id']; ?>, name=<?php echo var_export($resource['name'], true); ?>, email=<?php echo var_export($resource['email'], true); ?> -->
-                                            Uploaded by: <?php 
-                                            if (!empty($resource['name'])) {
-                                                echo htmlspecialchars($resource['name']);
-                                            } elseif (!empty($resource['email'])) {
-                                                echo htmlspecialchars($resource['email']);
-                                            } else {
-                                                echo 'Unknown';
-                                            }
-                                            ?>
-                                            <?php if (!empty($resource['name']) && !empty($resource['email'])): ?>
-                                            (<?php echo htmlspecialchars($resource['email']); ?>)
-                                            <?php endif; ?>
+                                            Uploaded by: <strong>You</strong>
+                                            <span class="badge-my-upload">My Upload</span>
                                         </small>
                                     </div>
                                 </div>
@@ -2356,13 +2373,45 @@ try {
                 // Create FormData
                 const formData = new FormData(uploadForm);
                 
-                // Send to API
+                // Use fresh CSRF token from server
+                if (window.currentCSRFToken) {
+                    formData.set('csrf_token', window.currentCSRFToken);
+                    console.log('Using fresh CSRF token:', window.currentCSRFToken);
+                }
+                
+                // Get session ID from cookies
+                const sessionId = document.cookie.match(/PHPSESSID=([^;]+)/);
+                console.log('Session ID:', sessionId ? sessionId[1] : 'not found');
+                
+                // Send to API exactly like Android app - explicit Cookie header
                 fetch('../api/upload.php', {
                     method: 'POST',
                     body: formData,
-                    credentials: 'include'
+                    headers: sessionId ? {
+                        'Cookie': `PHPSESSID=${sessionId[1]}`
+                    } : {}
                 })
-                .then(response => response.json())
+                .then(async response => {
+                    const text = await response.text();
+                    console.log('Response text:', text);
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    
+                    try {
+                        // Strip PHP notices/errors from response before parsing JSON
+                        const jsonStart = text.indexOf('{');
+                        const jsonEnd = text.lastIndexOf('}');
+                        if (jsonStart !== -1 && jsonEnd !== -1) {
+                            const jsonText = text.substring(jsonStart, jsonEnd + 1);
+                            return JSON.parse(jsonText);
+                        }
+                        return JSON.parse(text);
+                    } catch (e) {
+                        throw new Error(`Invalid JSON response: ${text.substring(0, 200)}`);
+                    }
+                })
                 .then(data => {
                     if (data.success) {
                         // Show success message
