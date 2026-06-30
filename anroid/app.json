@@ -31,9 +31,6 @@
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/splash-kenya-eduhub.png",
-          "imageWidth": 260,
-          "resizeMode": "contain",
           "backgroundColor": "#000000",
           "dark": {
             "backgroundColor": "#000000"
