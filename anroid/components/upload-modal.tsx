@@ -340,15 +340,13 @@ const styles = StyleSheet.create({
   overlay: {
     flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.85)',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 24,
+    justifyContent: 'flex-end',
   },
   container: {
     width: '100%',
-    maxWidth: 420,
     maxHeight: '90%',
-    borderRadius: 8,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
     backgroundColor: 'transparent',
     borderColor: palette.border,
     borderWidth: 0,
