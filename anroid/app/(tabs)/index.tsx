@@ -150,7 +150,7 @@ export default function HomeScreen() {
               <Text style={styles.orange}>thousands </Text>
               <Text style={styles.white}>of resources</Text>
             </Text>
-            <Text style={styles.sectionText}>{user?.role === 'admin' ? 'Live data comes directly from your `api/resources.php` backend endpoint.' : 'Browse thousands of educational resources at your fingertips.'}</Text>
+            <Text style={styles.sectionText}>Browse thousands of educational resources at your fingertips.</Text>
           </View>
 
           {subjects.length > 0 ? (

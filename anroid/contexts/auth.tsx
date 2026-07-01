@@ -1,5 +1,5 @@
 import * as SecureStore from 'expo-secure-store';
-import { ApiUser, login as apiLogin } from '@/lib/api';
+import { ApiUser, login as apiLogin, logout as apiLogout } from '@/lib/api';
 import { createContext, PropsWithChildren, useContext, useEffect, useMemo, useState } from 'react';
 
 type AuthContextValue = {
@@ -64,9 +64,16 @@ export function AuthProvider({ children }: PropsWithChildren) {
         await saveSession(response.user);
         return response.user;
       },
-      signOut() {
+      async signOut() {
+        try {
+          // Call logout API to clear server session
+          await apiLogout();
+        } catch (error) {
+          console.error('Logout API error:', error);
+          // Continue with local logout even if API fails
+        }
         setUser(null);
-        clearSession();
+        await clearSession();
       },
       setUser,
     }),

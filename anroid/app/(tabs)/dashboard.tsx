@@ -22,6 +22,7 @@ export default function DashboardScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState('');
   const [uploadModalVisible, setUploadModalVisible] = useState(false);
+  const [authChecked, setAuthChecked] = useState(false);
   const [alertModal, setAlertModal] = useState<{
     visible: boolean;
     title: string;
@@ -50,13 +51,25 @@ export default function DashboardScreen() {
   }, []);
 
   useEffect(() => {
-    if (!isAuthenticated) {
-      router.replace('/login');
-      return;
-    }
-    
-    // Check CSRF token when dashboard loads
-    checkCSRFToken();
+    const checkAuth = async () => {
+      try {
+        if (!isAuthenticated) {
+          // Delay redirect slightly to avoid race conditions
+          setTimeout(() => router.replace('/login'), 100);
+          return;
+        }
+        
+        // Check CSRF token when dashboard loads
+        await checkCSRFToken();
+      } catch (error) {
+        console.error('Auth check error:', error);
+        setTimeout(() => router.replace('/login'), 100);
+      } finally {
+        setAuthChecked(true);
+      }
+    };
+
+    checkAuth();
   }, [isAuthenticated, checkCSRFToken]);
 
   const loadResources = useCallback(async () => {
@@ -227,17 +240,12 @@ export default function DashboardScreen() {
     }
   };
 
-  if (!isAuthenticated) {
+  // Don't render dashboard content until auth is checked
+  if (!authChecked || !isAuthenticated) {
     return (
-      <Screen>
-        <SafeAreaView style={styles.safe}>
-          <TopBar />
-          <View style={styles.centerState}>
-            <ActivityIndicator color={palette.gold} />
-            <Text style={styles.stateText}>Redirecting to sign in...</Text>
-          </View>
-        </SafeAreaView>
-      </Screen>
+      <View style={styles.centerState}>
+        <ActivityIndicator color={palette.gold} size="large" />
+      </View>
     );
   }
 

@@ -1,11 +1,14 @@
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import { Tabs } from 'expo-router';
 import React from 'react';
+import { useAuth } from '@/contexts/auth';
 
 import { HapticTab } from '@/components/haptic-tab';
 import { palette } from '@/components/app-ui';
 
 export default function TabLayout() {
+  const { isAuthenticated } = useAuth();
+
   return (
     <Tabs
       screenOptions={{
@@ -38,6 +41,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="dashboard"
         options={{
+          href: isAuthenticated ? '/dashboard' : null,
           title: 'Dashboard',
           tabBarIcon: ({ color, focused }) => (
             <FontAwesome5 name="tachometer-alt" size={focused ? 21 : 19} color={color} solid />

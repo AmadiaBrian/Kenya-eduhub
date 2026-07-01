@@ -145,6 +145,28 @@ export async function login(email: string, password: string) {
   return json;
 }
 
+export async function logout() {
+  // Clear local storage (server session cleanup is optional for persistent sessions)
+  await SecureStore.deleteItemAsync('kenya_eduhub_session_id');
+  await SecureStore.deleteItemAsync('kenya_eduhub_csrf_token');
+  
+  // Try to call logout API to clear server session, but don't fail if it doesn't work
+  try {
+    const url = `${API_BASE_URL}/logout.php`;
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    // Ignore response - local cleanup is what matters
+  } catch (error) {
+    console.log('Logout API call failed (non-critical):', error);
+  }
+  
+  return { success: true, message: 'Logged out successfully' };
+}
+
 export function register(name: string, email: string, password: string) {
   return request<{ user: ApiUser }>('register.php', {
     method: 'POST',

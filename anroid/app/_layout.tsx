@@ -22,10 +22,20 @@ export default function RootLayout() {
   const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
-    const timer = setTimeout(async () => {
+    async function prepare() {
+      try {
+        // Hide native splash immediately so custom loader shows
+        await SplashScreen.hideAsync();
+      } catch (e) {
+        console.warn(e);
+      }
+    }
+
+    prepare();
+
+    const timer = setTimeout(() => {
       setIsReady(true);
-      await SplashScreen.hideAsync();
-    }, 2000);
+    }, 5000);
 
     return () => clearTimeout(timer);
   }, []);

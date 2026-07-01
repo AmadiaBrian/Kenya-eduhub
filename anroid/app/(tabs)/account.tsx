@@ -135,9 +135,6 @@ export default function AccountScreen() {
           <View style={styles.panel}>
             <InfoRow icon="ribbon-outline" label="Role" value={isAuthenticated ? user?.role ?? 'user' : 'guest'} />
             <InfoRow icon="shield-checkmark-outline" label="Account status" value={isAuthenticated ? 'Signed in' : 'Not signed in'} />
-            {user?.role === 'admin' ? (
-              <InfoRow icon="server-outline" label="Backend" value="Local Kenya EduHub API" />
-            ) : null}
           </View>
 
           {isAuthenticated ? (
@@ -156,7 +153,7 @@ export default function AccountScreen() {
                 </AppButton>
               </View>
               {usersError ? (
-                <Text style={styles.errorText}>{usersError instanceof Error ? usersError.message : String(usersError)}</Text>
+                <Text style={styles.errorText}>{usersError}</Text>
               ) : users.length === 0 ? (
                 <Text style={styles.emptyText}>No users found</Text>
               ) : (
@@ -243,7 +240,7 @@ export default function AccountScreen() {
         <Pressable style={styles.modalOverlay} onPress={() => setProfileModalVisible(false)}>
           <View style={styles.modalContainer} onStartShouldSetResponder={() => true}>
             <Text style={styles.modalTitle}>Edit Profile</Text>
-            {error ? <Text style={styles.errorText}>{error instanceof Error ? error.message : String(error)}</Text> : null}
+            {error ? <Text style={styles.errorText}>{error}</Text> : null}
             <Field
               label="Name"
               icon="person-outline"
@@ -289,7 +286,7 @@ export default function AccountScreen() {
         <Pressable style={styles.modalOverlay} onPress={() => setPasswordModalVisible(false)}>
           <View style={styles.modalContainer} onStartShouldSetResponder={() => true}>
             <Text style={styles.modalTitle}>Change Password</Text>
-            {error ? <Text style={styles.errorText}>{error instanceof Error ? error.message : String(error)}</Text> : null}
+            {error ? <Text style={styles.errorText}>{error}</Text> : null}
             <Field
               label="Current Password"
               icon="lock-closed-outline"
