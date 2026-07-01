@@ -64,7 +64,7 @@ function getApiHost() {
   return Platform.OS === 'android' ? '10.0.2.2' : 'localhost';
 }
 
-export const API_BASE_URL = `https://unexplaining-lesli-nonabsolutely.ngrok-free.dev/kenyaeduhub/api`;
+export const API_BASE_URL = `https://agitated-silence-02871.pktriot.xyz/kenyaeduhub/api`;
 
 async function request<T>(endpoint: string, options?: RequestInit): Promise<ApiResponse<T>> {
   const url = `${API_BASE_URL}/${endpoint}`;
@@ -79,9 +79,7 @@ async function request<T>(endpoint: string, options?: RequestInit): Promise<ApiR
       ...options,
     });
   } catch {
-    throw new Error(
-      `Cannot reach Kenya EduHub API at ${API_BASE_URL}. Make sure XAMPP Apache is running and your phone is on the same Wi-Fi as this computer.`,
-    );
+    throw new Error('Network error. Please check your connection and try again.');
   }
 
   const text = await response.text();
