@@ -79,6 +79,19 @@ if (!is_numeric($resourceId)) {
     exit();
 }
 
+// Prevent duplicate download counting (deduplication)
+$dedup_key = 'download_' . $download_identifier . '_' . $resourceId;
+if (isset($_SESSION[$dedup_key])) {
+    $last_download_time = $_SESSION[$dedup_key];
+    $time_diff = time() - $last_download_time;
+    // If the same resource was downloaded within 5 seconds, it's likely a duplicate
+    if ($time_diff < 5) {
+        http_response_code(429);
+        echo json_encode(['success' => false, 'message' => 'Download already in progress. Please wait.']);
+        exit();
+    }
+}
+
 // Get resource info
 $sql = "SELECT * FROM resources WHERE id = ?";
 $stmt = $conn->prepare($sql);
@@ -103,6 +116,9 @@ $updateStmt = $conn->prepare($updateSql);
 $updateStmt->bind_param("i", $resourceId);
 
 if ($updateStmt->execute()) {
+    // Set deduplication key to prevent duplicate counting
+    $_SESSION[$dedup_key] = time();
+    
     // Check if this is a download request (not just count update)
     if (isset($_GET['download']) && $_GET['download'] === 'true') {
         $storedFile = $resource['filename'];
@@ -134,7 +150,7 @@ if ($updateStmt->execute()) {
             http_response_code(404);
             echo json_encode([
                 "success" => false,
-                "message" => "File not found at: " . $filePath
+                "message" => "The requested file is not available. Please contact support if this issue persists."
             ]);
         }
     } else {
