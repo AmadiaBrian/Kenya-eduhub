@@ -180,11 +180,8 @@ function validateCSRFLite($token) {
         return false;
     }
     
-    // Token expires after 1 hour
-    if (time() - $_SESSION['csrf_lite_time'] > 3600) {
-        unset($_SESSION['csrf_lite_token'], $_SESSION['csrf_lite_time']);
-        return false;
-    }
+    // Token only expires on logout - no time-based expiration
+    // This allows persistent sessions like WhatsApp/Facebook
     
     return hash_equals($_SESSION['csrf_lite_token'], $token);
 }
