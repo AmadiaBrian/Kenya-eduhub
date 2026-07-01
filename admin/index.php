@@ -2111,68 +2111,30 @@ try {
 
         // Download Resource Function
         function downloadResource(resourceId, button) {
+            // Prevent duplicate clicks - disable button immediately
+            if (button.disabled || button.classList.contains('btn-loading')) {
+                return;
+            }
+            
             // Add loading state
             button.classList.add('btn-loading');
+            button.disabled = true;
             button.innerHTML = '<i class="fas fa-download"></i> Downloading...';
 
-            // Get the resource info from the card
-            const card = button.closest('.resource-card');
-            const title = card.querySelector('.resource-title').textContent;
-            const fullPath = card.dataset.filename || `resource_${resourceId}`;
+            // Use the proper API download endpoint
+            const downloadUrl = `../api/download.php?id=${resourceId}&download=true`;
             
-            // Extract just the filename from the full path
-            const filename = fullPath.includes('/') ? fullPath.split('/').pop() : fullPath;
-            
-            // Try direct download from uploads folder
-            const directUrl = `../api/uploads/${filename}`;
-            
-            // Create download link
+            // Trigger download directly (fetch was causing double count updates)
             const link = document.createElement('a');
-            link.href = directUrl;
-            
-            // Extract file extension from the stored filename
-            let fileExtension = 'pdf'; // default
-            if (filename.includes('.')) {
-                // Get the part after the last dot
-                const parts = filename.split('.');
-                fileExtension = parts[parts.length - 1].toLowerCase();
-            }
-            
-            // Validate extension is one of the allowed types
-            const allowedExtensions = ['pdf', 'doc', 'docx', 'ppt', 'pptx', 'xls', 'xlsx', 'txt'];
-            if (!allowedExtensions.includes(fileExtension)) {
-                fileExtension = 'pdf'; // fallback to pdf if unknown
-            }
-            
-            // Use clean title with correct extension
-            link.download = title.replace(/[^\w\s.-]/gi, '') + '.' + fileExtension;
+            link.href = downloadUrl;
             link.style.display = 'none';
-            
-            // Handle download success/failure
-            link.onload = function() {
-                resetDownloadButton(button);
-                updateDownloadCount(resourceId, button);
-            };
-            
-            link.onerror = function() {
-                showDownloadMessage(button, 'File not found in uploads folder');
-                resetDownloadButton(button);
-                updateDownloadCount(resourceId, button);
-            };
-            
-            // Try to download
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
             
-            // Check if download started (fallback)
+            // Reset button after a short delay
             setTimeout(() => {
-                if (button.classList.contains('btn-loading')) {
-                    // If still loading, assume it failed
-                    showDownloadMessage(button, 'File not available for download');
-                    resetDownloadButton(button);
-                    updateDownloadCount(resourceId, button);
-                }
+                resetDownloadButton(button);
             }, 2000);
         }
 
