@@ -1,6 +1,7 @@
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import { Tabs } from 'expo-router';
 import React from 'react';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '@/contexts/auth';
 
 import { HapticTab } from '@/components/haptic-tab';
@@ -8,6 +9,7 @@ import { palette } from '@/components/app-ui';
 
 export default function TabLayout() {
   const { isAuthenticated } = useAuth();
+  const insets = useSafeAreaInsets();
 
   return (
     <Tabs
@@ -18,9 +20,9 @@ export default function TabLayout() {
           backgroundColor: '#000000',
           borderTopColor: palette.gold,
           borderTopWidth: 2,
-          height: 66,
+          height: 66 + insets.bottom,
           paddingTop: 7,
-          paddingBottom: 9,
+          paddingBottom: 9 + insets.bottom,
         },
         tabBarLabelStyle: {
           fontSize: 11,
