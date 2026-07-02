@@ -83,6 +83,12 @@ async function request<T>(endpoint: string, options?: RequestInit): Promise<ApiR
   }
 
   const text = await response.text();
+  
+  // Check if response is HTML (server protection/bot detection)
+  if (text.trim().startsWith('<html') || text.trim().startsWith('<!DOCTYPE')) {
+    throw new Error('Server is temporarily unavailable or blocking requests. Please try again later or contact support.');
+  }
+  
   let json: ApiResponse<T>;
 
   try {
@@ -112,6 +118,11 @@ export async function login(email: string, password: string) {
   const text = await response.text();
   console.log('Login response text:', text);
   console.log('Response status:', response.status);
+  
+  // Check if response is HTML (server protection/bot detection)
+  if (text.trim().startsWith('<html') || text.trim().startsWith('<!DOCTYPE')) {
+    throw new Error('Server is temporarily unavailable or blocking requests. Please try again later or contact support.');
+  }
   
   let json: ApiResponse<{ user: ApiUser; session_id?: string; csrf_token?: string }>;
   
