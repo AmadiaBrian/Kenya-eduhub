@@ -1,6 +1,6 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useState } from 'react';
-import { ActivityIndicator, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import * as DocumentPicker from 'expo-document-picker';
 
 import { AppButton, Field, getFileIcon, palette } from './app-ui';
@@ -221,28 +221,31 @@ export function UploadModal({ visible, onClose, onUpload }: UploadModalProps) {
       transparent
       animationType="fade"
       onRequestClose={handleClose}>
-      <Pressable style={styles.overlay} onPress={handleClose}>
-        <View style={styles.container} onStartShouldSetResponder={() => true}>
-          {/* Header */}
-          <View style={styles.header}>
-            <View style={styles.iconContainer}>
-              <Ionicons name="cloud-upload-outline" size={48} color={palette.gold} />
+      <KeyboardAvoidingView 
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={styles.keyboardAvoidingView}>
+        <Pressable style={styles.overlay} onPress={handleClose}>
+          <View style={styles.container} onStartShouldSetResponder={() => true}>
+            {/* Header */}
+            <View style={styles.header}>
+              <View style={styles.iconContainer}>
+                <Ionicons name="cloud-upload-outline" size={48} color={palette.gold} />
+              </View>
             </View>
-          </View>
 
-          {/* Content */}
-          <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-            <Text style={styles.title}>Upload Resource</Text>
-            <Text style={styles.subtitle}>Share educational materials with the community</Text>
+            {/* Content */}
+            <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+              <Text style={styles.title}>Upload Resource</Text>
+              <Text style={styles.subtitle}>Share educational materials with the community</Text>
 
-            <View style={styles.form}>
-              <Field
-                label="Resource title"
-                icon="document-text-outline"
-                value={title}
-                onChangeText={setTitle}
-                placeholder="e.g., KCSE Mathematics Paper 1"
-              />
+              <View style={styles.form}>
+                <Field
+                  label="Resource title"
+                  icon="document-text-outline"
+                  value={title}
+                  onChangeText={setTitle}
+                  placeholder="e.g., KCSE Mathematics Paper 1"
+                />
               
               <SimplePicker
                 label="Education level"
@@ -332,11 +335,15 @@ export function UploadModal({ visible, onClose, onUpload }: UploadModalProps) {
           </View>
         </View>
       </Pressable>
+      </KeyboardAvoidingView>
     </Modal>
   );
 }
 
 const styles = StyleSheet.create({
+  keyboardAvoidingView: {
+    flex: 1,
+  },
   overlay: {
     flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.85)',
