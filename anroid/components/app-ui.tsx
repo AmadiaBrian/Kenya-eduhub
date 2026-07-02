@@ -12,6 +12,13 @@ import {
   View,
   ViewStyle,
 } from 'react-native';
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+  withTiming,
+} from 'react-native-reanimated';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export const palette = {
   ink: '#FFFFFF',
@@ -26,6 +33,26 @@ export const palette = {
   red: '#D13438',
   blue: '#0078D4',
 };
+
+export function getFileIcon(filename: string): keyof typeof Ionicons.glyphMap {
+  const ext = filename.split('.').pop()?.toLowerCase() || '';
+  
+  switch (ext) {
+    case 'pdf':
+      return 'document-text';
+    case 'doc':
+    case 'docx':
+      return 'document';
+    case 'ppt':
+    case 'pptx':
+      return 'easel';
+    case 'xls':
+    case 'xlsx':
+      return 'grid';
+    default:
+      return 'document-text-outline';
+  }
+}
 
 type ButtonProps = PropsWithChildren<{
   onPress?: () => void;
@@ -45,39 +72,54 @@ export function AppButton({
   disabled,
   style,
 }: ButtonProps) {
+  const scale = useSharedValue(1);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
+  }));
+
   return (
     <Pressable
       accessibilityRole="button"
       disabled={disabled || loading}
-      onPress={onPress}
-      style={({ pressed }) => [
-        styles.button,
-        variant === 'secondary' && styles.secondaryButton,
-        variant === 'ghost' && styles.ghostButton,
-        (pressed || disabled || loading) && styles.pressed,
-        style,
-      ]}>
-      {loading ? (
-        <ActivityIndicator color={variant === 'primary' ? '#FFFFFF' : palette.gold} />
-      ) : (
-        <>
-          {icon ? (
-            <Ionicons
-              name={icon}
-              size={18}
-              color={variant === 'primary' ? '#FFFFFF' : palette.gold}
-            />
-          ) : null}
-          <Text
-            style={[
-              styles.buttonText,
-              variant !== 'primary' && styles.secondaryButtonText,
-              variant === 'ghost' && styles.ghostButtonText,
-            ]}>
-            {children}
-          </Text>
-        </>
-      )}
+      onPressIn={() => {
+        scale.value = withSpring(0.95, { damping: 15, stiffness: 400 });
+      }}
+      onPressOut={() => {
+        scale.value = withSpring(1, { damping: 15, stiffness: 400 });
+      }}
+      onPress={onPress}>
+      <Animated.View
+        style={[
+          styles.button,
+          variant === 'secondary' && styles.secondaryButton,
+          variant === 'ghost' && styles.ghostButton,
+          (disabled || loading) && styles.pressed,
+          animatedStyle,
+          style,
+        ]}>
+        {loading ? (
+          <ActivityIndicator color={variant === 'primary' ? '#FFFFFF' : palette.gold} />
+        ) : (
+          <>
+            {icon ? (
+              <Ionicons
+                name={icon}
+                size={18}
+                color={variant === 'primary' ? '#FFFFFF' : palette.gold}
+              />
+            ) : null}
+            <Text
+              style={[
+                styles.buttonText,
+                variant !== 'primary' && styles.secondaryButtonText,
+                variant === 'ghost' && styles.ghostButtonText,
+              ]}>
+              {children}
+            </Text>
+          </>
+        )}
+      </Animated.View>
     </Pressable>
   );
 }
@@ -166,11 +208,13 @@ export function AppFooter() {
 }
 
 export function FullScreenLoader() {
+  const insets = useSafeAreaInsets();
+  
   return (
     <View style={styles.loaderScreen}>
       <BrandLogo />
       <ActivityIndicator color={palette.gold} size="large" style={styles.loaderSpinner} />
-      <View style={styles.loaderFooter}>
+      <View style={[styles.loaderFooter, { paddingBottom: insets.bottom + 20 }]}>
         <Text style={styles.loaderFooterText}>
           <Text style={styles.footerWhite}>© 2026 </Text>
           <Text style={styles.brandKenya}>Kenya</Text>

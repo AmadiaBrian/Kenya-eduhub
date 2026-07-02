@@ -6,7 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import * as SecureStore from 'expo-secure-store';
 import * as WebBrowser from 'expo-web-browser';
 
-import { AppButton, AppFooter, Field, Screen, Stat, TopBar, palette } from '@/components/app-ui';
+import { AppButton, AppFooter, Field, getFileIcon, Screen, Stat, TopBar, palette } from '@/components/app-ui';
 import { DownloadModal } from '@/components/download-modal';
 import { AlertModal } from '@/components/alert-modal';
 import { UploadModal } from '@/components/upload-modal';
@@ -461,7 +461,7 @@ function ResourceCard({
       <View style={styles.card}>
         <View style={styles.cardTop}>
           <View style={styles.fileIcon}>
-            <Ionicons name="document-text-outline" size={22} color={palette.green} />
+            <Ionicons name={getFileIcon(resource.filename || '')} size={22} color={palette.green} />
           </View>
           <View style={styles.cardTitleWrap}>
             <Text style={styles.cardTitle}>{resource.title || 'Untitled resource'}</Text>

@@ -100,21 +100,39 @@ export default function AccountScreen() {
 
     let mounted = true;
 
-    getUsers()
-      .then((items) => {
-        if (mounted) {
-          setUsers(items);
-          setUsersError('');
-        }
-      })
-      .catch((err) => {
-        if (mounted) {
-          setUsersError(err instanceof Error ? err.message : 'Could not load users.');
-        }
-      });
+    const loadUsers = () => {
+      getUsers()
+        .then((items) => {
+          if (mounted) {
+            setUsers(items);
+            setUsersError('');
+          }
+        })
+        .catch((err) => {
+          if (mounted) {
+            setUsersError(err instanceof Error ? err.message : 'Could not load users.');
+          }
+        });
+    };
+
+    loadUsers();
+    
+    // Auto-reload users every 2 minutes like dashboard
+    let pollingInterval: ReturnType<typeof setInterval> | null = null;
+    
+    const startPolling = () => {
+      pollingInterval = setInterval(() => {
+        loadUsers();
+      }, 120000); // 2 minutes
+    };
+
+    startPolling();
 
     return () => {
       mounted = false;
+      if (pollingInterval) {
+        clearInterval(pollingInterval);
+      }
     };
   }, [user?.role]);
 
@@ -148,12 +166,14 @@ export default function AccountScreen() {
             <View style={styles.panel}>
               <View style={styles.panelHeader}>
                 <Text style={styles.panelTitle}>User Management</Text>
-                <AppButton icon="refresh-outline" variant="ghost" onPress={() => getUsers().then(setUsers).catch(setUsersError)} style={styles.refreshButton}>
+                <AppButton icon="refresh-outline" variant="ghost" onPress={() => getUsers().then((items) => setUsers(items)).catch((err) => setUsersError(err instanceof Error ? err.message : 'Could not load users.'))} style={styles.refreshButton}>
                   Refresh
                 </AppButton>
               </View>
               {usersError ? (
-                <Text style={styles.errorText}>{usersError}</Text>
+                <View style={styles.errorContainer}>
+                  <Text style={styles.errorText}>{usersError}</Text>
+                </View>
               ) : users.length === 0 ? (
                 <Text style={styles.emptyText}>No users found</Text>
               ) : (
@@ -444,6 +464,14 @@ const styles = StyleSheet.create({
     color: palette.red,
     fontSize: 14,
     textAlign: 'center',
+  },
+  errorContainer: {
+    padding: 20,
+    alignItems: 'center',
+    gap: 12,
+  },
+  retryButton: {
+    width: '100%',
   },
   modalActions: {
     flexDirection: 'row',

@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { AppState, AppStateStatus, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { AppButton, AppFooter, Badge, BrandLogo, Screen, Stat, TopBar, palette } from '@/components/app-ui';
+import { AppButton, AppFooter, Badge, BrandLogo, getFileIcon, Screen, Stat, TopBar, palette } from '@/components/app-ui';
 import { useAuth } from '@/contexts/auth';
 import { Resource, getResources } from '@/lib/api';
 
@@ -172,7 +172,7 @@ export default function HomeScreen() {
               {latestResources.map((resource) => (
                 <View key={String(resource.id)} style={styles.previewRow}>
                   <View style={styles.previewIcon}>
-                    <Ionicons name="document-text-outline" size={18} color={palette.gold} />
+                    <Ionicons name={getFileIcon(resource.filename || '')} size={18} color={palette.gold} />
                   </View>
                   <View style={styles.previewText}>
                     <Text style={styles.previewName} numberOfLines={1}>{resource.title || 'Untitled resource'}</Text>

@@ -4,7 +4,7 @@ import { ActivityIndicator, Linking, Modal, Pressable, StyleSheet, Text, View } 
 import * as FileSystem from 'expo-file-system/legacy';
 import * as Sharing from 'expo-sharing';
 
-import { AppButton, palette } from './app-ui';
+import { AppButton, getFileIcon, palette } from './app-ui';
 
 type DownloadModalProps = {
   visible: boolean;
@@ -171,7 +171,7 @@ export function DownloadModal({
                   Download complete! Choose where to save your file.
                 </Text>
                 <View style={styles.fileInfo}>
-                  <Ionicons name="document-text-outline" size={16} color={palette.muted} />
+                  <Ionicons name={getFileIcon(filename)} size={16} color={palette.muted} />
                   <Text style={styles.fileInfoText}>{filename}</Text>
                 </View>
               </>

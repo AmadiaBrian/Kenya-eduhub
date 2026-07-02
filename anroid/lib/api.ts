@@ -78,7 +78,11 @@ async function request<T>(endpoint: string, options?: RequestInit): Promise<ApiR
       },
       ...options,
     });
-  } catch {
+  } catch (error) {
+    // Check for network errors
+    if (error instanceof TypeError && error.message.includes('Network request failed')) {
+      throw new Error('Network error. Please check your connection and try again.');
+    }
     throw new Error('Network error. Please check your connection and try again.');
   }
 
@@ -226,9 +230,7 @@ export async function getResources() {
 }
 
 export async function getUsers() {
-  console.log('Fetching users...');
   const url = `${API_BASE_URL}/users.php`;
-  console.log('Request URL:', url);
   
   try {
     const response = await fetch(url, {
@@ -238,8 +240,11 @@ export async function getUsers() {
     });
     
     const text = await response.text();
-    console.log('Response text:', text);
-    console.log('Response status:', response.status);
+    
+    // Check if response is HTML (server protection/bot detection)
+    if (text.trim().startsWith('<html') || text.trim().startsWith('<!DOCTYPE')) {
+      throw new Error('Server is temporarily unavailable or blocking requests. Please try again later or contact support.');
+    }
     
     let json: ApiResponse<{ users: AdminUser[] }>;
     try {
@@ -254,8 +259,14 @@ export async function getUsers() {
     
     return json.users ?? [];
   } catch (error) {
-    console.error('Error fetching users:', error);
-    throw error;
+    // Check for network errors
+    if (error instanceof TypeError && error.message.includes('Network request failed')) {
+      throw new Error('Network error. Please check your connection and try again.');
+    }
+    if (error instanceof Error) {
+      throw error;
+    }
+    throw new Error('Network error. Please check your connection and try again.');
   }
 }
 

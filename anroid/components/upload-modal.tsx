@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { ActivityIndicator, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import * as DocumentPicker from 'expo-document-picker';
 
-import { AppButton, Field, palette } from './app-ui';
+import { AppButton, Field, getFileIcon, palette } from './app-ui';
 
 const LEVELS = ['Primary School', 'Secondary School', 'College', 'University'];
 const TYPES = ['PDF', 'DOC', 'PPT', 'XLS'];
@@ -272,7 +272,7 @@ export function UploadModal({ visible, onClose, onUpload }: UploadModalProps) {
                 <Text style={styles.fileLabel}>Select file</Text>
                 {file ? (
                   <View style={styles.selectedFile}>
-                    <Ionicons name="document-text" size={20} color={palette.green} />
+                    <Ionicons name={getFileIcon(file.name)} size={20} color={palette.green} />
                     <Text style={styles.fileName} numberOfLines={1}>{file.name}</Text>
                     <AppButton
                       icon="close-circle"
