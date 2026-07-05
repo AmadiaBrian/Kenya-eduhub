@@ -498,7 +498,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $resource) {
         /* Form Styles */
         .card {
             background: white;
-            border-radius: 4px;
+            border-radius: 8px;
             padding: 24px;
             box-shadow: 0 2px 8px var(--ms-shadow-light);
             border: 1px solid var(--ms-border);
@@ -548,7 +548,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $resource) {
         .form-group textarea {
             padding: 12px 16px;
             border: 1px solid var(--ms-border);
-            border-radius: 4px;
+            border-radius: 8px;
             font-size: 14px;
             transition: all 0.167s cubic-bezier(0.1, 0.9, 0.2, 1);
             background: white;
@@ -570,7 +570,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $resource) {
         .file-upload-area {
             position: relative;
             border: 2px dashed var(--ms-border);
-            border-radius: 4px;
+            border-radius: 8px;
             padding: 32px;
             text-align: center;
             transition: all 0.167s cubic-bezier(0.1, 0.9, 0.2, 1);
@@ -628,7 +628,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $resource) {
         .btn {
             padding: 8px 16px;
             border: none;
-            border-radius: 4px;
+            border-radius: 8px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.167s cubic-bezier(0.1, 0.9, 0.2, 1);
@@ -679,7 +679,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $resource) {
         /* Alert Styles */
         .alert {
             padding: 16px 20px;
-            border-radius: 4px;
+            border-radius: 8px;
             margin-bottom: 20px;
             border: 1px solid;
             display: flex;
@@ -713,7 +713,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $resource) {
             background: var(--ms-primary);
             color: white;
             border: none;
-            border-radius: 4px;
+            border-radius: 8px;
             padding: 8px;
             cursor: pointer;
             width: 40px;

@@ -601,7 +601,7 @@ try {
 
         .stat-card {
             background: #1a1a1a;
-            border-radius: 4px;
+            border-radius: 8px;
             padding: 24px;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
             transition: all 0.167s cubic-bezier(0.1, 0.9, 0.2, 1);
@@ -618,7 +618,7 @@ try {
         .stat-icon {
             width: 48px;
             height: 48px;
-            border-radius: 4px;
+            border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -670,7 +670,7 @@ try {
 
         .card {
             background: #000000;
-            border-radius: 4px;
+            border-radius: 8px;
             padding: 24px;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
             border: 1px solid #333333;
@@ -701,7 +701,7 @@ try {
 
         .resource-card {
             background: #000000;
-            border-radius: 4px;
+            border-radius: 8px;
             padding: 20px;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
             transition: all 0.167s cubic-bezier(0.1, 0.9, 0.2, 1);
@@ -726,7 +726,7 @@ try {
         .resource-icon {
             width: 48px;
             height: 48px;
-            border-radius: 4px;
+            border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -803,7 +803,7 @@ try {
             border-top: 1px solid #333333;
             background: rgba(255, 255, 255, 0.05);
             padding: 8px;
-            border-radius: 4px;
+            border-radius: 8px;
         }
 
         .resource-uploader small {
@@ -889,7 +889,7 @@ try {
             color: #ffffff;
             border: 1px solid #ffffff;
             padding: 8px 16px;
-            border-radius: 4px;
+            border-radius: 8px;
             font-weight: 600;
             font-size: 13px;
             cursor: pointer;
@@ -918,7 +918,7 @@ try {
             color: #ffffff;
             border: 1px solid #ffffff;
             padding: 8px 16px;
-            border-radius: 4px;
+            border-radius: 8px;
             font-weight: 600;
             font-size: 13px;
             cursor: pointer;
@@ -943,7 +943,7 @@ try {
             background: #0078D4;
             color: white;
             padding: 4px 8px;
-            border-radius: 4px;
+            border-radius: 8px;
             font-size: 11px;
             font-weight: 600;
             text-transform: uppercase;
@@ -980,7 +980,7 @@ try {
         .btn {
             padding: 8px 16px;
             border: none;
-            border-radius: 4px;
+            border-radius: 8px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.167s cubic-bezier(0.1, 0.9, 0.2, 1);
@@ -1046,7 +1046,7 @@ try {
             background: transparent;
             color: white;
             border: none;
-            border-radius: 4px;
+            border-radius: 8px;
             cursor: pointer;
             width: 40px;
             height: 40px;
@@ -1178,7 +1178,7 @@ try {
         .form-group textarea {
             padding: 12px 16px;
             border: 1px solid #333333;
-            border-radius: 4px;
+            border-radius: 8px;
             font-size: 14px;
             transition: all 0.167s cubic-bezier(0.1, 0.9, 0.2, 1);
             background: #1a1a1a;
@@ -1201,7 +1201,7 @@ try {
         .file-upload-area {
             position: relative;
             border: 2px dashed #333333;
-            border-radius: 4px;
+            border-radius: 8px;
             padding: 32px;
             text-align: center;
             transition: all 0.167s cubic-bezier(0.1, 0.9, 0.2, 1);
@@ -1263,7 +1263,7 @@ try {
         .upload-message {
             margin-top: 16px;
             padding: 16px;
-            border-radius: 4px;
+            border-radius: 8px;
             font-size: 14px;
         }
 
@@ -1305,7 +1305,7 @@ try {
             flex: 1;
             padding: 12px 16px;
             border: 1px solid #333333;
-            border-radius: 4px;
+            border-radius: 8px;
             font-size: 14px;
             transition: all 0.167s cubic-bezier(0.1, 0.9, 0.2, 1);
             background: #000000;
@@ -1324,7 +1324,7 @@ try {
 
         .input-group .btn {
             padding: 12px 16px;
-            border-radius: 4px;
+            border-radius: 8px;
         }
 
         .filter-group {
@@ -1342,7 +1342,7 @@ try {
         .filter-group select {
             padding: 12px 16px;
             border: 1px solid #333333;
-            border-radius: 4px;
+            border-radius: 8px;
             font-size: 14px;
             transition: all 0.167s cubic-bezier(0.1, 0.9, 0.2, 1);
             background: #000000;
@@ -2190,7 +2190,7 @@ try {
             if (!existingMessage) {
                 const messageDiv = document.createElement('div');
                 messageDiv.className = 'download-message';
-                messageDiv.style.cssText = 'background: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; padding: 10px 12px; border-radius: 4px; margin-top: 8px; font-size: 12px; animation: slideIn 0.3s ease-out; display: flex; align-items: center; gap: 8px;';
+                messageDiv.style.cssText = 'background: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; padding: 10px 12px; border-radius: 8px; margin-top: 8px; font-size: 12px; animation: slideIn 0.3s ease-out; display: flex; align-items: center; gap: 8px;';
                 messageDiv.innerHTML = `
                     <i class="fas fa-exclamation-circle" style="color: #dc3545;"></i>
                     <div>

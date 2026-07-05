@@ -637,7 +637,7 @@ if (($downloadFile = $_GET['download'] ?? '') && preg_match('/^[a-zA-Z0-9_.-]+$/
         .filter-group .admin-select {
             padding: 10px 14px;
             border: 1px solid #333333;
-            border-radius: 4px;
+            border-radius: 8px;
             font-size: 14px;
             font-family: 'Segoe UI', sans-serif;
             background: #000000;
@@ -649,7 +649,7 @@ if (($downloadFile = $_GET['download'] ?? '') && preg_match('/^[a-zA-Z0-9_.-]+$/
         .filter-group input {
             padding: 10px 14px;
             border: 1px solid #333333;
-            border-radius: 4px;
+            border-radius: 8px;
             font-size: 14px;
             font-family: 'Segoe UI', sans-serif;
             background: #000000;
@@ -793,7 +793,7 @@ if (($downloadFile = $_GET['download'] ?? '') && preg_match('/^[a-zA-Z0-9_.-]+$/
         .admin-btn {
             padding: 8px 16px;
             border: 1px solid #ffffff;
-            border-radius: 4px;
+            border-radius: 8px;
             cursor: pointer;
             font-size: 14px;
             font-weight: 500;
@@ -1149,7 +1149,7 @@ if (($downloadFile = $_GET['download'] ?? '') && preg_match('/^[a-zA-Z0-9_.-]+$/
                         <div style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap;">
                             <div style="display: flex; align-items: center; gap: 8px;">
                                 <label for="fileSelect" style="font-weight: 500; color: #ffffff;">Select Log File:</label>
-                                <select id="fileSelect" onchange="changeLogFile()" style="padding: 8px 12px; border: 1px solid #333333; border-radius: 4px; font-size: 14px; background: #000000; color: #ffffff;">
+                                <select id="fileSelect" onchange="changeLogFile()" style="padding: 8px 12px; border: 1px solid #333333; border-radius: 8px; font-size: 14px; background: #000000; color: #ffffff;">
                                     <?php foreach ($logs as $log): ?>
                                         <option value="<?php echo htmlspecialchars($log['name']); ?>" 
                                                 <?php echo $log['name'] === $logFile ? 'selected' : ''; ?>>
@@ -1161,18 +1161,18 @@ if (($downloadFile = $_GET['download'] ?? '') && preg_match('/^[a-zA-Z0-9_.-]+$/
                             </div>
                             <div style="display: flex; gap: 8px;">
                                 <?php if (file_exists($logDir . '/security.log')): ?>
-                                    <a href="?file=security.log" style="padding: 8px 16px; background: #000000; color: white; border: 1px solid #d13438; text-decoration: none; border-radius: 4px; font-size: 14px; display: inline-flex; align-items: center; gap: 6px;">
+                                    <a href="?file=security.log" style="padding: 8px 16px; background: #000000; color: white; border: 1px solid #d13438; text-decoration: none; border-radius: 8px; font-size: 14px; display: inline-flex; align-items: center; gap: 6px;">
                                         <i class="fas fa-shield-alt"></i> Security Logs
                                     </a>
                                 <?php endif; ?>
                                 <?php if (file_exists($logDir . '/activity.log')): ?>
-                                    <a href="?file=activity.log" style="padding: 8px 16px; background: #000000; color: white; border: 1px solid #0078D4; text-decoration: none; border-radius: 4px; font-size: 14px; display: inline-flex; align-items: center; gap: 6px;">
+                                    <a href="?file=activity.log" style="padding: 8px 16px; background: #000000; color: white; border: 1px solid #0078D4; text-decoration: none; border-radius: 8px; font-size: 14px; display: inline-flex; align-items: center; gap: 6px;">
                                         <i class="fas fa-list"></i> Activity Logs
                                     </a>
                                 <?php endif; ?>
                             </div>
                             <div style="display: flex; gap: 8px;">
-                                <a href="?download=<?php echo urlencode($logFile); ?>" style="padding: 8px 16px; background: #000000; color: white; border: 1px solid #107c10; text-decoration: none; border-radius: 4px; font-size: 14px; display: inline-flex; align-items: center; gap: 6px;">
+                                <a href="?download=<?php echo urlencode($logFile); ?>" style="padding: 8px 16px; background: #000000; color: white; border: 1px solid #107c10; text-decoration: none; border-radius: 8px; font-size: 14px; display: inline-flex; align-items: center; gap: 6px;">
                                     <i class="fas fa-download"></i> Download
                                 </a>
                                 <button class="admin-btn admin-btn-danger" onclick="confirmClearLogs()">
@@ -1184,7 +1184,7 @@ if (($downloadFile = $_GET['download'] ?? '') && preg_match('/^[a-zA-Z0-9_.-]+$/
                     
                     <!-- Success Message -->
                     <?php if (isset($_GET['cleared'])): ?>
-                        <div style="background: #d4edda; color: #155724; padding: 12px 16px; border-radius: 4px; margin-bottom: 16px; border: 1px solid #c3e6cb;">
+                        <div style="background: #d4edda; color: #155724; padding: 12px 16px; border-radius: 8px; margin-bottom: 16px; border: 1px solid #c3e6cb;">
                             <i class="fas fa-check-circle" style="margin-right: 8px;"></i>
                             Log file cleared successfully!
                         </div>
@@ -1387,7 +1387,7 @@ if (($downloadFile = $_GET['download'] ?? '') && preg_match('/^[a-zA-Z0-9_.-]+$/
                                                     <?php echo htmlspecialchars($description); ?>
                                                 </div>
                                                 <?php if ($isSuspicious): ?>
-                                                    <div style="background: #d13438; color: white; padding: 6px 10px; border-radius: 4px; font-size: 12px; margin-top: 8px; display: flex; align-items: center; gap: 6px;">
+                                                    <div style="background: #d13438; color: white; padding: 6px 10px; border-radius: 8px; font-size: 12px; margin-top: 8px; display: flex; align-items: center; gap: 6px;">
                                                         <i class="fas fa-exclamation-triangle"></i>
                                                         <strong>Suspicious Activity:</strong> <?php echo implode(', ', $suspiciousReasons); ?>
                                                     </div>
@@ -1446,12 +1446,12 @@ if (($downloadFile = $_GET['download'] ?? '') && preg_match('/^[a-zA-Z0-9_.-]+$/
                                         <div style="text-align: right; margin-left: 20px;">
                                             <div style="background: rgba(0,0,0,0.1); padding: 8px; border-radius: 6px; font-size: 11px;">
                                                 <?php if ($securityLevel === 'danger'): ?>
-                                                    <button style="background: #dc3545; color: white; border: none; padding: 4px 8px; border-radius: 4px; font-size: 10px; cursor: pointer; margin-bottom: 4px;">
+                                                    <button style="background: #dc3545; color: white; border: none; padding: 4px 8px; border-radius: 8px; font-size: 10px; cursor: pointer; margin-bottom: 4px;">
                                                         <i class="fas fa-ban"></i> Block IP
                                                     </button>
                                                 <?php endif; ?>
                                                 <?php if ($securityLevel === 'warning'): ?>
-                                                    <button style="background: #ffc107; color: #212529; border: none; padding: 4px 8px; border-radius: 4px; font-size: 10px; cursor: pointer; margin-bottom: 4px;">
+                                                    <button style="background: #ffc107; color: #212529; border: none; padding: 4px 8px; border-radius: 8px; font-size: 10px; cursor: pointer; margin-bottom: 4px;">
                                                         <i class="fas fa-search"></i> Investigate
                                                     </button>
                                                 <?php endif; ?>
@@ -1603,7 +1603,7 @@ if (($downloadFile = $_GET['download'] ?? '') && preg_match('/^[a-zA-Z0-9_.-]+$/
                                                     <?php echo htmlspecialchars($description); ?>
                                                 </div>
                                                 <?php if ($isSuspicious): ?>
-                                                    <div style="background: #d13438; color: white; padding: 6px 10px; border-radius: 4px; font-size: 12px; margin-top: 8px; display: flex; align-items: center; gap: 6px;">
+                                                    <div style="background: #d13438; color: white; padding: 6px 10px; border-radius: 8px; font-size: 12px; margin-top: 8px; display: flex; align-items: center; gap: 6px;">
                                                         <i class="fas fa-exclamation-triangle"></i>
                                                         <strong>Suspicious Activity:</strong> <?php echo implode(', ', $suspiciousReasons); ?>
                                                     </div>
@@ -1662,12 +1662,12 @@ if (($downloadFile = $_GET['download'] ?? '') && preg_match('/^[a-zA-Z0-9_.-]+$/
                                         <div style="text-align: right; margin-left: 20px;">
                                             <div style="background: rgba(0,0,0,0.1); padding: 8px; border-radius: 6px; font-size: 11px;">
                                                 <?php if ($securityLevel === 'danger'): ?>
-                                                    <button style="background: #dc3545; color: white; border: none; padding: 4px 8px; border-radius: 4px; font-size: 10px; cursor: pointer; margin-bottom: 4px;">
+                                                    <button style="background: #dc3545; color: white; border: none; padding: 4px 8px; border-radius: 8px; font-size: 10px; cursor: pointer; margin-bottom: 4px;">
                                                         <i class="fas fa-ban"></i> Block IP
                                                     </button>
                                                 <?php endif; ?>
                                                 <?php if ($securityLevel === 'warning'): ?>
-                                                    <button style="background: #ffc107; color: #212529; border: none; padding: 4px 8px; border-radius: 4px; font-size: 10px; cursor: pointer; margin-bottom: 4px;">
+                                                    <button style="background: #ffc107; color: #212529; border: none; padding: 4px 8px; border-radius: 8px; font-size: 10px; cursor: pointer; margin-bottom: 4px;">
                                                         <i class="fas fa-search"></i> Investigate
                                                     </button>
                                                 <?php endif; ?>
