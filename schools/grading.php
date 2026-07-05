@@ -343,12 +343,230 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['grading_file'])) {
             text-align: center;
             color: #FF6B35;
         }
+        
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        
+        .menu-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 50%;
+            transition: background 0.2s;
+        }
+        
+        .menu-btn:hover {
+            background: rgba(95, 99, 104, 0.1);
+        }
+        
+        .menu-btn i {
+            font-size: 20px;
+            color: var(--primary-color);
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 20px;
+            font-weight: 400;
+            color: #202124;
+        }
+        
+        .sidebar-section {
+            padding: 12px 0;
+        }
+        
+        .sidebar-title {
+            padding: 8px 24px;
+            font-size: 12px;
+            font-weight: 500;
+            color: #5f6368;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .sidebar.collapsed {
+            transform: translateX(-256px);
+        }
+        
+        .main-content.expanded {
+            margin-left: 0;
+        }
+        
+        .page-title {
+            font-size: 22px;
+            font-weight: 400;
+            color: #202124;
+            margin-bottom: 24px;
+        }
+        
+        .card-title {
+            font-size: 18px;
+            font-weight: 500;
+            color: #202124;
+            margin-bottom: 16px;
+        }
+        
+        .form-control {
+            border: 1px solid #dadce0;
+            border-radius: 8px;
+            padding: 10px 12px;
+            font-size: 14px;
+        }
+        
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(255, 107, 53, 0.2);
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #5f6368;
+        }
+        
+        .row {
+            display: flex;
+            flex-wrap: wrap;
+            margin: 0 -12px;
+        }
+        
+        .col-md-6 {
+            flex: 1;
+            padding: 0 12px;
+            max-width: 50%;
+        }
+        
+        .mb-3 {
+            margin-bottom: 16px;
+        }
+        
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .table th,
+        .table td {
+            padding: 12px 16px;
+            text-align: left;
+            border: 1px solid #000;
+            border-bottom: 1px solid #000;
+            border-right: 1px solid #000;
+        }
+        
+        .table th {
+            background: #f0f0f0;
+            font-weight: 600;
+            color: #000;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-top: 2px solid #000;
+        }
+        
+        .table th:last-child {
+            border-right: 2px solid #000;
+        }
+        
+        .table td:last-child {
+            border-right: 2px solid #000;
+        }
+        
+        .table tbody tr:last-child td {
+            border-bottom: 2px solid #000;
+        }
+        
+        .table tbody tr:hover {
+            background: #f9f9f9;
+        }
+        
+        .table-responsive {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .btn {
+            padding: 10px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            border: none;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        /* Mobile */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-256px);
+            }
+            
+            .sidebar.show {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+                padding: 16px;
+            }
+            
+            .card {
+                text-align: left;
+            }
+            
+            .card form {
+                text-align: left;
+            }
+            
+            .row {
+                flex-direction: column;
+            }
+            
+            .col-md-6 {
+                width: 100%;
+                max-width: 100%;
+                margin-bottom: 12px;
+            }
+            
+            .form-control {
+                border-radius: 8px;
+            }
+            
+            .btn {
+                width: 100%;
+                border-radius: 8px;
+                padding: 12px 16px;
+                font-size: 16px;
+            }
+            
+            .table {
+                font-size: 12px;
+                min-width: 600px;
+            }
+            
+            .table th,
+            .table td {
+                padding: 8px 10px;
+            }
+        }
     </style>
 </head>
 <body>
     <!-- Header -->
     <header class="header">
         <div class="header-left">
+            <button class="menu-btn" onclick="toggleSidebar()">
+                <i class="fas fa-bars"></i>
+            </button>
             <div class="logo">
                 <div style="width: 40px; height: 40px; background: #FFD700; border: 3px solid #FF6B35; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 0;">
                     <span style="font-weight: bold; font-size: 20px;">
@@ -511,6 +729,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['grading_file'])) {
     </main>
     
     <script>
+        function toggleSidebar() {
+            const sidebar = document.querySelector('.sidebar');
+            const mainContent = document.querySelector('.main-content');
+            sidebar.classList.toggle('collapsed');
+            sidebar.classList.toggle('show');
+            mainContent.classList.toggle('expanded');
+        }
+        
         function downloadTemplate() {
             const subjectId = document.querySelector('select[name="subject_id"]').value;
             if (!subjectId) {
