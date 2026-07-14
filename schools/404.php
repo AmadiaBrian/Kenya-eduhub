@@ -1,6 +1,6 @@
 <?php
 // Schools 404 Page
-session_start();
+// Session is started by index.php router
 require_once __DIR__ . '/../config.php';
 ?>
 <!DOCTYPE html>

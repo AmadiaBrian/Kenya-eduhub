@@ -1,13 +1,6 @@
 <?php
 // Book Management Page
-session_start();
-require_once __DIR__ . '/../config.php';
-
-if (!isset($_SESSION['librarian_id'])) {
-    header('Location: index.php');
-    exit;
-}
-
+// Authentication is handled by index.php router
 $librarian_id = $_SESSION['librarian_id'];
 $librarian_name = $_SESSION['librarian_name'] ?? 'Librarian';
 $school_id = $_SESSION['school_id'];
@@ -571,27 +564,27 @@ try {
     <!-- Sidebar -->
     <div class="sidebar" id="sidebar">
         <div class="sidebar-section">
-            <a href="dashboard.php" class="nav-link">
+            <a href="dashboard" class="nav-link">
                 <i class="fas fa-home"></i>
                 <span>Dashboard</span>
             </a>
-            <a href="books.php" class="nav-link active">
+            <a href="books" class="nav-link active">
                 <i class="fas fa-book"></i>
                 <span>Books</span>
             </a>
-            <a href="borrow.php" class="nav-link">
+            <a href="borrow" class="nav-link">
                 <i class="fas fa-hand-holding"></i>
                 <span>Borrow Book</span>
             </a>
-            <a href="return.php" class="nav-link">
+            <a href="return" class="nav-link">
                 <i class="fas fa-undo"></i>
                 <span>Return Book</span>
             </a>
-            <a href="reports.php" class="nav-link">
+            <a href="reports" class="nav-link">
                 <i class="fas fa-chart-bar"></i>
                 <span>Reports</span>
             </a>
-            <a href="profile.php" class="nav-link">
+            <a href="profile" class="nav-link">
                 <i class="fas fa-user"></i>
                 <span>Profile</span>
             </a>
@@ -770,14 +763,14 @@ try {
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    window.location.href = 'index.php';
+                    window.location.href = 'logout';
                 } else {
                     alert('Logout failed');
                 }
             })
             .catch(error => {
                 console.error('Logout error:', error);
-                window.location.href = 'index.php';
+                window.location.href = 'logout';
             });
         }
         

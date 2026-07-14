@@ -1,6 +1,8 @@
 <?php
 // Finance Manager Logout
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 require_once __DIR__ . '/../../config.php';
 
 if (!isset($_SESSION['finance_manager_id'])) {

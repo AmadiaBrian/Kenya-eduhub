@@ -5,7 +5,9 @@
  * methods are saved as pending requests for manual/future processor handling.
  */
 
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 require_once __DIR__ . '/../../config.php';
 
 // Load M-Pesa configuration

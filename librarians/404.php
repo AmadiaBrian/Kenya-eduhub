@@ -1,25 +1,19 @@
-<?php
-// Parents 404 Page
-// Session is started by index.php router
-require_once __DIR__ . '/../config.php';
-?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Page Not Found - Kenya EduHub</title>
+    <title>404 - Page Not Found</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body {
-            background: #ffffff;
+            background: #f8f9fa;
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
             font-family: 'Google Sans', 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            color: #202124;
         }
         
         .error-container {
@@ -40,22 +34,26 @@ require_once __DIR__ . '/../config.php';
             margin-bottom: 30px;
         }
         
+        .error-description {
+            font-size: 16px;
+            color: #9aa0a6;
+            margin-bottom: 40px;
+        }
+        
         .btn-home {
             background: #FF6B35;
             color: white;
-            border: 2px solid #FF6B35;
-            border-radius: 25px;
+            border: none;
             padding: 12px 30px;
+            border-radius: 25px;
             font-size: 16px;
-            font-weight: 600;
             text-decoration: none;
-            transition: all 0.3s ease;
+            transition: background 0.3s;
         }
         
         .btn-home:hover {
-            background: #FFD700;
-            border-color: #FFD700;
-            color: #202124;
+            background: #e55a2b;
+            color: white;
         }
     </style>
 </head>
@@ -63,9 +61,9 @@ require_once __DIR__ . '/../config.php';
     <div class="error-container">
         <div class="error-code">404</div>
         <div class="error-message">Page Not Found</div>
-        <p style="color: #5f6368; margin-bottom: 30px;">The page you're looking for doesn't exist or has been moved.</p>
+        <div class="error-description">The page you are looking for does not exist or has been moved.</div>
         <a href="dashboard" class="btn-home">
-            <i class="fas fa-home"></i> Go to Dashboard
+            <i class="fas fa-home me-2"></i> Go to Dashboard
         </a>
     </div>
 </body>

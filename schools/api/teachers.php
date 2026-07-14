@@ -1,6 +1,8 @@
 <?php
 // Teachers API
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 require_once __DIR__ . '/../../config.php';
 
 header('Content-Type: application/json');
