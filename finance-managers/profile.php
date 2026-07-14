@@ -1,13 +1,6 @@
 <?php
 // Finance Manager Profile Page
-session_start();
-require_once __DIR__ . '/../config.php';
-
-if (!isset($_SESSION['finance_manager_id'])) {
-    header('Location: index.php');
-    exit;
-}
-
+// Authentication is handled by index.php router
 $finance_manager_id = $_SESSION['finance_manager_id'];
 $finance_manager_name = $_SESSION['finance_manager_name'] ?? 'Finance Manager';
 $school_id = $_SESSION['school_id'];
@@ -100,6 +93,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['change_password'])) {
     <title>Profile - <?php echo htmlspecialchars($finance_manager_name); ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/notifications.css">
     <style>
         :root {
             --primary-color: #FF6B35;
@@ -422,22 +416,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['change_password'])) {
     <aside class="sidebar" id="sidebar">
         <div class="sidebar-section">
             <div class="sidebar-title">Main</div>
-            <a class="nav-link" href="dashboard.php">
+            <a class="nav-link" href="dashboard">
                 <i class="fas fa-home"></i> Dashboard
             </a>
-            <a class="nav-link" href="fees.php">
+            <a class="nav-link" href="fees">
                 <i class="fas fa-file-invoice-dollar"></i> Fee Management
             </a>
-            <a class="nav-link" href="reports.php">
+            <a class="nav-link" href="reports">
                 <i class="fas fa-chart-bar"></i> Reports
             </a>
         </div>
         <div class="sidebar-section">
             <div class="sidebar-title">Account</div>
-            <a class="nav-link active" href="profile.php">
+            <a class="nav-link active" href="profile">
                 <i class="fas fa-user"></i> Profile
             </a>
-            <a class="nav-link" href="api/logout.php">
+            <a class="nav-link" href="logout">
                 <i class="fas fa-sign-out-alt"></i> Logout
             </a>
         </div>
@@ -568,6 +562,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['change_password'])) {
             mainContent.classList.toggle('expanded');
         }
     </script>
+    <script src="../assets/js/notifications.js"></script>
     
     <!-- Footer -->
     <footer style="background: transparent; color: white; padding: 2rem; text-align: center; border-top: 1px solid rgba(255, 255, 255, 0.1);">

@@ -1,13 +1,6 @@
 <?php
 // Fees Management Page
-session_start();
-require_once __DIR__ . '/../config.php';
-
-if (!isset($_SESSION['school_id'])) {
-    header('Location: index.php');
-    exit;
-}
-
+// Authentication is handled by index.php router
 $school_id = $_SESSION['school_id'];
 $school_name = $_SESSION['school_name'] ?? 'School';
 
@@ -553,43 +546,46 @@ try {
     <aside class="sidebar" id="sidebar">
         <div class="sidebar-section">
             <div class="sidebar-title">Main</div>
-            <a class="nav-link" href="dashboard.php">
+            <a class="nav-link" href="dashboard">
                 <i class="fas fa-home"></i> Dashboard
             </a>
-            <a class="nav-link" href="students.php">
+            <a class="nav-link" href="students">
                 <i class="fas fa-user-graduate"></i> Students
             </a>
-            <a class="nav-link" href="teachers.php">
+            <a class="nav-link" href="teachers">
                 <i class="fas fa-chalkboard-teacher"></i> Teachers
             </a>
-            <a class="nav-link" href="classes.php">
+            <a class="nav-link" href="classes">
                 <i class="fas fa-chalkboard"></i> Classes
             </a>
-            <a class="nav-link" href="streams.php">
+            <a class="nav-link" href="streams">
                 <i class="fas fa-layer-group"></i> Streams
             </a>
-            <a class="nav-link" href="subjects.php">
+            <a class="nav-link" href="subjects">
                 <i class="fas fa-book"></i> Subjects
             </a>
-            <a class="nav-link" href="parents.php">
+            <a class="nav-link" href="parents">
                 <i class="fas fa-users"></i> Parents
             </a>
-            <a class="nav-link" href="performance.php">
+            <a class="nav-link" href="performance">
                 <i class="fas fa-chart-line"></i> Performance
             </a>
-            <a class="nav-link" href="attendance.php">
+            <a class="nav-link" href="attendance">
                 <i class="fas fa-calendar-check"></i> Attendance
             </a>
-            <a class="nav-link active" href="fees.php">
+            <a class="nav-link active" href="fees">
                 <i class="fas fa-money-bill-wave"></i> Fees
+            </a>
+            <a class="nav-link" href="account">
+                <i class="fas fa-wallet"></i> Account Balance
             </a>
         </div>
         <div class="sidebar-section">
             <div class="sidebar-title">Settings</div>
-            <a class="nav-link" href="settings.php">
+            <a class="nav-link" href="settings">
                 <i class="fas fa-cog"></i> Settings
             </a>
-            <a class="nav-link" href="api/logout.php">
+            <a class="nav-link" href="logout">
                 <i class="fas fa-sign-out-alt"></i> Logout
             </a>
         </div>
@@ -603,37 +599,37 @@ try {
         <div class="card">
             <h2 class="card-title">Quick Access</h2>
             <div class="quick-access-grid">
-                <a href="dashboard.php" class="quick-access-item">
+                <a href="dashboard" class="quick-access-item">
                     <div class="quick-access-icon">
                         <i class="fas fa-home"></i>
                     </div>
                     <div class="quick-access-label">Dashboard</div>
                 </a>
-                <a href="students.php" class="quick-access-item">
+                <a href="students" class="quick-access-item">
                     <div class="quick-access-icon">
                         <i class="fas fa-user-graduate"></i>
                     </div>
                     <div class="quick-access-label">Students</div>
                 </a>
-                <a href="teachers.php" class="quick-access-item">
+                <a href="teachers" class="quick-access-item">
                     <div class="quick-access-icon">
                         <i class="fas fa-chalkboard-teacher"></i>
                     </div>
                     <div class="quick-access-label">Teachers</div>
                 </a>
-                <a href="attendance.php" class="quick-access-item">
+                <a href="attendance" class="quick-access-item">
                     <div class="quick-access-icon">
                         <i class="fas fa-calendar-check"></i>
                     </div>
                     <div class="quick-access-label">Attendance</div>
                 </a>
-                <a href="performance.php" class="quick-access-item">
+                <a href="performance" class="quick-access-item">
                     <div class="quick-access-icon">
                         <i class="fas fa-chart-line"></i>
                     </div>
                     <div class="quick-access-label">Performance</div>
                 </a>
-                <a href="classes.php" class="quick-access-item">
+                <a href="classes" class="quick-access-item">
                     <div class="quick-access-icon">
                         <i class="fas fa-chalkboard"></i>
                     </div>
@@ -686,6 +682,7 @@ try {
                             <tr>
                                 <th>Receipt No</th>
                                 <th>Student</th>
+                                <th>Fee Type</th>
                                 <th>Amount</th>
                                 <th>Payment Date</th>
                                 <th>Method</th>
@@ -694,7 +691,7 @@ try {
                             </tr>
                         </thead>
                         <tbody id="paymentsTable">
-                            <tr><td colspan="7" class="text-center">Loading...</td></tr>
+                            <tr><td colspan="8" class="text-center">Loading...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -703,10 +700,18 @@ try {
         
         <!-- Fee Balances Section -->
         <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
+            <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
                 <span>Student Fee Balances</span>
-                <div class="d-flex gap-2">
-                    <select class="form-control form-control-sm" id="balanceTerm" style="width: 150px;">
+                <div class="d-flex gap-2 flex-wrap">
+                    <select class="form-control form-control-sm" id="filterClass" style="width: 150px;" onchange="loadStreamsForClass()">
+                        <option value="">All Classes</option>
+                    </select>
+                    <select class="form-control form-control-sm" id="filterStream" style="width: 150px;">
+                        <option value="">All Streams</option>
+                    </select>
+                    <input type="text" class="form-control form-control-sm" id="searchAdmission" placeholder="Admission No" style="width: 150px;">
+                    <input type="text" class="form-control form-control-sm" id="searchName" placeholder="Student Name" style="width: 150px;">
+                    <select class="form-control form-control-sm" id="balanceTerm" style="width: 120px;">
                         <option value="Term 1">Term 1</option>
                         <option value="Term 2">Term 2</option>
                         <option value="Term 3">Term 3</option>
@@ -718,6 +723,9 @@ try {
                     <button class="btn btn-sm btn-primary" onclick="loadBalances()">
                         <i class="fas fa-search"></i> View
                     </button>
+                    <button class="btn btn-sm btn-secondary" onclick="clearFilters()">
+                        <i class="fas fa-times"></i> Clear
+                    </button>
                 </div>
             </div>
             <div class="card-body">
@@ -728,6 +736,8 @@ try {
                                 <th>Admission No</th>
                                 <th>Student Name</th>
                                 <th>Class</th>
+                                <th>Stream</th>
+                                <th>Fee Type</th>
                                 <th>Term</th>
                                 <th>Year</th>
                                 <th>Fee Amount</th>
@@ -737,7 +747,7 @@ try {
                             </tr>
                         </thead>
                         <tbody id="balancesTable">
-                            <tr><td colspan="9" class="text-center">Select term and year to view balances</td></tr>
+                            <tr><td colspan="11" class="text-center">Select filters and click View</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -820,13 +830,16 @@ try {
                                     <?php endif; ?>
                                     <input type="text" class="form-control" id="paymentAdmissionNumber" placeholder="Enter admission number" required>
                                 </div>
-                                <small class="text-muted">
-                                    <?php if (!empty($admission_prefix)): ?>
-                                        Your school's admission prefix is: <strong><?php echo htmlspecialchars($admission_prefix); ?></strong>. Enter only the number part (e.g., 7280)
-                                    <?php else: ?>
-                                        Enter the student's admission number
-                                    <?php endif; ?>
-                                </small>
+                                <div class="mt-2">
+                                    <span class="badge bg-info">Current Prefix: <?php echo htmlspecialchars($admission_prefix ?: 'None'); ?></span>
+                                    <small class="text-muted ms-2">
+                                        <?php if (!empty($admission_prefix)): ?>
+                                            Enter only the number part (e.g., 7280)
+                                        <?php else: ?>
+                                            Enter the full admission number
+                                        <?php endif; ?>
+                                    </small>
+                                </div>
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Amount (KES)</label>
@@ -943,6 +956,7 @@ try {
                         <tr>
                             <td>${payment.receipt_number}</td>
                             <td>${payment.student_name}</td>
+                            <td><strong>${payment.fee_type || 'Tuition'}</strong></td>
                             <td>KES ${payment.amount.toLocaleString()}</td>
                             <td>${payment.payment_date}</td>
                             <td>${payment.payment_method}</td>
@@ -1123,40 +1137,229 @@ try {
         async function loadBalances() {
             const term = document.getElementById('balanceTerm').value;
             const year = document.getElementById('balanceYear').value;
+            const tbody = document.getElementById('balancesTable');
+            
+            tbody.innerHTML = '<tr><td colspan="10" class="text-center">Loading...</td></tr>';
             
             try {
                 const response = await fetch(`api/fees.php?type=balances&term=${term}&year=${year}`);
                 const data = await response.json();
+                console.log('Balances response:', data);
+                console.log('Number of records:', data.data ? data.data.length : 0);
+                
                 if (data.success) {
-                    const tbody = document.getElementById('balancesTable');
-                    tbody.innerHTML = data.data.map(balance => `
-                        <tr>
-                            <td>${balance.admission_number}</td>
-                            <td>${balance.student_name}</td>
-                            <td>${balance.class_name || '-'}</td>
-                            <td>${balance.term}</td>
-                            <td>${balance.year}</td>
-                            <td>KES ${balance.fee_amount.toLocaleString()}</td>
-                            <td>KES ${balance.paid_amount.toLocaleString()}</td>
-                            <td>KES ${balance.balance.toLocaleString()}</td>
-                            <td>
-                                <span class="badge ${balance.balance <= 0 ? 'bg-success' : 'bg-warning'}">
-                                    ${balance.balance <= 0 ? 'Paid' : 'Balance Due'}
-                                </span>
-                            </td>
-                        </tr>
-                    `).join('');
+                    if (data.data && data.data.length > 0) {
+                        window.balancesData = data.data; // Store data for filtering
+                        console.log('Sample record:', data.data[0]);
+                        renderBalances(data.data);
+                    } else {
+                        tbody.innerHTML = '<tr><td colspan="10" class="text-center">No balances found for selected term/year</td></tr>';
+                        window.balancesData = [];
+                    }
+                } else {
+                    tbody.innerHTML = `<tr><td colspan="10" class="text-center text-danger">Error: ${data.error || 'Unknown error'}</td></tr>`;
                 }
             } catch (error) {
                 console.error('Error loading balances:', error);
+                tbody.innerHTML = `<tr><td colspan="10" class="text-center text-danger">Error: ${error.message}</td></tr>`;
             }
+        }
+        
+        // Render balances to table
+        function renderBalances(balances) {
+            const tbody = document.getElementById('balancesTable');
+            tbody.innerHTML = balances.map(balance => `
+                <tr>
+                    <td>${balance.admission_number}</td>
+                    <td>${balance.student_name}</td>
+                    <td>${balance.class_name || '-'}</td>
+                    <td><strong>${balance.fee_type || 'Tuition'}</strong></td>
+                    <td>${balance.term}</td>
+                    <td>${balance.year}</td>
+                    <td>KES ${balance.fee_amount.toLocaleString()}</td>
+                    <td>KES ${balance.paid_amount.toLocaleString()}</td>
+                    <td>KES ${balance.balance.toLocaleString()}</td>
+                    <td>
+                        <span class="badge ${balance.balance <= 0 ? 'bg-success' : 'bg-warning'}">
+                            ${balance.balance <= 0 ? 'Paid' : 'Balance Due'}
+                        </span>
+                    </td>
+                </tr>
+            `).join('');
+        }
+        
+        // Filter balances by admission number or name
+        function filterBalances() {
+            const searchTerm = document.getElementById('searchBalances').value.toLowerCase().trim();
+            console.log('Search term:', searchTerm);
+            
+            if (!window.balancesData || window.balancesData.length === 0) {
+                console.log('No data loaded');
+                // If no data loaded, show message
+                const tbody = document.getElementById('balancesTable');
+                if (tbody.innerHTML.includes('Select term and year') || tbody.innerHTML.includes('No balances found')) {
+                    tbody.innerHTML = '<tr><td colspan="10" class="text-center text-warning">Please select term and year and click View to load balances first</td></tr>';
+                }
+                return;
+            }
+            
+            console.log('Total records before filter:', window.balancesData.length);
+            
+            // If search is empty, show all
+            if (searchTerm === '') {
+                console.log('Search empty, showing all');
+                renderBalances(window.balancesData);
+                return;
+            }
+            
+            const filtered = window.balancesData.filter(balance => {
+                const admissionNum = (balance.admission_number || '').toLowerCase();
+                const studentName = (balance.student_name || '').toLowerCase();
+                
+                // Check admission number (handles both full "NDS/1" and partial "1" or "NDS")
+                const admissionMatch = admissionNum.includes(searchTerm);
+                
+                // Check student name
+                const nameMatch = studentName.includes(searchTerm);
+                
+                console.log(`Checking: Admission="${admissionNum}" Match=${admissionMatch}, Name="${studentName}" Match=${nameMatch}`);
+                
+                return admissionMatch || nameMatch;
+            });
+            
+            console.log('Records after filter:', filtered.length);
+            
+            renderBalances(filtered);
+            
+            // Show message if no results
+            if (filtered.length === 0) {
+                console.log('No matches found');
+                const tbody = document.getElementById('balancesTable');
+                tbody.innerHTML = '<tr><td colspan="10" class="text-center text-warning">No matching records found for "' + searchTerm + '"</td></tr>';
+            }
+        }
+        
+        // Load classes filter dropdown
+        async function loadClassesFilter() {
+            try {
+                const response = await fetch('api/classes.php');
+                const data = await response.json();
+                if (data.success) {
+                    const select = document.getElementById('filterClass');
+                    select.innerHTML = '<option value="">All Classes</option>' + 
+                        data.data.map(c => `<option value="${c.id}">${c.class_name} (${c.class_level})</option>`).join('');
+                }
+            } catch (error) {
+                console.error('Error loading classes:', error);
+            }
+        }
+        
+        // Load streams for selected class
+        async function loadStreamsForClass() {
+            const classId = document.getElementById('filterClass').value;
+            const streamSelect = document.getElementById('filterStream');
+            
+            if (!classId) {
+                streamSelect.innerHTML = '<option value="">All Streams</option>';
+                return;
+            }
+            
+            try {
+                const response = await fetch(`api/streams.php?class_id=${classId}`);
+                const data = await response.json();
+                if (data.success) {
+                    streamSelect.innerHTML = '<option value="">All Streams</option>' + 
+                        data.data.map(s => `<option value="${s.id}">${s.stream_name}</option>`).join('');
+                }
+            } catch (error) {
+                console.error('Error loading streams:', error);
+            }
+        }
+        
+        // Clear all filters
+        function clearFilters() {
+            document.getElementById('filterClass').value = '';
+            document.getElementById('filterStream').value = '';
+            document.getElementById('filterStream').innerHTML = '<option value="">All Streams</option>';
+            document.getElementById('searchAdmission').value = '';
+            document.getElementById('searchName').value = '';
+            document.getElementById('balancesTable').innerHTML = '<tr><td colspan="11" class="text-center">Select filters and click View</td></tr>';
+            window.balancesData = [];
+        }
+        
+        // Load balances with filters
+        async function loadBalances() {
+            const term = document.getElementById('balanceTerm').value;
+            const year = document.getElementById('balanceYear').value;
+            const classId = document.getElementById('filterClass').value;
+            const streamId = document.getElementById('filterStream').value;
+            const admissionNo = document.getElementById('searchAdmission').value.trim();
+            const studentName = document.getElementById('searchName').value.trim();
+            
+            const tbody = document.getElementById('balancesTable');
+            tbody.innerHTML = '<tr><td colspan="10" class="text-center">Loading...</td></tr>';
+            
+            try {
+                let url = `api/fees.php?type=balances&term=${term}&year=${year}`;
+                if (classId) url += `&class_id=${classId}`;
+                if (streamId) url += `&stream_id=${streamId}`;
+                if (admissionNo) url += `&admission_number=${encodeURIComponent(admissionNo)}`;
+                if (studentName) url += `&student_name=${encodeURIComponent(studentName)}`;
+                
+                const response = await fetch(url);
+                const data = await response.json();
+                console.log('Balances response:', data);
+                console.log('Number of records:', data.data ? data.data.length : 0);
+                
+                if (data.success) {
+                    if (data.data && data.data.length > 0) {
+                        window.balancesData = data.data;
+                        console.log('Sample record:', data.data[0]);
+                        renderBalances(data.data);
+                    } else {
+                        tbody.innerHTML = '<tr><td colspan="11" class="text-center">No balances found for selected filters</td></tr>';
+                        window.balancesData = [];
+                    }
+                } else {
+                    tbody.innerHTML = `<tr><td colspan="11" class="text-center text-danger">Error: ${data.error || 'Unknown error'}</td></tr>`;
+                }
+            } catch (error) {
+                console.error('Error loading balances:', error);
+                tbody.innerHTML = `<tr><td colspan="11" class="text-center text-danger">Error: ${error.message}</td></tr>`;
+            }
+        }
+        
+        // Render balances to table
+        function renderBalances(balances) {
+            const tbody = document.getElementById('balancesTable');
+            tbody.innerHTML = balances.map(balance => `
+                <tr>
+                    <td>${balance.admission_number}</td>
+                    <td>${balance.student_name}</td>
+                    <td>${balance.class_name || '-'}</td>
+                    <td>${balance.stream_name || '-'}</td>
+                    <td><strong>${balance.fee_type || 'Tuition'}</strong></td>
+                    <td>${balance.term}</td>
+                    <td>${balance.year}</td>
+                    <td>KES ${balance.fee_amount.toLocaleString()}</td>
+                    <td>KES ${balance.paid_amount.toLocaleString()}</td>
+                    <td>KES ${balance.balance.toLocaleString()}</td>
+                    <td>
+                        <span class="badge ${balance.balance <= 0 ? 'bg-success' : 'bg-warning'}">
+                            ${balance.balance <= 0 ? 'Paid' : 'Balance Due'}
+                        </span>
+                    </td>
+                </tr>
+            `).join('');
         }
         
         // Initialize
         loadClassesDropdown();
+        loadClassesFilter();
         loadFeeStructures();
         loadPayments();
     </script>
+    <script src="../assets/js/notifications.js"></script>
     
     <!-- Footer -->
     <footer style="background: transparent; color: white; padding: 2rem; text-align: center; border-top: 1px solid rgba(255, 255, 255, 0.1);">

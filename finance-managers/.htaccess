@@ -1,0 +1,11 @@
+RewriteEngine On
+RewriteBase /Kenyaeduhub/finance-managers/
+
+# Redirect requests with .php extension to clean URLs
+RewriteCond %{THE_REQUEST} /([^.]+)\.php [NC]
+RewriteRule ^ %1 [L,R=302]
+
+# Route clean URLs to index.php
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ index.php?route=$1 [L,QSA]

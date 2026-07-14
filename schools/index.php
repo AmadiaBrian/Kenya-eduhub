@@ -1,16 +1,52 @@
 <?php
-// Schools Portal - Login/Register Page
+// Schools Main Router - Handles all school routes
 session_start();
 require_once __DIR__ . '/../config.php';
 
-// Check if school is already logged in
-if (isset($_SESSION['school_id'])) {
-    header('Location: dashboard.php');
+$route = $_GET['route'] ?? 'login';
+
+// Whitelist of allowed routes
+$allowed_routes = [
+    'login',
+    'logout',
+    'dashboard',
+    'account',
+    'attendance',
+    'classes',
+    'disciplinary-action-types',
+    'disciplinary',
+    'disciplinary_document',
+    'disciplinary_view',
+    'duty-assignments',
+    'fees',
+    'finance-managers',
+    'grading',
+    'librarians',
+    'parents',
+    'performance',
+    'profile',
+    'settings',
+    'streams',
+    'students',
+    'subjects',
+    'teachers'
+];
+
+// Validate route
+if (!in_array($route, $allowed_routes)) {
+    header('HTTP/1.0 404 Not Found');
+    require __DIR__ . '/404.php';
     exit;
 }
 
-$page = isset($_GET['page']) ? $_GET['page'] : 'login';
-?>
+// Handle login route separately (no auth required)
+if ($route === 'login') {
+    // If already logged in, redirect to dashboard
+    if (isset($_SESSION['school_id'])) {
+        header('Location: dashboard');
+        exit;
+    }
+    ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -541,7 +577,7 @@ $page = isset($_GET['page']) ? $_GET['page'] : 'login';
                 const data = await response.json();
                 
                 if (data.success) {
-                    window.location.href = 'dashboard.php';
+                    window.location.href = 'dashboard';
                 } else {
                     alert(data.error || 'Login failed');
                 }
@@ -590,3 +626,47 @@ $page = isset($_GET['page']) ? $_GET['page'] : 'login';
     </script>
 </body>
 </html>
+<?php
+    exit;
+}
+
+// Handle logout route
+if ($route === 'logout') {
+    // Delete session from database
+    if (isset($_SESSION['school_id'])) {
+        try {
+            $session_token = $_SESSION['school_session_token'] ?? '';
+            if ($session_token) {
+                $stmt = $pdo->prepare("DELETE FROM school_sessions WHERE session_token = ?");
+                $stmt->execute([$session_token]);
+            }
+        } catch (PDOException $e) {
+            error_log("Failed to delete school session: " . $e->getMessage());
+        }
+    }
+
+    // Destroy session
+    session_unset();
+    session_destroy();
+
+    header('Location: login');
+    exit;
+}
+
+// Authentication check for all other routes
+if (!isset($_SESSION['school_id'])) {
+    header('Location: login');
+    exit;
+}
+
+// Route to the appropriate page
+$page_file = __DIR__ . "/{$route}.php";
+
+if (file_exists($page_file)) {
+    require $page_file;
+} else {
+    header('HTTP/1.0 404 Not Found');
+    require __DIR__ . '/404.php';
+    exit;
+}
+?>

@@ -1,13 +1,6 @@
 <?php
 // Finance Manager Reports Page
-session_start();
-require_once __DIR__ . '/../config.php';
-
-if (!isset($_SESSION['finance_manager_id'])) {
-    header('Location: index.php');
-    exit;
-}
-
+// Authentication is handled by index.php router
 $finance_manager_id = $_SESSION['finance_manager_id'];
 $finance_manager_name = $_SESSION['finance_manager_name'] ?? 'Finance Manager';
 $school_id = $_SESSION['school_id'];
@@ -28,12 +21,12 @@ try {
     error_log("Failed to fetch classes: " . $e->getMessage());
 }
 
-// Build query for fee collections
+// Build query for fee collections (only successful/completed, only Tuition fees)
 $query = "SELECT fp.*, s.first_name, s.last_name, s.admission_number, c.class_name 
           FROM fee_payments fp 
           JOIN students s ON fp.student_id = s.id 
           LEFT JOIN classes c ON s.class_id = c.id 
-          WHERE s.school_id = ? AND fp.year = ?";
+          WHERE s.school_id = ? AND fp.year = ? AND fp.status = 'completed' AND (fp.fee_type = 'Tuition' OR fp.fee_type IS NULL)";
 $params = [$school_id, $filter_year];
 
 if ($filter_term) {
@@ -64,14 +57,16 @@ foreach ($fee_collections as $collection) {
     $total_collected += $collection['amount'];
 }
 
-// Get outstanding balances by class (only Tuition fees)
+// Get outstanding balances by class and term (only Tuition fees, only completed payments)
 $outstanding_by_class = [];
 try {
-    $query = "SELECT c.class_name, SUM(fs.amount) as total_fees, COALESCE(SUM(fp.amount), 0) as total_paid
+    $query = "SELECT c.class_name, fs.term,
+              (fs.amount * COUNT(DISTINCT s.id)) as total_fees, 
+              COALESCE(SUM(fp.amount), 0) as total_paid
               FROM classes c
               JOIN fee_structure fs ON fs.class_id = c.id AND fs.school_id = ? AND fs.year = ? AND fs.fee_type = 'Tuition'
               LEFT JOIN students s ON s.class_id = c.id AND s.school_id = ? AND s.status = 'active'
-              LEFT JOIN fee_payments fp ON fp.student_id = s.id AND fp.year = fs.year AND fp.term = fs.term
+              LEFT JOIN fee_payments fp ON fp.student_id = s.id AND fp.year = fs.year AND fp.term = fs.term AND fp.status = 'completed' AND (fp.fee_type = 'Tuition' OR fp.fee_type IS NULL)
               WHERE c.school_id = ?";
     $params = [$school_id, $filter_year, $school_id, $school_id];
     
@@ -80,7 +75,7 @@ try {
         $params[] = $filter_term;
     }
     
-    $query .= " GROUP BY c.id, c.class_name";
+    $query .= " GROUP BY c.id, c.class_name, fs.term ORDER BY c.class_name, fs.term";
     
     $stmt = $pdo->prepare($query);
     $stmt->execute($params);
@@ -89,7 +84,7 @@ try {
     error_log("Failed to fetch outstanding balances: " . $e->getMessage());
 }
 
-// Get non-tuition fee structures and their collection status
+// Get non-tuition fee structures and their collection status (only completed payments)
 $non_tuition_fees = [];
 try {
     $query = "SELECT fs.id, fs.fee_type, fs.term, fs.year, fs.amount, fs.description, c.class_name,
@@ -98,7 +93,7 @@ try {
               FROM fee_structure fs
               JOIN classes c ON fs.class_id = c.id
               LEFT JOIN students s ON s.class_id = c.id AND s.school_id = fs.school_id AND s.status = 'active'
-              LEFT JOIN fee_payments fp ON fp.student_id = s.id AND fp.year = fs.year AND fp.term = fs.term AND (fp.fee_type = fs.fee_type OR fp.fee_type IS NULL)
+              LEFT JOIN fee_payments fp ON fp.student_id = s.id AND fp.year = fs.year AND fp.term = fs.term AND (fp.fee_type = fs.fee_type OR fp.fee_type IS NULL) AND fp.status = 'completed'
               WHERE fs.school_id = ? AND fs.year = ? AND fs.fee_type != 'Tuition'";
     $params = [$school_id, $filter_year];
     
@@ -122,7 +117,7 @@ try {
     error_log("Failed to fetch non-tuition fees: " . $e->getMessage());
 }
 
-// Get student-wise fee payment status for all fee types
+// Get student-wise fee payment status for all fee types (only completed payments)
 $student_fee_status = [];
 try {
     $query = "SELECT s.id as student_id, s.admission_number, s.first_name, s.last_name, c.class_name,
@@ -132,7 +127,7 @@ try {
               JOIN classes c ON s.class_id = c.id
               JOIN fee_structure fs ON fs.class_id = c.id
               LEFT JOIN fee_payments fp ON fp.student_id = s.id AND fp.year = fs.year AND fp.term = fs.term 
-                  AND (fp.fee_type = fs.fee_type OR (fp.fee_type IS NULL AND fs.fee_type = 'Tuition'))
+                  AND (fp.fee_type = fs.fee_type OR (fp.fee_type IS NULL AND fs.fee_type = 'Tuition')) AND fp.status = 'completed'
               WHERE s.school_id = ? AND s.status = 'active' AND fs.year = ?";
     $params = [$school_id, $filter_year];
     
@@ -165,6 +160,7 @@ try {
     <title>Reports - <?php echo htmlspecialchars($finance_manager_name); ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/notifications.css">
     <style>
         :root {
             --primary-color: #FF6B35;
@@ -515,22 +511,25 @@ try {
     <aside class="sidebar" id="sidebar">
         <div class="sidebar-section">
             <div class="sidebar-title">Main</div>
-            <a class="nav-link" href="dashboard.php">
+            <a class="nav-link" href="dashboard">
                 <i class="fas fa-home"></i> Dashboard
             </a>
-            <a class="nav-link" href="fees.php">
+            <a class="nav-link" href="fees">
                 <i class="fas fa-file-invoice-dollar"></i> Fee Management
             </a>
-            <a class="nav-link active" href="reports.php">
+            <a class="nav-link active" href="reports">
                 <i class="fas fa-chart-bar"></i> Reports
+            </a>
+            <a class="nav-link" href="account">
+                <i class="fas fa-wallet"></i> Account Balance
             </a>
         </div>
         <div class="sidebar-section">
             <div class="sidebar-title">Account</div>
-            <a class="nav-link" href="profile.php">
+            <a class="nav-link" href="profile">
                 <i class="fas fa-user"></i> Profile
             </a>
-            <a class="nav-link" href="api/logout.php">
+            <a class="nav-link" href="logout">
                 <i class="fas fa-sign-out-alt"></i> Logout
             </a>
         </div>
@@ -634,12 +633,13 @@ try {
         
         <!-- Outstanding Balances -->
         <div class="card">
-            <h2 class="card-title">Outstanding Balances by Class (Tuition Only)</h2>
+            <h2 class="card-title">Outstanding Balances by Class and Term (Tuition Only)</h2>
             <div class="table-responsive">
                 <table class="table">
                     <thead>
                         <tr>
                             <th>Class</th>
+                            <th>Term</th>
                             <th>Total Fees</th>
                             <th>Total Paid</th>
                             <th>Outstanding Balance</th>
@@ -649,13 +649,14 @@ try {
                     <tbody>
                         <?php if (empty($outstanding_by_class)): ?>
                             <tr>
-                                <td colspan="5" class="text-center">No data available</td>
+                                <td colspan="6" class="text-center">No data available</td>
                             </tr>
                         <?php else: ?>
                             <?php foreach ($outstanding_by_class as $balance): ?>
                                 <?php $outstanding = $balance['total_fees'] - $balance['total_paid']; ?>
                                 <tr>
                                     <td><?php echo htmlspecialchars($balance['class_name']); ?></td>
+                                    <td><?php echo htmlspecialchars($balance['term']); ?></td>
                                     <td>KES <?php echo number_format($balance['total_fees'], 2); ?></td>
                                     <td>KES <?php echo number_format($balance['total_paid'], 2); ?></td>
                                     <td><strong>KES <?php echo number_format($outstanding, 2); ?></strong></td>
@@ -783,6 +784,7 @@ try {
             mainContent.classList.toggle('expanded');
         }
     </script>
+    <script src="../assets/js/notifications.js"></script>
     
     <!-- Footer -->
     <footer style="background: transparent; color: white; padding: 2rem; text-align: center; border-top: 1px solid rgba(255, 255, 255, 0.1);">

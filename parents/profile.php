@@ -1,13 +1,6 @@
 <?php
 // Parent Profile Page
-session_start();
-require_once __DIR__ . '/../config.php';
-
-if (!isset($_SESSION['parent_id'])) {
-    header('Location: index.php');
-    exit;
-}
-
+// Authentication is handled by index.php router
 $parent_id = $_SESSION['parent_id'];
 $parent_name = $_SESSION['parent_name'] ?? 'Parent';
 $school_id = $_SESSION['school_id'];
@@ -64,6 +57,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <title>Profile - <?php echo htmlspecialchars($parent_name); ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/notifications.css">
     <style>
         :root {
             --primary-color: #FF6B35;
@@ -448,25 +442,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <aside class="sidebar" id="sidebar">
         <div class="sidebar-section">
             <div class="sidebar-title">Main</div>
-            <a class="nav-link" href="dashboard.php">
+            <a class="nav-link" href="dashboard">
                 <i class="fas fa-home"></i> Dashboard
             </a>
-            <a class="nav-link" href="children.php">
+            <a class="nav-link" href="children">
                 <i class="fas fa-child"></i> My Children
             </a>
-            <a class="nav-link" href="performance.php">
+            <a class="nav-link" href="performance">
                 <i class="fas fa-chart-line"></i> Performance
             </a>
-            <a class="nav-link" href="fees.php">
+            <a class="nav-link" href="fees">
                 <i class="fas fa-money-bill-wave"></i> Fee Payments
             </a>
         </div>
         <div class="sidebar-section">
             <div class="sidebar-title">Account</div>
-            <a class="nav-link active" href="profile.php">
+            <a class="nav-link active" href="profile">
                 <i class="fas fa-user"></i> Profile
             </a>
-            <a class="nav-link" href="api/logout.php">
+            <a class="nav-link" href="logout">
                 <i class="fas fa-sign-out-alt"></i> Logout
             </a>
         </div>
@@ -561,6 +555,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             mainContent.classList.toggle('expanded');
         }
     </script>
+    <script src="../assets/js/notifications.js"></script>
     
     <!-- Footer -->
     <footer style="background: transparent; color: white; padding: 2rem; text-align: center; border-top: 1px solid rgba(255, 255, 255, 0.1);">

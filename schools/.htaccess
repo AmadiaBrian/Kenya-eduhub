@@ -1,0 +1,25 @@
+RewriteEngine On
+RewriteBase /Kenyaeduhub/schools/
+
+# Allow direct access to api directory
+RewriteRule ^api/ - [L]
+
+# Allow direct access to payments directory
+RewriteRule ^payments/ - [L]
+
+# Allow direct access to config directory
+RewriteRule ^config/ - [L]
+
+# Allow direct access to includes directory
+RewriteRule ^includes/ - [L]
+
+# Allow direct access to assets if any
+RewriteRule ^assets/ - [L]
+
+# Handle clean URLs - route everything to index.php
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^([^\.]+)$ index.php?route=$1 [L,QSA]
+
+# Default route - if accessing schools/ without a path, go to login
+RewriteRule ^$ index.php?route=login [L,QSA]

@@ -1,14 +1,6 @@
 <?php
 // Schools Dashboard
-session_start();
-require_once __DIR__ . '/../config.php';
-
-// Check if school is logged in
-if (!isset($_SESSION['school_id'])) {
-    header('Location: index.php');
-    exit;
-}
-
+// Authentication is handled by index.php router
 $school_name = $_SESSION['school_name'] ?? 'School';
 $school_code = $_SESSION['school_code'] ?? '';
 
@@ -92,7 +84,7 @@ try {
             display: flex;
             align-items: center;
             gap: 8px;
-            font-size: 20px;
+            font-size: 18px;
             font-weight: 400;
             color: #202124;
         }
@@ -149,6 +141,33 @@ try {
             color: #5f6368;
             text-transform: uppercase;
             letter-spacing: 0.5px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            user-select: none;
+        }
+        
+        .sidebar-title:hover {
+            background: #f1f3f4;
+        }
+        
+        .sidebar-title .chevron {
+            transition: transform 0.3s ease;
+        }
+        
+        .sidebar-title.collapsed .chevron {
+            transform: rotate(-90deg);
+        }
+        
+        .sidebar-links {
+            max-height: 1000px;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+        
+        .sidebar-links.collapsed {
+            max-height: 0;
         }
         
         .nav-link {
@@ -716,14 +735,6 @@ try {
             <button class="menu-btn" onclick="toggleSidebar()">
                 <i class="fas fa-bars"></i>
             </button>
-            <div class="logo">
-                <div style="width: 40px; height: 40px; background: #FFD700; border: 3px solid #FF6B35; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 0;">
-                    <span style="font-weight: bold; font-size: 20px;">
-                        <span style="color: #FF6B35; font-size: 24px;">K</span><span style="color: #008000; font-size: 20px;">E</span>
-                    </span>
-                </div>
-                <span style="color: #FF6B35; font-weight: bold;">Kenya</span> <span style="color: #008000; font-weight: bold;">EduHub</span>
-            </div>
         </div>
         <div class="header-right">
             <div class="school-avatar">
@@ -734,56 +745,117 @@ try {
     
     <!-- Sidebar -->
     <aside class="sidebar" id="sidebar">
-        <div class="sidebar-section">
-            <div class="sidebar-title">Main</div>
-            <a class="nav-link active" href="dashboard.php">
-                <i class="fas fa-home"></i> Dashboard
-            </a>
-            <a class="nav-link" href="students.php">
-                <i class="fas fa-user-graduate"></i> Students
-            </a>
-            <a class="nav-link" href="teachers.php">
-                <i class="fas fa-chalkboard-teacher"></i> Teachers
-            </a>
-            <a class="nav-link" href="classes.php">
-                <i class="fas fa-chalkboard"></i> Classes
-            </a>
-            <a class="nav-link" href="streams.php">
-                <i class="fas fa-layer-group"></i> Streams
-            </a>
-            <a class="nav-link" href="subjects.php">
-                <i class="fas fa-book"></i> Subjects
-            </a>
-            <a class="nav-link" href="grading.php">
-                <i class="fas fa-chart-bar"></i> Grading System
-            </a>
-            <a class="nav-link" href="parents.php">
-                <i class="fas fa-users"></i> Parents
-            </a>
-            <a class="nav-link" href="finance-managers.php">
-                <i class="fas fa-money-bill-wave"></i> Finance Managers
-            </a>
-            <a class="nav-link" href="librarians.php">
-                <i class="fas fa-book"></i> Librarians
-            </a>
-            <a class="nav-link" href="performance.php">
-                <i class="fas fa-chart-line"></i> Performance
-            </a>
-            <a class="nav-link" href="attendance.php">
-                <i class="fas fa-calendar-check"></i> Attendance
-            </a>
-            <a class="nav-link" href="fees.php">
-                <i class="fas fa-money-bill-wave"></i> Fees
-            </a>
+        <div style="padding: 24px; border-bottom: 1px solid #e8eaed;">
+            <div class="logo" style="justify-content: center;">
+                <div style="width: 40px; height: 40px; background: #FFD700; border: 3px solid #FF6B35; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 8px;">
+                    <span style="font-weight: bold; font-size: 20px;">
+                        <span style="color: #FF6B35; font-size: 24px;">K</span><span style="color: #008000; font-size: 20px;">E</span>
+                    </span>
+                </div>
+                <span style="color: #FF6B35; font-weight: bold;">Kenya</span> <span style="color: #008000; font-weight: bold;">EduHub</span>
+            </div>
         </div>
+        
         <div class="sidebar-section">
-            <div class="sidebar-title">Settings</div>
-            <a class="nav-link" href="settings.php">
-                <i class="fas fa-cog"></i> Settings
-            </a>
-            <a class="nav-link" href="api/logout.php">
-                <i class="fas fa-sign-out-alt"></i> Logout
-            </a>
+            <div class="sidebar-title" onclick="toggleSidebarSection(this)">
+                Main <i class="fas fa-chevron-down chevron"></i>
+            </div>
+            <div class="sidebar-links">
+                <a class="nav-link active" href="dashboard">
+                    <i class="fas fa-home"></i> Dashboard
+                </a>
+            </div>
+        </div>
+        
+        <div class="sidebar-section">
+            <div class="sidebar-title" onclick="toggleSidebarSection(this)">
+                Academic <i class="fas fa-chevron-down chevron"></i>
+            </div>
+            <div class="sidebar-links">
+                <a class="nav-link" href="students">
+                    <i class="fas fa-user-graduate"></i> Students
+                </a>
+                <a class="nav-link" href="teachers">
+                    <i class="fas fa-chalkboard-teacher"></i> Teachers
+                </a>
+                <a class="nav-link" href="classes">
+                    <i class="fas fa-chalkboard"></i> Classes
+                </a>
+                <a class="nav-link" href="streams">
+                    <i class="fas fa-layer-group"></i> Streams
+                </a>
+                <a class="nav-link" href="subjects">
+                    <i class="fas fa-book"></i> Subjects
+                </a>
+                <a class="nav-link" href="grading">
+                    <i class="fas fa-chart-bar"></i> Grading
+                </a>
+            </div>
+        </div>
+        
+        <div class="sidebar-section">
+            <div class="sidebar-title" onclick="toggleSidebarSection(this)">
+                Academic Records <i class="fas fa-chevron-down chevron"></i>
+            </div>
+            <div class="sidebar-links">
+                <a class="nav-link" href="performance">
+                    <i class="fas fa-chart-line"></i> Performance
+                </a>
+                <a class="nav-link" href="attendance">
+                    <i class="fas fa-calendar-check"></i> Attendance
+                </a>
+            </div>
+        </div>
+        
+        <div class="sidebar-section">
+            <div class="sidebar-title" onclick="toggleSidebarSection(this)">
+                Financial <i class="fas fa-chevron-down chevron"></i>
+            </div>
+            <div class="sidebar-links">
+                <a class="nav-link" href="fees">
+                    <i class="fas fa-money-bill-wave"></i> Fees
+                </a>
+                <a class="nav-link" href="finance-managers">
+                    <i class="fas fa-user-tie"></i> Finance Managers
+                </a>
+                <a class="nav-link" href="account">
+                    <i class="fas fa-wallet"></i> Account Balance
+                </a>
+            </div>
+        </div>
+        
+        <div class="sidebar-section">
+            <div class="sidebar-title" onclick="toggleSidebarSection(this)">
+                Administrative <i class="fas fa-chevron-down chevron"></i>
+            </div>
+            <div class="sidebar-links">
+                <a class="nav-link" href="parents">
+                    <i class="fas fa-users"></i> Parents
+                </a>
+                <a class="nav-link" href="disciplinary">
+                    <i class="fas fa-shield-alt"></i> Disciplinary
+                </a>
+                <a class="nav-link" href="duty-assignments">
+                    <i class="fas fa-clipboard-list"></i> Duty Assignments
+                </a>
+                <a class="nav-link" href="librarians">
+                    <i class="fas fa-book-reader"></i> Librarians
+                </a>
+            </div>
+        </div>
+        
+        <div class="sidebar-section">
+            <div class="sidebar-title" onclick="toggleSidebarSection(this)">
+                Settings <i class="fas fa-chevron-down chevron"></i>
+            </div>
+            <div class="sidebar-links">
+                <a class="nav-link" href="settings">
+                    <i class="fas fa-cog"></i> Settings
+                </a>
+                <a class="nav-link" href="logout">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            </div>
         </div>
     </aside>
     
@@ -950,6 +1022,29 @@ try {
             sidebar.classList.toggle('show');
             mainContent.classList.toggle('expanded');
         }
+        
+        function toggleSidebarSection(titleElement) {
+            const linksContainer = titleElement.nextElementSibling;
+            const isCollapsed = linksContainer.classList.contains('collapsed');
+            
+            titleElement.classList.toggle('collapsed');
+            linksContainer.classList.toggle('collapsed');
+        }
+        
+        // Only enable collapsible sections on large screens
+        function handleResize() {
+            const sidebarTitles = document.querySelectorAll('.sidebar-title');
+            const sidebarLinks = document.querySelectorAll('.sidebar-links');
+            
+            if (window.innerWidth <= 768) {
+                // On mobile, expand all sections
+                sidebarTitles.forEach(title => title.classList.remove('collapsed'));
+                sidebarLinks.forEach(links => links.classList.remove('collapsed'));
+            }
+        }
+        
+        window.addEventListener('resize', handleResize);
+        handleResize();
         
         // Load dashboard statistics
         async function loadStats() {

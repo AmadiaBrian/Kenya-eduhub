@@ -1,0 +1,16 @@
+RewriteEngine On
+RewriteBase /Kenyaeduhub/teachers/
+
+# Allow direct access to api directory
+RewriteRule ^api/ - [L]
+
+# Allow direct access to assets if any
+RewriteRule ^assets/ - [L]
+
+# Handle clean URLs - route everything to index.php
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^([^\.]+)$ index.php?route=$1 [L,QSA]
+
+# Default route - if accessing teachers/ without a path, go to login
+RewriteRule ^$ index.php?route=login [L,QSA]

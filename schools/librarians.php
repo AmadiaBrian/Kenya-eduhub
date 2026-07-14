@@ -1,13 +1,6 @@
 <?php
 // Librarians Management Page
-session_start();
-require_once __DIR__ . '/../config.php';
-
-if (!isset($_SESSION['school_id'])) {
-    header('Location: index.php');
-    exit;
-}
-
+// Authentication is handled by index.php router
 $school_id = $_SESSION['school_id'];
 $school_name = $_SESSION['school_name'] ?? 'School';
 
@@ -106,6 +99,7 @@ try {
     <title>Librarians - <?php echo htmlspecialchars($school_name); ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/notifications.css">
     <style>
         :root {
             --primary-color: #FF6B35;
@@ -543,49 +537,49 @@ try {
     <aside class="sidebar" id="sidebar">
         <div class="sidebar-section">
             <div class="sidebar-title">Main</div>
-            <a href="dashboard.php" class="nav-link">
+            <a href="dashboard" class="nav-link">
                 <i class="fas fa-home"></i>
                 <span>Dashboard</span>
             </a>
-            <a href="students.php" class="nav-link">
+            <a href="students" class="nav-link">
                 <i class="fas fa-user-graduate"></i>
                 <span>Students</span>
             </a>
-            <a href="teachers.php" class="nav-link">
+            <a href="teachers" class="nav-link">
                 <i class="fas fa-chalkboard-teacher"></i>
                 <span>Teachers</span>
             </a>
-            <a href="classes.php" class="nav-link">
+            <a href="classes" class="nav-link">
                 <i class="fas fa-chalkboard"></i>
                 <span>Classes</span>
             </a>
-            <a href="attendance.php" class="nav-link">
+            <a href="attendance" class="nav-link">
                 <i class="fas fa-clipboard-check"></i>
                 <span>Attendance</span>
             </a>
-            <a href="fees.php" class="nav-link">
+            <a href="fees" class="nav-link">
                 <i class="fas fa-money-bill-wave"></i>
                 <span>Fees</span>
             </a>
         </div>
         <div class="sidebar-section">
             <div class="sidebar-title">Management</div>
-            <a href="finance-managers.php" class="nav-link">
+            <a href="finance-managers" class="nav-link">
                 <i class="fas fa-calculator"></i>
                 <span>Finance Managers</span>
             </a>
-            <a href="librarians.php" class="nav-link active">
+            <a href="librarians" class="nav-link active">
                 <i class="fas fa-book"></i>
                 <span>Librarians</span>
             </a>
         </div>
         <div class="sidebar-section">
             <div class="sidebar-title">Account</div>
-            <a href="settings.php" class="nav-link">
+            <a href="settings" class="nav-link">
                 <i class="fas fa-cog"></i>
                 <span>Settings</span>
             </a>
-            <a href="../logout.php" class="nav-link">
+            <a href="logout" class="nav-link">
                 <i class="fas fa-sign-out-alt"></i>
                 <span>Logout</span>
             </a>
@@ -718,5 +712,6 @@ try {
             mainContent.classList.toggle('expanded');
         }
     </script>
+    <script src="../assets/js/notifications.js"></script>
 </body>
 </html>

@@ -1,13 +1,6 @@
 <?php
 // Teacher Student Affairs
-session_start();
-require_once __DIR__ . '/../config.php';
-
-if (!isset($_SESSION['teacher_id'])) {
-    header('Location: index.php');
-    exit;
-}
-
+// Authentication is handled by index.php router
 $teacher_id = $_SESSION['teacher_id'];
 $teacher_name = $_SESSION['teacher_name'] ?? 'Teacher';
 $school_id = $_SESSION['school_id'];
@@ -47,6 +40,7 @@ if ($teacher && $teacher['teacher_type'] === 'subject_teacher') {
     <title>Students - <?php echo htmlspecialchars($teacher_name); ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/notifications.css">
     <style>
         :root {
             --primary-color: #FF6B35;
@@ -369,28 +363,28 @@ if ($teacher && $teacher['teacher_type'] === 'subject_teacher') {
     <aside class="sidebar" id="sidebar">
         <div class="sidebar-section">
             <div class="sidebar-title">Main</div>
-            <a class="nav-link" href="dashboard.php">
+            <a class="nav-link" href="dashboard">
                 <i class="fas fa-home"></i> Dashboard
             </a>
-            <a class="nav-link" href="attendance.php">
+            <a class="nav-link" href="attendance">
                 <i class="fas fa-calendar-check"></i> Attendance
             </a>
-            <a class="nav-link" href="performance.php">
+            <a class="nav-link" href="performance">
                 <i class="fas fa-chart-line"></i> Performance
             </a>
-            <a class="nav-link active" href="students.php">
+            <a class="nav-link active" href="students">
                 <i class="fas fa-user-graduate"></i> Students
             </a>
-            <a class="nav-link" href="parents.php">
+            <a class="nav-link" href="parents">
                 <i class="fas fa-users"></i> Parents
             </a>
         </div>
         <div class="sidebar-section">
             <div class="sidebar-title">Account</div>
-            <a class="nav-link" href="profile.php">
+            <a class="nav-link" href="profile">
                 <i class="fas fa-user"></i> Profile
             </a>
-            <a class="nav-link" href="api/logout.php">
+            <a class="nav-link" href="logout">
                 <i class="fas fa-sign-out-alt"></i> Logout
             </a>
         </div>
@@ -438,27 +432,44 @@ if ($teacher && $teacher['teacher_type'] === 'subject_teacher') {
             </div>
         </div>
         
-        <div class="card">
+        <div id="feeTypeTables">
+            <div class="card">
+                <div class="card-header">
+                    <span>Loading...</span>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <tbody>
+                                <tr><td colspan="8" class="text-center">Loading students...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Disciplinary Records Section -->
+        <div class="card" id="disciplinarySection" style="margin-top: 24px;">
             <div class="card-header">
-                <span>All Students</span>
+                <span id="disciplinaryTitle">Disciplinary Records - Class</span>
             </div>
             <div class="card-body">
                 <div class="table-responsive">
-                    <table class="table">
+                    <table class="table" id="disciplinaryTable">
                         <thead>
                             <tr>
                                 <th>Admission No</th>
-                                <th>Name</th>
-                                <th>Gender</th>
-                                <th>Class</th>
-                                <th>Stream</th>
+                                <th>Student Name</th>
+                                <th>Date</th>
+                                <th>Action Type</th>
+                                <th>Severity</th>
+                                <th>Title</th>
                                 <th>Status</th>
-                                <th>Fee Balance</th>
-                                <th>Actions</th>
                             </tr>
                         </thead>
-                        <tbody id="studentsTable">
-                            <tr><td colspan="8" class="text-center">Loading...</td></tr>
+                        <tbody id="disciplinaryTableBody">
+                            <tr><td colspan="7" class="text-center">Loading disciplinary records...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -508,34 +519,103 @@ if ($teacher && $teacher['teacher_type'] === 'subject_teacher') {
                 const response = await fetch(url);
                 const data = await response.json();
                 if (data.success) {
-                    const tbody = document.getElementById('studentsTable');
-                    tbody.innerHTML = data.data.map(student => {
-                        const balance = student.fee_balance || 0;
-                        const balanceClass = balance > 0 ? 'text-danger' : (balance < 0 ? 'text-success' : 'text-muted');
-                        const balanceText = balance > 0 ? `KES ${balance.toFixed(2)} (Due)` : (balance < 0 ? `KES ${Math.abs(balance).toFixed(2)} (Overpaid)` : 'KES 0.00 (Paid)');
-                        
-                        return `
-                        <tr>
-                            <td>${student.admission_number}</td>
-                            <td>${student.first_name} ${student.last_name}</td>
-                            <td>${student.gender}</td>
-                            <td>${student.class_name || '-'}</td>
-                            <td>${student.stream_name || '-'}</td>
-                            <td>
-                                <span class="badge ${student.status === 'active' ? 'bg-success' : 'bg-secondary'}">
-                                    ${student.status}
-                                </span>
-                            </td>
-                            <td class="${balanceClass}">
-                                <strong>${balanceText}</strong>
-                            </td>
-                            <td>
-                                <button class="btn btn-sm btn-info" onclick="viewStudentDetails(${student.id})">
-                                    <i class="fas fa-eye"></i> View
-                                </button>
-                            </td>
-                        </tr>
-                    `}).join('');
+                    const container = document.getElementById('feeTypeTables');
+                    
+                    // Group students by fee types present in their fee_balances
+                    const feeTypeGroups = {};
+                    data.data.forEach(student => {
+                        if (student.fee_balances) {
+                            Object.keys(student.fee_balances).forEach(feeType => {
+                                if (!feeTypeGroups[feeType]) {
+                                    feeTypeGroups[feeType] = [];
+                                }
+                                feeTypeGroups[feeType].push(student);
+                            });
+                        }
+                    });
+                    
+                    // If no fee types found, show message
+                    if (Object.keys(feeTypeGroups).length === 0) {
+                        container.innerHTML = `
+                            <div class="card">
+                                <div class="card-header">
+                                    <span>No Fee Data</span>
+                                </div>
+                                <div class="card-body">
+                                    <p class="text-center text-muted">No fee data available for these students.</p>
+                                </div>
+                            </div>
+                        `;
+                        return;
+                    }
+                    
+                    // Generate a table for each fee type
+                    let html = '';
+                    Object.keys(feeTypeGroups).sort().forEach(feeType => {
+                        const students = feeTypeGroups[feeType];
+                        html += `
+                            <div class="card" style="margin-bottom: 24px;">
+                                <div class="card-header">
+                                    <span>${feeType} Fee Balances</span>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Admission No</th>
+                                                    <th>Name</th>
+                                                    <th>Gender</th>
+                                                    <th>Class</th>
+                                                    <th>Stream</th>
+                                                    <th>Status</th>
+                                                    <th>Total Fees</th>
+                                                    <th>Total Paid</th>
+                                                    <th>Balance</th>
+                                                    <th>Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                ${students.map(student => {
+                                                    const feeData = student.fee_balances[feeType] || { total_fees: 0, total_paid: 0, balance: 0 };
+                                                    const balance = feeData.balance;
+                                                    const balanceClass = balance > 0 ? 'text-danger' : (balance < 0 ? 'text-success' : 'text-muted');
+                                                    const balanceText = balance > 0 ? `KES ${balance.toFixed(2)} (Due)` : (balance < 0 ? `KES ${Math.abs(balance).toFixed(2)} (Overpaid)` : 'KES 0.00 (Paid)');
+                                                    
+                                                    return `
+                                                        <tr>
+                                                            <td>${student.admission_number}</td>
+                                                            <td>${student.first_name} ${student.last_name}</td>
+                                                            <td>${student.gender}</td>
+                                                            <td>${student.class_name || '-'}</td>
+                                                            <td>${student.stream_name || '-'}</td>
+                                                            <td>
+                                                                <span class="badge ${student.status === 'active' ? 'bg-success' : 'bg-secondary'}">
+                                                                    ${student.status}
+                                                                </span>
+                                                            </td>
+                                                            <td>KES ${feeData.total_fees.toFixed(2)}</td>
+                                                            <td>KES ${feeData.total_paid.toFixed(2)}</td>
+                                                            <td class="${balanceClass}">
+                                                                <strong>${balanceText}</strong>
+                                                            </td>
+                                                            <td>
+                                                                <button class="btn btn-sm btn-info" onclick="viewStudentDetails(${student.id})">
+                                                                    <i class="fas fa-eye"></i> View
+                                                                </button>
+                                                            </td>
+                                                        </tr>
+                                                    `;
+                                                }).join('')}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    
+                    container.innerHTML = html;
                 }
             } catch (error) {
                 console.error('Error loading students:', error);
@@ -575,9 +655,56 @@ if ($teacher && $teacher['teacher_type'] === 'subject_teacher') {
             }
         }
         
+        // Load disciplinary records for the class
+        async function loadDisciplinaryRecords() {
+            const disciplinaryTableBody = document.getElementById('disciplinaryTableBody');
+            disciplinaryTableBody.innerHTML = '<tr><td colspan="7" class="text-center">Loading disciplinary records...</td></tr>';
+            
+            try {
+                const response = await fetch('../schools/api/disciplinary.php?type=records');
+                const data = await response.json();
+                
+                if (data.success && data.data.length > 0) {
+                    const records = data.data;
+                    let html = '';
+                    
+                    records.forEach(record => {
+                        const severityClass = record.severity === 'critical' ? 'bg-danger' : 
+                                             record.severity === 'severe' ? 'bg-warning' : 
+                                             record.severity === 'moderate' ? 'bg-info' : 'bg-secondary';
+                        
+                        const statusClass = record.status === 'resolved' ? 'bg-success' : 
+                                           record.status === 'active' ? 'bg-primary' : 
+                                           record.status === 'pending' ? 'bg-secondary' : 'bg-warning';
+                        
+                        html += `
+                            <tr>
+                                <td>${record.admission_number}</td>
+                                <td>${record.student_name}</td>
+                                <td>${new Date(record.incident_date).toLocaleDateString()}</td>
+                                <td><span class="badge badge-${record.action_type}">${record.action_type}</span></td>
+                                <td><span class="badge ${severityClass}">${record.severity}</span></td>
+                                <td>${record.title}</td>
+                                <td><span class="badge ${statusClass}">${record.status}</span></td>
+                            </tr>
+                        `;
+                    });
+                    
+                    disciplinaryTableBody.innerHTML = html;
+                } else {
+                    disciplinaryTableBody.innerHTML = '<tr><td colspan="7" class="text-center text-muted">No disciplinary records found.</td></tr>';
+                }
+            } catch (error) {
+                console.error('Error loading disciplinary records:', error);
+                disciplinaryTableBody.innerHTML = '<tr><td colspan="7" class="text-center text-danger">Error loading disciplinary records.</td></tr>';
+            }
+        }
+        
         // Initialize
         loadStudents();
+        loadDisciplinaryRecords();
     </script>
+    <script src="../assets/js/notifications.js"></script>
     
     <!-- Footer -->
     <footer style="background: transparent; color: white; padding: 2rem; text-align: center; border-top: 1px solid rgba(255, 255, 255, 0.1);">

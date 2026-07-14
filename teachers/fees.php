@@ -1,13 +1,6 @@
 <?php
 // Teacher Fees Page
-session_start();
-require_once __DIR__ . '/../config.php';
-
-if (!isset($_SESSION['teacher_id'])) {
-    header('Location: index.php');
-    exit;
-}
-
+// Authentication is handled by index.php router
 $teacher_id = $_SESSION['teacher_id'];
 $teacher_name = $_SESSION['teacher_name'] ?? 'Teacher';
 $school_id = $_SESSION['school_id'];
@@ -49,13 +42,82 @@ if ($class_id) {
         $stmt = $pdo->prepare($query);
         $stmt->execute($params);
         $students = $stmt->fetchAll();
-        
-        // Set default student if none selected
-        if (!$selected_student_id && !empty($students)) {
-            $selected_student_id = $students[0]['id'];
-        }
     } catch (PDOException $e) {
         error_log("Failed to fetch students: " . $e->getMessage());
+    }
+}
+
+// Get all students in teacher's class/stream with fee balances by fee type
+$stream_fee_summary = [];
+if ($class_id) {
+    try {
+        $current_year = date('Y');
+        $terms = ['Term 1', 'Term 2', 'Term 3'];
+        
+        // Get all students with their fee structures and payments
+        $query = "SELECT s.id, s.admission_number, s.first_name, s.last_name, s.stream_id, st.stream_name,
+                 fs.id as fee_structure_id, fs.fee_type, fs.term, fs.year, fs.amount as fee_amount,
+                 COALESCE(SUM(fp.amount), 0) as paid_amount
+                 FROM students s
+                 LEFT JOIN classes c ON s.class_id = c.id
+                 LEFT JOIN streams st ON s.stream_id = st.id
+                 LEFT JOIN fee_structure fs ON c.id = fs.class_id AND fs.year = ?
+                 LEFT JOIN fee_payments fp ON s.id = fp.student_id AND fs.term = fp.term AND fs.year = fp.year AND fp.status = 'completed' 
+                     AND (fp.fee_type = fs.fee_type OR (fp.fee_type IS NULL AND fs.fee_type = 'Tuition'))
+                 WHERE s.school_id = ? AND s.class_id = ? AND s.status = 'active'";
+        $params = [$current_year, $school_id, $class_id];
+        
+        if ($stream_id) {
+            $query .= " AND s.stream_id = ?";
+            $params[] = $stream_id;
+        }
+        
+        $query .= " GROUP BY s.id, s.admission_number, s.first_name, s.last_name, s.stream_id, st.stream_name, 
+                   fs.id, fs.fee_type, fs.term, fs.year, fs.amount
+                   ORDER BY s.first_name, s.last_name, fs.fee_type, fs.term";
+        
+        $stmt = $pdo->prepare($query);
+        $stmt->execute($params);
+        $all_student_fees = $stmt->fetchAll();
+        
+        // Group by fee type
+        $stream_fee_summary = [];
+        foreach ($all_student_fees as $row) {
+            $fee_type = $row['fee_type'] ?? 'Tuition';
+            $student_id = $row['id'];
+            
+            if (!isset($stream_fee_summary[$fee_type])) {
+                $stream_fee_summary[$fee_type] = [];
+            }
+            
+            if (!isset($stream_fee_summary[$fee_type][$student_id])) {
+                $stream_fee_summary[$fee_type][$student_id] = [
+                    'admission_number' => $row['admission_number'],
+                    'student_name' => $row['first_name'] . ' ' . $row['last_name'],
+                    'stream_name' => $row['stream_name'],
+                    'fees' => [],
+                    'total_fee' => 0,
+                    'total_paid' => 0,
+                    'total_balance' => 0
+                ];
+            }
+            
+            $balance = $row['fee_amount'] - $row['paid_amount'];
+            
+            $stream_fee_summary[$fee_type][$student_id]['fees'][] = [
+                'term' => $row['term'],
+                'year' => $row['year'],
+                'fee_amount' => $row['fee_amount'],
+                'paid_amount' => $row['paid_amount'],
+                'balance' => $balance
+            ];
+            
+            $stream_fee_summary[$fee_type][$student_id]['total_fee'] += $row['fee_amount'];
+            $stream_fee_summary[$fee_type][$student_id]['total_paid'] += $row['paid_amount'];
+            $stream_fee_summary[$fee_type][$student_id]['total_balance'] += $balance;
+        }
+    } catch (PDOException $e) {
+        error_log("Failed to fetch stream fee summary: " . $e->getMessage());
     }
 }
 
@@ -63,8 +125,17 @@ if ($class_id) {
 $fee_data = [];
 if ($selected_student_id) {
     try {
-        $stmt = $pdo->prepare("SELECT s.*, c.class_name FROM students s LEFT JOIN classes c ON s.class_id = c.id WHERE s.id = ?");
-        $stmt->execute([$selected_student_id]);
+        // Verify student belongs to teacher's class/stream
+        $query = "SELECT s.*, c.class_name FROM students s LEFT JOIN classes c ON s.class_id = c.id WHERE s.id = ? AND s.school_id = ? AND s.class_id = ?";
+        $params = [$selected_student_id, $school_id, $class_id];
+        
+        if ($stream_id) {
+            $query .= " AND s.stream_id = ?";
+            $params[] = $stream_id;
+        }
+        
+        $stmt = $pdo->prepare($query);
+        $stmt->execute($params);
         $selected_student = $stmt->fetch();
         
         if ($selected_student) {
@@ -80,8 +151,8 @@ if ($selected_student_id) {
                 $fee_structures = $stmt->fetchAll(PDO::FETCH_ASSOC);
             }
             
-            // Get payment history for current year
-            $stmt = $pdo->prepare("SELECT * FROM fee_payments WHERE student_id = ? AND year = ? ORDER BY payment_date DESC");
+            // Get payment history for current year (only completed payments)
+            $stmt = $pdo->prepare("SELECT * FROM fee_payments WHERE student_id = ? AND year = ? AND status = 'completed' ORDER BY payment_date DESC");
             $stmt->execute([$selected_student_id, $current_year]);
             $payments = $stmt->fetchAll();
             
@@ -178,6 +249,7 @@ if ($selected_student_id) {
     <title>Fee Payments - <?php echo htmlspecialchars($teacher_name); ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/notifications.css">
     <style>
         :root {
             --primary-color: #FF6B35;
@@ -599,31 +671,31 @@ if ($selected_student_id) {
     <aside class="sidebar" id="sidebar">
         <div class="sidebar-section">
             <div class="sidebar-title">Main</div>
-            <a class="nav-link" href="dashboard.php">
+            <a class="nav-link" href="dashboard">
                 <i class="fas fa-home"></i> Dashboard
             </a>
-            <a class="nav-link" href="students.php">
+            <a class="nav-link" href="students">
                 <i class="fas fa-user-graduate"></i> Students
             </a>
-            <a class="nav-link" href="attendance.php">
+            <a class="nav-link" href="attendance">
                 <i class="fas fa-calendar-check"></i> Attendance
             </a>
-            <a class="nav-link" href="performance.php">
+            <a class="nav-link" href="performance">
                 <i class="fas fa-chart-line"></i> Performance
             </a>
-            <a class="nav-link" href="parents.php">
+            <a class="nav-link" href="parents">
                 <i class="fas fa-users"></i> Parents
             </a>
-            <a class="nav-link active" href="fees.php">
+            <a class="nav-link active" href="fees">
                 <i class="fas fa-money-bill-wave"></i> Fee Payments
             </a>
         </div>
         <div class="sidebar-section">
             <div class="sidebar-title">Account</div>
-            <a class="nav-link" href="profile.php">
+            <a class="nav-link" href="profile">
                 <i class="fas fa-user"></i> Profile
             </a>
-            <a class="nav-link" href="api/logout.php">
+            <a class="nav-link" href="logout">
                 <i class="fas fa-sign-out-alt"></i> Logout
             </a>
         </div>
@@ -639,13 +711,22 @@ if ($selected_student_id) {
         <?php if ($class_id): ?>
             <div class="card">
                 <h2 class="card-title">Select Student</h2>
+                <p class="text-muted" style="margin-bottom: 16px;">
+                    Viewing students in: 
+                    <strong><?php echo htmlspecialchars($class_name); ?></strong>
+                    <?php if ($stream_id): ?>
+                        - <strong><?php echo htmlspecialchars($stream_name); ?> Stream</strong>
+                    <?php else: ?>
+                        - All Streams
+                    <?php endif; ?>
+                </p>
                 <div class="filter-group">
                     <label for="student_search">Search Student (Name or Admission No)</label>
                     <input type="text" class="form-control" id="student_search" placeholder="Type to search..." onkeyup="filterStudents()">
                 </div>
                 <div class="filter-group">
                     <label for="student_id">Student</label>
-                    <select class="form-control" id="student_id" name="student_id" onchange="window.location.href='fees.php?student_id='+this.value">
+                    <select class="form-control" id="student_id" name="student_id" onchange="window.location.href='fees?student_id='+this.value">
                         <option value="">Select a student</option>
                         <?php foreach ($students as $student): ?>
                             <option value="<?php echo $student['id']; ?>" 
@@ -663,37 +744,37 @@ if ($selected_student_id) {
             <div class="card">
                 <h2 class="card-title">Quick Access</h2>
                 <div class="quick-access-grid">
-                    <a href="dashboard.php" class="quick-access-item">
+                    <a href="dashboard" class="quick-access-item">
                         <div class="quick-access-icon">
                             <i class="fas fa-home"></i>
                         </div>
                         <div class="quick-access-label">Dashboard</div>
                     </a>
-                    <a href="students.php" class="quick-access-item">
+                    <a href="students" class="quick-access-item">
                         <div class="quick-access-icon">
                             <i class="fas fa-user-graduate"></i>
                         </div>
                         <div class="quick-access-label">Students</div>
                     </a>
-                    <a href="attendance.php" class="quick-access-item">
+                    <a href="attendance" class="quick-access-item">
                         <div class="quick-access-icon">
                             <i class="fas fa-calendar-check"></i>
                         </div>
                         <div class="quick-access-label">Attendance</div>
                     </a>
-                    <a href="performance.php" class="quick-access-item">
+                    <a href="performance" class="quick-access-item">
                         <div class="quick-access-icon">
                             <i class="fas fa-chart-line"></i>
                         </div>
                         <div class="quick-access-label">Performance</div>
                     </a>
-                    <a href="parents.php" class="quick-access-item">
+                    <a href="parents" class="quick-access-item">
                         <div class="quick-access-icon">
                             <i class="fas fa-users"></i>
                         </div>
                         <div class="quick-access-label">Parents</div>
                     </a>
-                    <a href="profile.php" class="quick-access-item">
+                    <a href="profile" class="quick-access-item">
                         <div class="quick-access-icon">
                             <i class="fas fa-user"></i>
                         </div>
@@ -701,6 +782,64 @@ if ($selected_student_id) {
                     </a>
                 </div>
             </div>
+            
+            <!-- Stream Fee Summary -->
+            <?php if (!empty($stream_fee_summary)): ?>
+                <div class="card" id="streamFeeSummary">
+                    <h2 class="card-title">Stream Fee Summary - <?php echo date('Y'); ?></h2>
+                    <p class="text-muted" style="margin-bottom: 16px;">
+                        Fee balances for all students in your stream, grouped by fee type
+                    </p>
+                    
+                    <?php foreach ($stream_fee_summary as $fee_type => $students): ?>
+                        <div style="margin-bottom: 32px;" data-fee-type="<?php echo htmlspecialchars($fee_type); ?>">
+                            <h3 style="font-size: 16px; font-weight: 600; color: #202124; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid #FF6B35;">
+                                <?php echo htmlspecialchars($fee_type); ?> Fees
+                            </h3>
+                            <?php if (empty($students)): ?>
+                                <p class="text-muted">No students with <?php echo htmlspecialchars($fee_type); ?> fees.</p>
+                            <?php else: ?>
+                                <div class="table-responsive">
+                                    <table class="table">
+                                        <thead>
+                                            <tr>
+                                                <th>Admission No</th>
+                                                <th>Student Name</th>
+                                                <th>Stream</th>
+                                                <th>Total Fees</th>
+                                                <th>Total Paid</th>
+                                                <th>Total Balance</th>
+                                                <th>Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <?php foreach ($students as $student): ?>
+                                                <tr data-admission="<?php echo strtolower(htmlspecialchars($student['admission_number'])); ?>" data-name="<?php echo strtolower(htmlspecialchars($student['student_name'])); ?>">
+                                                    <td><?php echo htmlspecialchars($student['admission_number']); ?></td>
+                                                    <td><?php echo htmlspecialchars($student['student_name']); ?></td>
+                                                    <td><?php echo htmlspecialchars($student['stream_name'] ?? '-'); ?></td>
+                                                    <td>KES <?php echo number_format($student['total_fee']); ?></td>
+                                                    <td>KES <?php echo number_format($student['total_paid']); ?></td>
+                                                    <td><strong>KES <?php echo number_format($student['total_balance']); ?></strong></td>
+                                                    <td>
+                                                        <?php if ($student['total_balance'] <= 0): ?>
+                                                            <span style="color: #137333; font-weight: 500;">Paid</span>
+                                                        <?php elseif ($student['total_paid'] > 0): ?>
+                                                            <span style="color: #f9ab00; font-weight: 500;">Partial</span>
+                                                        <?php else: ?>
+                                                            <span style="color: #c5221f; font-weight: 500;">Not Paid</span>
+                                                        <?php endif; ?>
+                                                    </td>
+                                                </tr>
+                                            <?php endforeach; ?>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            <?php endif; ?>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            <?php endif; ?>
             
             <?php if ($selected_student_id && !empty($fee_data)): ?>
                 <div class="card">
@@ -845,19 +984,64 @@ if ($selected_student_id) {
             const select = document.getElementById('student_id');
             const options = select.getElementsByTagName('option');
             
+            // Store the first option (Select a student)
+            const firstOption = options[0].cloneNode(true);
+            
+            // Clear the select
+            select.innerHTML = '';
+            
+            // Add back the first option
+            select.appendChild(firstOption);
+            
+            // Add only matching options
             for (let i = 1; i < options.length; i++) {
                 const option = options[i];
                 const name = option.getAttribute('data-name') || '';
                 const adm = option.getAttribute('data-adm') || '';
                 
                 if (name.includes(searchInput) || adm.includes(searchInput)) {
-                    option.style.display = '';
-                } else {
-                    option.style.display = 'none';
+                    select.appendChild(option.cloneNode(true));
                 }
+            }
+            
+            // Restore selected value if it still exists
+            const selectedValue = '<?php echo $selected_student_id ?? ''; ?>';
+            if (selectedValue) {
+                select.value = selectedValue;
+            }
+            
+            // Filter stream summary rows based on search
+            const streamSummary = document.getElementById('streamFeeSummary');
+            if (streamSummary) {
+                const rows = streamSummary.querySelectorAll('tbody tr');
+                rows.forEach(row => {
+                    const rowAdm = row.getAttribute('data-admission') || '';
+                    const rowName = row.getAttribute('data-name') || '';
+                    
+                    if (searchInput === '' || rowAdm.includes(searchInput) || rowName.includes(searchInput)) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+                
+                // Hide empty fee type sections
+                const feeTypeSections = streamSummary.querySelectorAll('[data-fee-type]');
+                feeTypeSections.forEach(section => {
+                    const visibleRows = section.querySelectorAll('tbody tr[style=""]');
+                    const hiddenRows = section.querySelectorAll('tbody tr[style="display: none;"]');
+                    const totalRows = section.querySelectorAll('tbody tr');
+                    
+                    if (totalRows.length > 0 && totalRows.length === hiddenRows.length) {
+                        section.style.display = 'none';
+                    } else {
+                        section.style.display = 'block';
+                    }
+                });
             }
         }
     </script>
+    <script src="../assets/js/notifications.js"></script>
     
     <!-- Footer -->
     <footer style="background: transparent; color: white; padding: 2rem; text-align: center; border-top: 1px solid rgba(255, 255, 255, 0.1);">

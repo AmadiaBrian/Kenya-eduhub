@@ -1,91 +1,114 @@
 <?php
-// Parent Login Page
+// Parents Main Router - Handles all parent routes
 session_start();
 require_once __DIR__ . '/../config.php';
 
-// If already logged in, redirect to dashboard
-if (isset($_SESSION['parent_id'])) {
-    header('Location: dashboard.php');
+$route = $_GET['route'] ?? 'login';
+
+// Whitelist of allowed routes
+$allowed_routes = [
+    'login',
+    'logout',
+    'dashboard',
+    'profile',
+    'attendance',
+    'fees',
+    'performance',
+    'children'
+];
+
+// Validate route
+if (!in_array($route, $allowed_routes)) {
+    header('HTTP/1.0 404 Not Found');
+    require __DIR__ . '/404.php';
     exit;
 }
 
-$error = '';
-$success = '';
+// Handle login route separately (no auth required)
+if ($route === 'login') {
+    // If already logged in, redirect to dashboard
+    if (isset($_SESSION['parent_id'])) {
+        header('Location: dashboard');
+        exit;
+    }
 
-// Handle login
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $email = $_POST['email'] ?? '';
-    $identifier = $_POST['identifier'] ?? ''; // Can be phone or ID number
+    $error = '';
+    $success = '';
 
-    // Debug logging
-    error_log("=== Parent Login Debug ===");
-    error_log("Email: " . $email);
-    error_log("Identifier (Phone/ID): " . $identifier);
+    // Handle login
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $email = $_POST['email'] ?? '';
+        $identifier = $_POST['identifier'] ?? ''; // Can be phone or ID number
 
-    if (empty($email) || empty($identifier)) {
-        $error = 'Please enter both email and phone number/ID number';
-        error_log("Error: Missing fields");
-    } else {
-        try {
-            $stmt = $pdo->prepare("SELECT p.id as parent_id, p.first_name, p.last_name, p.email, p.phone, p.id_number, p.school_id, s.school_name
-                                   FROM parents p
-                                   JOIN schools s ON p.school_id = s.id
-                                   WHERE p.email = ? AND (p.phone = ? OR p.id_number = ?)");
-            $stmt->execute([$email, $identifier, $identifier]);
-            $parent_login = $stmt->fetch();
-            
-            error_log("Query result: " . ($parent_login ? 'Found parent' : 'No parent found'));
-            
-            if (!$parent_login) {
-                // Debug: Check if email exists in parents table
-                $stmt = $pdo->prepare("SELECT p.email, p.phone, p.id_number FROM parents p WHERE p.email = ?");
-                $stmt->execute([$email]);
-                $email_check = $stmt->fetch();
-                error_log("Email check in parents: " . ($email_check ? 'Found - Phone: ' . $email_check['phone'] . ', ID: ' . $email_check['id_number'] : 'Not found'));
-                
-                // Debug: Check if identifier exists as phone
-                $stmt = $pdo->prepare("SELECT p.email, p.phone, p.id_number FROM parents p WHERE p.phone = ?");
-                $stmt->execute([$identifier]);
-                $phone_check = $stmt->fetch();
-                error_log("Phone check in parents: " . ($phone_check ? 'Found - Email: ' . $phone_check['email'] : 'Not found'));
-                
-                // Debug: Check if identifier exists as ID number
-                $stmt = $pdo->prepare("SELECT p.email, p.phone, p.id_number FROM parents p WHERE p.id_number = ?");
-                $stmt->execute([$identifier]);
-                $id_check = $stmt->fetch();
-                error_log("ID number check in parents: " . ($id_check ? 'Found - Email: ' . $id_check['email'] : 'Not found'));
+        // Debug logging
+        error_log("=== Parent Login Debug ===");
+        error_log("Email: " . $email);
+        error_log("Identifier (Phone/ID): " . $identifier);
+
+        if (empty($email) || empty($identifier)) {
+            $error = 'Please enter both email and phone number/ID number';
+            error_log("Error: Missing fields");
+        } else {
+            try {
+                $stmt = $pdo->prepare("SELECT p.id as parent_id, p.first_name, p.last_name, p.email, p.phone, p.id_number, p.school_id, s.school_name
+                                       FROM parents p
+                                       JOIN schools s ON p.school_id = s.id
+                                       WHERE p.email = ? AND (p.phone = ? OR p.id_number = ?)");
+                $stmt->execute([$email, $identifier, $identifier]);
+                $parent_login = $stmt->fetch();
+
+                error_log("Query result: " . ($parent_login ? 'Found parent' : 'No parent found'));
+
+                if (!$parent_login) {
+                    // Debug: Check if email exists in parents table
+                    $stmt = $pdo->prepare("SELECT p.email, p.phone, p.id_number FROM parents p WHERE p.email = ?");
+                    $stmt->execute([$email]);
+                    $email_check = $stmt->fetch();
+                    error_log("Email check in parents: " . ($email_check ? 'Found - Phone: ' . $email_check['phone'] . ', ID: ' . $email_check['id_number'] : 'Not found'));
+
+                    // Debug: Check if identifier exists as phone
+                    $stmt = $pdo->prepare("SELECT p.email, p.phone, p.id_number FROM parents p WHERE p.phone = ?");
+                    $stmt->execute([$identifier]);
+                    $phone_check = $stmt->fetch();
+                    error_log("Phone check in parents: " . ($phone_check ? 'Found - Email: ' . $phone_check['email'] : 'Not found'));
+
+                    // Debug: Check if identifier exists as ID number
+                    $stmt = $pdo->prepare("SELECT p.email, p.phone, p.id_number FROM parents p WHERE p.id_number = ?");
+                    $stmt->execute([$identifier]);
+                    $id_check = $stmt->fetch();
+                    error_log("ID number check in parents: " . ($id_check ? 'Found - Email: ' . $id_check['email'] : 'Not found'));
+                }
+
+                if ($parent_login) {
+                    // Generate session token
+                    $session_token = bin2hex(random_bytes(32));
+                    $expires_at = date('Y-m-d H:i:s', strtotime('+8 hours'));
+
+                    // Store session in database
+                    $stmt = $pdo->prepare("INSERT INTO parent_sessions (parent_id, session_token, expires_at) VALUES (?, ?, ?)");
+                    $stmt->execute([$parent_login['parent_id'], $session_token, $expires_at]);
+
+                    // Set session variables
+                    $_SESSION['parent_id'] = $parent_login['parent_id'];
+                    $_SESSION['parent_name'] = $parent_login['first_name'] . ' ' . $parent_login['last_name'];
+                    $_SESSION['parent_email'] = $parent_login['email'];
+                    $_SESSION['parent_phone'] = $parent_login['phone'];
+                    $_SESSION['school_id'] = $parent_login['school_id'];
+                    $_SESSION['school_name'] = $parent_login['school_name'];
+                    $_SESSION['parent_session_token'] = $session_token;
+
+                    header('Location: dashboard');
+                    exit;
+                } else {
+                    $error = 'Email and phone number/ID number do not match. Please contact your school.';
+                }
+            } catch (PDOException $e) {
+                error_log("Parent login error: " . $e->getMessage());
+                $error = 'An error occurred. Please try again.';
             }
-
-            if ($parent_login) {
-                // Generate session token
-                $session_token = bin2hex(random_bytes(32));
-                $expires_at = date('Y-m-d H:i:s', strtotime('+8 hours'));
-
-                // Store session in database
-                $stmt = $pdo->prepare("INSERT INTO parent_sessions (parent_id, session_token, expires_at) VALUES (?, ?, ?)");
-                $stmt->execute([$parent_login['parent_id'], $session_token, $expires_at]);
-
-                // Set session variables
-                $_SESSION['parent_id'] = $parent_login['parent_id'];
-                $_SESSION['parent_name'] = $parent_login['first_name'] . ' ' . $parent_login['last_name'];
-                $_SESSION['parent_email'] = $parent_login['email'];
-                $_SESSION['parent_phone'] = $parent_login['phone'];
-                $_SESSION['school_id'] = $parent_login['school_id'];
-                $_SESSION['school_name'] = $parent_login['school_name'];
-                $_SESSION['parent_session_token'] = $session_token;
-
-                header('Location: dashboard.php');
-                exit;
-            } else {
-                $error = 'Email and phone number/ID number do not match. Please contact your school.';
-            }
-        } catch (PDOException $e) {
-            error_log("Parent login error: " . $e->getMessage());
-            $error = 'An error occurred. Please try again.';
         }
     }
-}
-?>
+    ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -424,3 +447,47 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
+<?php
+    exit;
+}
+
+// Handle logout route
+if ($route === 'logout') {
+    // Delete session from database
+    if (isset($_SESSION['parent_id'])) {
+        try {
+            $session_token = $_SESSION['parent_session_token'] ?? '';
+            if ($session_token) {
+                $stmt = $pdo->prepare("DELETE FROM parent_sessions WHERE session_token = ?");
+                $stmt->execute([$session_token]);
+            }
+        } catch (PDOException $e) {
+            error_log("Failed to delete parent session: " . $e->getMessage());
+        }
+    }
+
+    // Destroy session
+    session_unset();
+    session_destroy();
+
+    header('Location: login');
+    exit;
+}
+
+// Authentication check for all other routes
+if (!isset($_SESSION['parent_id'])) {
+    header('Location: login');
+    exit;
+}
+
+// Route to the appropriate page
+$page_file = __DIR__ . "/{$route}.php";
+
+if (file_exists($page_file)) {
+    require $page_file;
+} else {
+    header('HTTP/1.0 404 Not Found');
+    require __DIR__ . '/404.php';
+    exit;
+}
+?>

@@ -1,13 +1,6 @@
 <?php
 // Finance Manager Dashboard
-session_start();
-require_once __DIR__ . '/../config.php';
-
-if (!isset($_SESSION['finance_manager_id'])) {
-    header('Location: index.php');
-    exit;
-}
-
+// Authentication is handled by index.php router
 $finance_manager_id = $_SESSION['finance_manager_id'];
 $finance_manager_name = $_SESSION['finance_manager_name'] ?? 'Finance Manager';
 $school_id = $_SESSION['school_id'];
@@ -21,30 +14,59 @@ try {
     $stmt->execute([$school_id]);
     $stats['total_students'] = $stmt->fetch()['total'];
     
-    // Total fee collections this year
+    // Total fee collections this year (only completed payments)
     $current_year = date('Y');
-    $stmt = $pdo->prepare("SELECT SUM(amount) as total FROM fee_payments fp JOIN students s ON fp.student_id = s.id WHERE s.school_id = ? AND fp.year = ?");
+    $stmt = $pdo->prepare("SELECT SUM(amount) as total FROM fee_payments fp JOIN students s ON fp.student_id = s.id WHERE s.school_id = ? AND fp.year = ? AND fp.status = 'completed'");
     $stmt->execute([$school_id, $current_year]);
     $stats['fee_collections'] = $stmt->fetch()['total'] ?? 0;
     
-    // Outstanding fee balance
-    $stmt = $pdo->prepare("SELECT SUM(fs.amount) - COALESCE(SUM(fp.amount), 0) as balance 
-                          FROM fee_structure fs 
-                          JOIN classes c ON fs.class_id = c.id 
-                          LEFT JOIN students s ON s.class_id = c.id AND s.school_id = ? AND s.status = 'active'
-                          LEFT JOIN fee_payments fp ON fp.student_id = s.id AND fp.year = fs.year AND fp.term = fs.term
-                          WHERE c.school_id = ? AND fs.year = ?");
-    $stmt->execute([$school_id, $school_id, $current_year]);
-    $stats['outstanding_balance'] = $stmt->fetch()['balance'] ?? 0;
+    // Outstanding fee balance (only Tuition fees, only completed payments)
+    $stmt = $pdo->prepare("SELECT COALESCE(SUM(fs.amount), 0) as total_fees
+                          FROM fee_structure fs
+                          WHERE fs.school_id = ? AND fs.year = ? AND fs.fee_type = 'Tuition'");
+    $stmt->execute([$school_id, $current_year]);
+    $total_fees = $stmt->fetch()['total_fees'] ?? 0;
     
-    // Recent payments
-    $stmt = $pdo->prepare("SELECT fp.*, s.first_name, s.last_name, s.admission_number 
+    $stmt = $pdo->prepare("SELECT COALESCE(SUM(fp.amount), 0) as total_paid
+                          FROM fee_payments fp
+                          JOIN students s ON fp.student_id = s.id
+                          WHERE s.school_id = ? AND fp.year = ? AND fp.status = 'completed' AND (fp.fee_type = 'Tuition' OR fp.fee_type IS NULL)");
+    $stmt->execute([$school_id, $current_year]);
+    $total_paid = $stmt->fetch()['total_paid'] ?? 0;
+    
+    $stats['outstanding_balance'] = $total_fees - $total_paid;
+    
+    // Recent payments (only successful/completed)
+    $stmt = $pdo->prepare("SELECT fp.id, fp.receipt_number, fp.amount, fp.payment_date, fp.payment_method, fp.term, fp.year, fp.fee_type, s.first_name, s.last_name, s.admission_number 
                           FROM fee_payments fp 
                           JOIN students s ON fp.student_id = s.id 
-                          WHERE s.school_id = ? 
+                          WHERE s.school_id = ? AND fp.status = 'completed'
                           ORDER BY fp.payment_date DESC LIMIT 10");
     $stmt->execute([$school_id]);
     $recent_payments = $stmt->fetchAll();
+    
+    // Get non-tuition fee structures and their collection status (only completed payments)
+    $non_tuition_fees = [];
+    try {
+        $query = "SELECT fs.id, fs.fee_type, fs.term, fs.year, fs.amount, fs.description, c.class_name,
+                  COUNT(DISTINCT s.id) as student_count,
+                  COALESCE(SUM(fp.amount), 0) as total_collected
+                  FROM fee_structure fs
+                  JOIN classes c ON fs.class_id = c.id
+                  LEFT JOIN students s ON s.class_id = c.id AND s.school_id = fs.school_id AND s.status = 'active'
+                  LEFT JOIN fee_payments fp ON fp.student_id = s.id AND fp.year = fs.year AND fp.term = fs.term AND (fp.fee_type = fs.fee_type OR fp.fee_type IS NULL) AND fp.status = 'completed'
+                  WHERE fs.school_id = ? AND fs.year = ? AND fs.fee_type != 'Tuition'";
+        $params = [$school_id, $current_year];
+        
+        $query .= " GROUP BY fs.id, fs.fee_type, fs.term, fs.year, fs.amount, fs.description, c.class_name
+                  ORDER BY fs.fee_type, fs.term, c.class_name";
+        
+        $stmt = $pdo->prepare($query);
+        $stmt->execute($params);
+        $non_tuition_fees = $stmt->fetchAll();
+    } catch (PDOException $e) {
+        error_log("Failed to fetch non-tuition fees: " . $e->getMessage());
+    }
 } catch (PDOException $e) {
     error_log("Failed to fetch dashboard stats: " . $e->getMessage());
     $stats['total_students'] = 0;
@@ -61,6 +83,7 @@ try {
     <title>Dashboard - <?php echo htmlspecialchars($finance_manager_name); ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/notifications.css">
     <style>
         :root {
             --primary-color: #FF6B35;
@@ -337,11 +360,21 @@ try {
             border-radius: 4px;
             font-size: 12px;
             font-weight: 500;
+            color: #000;
+            background: #e8eaed;
+            border: 1px solid #000;
         }
         
         .badge-success {
             background: #e8f5e9;
             color: #137333;
+            border: 1px solid #137333;
+        }
+        
+        .badge-info {
+            background: #e8f0fe;
+            color: #1967d2;
+            border: 1px solid #1967d2;
         }
         
         /* Responsive */
@@ -401,22 +434,25 @@ try {
     <aside class="sidebar" id="sidebar">
         <div class="sidebar-section">
             <div class="sidebar-title">Main</div>
-            <a class="nav-link active" href="dashboard.php">
+            <a class="nav-link active" href="dashboard">
                 <i class="fas fa-home"></i> Dashboard
             </a>
-            <a class="nav-link" href="fees.php">
+            <a class="nav-link" href="fees">
                 <i class="fas fa-file-invoice-dollar"></i> Fee Management
             </a>
-            <a class="nav-link" href="reports.php">
+            <a class="nav-link" href="reports">
                 <i class="fas fa-chart-bar"></i> Reports
+            </a>
+            <a class="nav-link" href="account">
+                <i class="fas fa-wallet"></i> Account Balance
             </a>
         </div>
         <div class="sidebar-section">
             <div class="sidebar-title">Account</div>
-            <a class="nav-link" href="profile.php">
+            <a class="nav-link" href="profile">
                 <i class="fas fa-user"></i> Profile
             </a>
-            <a class="nav-link" href="api/logout.php">
+            <a class="nav-link" href="logout">
                 <i class="fas fa-sign-out-alt"></i> Logout
             </a>
         </div>
@@ -493,6 +529,50 @@ try {
                 </table>
             </div>
         </div>
+        
+        <!-- Non-Tuition Fees -->
+        <div class="card">
+            <h2 class="card-title">Non-Tuition Fees (Separate from Balance)</h2>
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Fee Type</th>
+                            <th>Class</th>
+                            <th>Term</th>
+                            <th>Year</th>
+                            <th>Amount</th>
+                            <th>Students</th>
+                            <th>Collected</th>
+                            <th>Pending</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php if (empty($non_tuition_fees)): ?>
+                            <tr>
+                                <td colspan="9" class="text-center">No non-tuition fees found</td>
+                            </tr>
+                        <?php else: ?>
+                            <?php foreach ($non_tuition_fees as $fee): ?>
+                                <?php $pending = ($fee['amount'] * $fee['student_count']) - $fee['total_collected']; ?>
+                                <tr>
+                                    <td><strong><?php echo htmlspecialchars($fee['fee_type']); ?></strong></td>
+                                    <td><?php echo htmlspecialchars($fee['class_name']); ?></td>
+                                    <td><?php echo htmlspecialchars($fee['term']); ?></td>
+                                    <td><?php echo htmlspecialchars($fee['year']); ?></td>
+                                    <td>KES <?php echo number_format($fee['amount'], 2); ?></td>
+                                    <td><?php echo $fee['student_count']; ?></td>
+                                    <td>KES <?php echo number_format($fee['total_collected'], 2); ?></td>
+                                    <td><strong>KES <?php echo number_format($pending, 2); ?></strong></td>
+                                    <td><?php echo htmlspecialchars($fee['description'] ?? '-'); ?></td>
+                                </tr>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </main>
     
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -505,6 +585,7 @@ try {
             mainContent.classList.toggle('expanded');
         }
     </script>
+    <script src="../assets/js/notifications.js"></script>
     
     <!-- Footer -->
     <footer style="background: transparent; color: white; padding: 2rem; text-align: center; border-top: 1px solid rgba(255, 255, 255, 0.1);">

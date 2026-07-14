@@ -1,66 +1,91 @@
 <?php
-// Teacher Login Page
+// Teachers Main Router - Handles all teacher routes
 session_start();
 require_once __DIR__ . '/../config.php';
 
-// If already logged in, redirect to dashboard
-if (isset($_SESSION['teacher_id'])) {
-    header('Location: dashboard.php');
+$route = $_GET['route'] ?? 'login';
+
+// Whitelist of allowed routes
+$allowed_routes = [
+    'login',
+    'logout',
+    'dashboard',
+    'profile',
+    'attendance',
+    'duty',
+    'fees',
+    'parents',
+    'performance',
+    'students'
+];
+
+// Validate route
+if (!in_array($route, $allowed_routes)) {
+    header('HTTP/1.0 404 Not Found');
+    require __DIR__ . '/404.php';
     exit;
 }
 
-$error = '';
-$success = '';
+// Handle login route separately (no auth required)
+if ($route === 'login') {
+    // If already logged in, redirect to dashboard
+    if (isset($_SESSION['teacher_id'])) {
+        header('Location: dashboard');
+        exit;
+    }
 
-// Handle login
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $email = $_POST['email'] ?? '';
-    $password = $_POST['password'] ?? '';
+    $error = '';
+    $success = '';
 
-    if (empty($email) || empty($password)) {
-        $error = 'Please fill in all fields';
-    } else {
-        try {
-            $stmt = $pdo->prepare("SELECT tl.id, tl.teacher_id, tl.password, t.first_name, t.last_name, t.school_id, t.class_id, t.stream_id, c.class_name, s.stream_name
-                                   FROM teacher_logins tl
-                                   JOIN teachers t ON tl.teacher_id = t.id
-                                   LEFT JOIN classes c ON t.class_id = c.id
-                                   LEFT JOIN streams s ON t.stream_id = s.id
-                                   WHERE tl.email = ? AND tl.is_active = 1");
-            $stmt->execute([$email]);
-            $teacher_login = $stmt->fetch();
+    // Handle login
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $email = $_POST['email'] ?? '';
+        $password = $_POST['password'] ?? '';
 
-            if ($teacher_login && password_verify($password, $teacher_login['password'])) {
-                // Generate session token
-                $session_token = bin2hex(random_bytes(32));
-                $expires_at = date('Y-m-d H:i:s', strtotime('+8 hours'));
+        if (empty($email) || empty($password)) {
+            $error = 'Please fill in all fields';
+        } else {
+            try {
+                $stmt = $pdo->prepare("SELECT tl.id, tl.teacher_id, tl.password, t.first_name, t.last_name, t.school_id, t.class_id, t.stream_id, c.class_name, s.stream_name
+                                       FROM teacher_logins tl
+                                       JOIN teachers t ON tl.teacher_id = t.id
+                                       LEFT JOIN classes c ON t.class_id = c.id
+                                       LEFT JOIN streams s ON t.stream_id = s.id
+                                       WHERE tl.email = ? AND tl.is_active = 1");
+                $stmt->execute([$email]);
+                $teacher_login = $stmt->fetch();
 
-                // Store session in database
-                $stmt = $pdo->prepare("INSERT INTO teacher_sessions (teacher_id, session_token, expires_at) VALUES (?, ?, ?)");
-                $stmt->execute([$teacher_login['teacher_id'], $session_token, $expires_at]);
+                if ($teacher_login && password_verify($password, $teacher_login['password'])) {
+                    // Generate session token
+                    $session_token = bin2hex(random_bytes(32));
+                    $expires_at = date('Y-m-d H:i:s', strtotime('+8 hours'));
 
-                // Set session variables
-                $_SESSION['teacher_id'] = $teacher_login['teacher_id'];
-                $_SESSION['teacher_name'] = $teacher_login['first_name'] . ' ' . $teacher_login['last_name'];
-                $_SESSION['school_id'] = $teacher_login['school_id'];
-                $_SESSION['class_id'] = $teacher_login['class_id'];
-                $_SESSION['stream_id'] = $teacher_login['stream_id'];
-                $_SESSION['class_name'] = $teacher_login['class_name'];
-                $_SESSION['stream_name'] = $teacher_login['stream_name'];
-                $_SESSION['teacher_session_token'] = $session_token;
+                    // Store session in database
+                    $stmt = $pdo->prepare("INSERT INTO teacher_sessions (teacher_id, session_token, expires_at) VALUES (?, ?, ?)");
+                    $stmt->execute([$teacher_login['teacher_id'], $session_token, $expires_at]);
 
-                header('Location: dashboard.php');
-                exit;
-            } else {
-                $error = 'Invalid email or password';
+                    // Set session variables
+                    $_SESSION['teacher_id'] = $teacher_login['teacher_id'];
+                    $_SESSION['teacher_name'] = $teacher_login['first_name'] . ' ' . $teacher_login['last_name'];
+                    $_SESSION['school_id'] = $teacher_login['school_id'];
+                    $_SESSION['class_id'] = $teacher_login['class_id'];
+                    $_SESSION['stream_id'] = $teacher_login['stream_id'];
+                    $_SESSION['class_name'] = $teacher_login['class_name'];
+                    $_SESSION['stream_name'] = $teacher_login['stream_name'];
+                    $_SESSION['teacher_session_token'] = $session_token;
+
+                    header('Location: dashboard');
+                    exit;
+                } else {
+                    $error = 'Invalid email or password';
+                }
+            } catch (PDOException $e) {
+                error_log("Teacher login error: " . $e->getMessage());
+                $error = 'An error occurred. Please try again.';
             }
-        } catch (PDOException $e) {
-            error_log("Teacher login error: " . $e->getMessage());
-            $error = 'An error occurred. Please try again.';
         }
     }
-}
-?>
+    ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -387,3 +412,47 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
+<?php
+    exit;
+}
+
+// Handle logout route
+if ($route === 'logout') {
+    // Delete session from database
+    if (isset($_SESSION['teacher_id'])) {
+        try {
+            $session_token = $_SESSION['teacher_session_token'] ?? '';
+            if ($session_token) {
+                $stmt = $pdo->prepare("DELETE FROM teacher_sessions WHERE session_token = ?");
+                $stmt->execute([$session_token]);
+            }
+        } catch (PDOException $e) {
+            error_log("Failed to delete teacher session: " . $e->getMessage());
+        }
+    }
+
+    // Destroy session
+    session_unset();
+    session_destroy();
+
+    header('Location: login');
+    exit;
+}
+
+// Authentication check for all other routes
+if (!isset($_SESSION['teacher_id'])) {
+    header('Location: login');
+    exit;
+}
+
+// Route to the appropriate page
+$page_file = __DIR__ . "/{$route}.php";
+
+if (file_exists($page_file)) {
+    require $page_file;
+} else {
+    header('HTTP/1.0 404 Not Found');
+    require __DIR__ . '/404.php';
+    exit;
+}
+?>

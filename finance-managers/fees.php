@@ -1,13 +1,6 @@
 <?php
 // Finance Manager Fee Management Page
-session_start();
-require_once __DIR__ . '/../config.php';
-
-if (!isset($_SESSION['finance_manager_id'])) {
-    header('Location: index.php');
-    exit;
-}
-
+// Authentication is handled by index.php router
 $finance_manager_id = $_SESSION['finance_manager_id'];
 $finance_manager_name = $_SESSION['finance_manager_name'] ?? 'Finance Manager';
 $school_id = $_SESSION['school_id'];
@@ -120,14 +113,14 @@ try {
     error_log("Failed to fetch fee structures: " . $e->getMessage());
 }
 
-// Get recent payments
+// Get recent payments (only successful/completed)
 $recent_payments = [];
 try {
     $stmt = $pdo->prepare("SELECT fp.*, s.first_name, s.last_name, s.admission_number, c.class_name 
                           FROM fee_payments fp 
                           JOIN students s ON fp.student_id = s.id 
                           LEFT JOIN classes c ON s.class_id = c.id 
-                          WHERE s.school_id = ? 
+                          WHERE s.school_id = ? AND fp.status = 'completed'
                           ORDER BY fp.payment_date DESC LIMIT 20");
     $stmt->execute([$school_id]);
     $recent_payments = $stmt->fetchAll();
@@ -143,6 +136,7 @@ try {
     <title>Fee Management - <?php echo htmlspecialchars($finance_manager_name); ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/notifications.css">
     <style>
         :root {
             --primary-color: #FF6B35;
@@ -486,22 +480,25 @@ try {
     <aside class="sidebar" id="sidebar">
         <div class="sidebar-section">
             <div class="sidebar-title">Main</div>
-            <a class="nav-link" href="dashboard.php">
+            <a class="nav-link" href="dashboard">
                 <i class="fas fa-home"></i> Dashboard
             </a>
-            <a class="nav-link active" href="fees.php">
+            <a class="nav-link active" href="fees">
                 <i class="fas fa-file-invoice-dollar"></i> Fee Management
             </a>
-            <a class="nav-link" href="reports.php">
+            <a class="nav-link" href="reports">
                 <i class="fas fa-chart-bar"></i> Reports
+            </a>
+            <a class="nav-link" href="account">
+                <i class="fas fa-wallet"></i> Account Balance
             </a>
         </div>
         <div class="sidebar-section">
             <div class="sidebar-title">Account</div>
-            <a class="nav-link" href="profile.php">
+            <a class="nav-link" href="profile">
                 <i class="fas fa-user"></i> Profile
             </a>
-            <a class="nav-link" href="api/logout.php">
+            <a class="nav-link" href="logout">
                 <i class="fas fa-sign-out-alt"></i> Logout
             </a>
         </div>
@@ -748,6 +745,7 @@ try {
             document.querySelector('.card').scrollIntoView({ behavior: 'smooth' });
         }
     </script>
+    <script src="../assets/js/notifications.js"></script>
     
     <!-- Footer -->
     <footer style="background: transparent; color: white; padding: 2rem; text-align: center; border-top: 1px solid rgba(255, 255, 255, 0.1);">

@@ -1,13 +1,6 @@
 <?php
 // Finance Managers Management Page
-session_start();
-require_once __DIR__ . '/../config.php';
-
-if (!isset($_SESSION['school_id'])) {
-    header('Location: index.php');
-    exit;
-}
-
+// Authentication is handled by index.php router
 $school_id = $_SESSION['school_id'];
 $school_name = $_SESSION['school_name'] ?? 'School';
 
@@ -109,6 +102,7 @@ try {
     <title>Finance Managers - <?php echo htmlspecialchars($school_name); ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/notifications.css">
     <style>
         :root {
             --primary-color: #FF6B35;
@@ -547,55 +541,55 @@ try {
     <aside class="sidebar" id="sidebar">
         <div class="sidebar-section">
             <div class="sidebar-title">Main</div>
-            <a class="nav-link" href="dashboard.php">
+            <a class="nav-link" href="dashboard">
                 <i class="fas fa-home"></i> Dashboard
             </a>
-            <a class="nav-link" href="students.php">
+            <a class="nav-link" href="students">
                 <i class="fas fa-user-graduate"></i> Students
             </a>
-            <a class="nav-link" href="teachers.php">
+            <a class="nav-link" href="teachers">
                 <i class="fas fa-chalkboard-teacher"></i> Teachers
             </a>
-            <a class="nav-link" href="parents.php">
+            <a class="nav-link" href="parents">
                 <i class="fas fa-users"></i> Parents
             </a>
-            <a class="nav-link" href="classes.php">
+            <a class="nav-link" href="classes">
                 <i class="fas fa-school"></i> Classes
             </a>
-            <a class="nav-link" href="streams.php">
+            <a class="nav-link" href="streams">
                 <i class="fas fa-stream"></i> Streams
             </a>
-            <a class="nav-link" href="subjects.php">
+            <a class="nav-link" href="subjects">
                 <i class="fas fa-book"></i> Subjects
             </a>
-            <a class="nav-link active" href="finance-managers.php">
+            <a class="nav-link active" href="finance-managers">
                 <i class="fas fa-money-bill-wave"></i> Finance Managers
             </a>
         </div>
         <div class="sidebar-section">
             <div class="sidebar-title">Academics</div>
-            <a class="nav-link" href="attendance.php">
+            <a class="nav-link" href="attendance">
                 <i class="fas fa-calendar-check"></i> Attendance
             </a>
-            <a class="nav-link" href="performance.php">
+            <a class="nav-link" href="performance">
                 <i class="fas fa-chart-line"></i> Performance
             </a>
-            <a class="nav-link" href="grading.php">
+            <a class="nav-link" href="grading">
                 <i class="fas fa-graduation-cap"></i> Grading
             </a>
         </div>
         <div class="sidebar-section">
             <div class="sidebar-title">Finance</div>
-            <a class="nav-link" href="fees.php">
+            <a class="nav-link" href="fees">
                 <i class="fas fa-file-invoice-dollar"></i> Fees
             </a>
         </div>
         <div class="sidebar-section">
             <div class="sidebar-title">Settings</div>
-            <a class="nav-link" href="settings.php">
+            <a class="nav-link" href="settings">
                 <i class="fas fa-cog"></i> Settings
             </a>
-            <a class="nav-link" href="api/logout.php">
+            <a class="nav-link" href="logout">
                 <i class="fas fa-sign-out-alt"></i> Logout
             </a>
         </div>
@@ -740,6 +734,7 @@ try {
             mainContent.classList.toggle('expanded');
         }
     </script>
+    <script src="../assets/js/notifications.js"></script>
     
     <!-- Footer -->
     <footer style="background: transparent; color: white; padding: 2rem; text-align: center; border-top: 1px solid rgba(255, 255, 255, 0.1);">
