@@ -225,6 +225,12 @@ try {
             overflow-y: auto;
             transition: transform 0.3s ease;
             z-index: 999;
+            scrollbar-width: none; /* Firefox */
+            -ms-overflow-style: none; /* IE and Edge */
+        }
+        
+        .sidebar::-webkit-scrollbar {
+            display: none; /* Chrome, Safari, Opera */
         }
         
         .sidebar.collapsed {
@@ -677,6 +683,9 @@ try {
             </a>
             <a class="nav-link" href="fees">
                 <i class="fas fa-money-bill-wave"></i> Fees
+            </a>
+            <a class="nav-link" href="invoices">
+                <i class="fas fa-file-invoice-dollar"></i> Invoices
             </a>
         </div>
         <div class="sidebar-section">

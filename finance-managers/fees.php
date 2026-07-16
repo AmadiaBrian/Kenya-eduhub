@@ -486,6 +486,9 @@ try {
             <a class="nav-link active" href="fees">
                 <i class="fas fa-file-invoice-dollar"></i> Fee Management
             </a>
+            <a class="nav-link" href="invoices">
+                <i class="fas fa-file-invoice"></i> Invoices
+            </a>
             <a class="nav-link" href="reports">
                 <i class="fas fa-chart-bar"></i> Reports
             </a>

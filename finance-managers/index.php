@@ -14,6 +14,7 @@ $allowed_routes = [
     'account',
     'profile',
     'fees',
+    'invoices',
     'reports'
 ];
 

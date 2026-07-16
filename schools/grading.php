@@ -252,6 +252,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['grading_file'])) {
             background: var(--bg-color);
             overflow-y: auto;
             z-index: 999;
+            scrollbar-width: none; /* Firefox */
+            -ms-overflow-style: none; /* IE and Edge */
+        }
+        
+        .sidebar::-webkit-scrollbar {
+            display: none; /* Chrome, Safari, Opera */
         }
         
         .main-content {

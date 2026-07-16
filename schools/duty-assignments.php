@@ -182,11 +182,17 @@ foreach ($duty_assignments as $assignment) {
             left: 0;
             width: var(--sidebar-width);
             height: calc(100vh - var(--header-height));
-            background: var(--card-bg);
+            background: var(--bg-color);
             border-right: 1px solid #e8eaed;
             overflow-y: auto;
             transition: transform 0.3s ease;
             z-index: 999;
+            scrollbar-width: none; /* Firefox */
+            -ms-overflow-style: none; /* IE and Edge */
+        }
+        
+        .sidebar::-webkit-scrollbar {
+            display: none; /* Chrome, Safari, Opera */
         }
         
         .sidebar.collapsed {

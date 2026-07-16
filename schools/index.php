@@ -21,6 +21,7 @@ $allowed_routes = [
     'fees',
     'finance-managers',
     'grading',
+    'invoices',
     'librarians',
     'parents',
     'performance',
