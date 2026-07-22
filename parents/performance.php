@@ -33,11 +33,15 @@ try {
     
     foreach ($children as $child) {
         error_log("Checking performance for child ID: " . $child['id']);
-        $stmt = $pdo->prepare("SELECT ap.*
+        $stmt = $pdo->prepare("SELECT ap.*, (SELECT gs.points FROM grading_scales gs 
+                                            WHERE gs.school_id = ? 
+                                            AND ap.marks BETWEEN gs.min_score AND gs.max_score
+                                            AND UPPER(ap.grade) = UPPER(gs.grade_name)
+                                            LIMIT 1) as grade_points
                                FROM academic_performance ap
                                WHERE ap.student_id = ? AND ap.term = ? AND ap.year = ?
                                ORDER BY ap.created_at DESC");
-        $stmt->execute([$child['id'], $current_term, $current_year]);
+        $stmt->execute([$school_id, $child['id'], $current_term, $current_year]);
         $child_performance = $stmt->fetchAll();
         
         error_log("Performance records for child {$child['id']}: " . count($child_performance));
@@ -57,12 +61,16 @@ try {
     if ($view_mode === 'class' && !empty($children)) {
         $class_id = $children[0]['class_id'];
         if ($class_id) {
-            $stmt = $pdo->prepare("SELECT ap.*, s.first_name, s.last_name
+            $stmt = $pdo->prepare("SELECT ap.*, s.first_name, s.last_name, (SELECT gs.points FROM grading_scales gs 
+                                            WHERE gs.school_id = ? 
+                                            AND ap.marks BETWEEN gs.min_score AND gs.max_score
+                                            AND UPPER(ap.grade) = UPPER(gs.grade_name)
+                                            LIMIT 1) as grade_points
                                    FROM academic_performance ap
                                    JOIN students s ON ap.student_id = s.id
                                    WHERE ap.student_id IN (SELECT id FROM students WHERE class_id = ?)
                                    ORDER BY ap.created_at DESC");
-            $stmt->execute([$class_id]);
+            $stmt->execute([$school_id, $class_id]);
             $class_performance = $stmt->fetchAll();
         }
     }
@@ -312,13 +320,14 @@ try {
             box-shadow: 0 0 0 2px rgba(255, 107, 53, 0.2);
         }
         
-        /* Table */
+        /* Table - PDF Document Style */
         .table {
             width: 100%;
             border-collapse: collapse;
             background: white;
-            border: 1px solid #000;
+            border: 1px solid #333;
             margin: 0;
+            font-family: 'Georgia', 'Times New Roman', serif;
         }
         
         .table-responsive {
@@ -327,33 +336,90 @@ try {
         }
         
         .table thead {
-            background: #f0f0f0;
-            border-bottom: 2px solid #000;
+            background: linear-gradient(to bottom, #f8f9fa, #e9ecef);
+            border-bottom: 2px solid #333;
         }
         
         .table th {
-            text-align: left;
-            padding: 12px;
+            text-align: center;
+            padding: 12px 10px;
             font-size: 13px;
             font-weight: 600;
-            color: #000;
-            border: 1px solid #000;
-            border-bottom: 2px solid #000;
+            color: #1a1a1a;
+            border: 1px solid #333;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            font-family: 'Georgia', 'Times New Roman', serif;
         }
         
         .table td {
-            padding: 12px;
-            font-size: 13px;
-            color: #000;
-            border: 1px solid #000;
+            padding: 10px 8px;
+            font-size: 12px;
+            color: #2c2c2c;
+            border: 1px solid #ddd;
+            text-align: center;
+            font-family: 'Georgia', 'Times New Roman', serif;
         }
         
         .table tbody tr:nth-child(even) {
-            background: #f9f9f9;
+            background: #f8f9fa;
         }
         
         .table tbody tr:hover {
-            background: #f0f0f0;
+            background: #e9ecef;
+        }
+        
+        /* PDF Document Container */
+        .pdf-document {
+            background: white;
+            border: 1px solid #333;
+            padding: 30px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+            border-radius: 4px;
+        }
+        
+        .pdf-header {
+            text-align: center;
+            border-bottom: 2px solid #333;
+            padding-bottom: 20px;
+            margin-bottom: 25px;
+        }
+        
+        .pdf-title {
+            font-family: 'Georgia', 'Times New Roman', serif;
+            font-size: 22px;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            color: #1a1a1a;
+            letter-spacing: 1px;
+        }
+        
+        .pdf-subtitle {
+            font-family: 'Georgia', 'Times New Roman', serif;
+            font-size: 16px;
+            color: #444;
+            margin-bottom: 12px;
+            font-weight: 500;
+        }
+        
+        .pdf-info {
+            font-family: 'Georgia', 'Times New Roman', serif;
+            font-size: 13px;
+            color: #666;
+            font-style: italic;
+        }
+        
+        .pdf-footer {
+            text-align: center;
+            border-top: 1px solid #ddd;
+            padding-top: 15px;
+            margin-top: 25px;
+            font-family: 'Georgia', 'Times New Roman', serif;
+            font-size: 11px;
+            color: #888;
+            font-style: italic;
         }
         
         .grade-badge {
@@ -632,43 +698,120 @@ try {
                 </div>
             <?php else: ?>
                 <?php foreach ($performance_data as $child_id => $data): ?>
-                    <div class="card">
-                        <h2 class="card-title">
-                            <?php echo htmlspecialchars($data['child']['first_name'] . ' ' . $data['child']['last_name']); ?>
-                            <small style="color: #5f6368; font-weight: 400;">
-                                (<?php echo htmlspecialchars($data['child']['class_name'] ?? 'No Class'); ?>)
-                            </small>
-                        </h2>
-                        <div class="table-responsive">
-                            <table class="table">
-                                <thead>
-                                    <tr>
-                                        <th>Subject</th>
-                                        <th>Marks</th>
-                                        <th>Grade</th>
-                                        <th>Remarks</th>
-                                        <th>Date</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php foreach ($data['performance'] as $record): ?>
+                    <div class="pdf-document">
+                        <div class="pdf-header">
+                            <div class="pdf-title">Student Performance Report</div>
+                            <div class="pdf-subtitle">
+                                <?php echo htmlspecialchars($data['child']['first_name'] . ' ' . $data['child']['last_name']); ?>
+                            </div>
+                            <div class="pdf-info">
+                                Class: <?php echo htmlspecialchars($data['child']['class_name'] ?? 'No Class'); ?> | 
+                                Year: <?php echo $current_year; ?>
+                            </div>
+                        </div>
+                        
+                        <?php 
+                        // Check if there are multiple terms
+                        $terms = array_unique(array_column($data['performance'], 'term'));
+                        $hasMultipleTerms = count($terms) > 1;
+                        
+                        if ($hasMultipleTerms) {
+                            // Group by term
+                            $groupedByTerm = [];
+                            foreach ($data['performance'] as $record) {
+                                $term = $record['term'] ?? 'No Term';
+                                if (!isset($groupedByTerm[$term])) {
+                                    $groupedByTerm[$term] = [];
+                                }
+                                $groupedByTerm[$term][] = $record;
+                            }
+                            ksort($groupedByTerm); // Sort terms alphabetically
+                        }
+                        ?>
+                        
+                        <?php if ($hasMultipleTerms): ?>
+                            <div style="display: flex; flex-direction: column; gap: 20px;">
+                                <?php foreach ($groupedByTerm as $term => $records): ?>
+                                    <div class="card">
+                                        <div class="card-header" style="background-color: #e8f0fe; font-weight: bold;">
+                                            <i class="fas fa-calendar"></i> <?php echo htmlspecialchars($term); ?> (<?php echo count($records); ?> records)
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="table-responsive" style="overflow-x: auto;">
+                                                <table class="table">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Subject</th>
+                                                            <th>Marks</th>
+                                                            <th>Grade</th>
+                                                            <th>Points</th>
+                                                            <th>Remarks</th>
+                                                            <th>Date</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <?php foreach ($records as $record): ?>
+                                                            <tr>
+                                                                <td><?php echo htmlspecialchars($record['subject']); ?></td>
+                                                                <td><?php echo number_format($record['marks'], 2); ?></td>
+                                                                <td>
+                                                                    <span class="grade-badge <?php 
+                                                                        $grade = strtoupper($record['grade']);
+                                                                        echo 'grade-' . strtolower($grade); 
+                                                                    ?>">
+                                                                        <?php echo htmlspecialchars($grade); ?>
+                                                                    </span>
+                                                                </td>
+                                                                <td><strong><?php echo $record['grade_points'] ?? '-'; ?></strong></td>
+                                                                <td><?php echo htmlspecialchars($record['remarks'] ?? '-'); ?></td>
+                                                                <td><?php echo date('M d, Y', strtotime($record['created_at'])); ?></td>
+                                                            </tr>
+                                                        <?php endforeach; ?>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                <?php endforeach; ?>
+                            </div>
+                        <?php else: ?>
+                            <div class="table-responsive" style="overflow-x: auto;">
+                                <table class="table">
+                                    <thead>
                                         <tr>
-                                            <td><?php echo htmlspecialchars($record['subject']); ?></td>
-                                            <td><?php echo number_format($record['marks'], 2); ?></td>
-                                            <td>
-                                                <span class="grade-badge <?php 
-                                                    $grade = strtoupper($record['grade']);
-                                                    echo 'grade-' . strtolower($grade); 
-                                                ?>">
-                                                    <?php echo htmlspecialchars($grade); ?>
-                                                </span>
-                                            </td>
-                                            <td><?php echo htmlspecialchars($record['remarks'] ?? '-'); ?></td>
-                                            <td><?php echo date('M d, Y', strtotime($record['created_at'])); ?></td>
+                                            <th>Subject</th>
+                                            <th>Marks</th>
+                                            <th>Grade</th>
+                                            <th>Points</th>
+                                            <th>Remarks</th>
+                                            <th>Date</th>
                                         </tr>
-                                    <?php endforeach; ?>
-                                </tbody>
-                            </table>
+                                    </thead>
+                                    <tbody>
+                                        <?php foreach ($data['performance'] as $record): ?>
+                                            <tr>
+                                                <td><?php echo htmlspecialchars($record['subject']); ?></td>
+                                                <td><?php echo number_format($record['marks'], 2); ?></td>
+                                                <td>
+                                                    <span class="grade-badge <?php 
+                                                        $grade = strtoupper($record['grade']);
+                                                        echo 'grade-' . strtolower($grade); 
+                                                    ?>">
+                                                        <?php echo htmlspecialchars($grade); ?>
+                                                    </span>
+                                                </td>
+                                                <td><strong><?php echo $record['grade_points'] ?? '-'; ?></strong></td>
+                                                <td><?php echo htmlspecialchars($record['remarks'] ?? '-'); ?></td>
+                                                <td><?php echo date('M d, Y', strtotime($record['created_at'])); ?></td>
+                                            </tr>
+                                        <?php endforeach; ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <?php endif; ?>
+                        
+                        <div class="pdf-footer">
+                            Generated on <?php echo date('F d, Y g:i A'); ?> | Kenya EduHub Performance System
                         </div>
                     </div>
                 <?php endforeach; ?>
@@ -679,40 +822,123 @@ try {
                     <p class="text-muted">No class performance records found.</p>
                 </div>
             <?php else: ?>
-                <div class="card">
-                    <h2 class="card-title">Class Performance</h2>
-                    <div class="table-responsive">
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th>Student</th>
-                                    <th>Subject</th>
-                                    <th>Marks</th>
-                                    <th>Grade</th>
-                                    <th>Remarks</th>
-                                    <th>Date</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php foreach ($class_performance as $record): ?>
+                <div class="pdf-document">
+                    <div class="pdf-header">
+                        <div class="pdf-title">Class Performance Report</div>
+                        <div class="pdf-subtitle">
+                            <?php echo htmlspecialchars($children[0]['class_name'] ?? 'Class'); ?>
+                        </div>
+                        <div class="pdf-info">
+                            Year: <?php echo $current_year; ?>
+                        </div>
+                    </div>
+                    
+                    <?php 
+                    // Check if there are multiple terms
+                    $terms = array_unique(array_column($class_performance, 'term'));
+                    $hasMultipleTerms = count($terms) > 1;
+                    
+                    if ($hasMultipleTerms) {
+                        // Group by term
+                        $groupedByTerm = [];
+                        foreach ($class_performance as $record) {
+                            $term = $record['term'] ?? 'No Term';
+                            if (!isset($groupedByTerm[$term])) {
+                                $groupedByTerm[$term] = [];
+                            }
+                            $groupedByTerm[$term][] = $record;
+                        }
+                        ksort($groupedByTerm); // Sort terms alphabetically
+                    }
+                    ?>
+                    
+                    <?php if ($hasMultipleTerms): ?>
+                        <div style="display: flex; flex-direction: column; gap: 20px;">
+                            <?php foreach ($groupedByTerm as $term => $records): ?>
+                                <div class="card">
+                                    <div class="card-header" style="background-color: #e8f0fe; font-weight: bold;">
+                                        <i class="fas fa-calendar"></i> <?php echo htmlspecialchars($term); ?> (<?php echo count($records); ?> records)
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="table-responsive" style="overflow-x: auto;">
+                                            <table class="table">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Student</th>
+                                                        <th>Subject</th>
+                                                        <th>Marks</th>
+                                                        <th>Grade</th>
+                                                        <th>Points</th>
+                                                        <th>Remarks</th>
+                                                        <th>Date</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <?php foreach ($records as $record): ?>
+                                                        <tr>
+                                                            <td><?php echo htmlspecialchars($record['first_name'] . ' ' . $record['last_name']); ?></td>
+                                                            <td><?php echo htmlspecialchars($record['subject']); ?></td>
+                                                            <td><?php echo number_format($record['marks'], 2); ?></td>
+                                                            <td>
+                                                                <span class="grade-badge <?php 
+                                                                    $grade = strtoupper($record['grade']);
+                                                                    echo 'grade-' . strtolower($grade); 
+                                                                ?>">
+                                                                    <?php echo htmlspecialchars($grade); ?>
+                                                                </span>
+                                                            </td>
+                                                            <td><strong><?php echo $record['grade_points'] ?? '-'; ?></strong></td>
+                                                            <td><?php echo htmlspecialchars($record['remarks'] ?? '-'); ?></td>
+                                                            <td><?php echo date('M d, Y', strtotime($record['created_at'])); ?></td>
+                                                        </tr>
+                                                    <?php endforeach; ?>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                    <?php else: ?>
+                        <div class="table-responsive" style="overflow-x: auto;">
+                            <table class="table">
+                                <thead>
                                     <tr>
-                                        <td><?php echo htmlspecialchars($record['first_name'] . ' ' . $record['last_name']); ?></td>
-                                        <td><?php echo htmlspecialchars($record['subject']); ?></td>
-                                        <td><?php echo number_format($record['marks'], 2); ?></td>
-                                        <td>
-                                            <span class="grade-badge <?php 
-                                                $grade = strtoupper($record['grade']);
-                                                echo 'grade-' . strtolower($grade); 
-                                            ?>">
-                                                <?php echo htmlspecialchars($grade); ?>
-                                            </span>
-                                        </td>
-                                        <td><?php echo htmlspecialchars($record['remarks'] ?? '-'); ?></td>
-                                        <td><?php echo date('M d, Y', strtotime($record['created_at'])); ?></td>
+                                        <th>Student</th>
+                                        <th>Subject</th>
+                                        <th>Marks</th>
+                                        <th>Grade</th>
+                                        <th>Points</th>
+                                        <th>Remarks</th>
+                                        <th>Date</th>
                                     </tr>
-                                <?php endforeach; ?>
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody>
+                                    <?php foreach ($class_performance as $record): ?>
+                                        <tr>
+                                            <td><?php echo htmlspecialchars($record['first_name'] . ' ' . $record['last_name']); ?></td>
+                                            <td><?php echo htmlspecialchars($record['subject']); ?></td>
+                                            <td><?php echo number_format($record['marks'], 2); ?></td>
+                                            <td>
+                                                <span class="grade-badge <?php 
+                                                    $grade = strtoupper($record['grade']);
+                                                    echo 'grade-' . strtolower($grade); 
+                                                ?>">
+                                                    <?php echo htmlspecialchars($grade); ?>
+                                                </span>
+                                            </td>
+                                            <td><strong><?php echo $record['grade_points'] ?? '-'; ?></strong></td>
+                                            <td><?php echo htmlspecialchars($record['remarks'] ?? '-'); ?></td>
+                                            <td><?php echo date('M d, Y', strtotime($record['created_at'])); ?></td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    <?php endif; ?>
+                    
+                    <div class="pdf-footer">
+                        Generated on <?php echo date('F d, Y g:i A'); ?> | Kenya EduHub Performance System
                     </div>
                 </div>
             <?php endif; ?>

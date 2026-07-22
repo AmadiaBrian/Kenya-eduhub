@@ -26,4 +26,29 @@ try {
     error_log("PDO connection failed: " . $e->getMessage());
     die("Database connection failed. Please check your configuration.");
 }
+
+// Cleanup function for pending withdrawals older than 2 minutes
+function cleanupPendingWithdrawals(PDO $pdo): int {
+    try {
+        $stmt = $pdo->prepare("DELETE FROM school_withdrawals 
+                              WHERE status = 'pending' 
+                              AND created_at < DATE_SUB(NOW(), INTERVAL 2 MINUTE)");
+        $stmt->execute();
+        $deleted_count = $stmt->rowCount();
+        
+        if ($deleted_count > 0) {
+            error_log("Cleanup: Deleted $deleted_count pending withdrawals older than 2 minutes at " . date('Y-m-d H:i:s'));
+        }
+        
+        return $deleted_count;
+    } catch(PDOException $e) {
+        error_log("Cleanup failed: " . $e->getMessage());
+        return 0;
+    }
+}
+
+// Run cleanup randomly (10% chance) to avoid running on every page load
+if (rand(1, 10) === 1) {
+    cleanupPendingWithdrawals($pdo);
+}
 ?>

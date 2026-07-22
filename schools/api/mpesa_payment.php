@@ -17,7 +17,7 @@ $parent_id = $_SESSION['parent_id'];
 $school_id = $_SESSION['school_id'];
 
 // Configure your actual callback URL here
-$base_url = 'https://07fa-129-222-147-105.ngrok-free.app'; // Update this to your actual domain
+$base_url = 'https://mothers-chest-counter-unfortunately.trycloudflare.com'; // Update this to your actual domain
 
 // Database connection is already handled by config.php ($pdo)
 
@@ -127,7 +127,7 @@ try {
     $accountnumber = "FEE:$payment_id|STUDENT:$student_id|AMOUNT:$amount|TERM:$term|YEAR:$year|TYPE:$fee_type";
     
     // Callback URL using configured base URL
-    $callbackurl = $base_url . '/kenyaeduhub/parents/api/mpesa_callback.php';
+    $callbackurl = $base_url . '/Kenyaeduhub/schools/api/mpesa_callback.php';
     
     $stkpushheader = ['Content-Type:application/json', 'Authorization:Bearer ' . $access_token];
     

@@ -1,11 +1,24 @@
 RewriteEngine On
 RewriteBase /Kenyaeduhub/finance-managers/
 
+# Disable directory listing
+Options -Indexes
+
+# Exclude api and b2c directories from routing (for direct API access)
+RewriteCond %{REQUEST_URI} ^/Kenyaeduhub/finance-managers/api/
+RewriteRule ^ - [L]
+RewriteCond %{REQUEST_URI} ^/Kenyaeduhub/finance-managers/b2c/
+RewriteRule ^ - [L]
+
+# Remove trailing slash from URLs
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_URI} (.+)/$
+RewriteRule ^ %1 [L,R=301]
+
 # Redirect requests with .php extension to clean URLs
 RewriteCond %{THE_REQUEST} /([^.]+)\.php [NC]
 RewriteRule ^ %1 [L,R=302]
 
-# Route clean URLs to index.php
+# Route all requests to index.php
 RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^(.*)$ index.php?route=$1 [L,QSA]

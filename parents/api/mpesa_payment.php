@@ -17,7 +17,7 @@ $parent_id = $_SESSION['parent_id'];
 $school_id = $_SESSION['school_id'];
 
 // Configure your actual callback URL here
-$base_url = 'https://1426-41-90-69-208.ngrok-free.app'; // Update this to your actual domain
+$base_url = 'https://3440-129-222-187-200.ngrok-free.app'; // Update this to your actual domain
 
 // Database connection is already handled by config.php ($pdo)
 

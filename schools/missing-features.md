@@ -516,21 +516,7 @@ This document outlines the missing features in the schools module based on the p
 
 ## 7. Reports
 
-### 7.1 Enrollment Reports
-**Status:** Missing  
-**Priority:** Medium  
-**Description:**
-- Student enrollment statistics
-- Class-wise enrollment
-- Year-wise enrollment trends
-- Gender distribution
-- Age distribution
-- New vs returning students
 
-**Implementation Notes:**
-- Should integrate with student management
-- Include visual charts
-- Support export to Excel/PDF
 
 ### 7.2 Custom PDF/Excel Exports
 **Status:** Partial (limited export exists)  
@@ -552,20 +538,6 @@ This document outlines the missing features in the schools module based on the p
 
 ## 8. Optional Modules
 
-### 8.1 Transport Management
-**Status:** Missing  
-**Priority:** Low  
-**Description:**
-- Route management
-- Vehicle tracking
-- Driver management
-- Student allocation to routes
-- Transport fee calculation
-- Route optimization
-
-**Implementation Notes:**
-- Need database tables: `transport_routes`, `vehicles`, `drivers`, `route_allocations`
-- Optional feature - can be implemented later
 
 ### 8.2 Hostel Management
 **Status:** Missing  

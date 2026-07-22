@@ -1,6 +1,13 @@
 RewriteEngine On
 RewriteBase /Kenyaeduhub/teachers/
 
+# Disable caching
+<IfModule mod_headers.c>
+    Header set Cache-Control "no-store, no-cache, must-revalidate, max-age=0"
+    Header set Pragma "no-cache"
+    Header set Expires "Sat, 26 Jul 1997 05:00:00 GMT"
+</IfModule>
+
 # Allow direct access to api directory
 RewriteRule ^api/ - [L]
 

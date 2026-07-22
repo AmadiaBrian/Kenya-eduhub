@@ -721,6 +721,9 @@ try {
             <a class="nav-link" href="attendance">
                 <i class="fas fa-calendar-check"></i> Attendance
             </a>
+            <a class="nav-link" href="assignments">
+                <i class="fas fa-tasks"></i> Assignments
+            </a>
             <a class="nav-link" href="fees">
                 <i class="fas fa-money-bill-wave"></i> Fee Payments
             </a>

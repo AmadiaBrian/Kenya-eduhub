@@ -215,10 +215,11 @@ if ($teacher && $teacher['teacher_type'] === 'subject_teacher') {
         /* Cards */
         .card {
             background: var(--bg-color);
-            border: 1px solid #e8eaed;
+            border: none;
             border-radius: 8px;
             padding: 24px;
             margin-bottom: 24px;
+            box-shadow: none;
         }
         
         .card-title {
@@ -406,6 +407,9 @@ if ($teacher && $teacher['teacher_type'] === 'subject_teacher') {
             <a class="nav-link" href="students">
                 <i class="fas fa-user-graduate"></i> Students
             </a>
+            <a class="nav-link" href="assignments">
+                <i class="fas fa-tasks"></i> Assignments
+            </a>
             <a class="nav-link" href="parents">
                 <i class="fas fa-users"></i> Parents
             </a>
@@ -458,6 +462,54 @@ if ($teacher && $teacher['teacher_type'] === 'subject_teacher') {
                 </div>
                 
                 <div id="attendanceSection" style="display: none;">
+                    <!-- Attendance Statistics -->
+                    <div id="attendanceStats" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 16px;">
+                        <div style="background: #e6f4ea; padding: 16px; border-radius: 8px; text-align: center;">
+                            <div style="font-size: 24px; font-weight: 600; color: #137333;" id="presentCount">0</div>
+                            <div style="font-size: 12px; color: #5f6368;">Present</div>
+                        </div>
+                        <div style="background: #fce8e6; padding: 16px; border-radius: 8px; text-align: center;">
+                            <div style="font-size: 24px; font-weight: 600; color: #c5221f;" id="absentCount">0</div>
+                            <div style="font-size: 12px; color: #5f6368;">Absent</div>
+                        </div>
+                        <div style="background: #fef7e0; padding: 16px; border-radius: 8px; text-align: center;">
+                            <div style="font-size: 24px; font-weight: 600; color: #b06000;" id="lateCount">0</div>
+                            <div style="font-size: 12px; color: #5f6368;">Late</div>
+                        </div>
+                        <div style="background: #e8f0fe; padding: 16px; border-radius: 8px; text-align: center;">
+                            <div style="font-size: 24px; font-weight: 600; color: #1967d2;" id="excusedCount">0</div>
+                            <div style="font-size: 12px; color: #5f6368;">Excused</div>
+                        </div>
+                        <div style="background: #f1f3f4; padding: 16px; border-radius: 8px; text-align: center;">
+                            <div style="font-size: 24px; font-weight: 600; color: #5f6368;" id="attendancePercentage">0%</div>
+                            <div style="font-size: 12px; color: #5f6368;">Attendance Rate</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Bulk Actions -->
+                    <div style="display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap;">
+                        <button class="btn btn-sm btn-success" onclick="markAllAs('present')" style="border-radius: 25px;">
+                            <i class="fas fa-check-circle me-1"></i> Mark All Present
+                        </button>
+                        <button class="btn btn-sm btn-danger" onclick="markAllAs('absent')" style="border-radius: 25px;">
+                            <i class="fas fa-times-circle me-1"></i> Mark All Absent
+                        </button>
+                        <button class="btn btn-sm btn-warning" onclick="markAllAs('late')" style="border-radius: 25px;">
+                            <i class="fas fa-clock me-1"></i> Mark All Late
+                        </button>
+                        <button class="btn btn-sm btn-info" onclick="markAllAs('excused')" style="border-radius: 25px;">
+                            <i class="fas fa-info-circle me-1"></i> Mark All Excused
+                        </button>
+                        <button class="btn btn-sm" onclick="clearAllStatus()" style="background: #f1f3f4; color: #5f6368; border-radius: 25px;">
+                            <i class="fas fa-undo me-1"></i> Clear All
+                        </button>
+                    </div>
+                    
+                    <!-- Student Search -->
+                    <div style="margin-bottom: 16px;">
+                        <input type="text" id="studentSearch" class="form-control" placeholder="Search by admission number or student name..." oninput="filterStudents()" style="padding: 10px 12px;">
+                    </div>
+                    
                     <div class="table-responsive">
                         <table class="table">
                             <thead>
@@ -474,7 +526,7 @@ if ($teacher && $teacher['teacher_type'] === 'subject_teacher') {
                         </table>
                     </div>
                     <div class="mt-3">
-                        <button class="btn btn-success" onclick="saveAttendance()">
+                        <button class="btn btn-success" onclick="saveAttendance()" style="border-radius: 25px;">
                             <i class="fas fa-save me-2"></i> Save Attendance
                         </button>
                     </div>
@@ -483,8 +535,24 @@ if ($teacher && $teacher['teacher_type'] === 'subject_teacher') {
         </div>
         
         <div class="card">
-            <div class="card-header">
-                <span>Attendance History for Selected Date</span>
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span>Attendance History</span>
+                <div style="display: flex; gap: 8px; align-items: center;">
+                    <select id="dateRange" class="form-control" style="width: auto; padding: 8px 12px; font-size: 13px;" onchange="loadAttendanceHistory()">
+                        <option value="today">Today</option>
+                        <option value="week">This Week</option>
+                        <option value="month">This Month</option>
+                        <option value="custom">Custom Range</option>
+                    </select>
+                    <div id="customDateRange" style="display: none; gap: 8px;">
+                        <input type="date" id="startDate" class="form-control" style="width: auto; padding: 8px 12px; font-size: 13px;">
+                        <input type="date" id="endDate" class="form-control" style="width: auto; padding: 8px 12px; font-size: 13px;">
+                        <button class="btn btn-sm btn-primary" onclick="loadAttendanceHistory()" style="border-radius: 25px;">Apply</button>
+                    </div>
+                    <button class="btn btn-sm btn-info" onclick="exportAttendance()" style="border-radius: 25px;">
+                        <i class="fas fa-download me-1"></i> Export CSV
+                    </button>
+                </div>
             </div>
             <div class="card-body">
                 <div id="historySection" style="display: none;">
@@ -492,6 +560,7 @@ if ($teacher && $teacher['teacher_type'] === 'subject_teacher') {
                         <table class="table">
                             <thead>
                                 <tr>
+                                    <th>Date</th>
                                     <th>Admission No</th>
                                     <th>Student Name</th>
                                     <th>Status</th>
@@ -504,7 +573,7 @@ if ($teacher && $teacher['teacher_type'] === 'subject_teacher') {
                     </div>
                 </div>
                 <div id="noHistoryMessage">
-                    <p class="text-muted">No attendance records found for the selected date. Load students and take attendance to see history.</p>
+                    <p class="text-muted">No attendance records found. Load students and take attendance to see history.</p>
                 </div>
             </div>
         </div>
@@ -536,7 +605,7 @@ if ($teacher && $teacher['teacher_type'] === 'subject_teacher') {
                 if (data.success) {
                     const tbody = document.getElementById('attendanceTable');
                     tbody.innerHTML = data.data.map(student => `
-                        <tr data-student-id="${student.id}">
+                        <tr data-student-id="${student.id}" data-admission-number="${student.admission_number.toLowerCase()}" data-student-name="${(student.first_name + ' ' + student.last_name).toLowerCase()}">
                             <td>${student.admission_number}</td>
                             <td>${student.first_name} ${student.last_name}</td>
                             <td>
@@ -569,6 +638,67 @@ if ($teacher && $teacher['teacher_type'] === 'subject_teacher') {
             buttons.forEach(b => b.classList.remove('active', 'btn-dark'));
             btn.classList.add('active', 'btn-dark');
             row.querySelector('.attendance-status').value = status;
+            updateAttendanceStats();
+        }
+        
+        function markAllAs(status) {
+            const rows = document.querySelectorAll('#attendanceTable tr[data-student-id]');
+            rows.forEach(row => {
+                const statusBtn = row.querySelector(`.attendance-btn[onclick*="${status}"]`);
+                if (statusBtn) {
+                    setStatus(statusBtn, status);
+                }
+            });
+        }
+        
+        function clearAllStatus() {
+            const rows = document.querySelectorAll('#attendanceTable tr[data-student-id]');
+            rows.forEach(row => {
+                const buttons = row.querySelectorAll('.attendance-btn');
+                buttons.forEach(b => b.classList.remove('active', 'btn-dark'));
+                row.querySelector('.attendance-status').value = '';
+            });
+            updateAttendanceStats();
+        }
+        
+        function updateAttendanceStats() {
+            const rows = document.querySelectorAll('#attendanceTable tr[data-student-id]');
+            let present = 0, absent = 0, late = 0, excused = 0;
+            
+            rows.forEach(row => {
+                const status = row.querySelector('.attendance-status').value;
+                if (status === 'present') present++;
+                else if (status === 'absent') absent++;
+                else if (status === 'late') late++;
+                else if (status === 'excused') excused++;
+            });
+            
+            const total = present + absent + late + excused;
+            const percentage = total > 0 ? Math.round((present / total) * 100) : 0;
+            
+            document.getElementById('presentCount').textContent = present;
+            document.getElementById('absentCount').textContent = absent;
+            document.getElementById('lateCount').textContent = late;
+            document.getElementById('excusedCount').textContent = excused;
+            document.getElementById('attendancePercentage').textContent = percentage + '%';
+        }
+        
+        function filterStudents() {
+            const searchTerm = document.getElementById('studentSearch').value.toLowerCase();
+            const rows = document.querySelectorAll('#attendanceTable tr[data-student-id]');
+            
+            rows.forEach(row => {
+                const admissionNumber = row.dataset.admissionNumber;
+                const studentName = row.dataset.studentName;
+                
+                const matchesSearch = admissionNumber.includes(searchTerm) || studentName.includes(searchTerm);
+                
+                if (matchesSearch || searchTerm === '') {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
         }
         
         async function saveAttendance() {
@@ -624,15 +754,46 @@ if ($teacher && $teacher['teacher_type'] === 'subject_teacher') {
         }
         
         async function loadAttendanceHistory() {
-            const date = document.getElementById('attendanceDate').value;
             const classId = document.getElementById('classId').value;
+            const dateRange = document.getElementById('dateRange').value;
+            const customDateRange = document.getElementById('customDateRange');
             
-            if (!date || !classId) {
+            // Show/hide custom date range inputs
+            customDateRange.style.display = dateRange === 'custom' ? 'flex' : 'none';
+            
+            if (!classId) {
                 return;
             }
             
+            let startDate, endDate;
+            const today = new Date();
+            
+            switch(dateRange) {
+                case 'today':
+                    startDate = endDate = today.toISOString().split('T')[0];
+                    break;
+                case 'week':
+                    const weekStart = new Date(today);
+                    weekStart.setDate(today.getDate() - today.getDay());
+                    startDate = weekStart.toISOString().split('T')[0];
+                    endDate = today.toISOString().split('T')[0];
+                    break;
+                case 'month':
+                    const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
+                    startDate = monthStart.toISOString().split('T')[0];
+                    endDate = today.toISOString().split('T')[0];
+                    break;
+                case 'custom':
+                    startDate = document.getElementById('startDate').value;
+                    endDate = document.getElementById('endDate').value;
+                    if (!startDate || !endDate) return;
+                    break;
+                default:
+                    startDate = endDate = document.getElementById('attendanceDate').value;
+            }
+            
             try {
-                const response = await fetch(`../schools/api/attendance.php?date=${date}&class_id=${classId}`);
+                const response = await fetch(`../schools/api/attendance.php?start_date=${startDate}&end_date=${endDate}&class_id=${classId}`);
                 const data = await response.json();
                 console.log('Attendance history response:', data);
                 
@@ -640,6 +801,7 @@ if ($teacher && $teacher['teacher_type'] === 'subject_teacher') {
                     const tbody = document.getElementById('historyTable');
                     tbody.innerHTML = data.data.map(record => `
                         <tr>
+                            <td>${record.date}</td>
                             <td>${record.admission_number}</td>
                             <td>${record.first_name} ${record.last_name}</td>
                             <td><span class="badge bg-${getStatusBadgeClass(record.status)}">${record.status}</span></td>
@@ -665,6 +827,56 @@ if ($teacher && $teacher['teacher_type'] === 'subject_teacher') {
                 case 'excused': return 'info';
                 default: return 'secondary';
             }
+        }
+        
+        function exportAttendance() {
+            const historySection = document.getElementById('historySection');
+            if (historySection.style.display === 'none') {
+                alert('No attendance data to export. Please load attendance history first.');
+                return;
+            }
+            
+            const table = document.getElementById('historyTable');
+            const rows = table.querySelectorAll('tr');
+            
+            if (rows.length === 0) {
+                alert('No attendance data to export.');
+                return;
+            }
+            
+            // Create CSV content
+            let csvContent = 'Date,Admission No,Student Name,Status,Remarks\n';
+            
+            rows.forEach(row => {
+                const cells = row.querySelectorAll('td');
+                if (cells.length > 0) {
+                    const rowData = Array.from(cells).map(cell => {
+                        // Get text content and escape commas
+                        let text = cell.textContent.trim();
+                        text = text.replace(/"/g, '""'); // Escape quotes
+                        if (text.includes(',') || text.includes('"')) {
+                            text = `"${text}"`;
+                        }
+                        return text;
+                    });
+                    csvContent += rowData.join(',') + '\n';
+                }
+            });
+            
+            // Create download link
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            
+            const dateRange = document.getElementById('dateRange').value;
+            const timestamp = new Date().toISOString().split('T')[0];
+            link.setAttribute('href', url);
+            link.setAttribute('download', `attendance_${dateRange}_${timestamp}.csv`);
+            link.style.visibility = 'hidden';
+            
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         }
         
         // Load attendance history on page load

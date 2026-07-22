@@ -648,14 +648,89 @@ $school_name = $_SESSION['school_name'] ?? 'School';
             </div>
         </div>
         
+        <!-- Teacher Statistics -->
+        <div id="teacherStats" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 24px;">
+            <?php
+            $totalTeachers = 0;
+            $classTeachers = 0;
+            $subjectTeachers = 0;
+            $activeTeachers = 0;
+            
+            try {
+                $stmt = $pdo->prepare("SELECT teacher_type, status FROM teachers WHERE school_id = ?");
+                $stmt->execute([$school_id]);
+                $teachers = $stmt->fetchAll();
+                
+                foreach ($teachers as $teacher) {
+                    $totalTeachers++;
+                    if ($teacher['teacher_type'] === 'class_teacher') $classTeachers++;
+                    if ($teacher['teacher_type'] === 'subject_teacher') $subjectTeachers++;
+                    if ($teacher['status'] === 'active') $activeTeachers++;
+                }
+            } catch (PDOException $e) {
+                error_log("Failed to fetch teacher stats: " . $e->getMessage());
+            }
+            ?>
+            <div style="background: #e8f0fe; padding: 16px; border-radius: 8px; text-align: center;">
+                <div style="font-size: 24px; font-weight: 600; color: #1967d2;"><?php echo $totalTeachers; ?></div>
+                <div style="font-size: 12px; color: #5f6368;">Total Teachers</div>
+            </div>
+            <div style="background: #e6f4ea; padding: 16px; border-radius: 8px; text-align: center;">
+                <div style="font-size: 24px; font-weight: 600; color: #137333;"><?php echo $classTeachers; ?></div>
+                <div style="font-size: 12px; color: #5f6368;">Class Teachers</div>
+            </div>
+            <div style="background: #fef7e0; padding: 16px; border-radius: 8px; text-align: center;">
+                <div style="font-size: 24px; font-weight: 600; color: #b06000;"><?php echo $subjectTeachers; ?></div>
+                <div style="font-size: 12px; color: #5f6368;">Subject Teachers</div>
+            </div>
+            <div style="background: #fce8e6; padding: 16px; border-radius: 8px; text-align: center;">
+                <div style="font-size: 24px; font-weight: 600; color: #c5221f;"><?php echo $activeTeachers; ?></div>
+                <div style="font-size: 12px; color: #5f6368;">Active</div>
+            </div>
+        </div>
+        
         <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
+            <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
                 <span>All Teachers</span>
-                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addTeacherModal">
-                    <i class="fas fa-plus me-2"></i> Add Teacher
-                </button>
+                <div class="d-flex gap-2 flex-wrap">
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addTeacherModal">
+                        <i class="fas fa-plus me-2"></i> Add Teacher
+                    </button>
+                    <button class="btn btn-success" onclick="exportTeachers()">
+                        <i class="fas fa-download me-2"></i> Export
+                    </button>
+                </div>
             </div>
             <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <input type="text" class="form-control" id="searchTeacher" placeholder="Search by name, email, or phone..." onkeyup="filterTeachers()">
+                    </div>
+                    <div class="col-md-2">
+                        <select class="form-control" id="filterTeacherType" onchange="filterTeachers()">
+                            <option value="">All Types</option>
+                            <option value="class_teacher">Class Teacher</option>
+                            <option value="subject_teacher">Subject Teacher</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <select class="form-control" id="filterTeacherStatus" onchange="filterTeachers()">
+                            <option value="">All Status</option>
+                            <option value="active">Active</option>
+                            <option value="inactive">Inactive</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <select class="form-control" id="filterTeacherClass" onchange="filterTeachers()">
+                            <option value="">All Classes</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <select class="form-control" id="filterTeacherStream" onchange="filterTeachers()">
+                            <option value="">All Streams</option>
+                        </select>
+                    </div>
+                </div>
                 <div class="table-responsive">
                     <table class="table">
                         <thead>
@@ -1030,6 +1105,19 @@ $school_name = $_SESSION['school_name'] ?? 'School';
                 .catch(error => console.error('Error loading classes:', error));
         }
         
+        // Load classes for filter dropdowns
+        function loadClassesForFilters() {
+            fetch('api/classes.php')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const options = data.data.map(c => `<option value="${c.id}">${c.class_name} (${c.class_level})</option>`).join('');
+                        document.getElementById('filterTeacherClass').innerHTML = '<option value="">All Classes</option>' + options;
+                    }
+                })
+                .catch(error => console.error('Error loading classes:', error));
+        }
+        
         function loadSubjectsForDropdown(selectElement) {
             fetch('api/subjects.php')
                 .then(response => response.json())
@@ -1074,6 +1162,98 @@ $school_name = $_SESSION['school_name'] ?? 'School';
                 }
             }
         });
+        
+        // Load streams for filter based on class
+        document.getElementById('filterTeacherClass').addEventListener('change', async function() {
+            const classId = this.value;
+            if (classId) {
+                try {
+                    const response = await fetch(`api/streams.php?class_id=${classId}`);
+                    const data = await response.json();
+                    if (data.success) {
+                        const options = data.data.map(s => `<option value="${s.id}">${s.stream_name}</option>`).join('');
+                        document.getElementById('filterTeacherStream').innerHTML = '<option value="">All Streams</option>' + options;
+                    }
+                } catch (error) {
+                    console.error('Error loading streams:', error);
+                }
+            } else {
+                document.getElementById('filterTeacherStream').innerHTML = '<option value="">All Streams</option>';
+            }
+        });
+        
+        // Filter teachers
+        function filterTeachers() {
+            const search = document.getElementById('searchTeacher').value.toLowerCase();
+            const type = document.getElementById('filterTeacherType').value;
+            const status = document.getElementById('filterTeacherStatus').value;
+            const classId = document.getElementById('filterTeacherClass').value;
+            const streamId = document.getElementById('filterTeacherStream').value;
+            
+            const rows = document.querySelectorAll('#teachersTable tr');
+            rows.forEach(row => {
+                const cells = row.querySelectorAll('td');
+                if (cells.length === 0) return;
+                
+                const name = cells[0].textContent.toLowerCase();
+                const email = cells[1].textContent.toLowerCase();
+                const phone = cells[2].textContent.toLowerCase();
+                const rowType = cells[4].textContent.toLowerCase();
+                const assignment = cells[5].textContent.toLowerCase();
+                const rowStatus = cells[6].textContent.toLowerCase();
+                
+                const matchesSearch = name.includes(search) || email.includes(search) || phone.includes(search);
+                const matchesType = !type || rowType.includes(type.replace('_', ' '));
+                const matchesStatus = !status || rowStatus.includes(status);
+                const matchesClass = !classId || assignment.includes(classId);
+                const matchesStream = !streamId || assignment.includes(streamId);
+                
+                row.style.display = (matchesSearch && matchesType && matchesStatus && matchesClass && matchesStream) ? '' : 'none';
+            });
+        }
+        
+        // Export teachers to CSV
+        function exportTeachers() {
+            const rows = document.querySelectorAll('#teachersTable tr');
+            let csvContent = 'Name,Email,Phone,ID Number,Type,Assignment,Status\n';
+            
+            rows.forEach(row => {
+                const cells = row.querySelectorAll('td');
+                if (cells.length === 0) return;
+                
+                const rowData = [
+                    cells[0].textContent,
+                    cells[1].textContent,
+                    cells[2].textContent,
+                    cells[3].textContent,
+                    cells[4].textContent,
+                    cells[5].textContent,
+                    cells[6].textContent
+                ].map(field => {
+                    let text = String(field).trim();
+                    text = text.replace(/"/g, '""');
+                    if (text.includes(',') || text.includes('"')) {
+                        text = `"${text}"`;
+                    }
+                    return text;
+                });
+                
+                csvContent += rowData.join(',') + '\n';
+            });
+            
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            
+            const timestamp = new Date().toISOString().split('T')[0];
+            link.setAttribute('href', url);
+            link.setAttribute('download', `teachers_${timestamp}.csv`);
+            link.style.visibility = 'hidden';
+            
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
         
         // Load teachers
         async function loadTeachers() {
@@ -1387,6 +1567,7 @@ $school_name = $_SESSION['school_name'] ?? 'School';
         
         // Initialize
         loadClassesDropdown();
+        loadClassesForFilters();
         loadTeachers();
     </script>
     <script src="../assets/js/notifications.js"></script>

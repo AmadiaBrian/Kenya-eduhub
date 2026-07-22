@@ -336,6 +336,11 @@ try {
     $baseUrl = getPublicBaseUrl();
     $queueTimeoutUrl = $baseUrl . $mpesa_config['b2c_timeout_url'];
     $resultUrl = $baseUrl . $mpesa_config['b2c_result_url'];
+    
+    error_log("=== Callback URLs ===");
+    error_log("Base URL: $baseUrl");
+    error_log("Queue Timeout URL: $queueTimeoutUrl");
+    error_log("Result URL: $resultUrl");
 
     $b2cData = [
         'InitiatorName' => $initiatorName,

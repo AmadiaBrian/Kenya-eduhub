@@ -346,43 +346,71 @@ try {
         
         /* Quick Actions */
         .quick-actions {
-            display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
-            justify-content: center;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
         }
         
-        .action-btn {
-            display: inline-flex;
+        .action-card {
+            background: white;
+            border: 1px solid #e8eaed;
+            border-radius: 8px;
+            padding: 20px;
+            text-decoration: none;
+            color: #202124;
+            transition: all 0.2s;
+            display: flex;
+            flex-direction: column;
             align-items: center;
-            padding: 10px 24px;
-            background: var(--primary-color);
+            text-align: center;
+            cursor: pointer;
+        }
+        
+        .action-card:hover {
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+            border-color: var(--primary-color);
+        }
+        
+        .action-card.primary {
+            background: linear-gradient(135deg, var(--primary-color), #ff8c00);
             color: white;
             border: none;
-            border-radius: 4px;
+        }
+        
+        .action-card.primary:hover {
+            box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
+        }
+        
+        .action-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: #e8f0fe;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            margin-bottom: 12px;
+        }
+        
+        .action-card.primary .action-icon {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+        
+        .action-title {
             font-size: 14px;
             font-weight: 500;
-            text-decoration: none;
-            cursor: pointer;
-            transition: background 0.2s;
+            color: inherit;
         }
         
-        .action-btn:hover {
-            background: #e55a2b;
-        }
-        
-        .action-btn i {
-            margin-right: 8px;
-        }
-        
-        .action-btn.secondary {
-            background: var(--bg-color);
-            color: var(--primary-color);
-            border: 1px solid var(--primary-color);
-        }
-        
-        .action-btn.secondary:hover {
-            background: #f1f3f4;
+        .action-description {
+            font-size: 12px;
+            color: inherit;
+            opacity: 0.8;
+            margin-top: 4px;
         }
         
         /* Activity List */
@@ -496,6 +524,9 @@ try {
             <a class="nav-link" href="students">
                 <i class="fas fa-user-graduate"></i> Students
             </a>
+            <a class="nav-link" href="assignments">
+                <i class="fas fa-tasks"></i> Assignments
+            </a>
             <a class="nav-link" href="parents">
                 <i class="fas fa-users"></i> Parents
             </a>
@@ -570,17 +601,33 @@ try {
             <div class="card">
                 <h2 class="card-title">Quick Actions</h2>
                 <div class="quick-actions">
-                    <a href="attendance.php" class="action-btn">
-                        <i class="fas fa-calendar-check"></i> Take Attendance
+                    <a href="attendance.php" class="action-card primary">
+                        <div class="action-icon">
+                            <i class="fas fa-calendar-check"></i>
+                        </div>
+                        <div class="action-title">Take Attendance</div>
+                        <div class="action-description">Mark daily attendance</div>
                     </a>
-                    <a href="performance.php" class="action-btn secondary">
-                        <i class="fas fa-chart-line"></i> Record Performance
+                    <a href="performance.php" class="action-card">
+                        <div class="action-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="action-title">Record Performance</div>
+                        <div class="action-description">Update student grades</div>
                     </a>
-                    <a href="students.php" class="action-btn secondary">
-                        <i class="fas fa-user-graduate"></i> View Students
+                    <a href="students.php" class="action-card">
+                        <div class="action-icon">
+                            <i class="fas fa-user-graduate"></i>
+                        </div>
+                        <div class="action-title">View Students</div>
+                        <div class="action-description">Manage student records</div>
                     </a>
-                    <a href="parents.php" class="action-btn secondary">
-                        <i class="fas fa-users"></i> View Parents
+                    <a href="parents.php" class="action-card">
+                        <div class="action-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="action-title">View Parents</div>
+                        <div class="action-description">Contact parents</div>
                     </a>
                 </div>
             </div>

@@ -523,14 +523,73 @@ $school_name = $_SESSION['school_name'] ?? 'School';
     <main class="main-content" id="mainContent">
         <h1 class="page-title">Subjects Management</h1>
         
+        <!-- Subject Statistics -->
+        <div id="subjectStats" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 24px;">
+            <?php
+            $totalSubjects = 0;
+            $activeSubjects = 0;
+            $inactiveSubjects = 0;
+            
+            try {
+                $stmt = $pdo->prepare("SELECT status FROM subjects WHERE school_id = ?");
+                $stmt->execute([$school_id]);
+                $subjects = $stmt->fetchAll();
+                
+                foreach ($subjects as $subject) {
+                    $totalSubjects++;
+                    if ($subject['status'] === 'active') $activeSubjects++;
+                    if ($subject['status'] === 'inactive') $inactiveSubjects++;
+                }
+            } catch (PDOException $e) {
+                error_log("Failed to fetch subject stats: " . $e->getMessage());
+            }
+            ?>
+            <div style="background: #e8f0fe; padding: 16px; border-radius: 8px; text-align: center;">
+                <div style="font-size: 24px; font-weight: 600; color: #1967d2;"><?php echo $totalSubjects; ?></div>
+                <div style="font-size: 12px; color: #5f6368;">Total Subjects</div>
+            </div>
+            <div style="background: #e6f4ea; padding: 16px; border-radius: 8px; text-align: center;">
+                <div style="font-size: 24px; font-weight: 600; color: #137333;"><?php echo $activeSubjects; ?></div>
+                <div style="font-size: 12px; color: #5f6368;">Active</div>
+            </div>
+            <div style="background: #fce8e6; padding: 16px; border-radius: 8px; text-align: center;">
+                <div style="font-size: 24px; font-weight: 600; color: #c5221f;"><?php echo $inactiveSubjects; ?></div>
+                <div style="font-size: 12px; color: #5f6368;">Inactive</div>
+            </div>
+        </div>
+        
         <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
+            <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
                 <span>All Subjects</span>
-                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addSubjectModal">
-                    <i class="fas fa-plus me-2"></i> Add Subject
-                </button>
+                <div class="d-flex gap-2 flex-wrap">
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addSubjectModal">
+                        <i class="fas fa-plus me-2"></i> Add Subject
+                    </button>
+                    <button class="btn btn-success" onclick="exportSubjects()">
+                        <i class="fas fa-download me-2"></i> Export
+                    </button>
+                </div>
             </div>
             <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <input type="text" class="form-control" id="searchSubject" placeholder="Search by subject name or code..." onkeyup="filterSubjects()">
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-control" id="filterSubjectStatus" onchange="filterSubjects()">
+                            <option value="">All Status</option>
+                            <option value="active">Active</option>
+                            <option value="inactive">Inactive</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-control" id="filterSubjectCode" onchange="filterSubjects()">
+                            <option value="">All Codes</option>
+                            <option value="has_code">Has Code</option>
+                            <option value="no_code">No Code</option>
+                        </select>
+                    </div>
+                </div>
                 <div class="table-responsive">
                     <table class="table">
                         <thead>
@@ -660,6 +719,74 @@ $school_name = $_SESSION['school_name'] ?? 'School';
             } catch (error) {
                 console.error('Error loading subjects:', error);
             }
+        }
+        
+        // Filter subjects
+        function filterSubjects() {
+            const search = document.getElementById('searchSubject').value.toLowerCase();
+            const status = document.getElementById('filterSubjectStatus').value;
+            const codeFilter = document.getElementById('filterSubjectCode').value;
+            
+            const rows = document.querySelectorAll('#subjectsTable tr');
+            rows.forEach(row => {
+                const cells = row.querySelectorAll('td');
+                if (cells.length === 0) return;
+                
+                const subjectName = cells[0].textContent.toLowerCase();
+                const subjectCode = cells[1].textContent.toLowerCase();
+                const rowStatus = cells[2].textContent.toLowerCase();
+                
+                const matchesSearch = subjectName.includes(search) || subjectCode.includes(search);
+                const matchesStatus = !status || rowStatus.includes(status);
+                
+                let matchesCode = true;
+                if (codeFilter === 'has_code') {
+                    matchesCode = subjectCode !== '-';
+                } else if (codeFilter === 'no_code') {
+                    matchesCode = subjectCode === '-';
+                }
+                
+                row.style.display = (matchesSearch && matchesStatus && matchesCode) ? '' : 'none';
+            });
+        }
+        
+        // Export subjects to CSV
+        function exportSubjects() {
+            const rows = document.querySelectorAll('#subjectsTable tr');
+            let csvContent = 'Subject Name,Subject Code,Status\n';
+            
+            rows.forEach(row => {
+                const cells = row.querySelectorAll('td');
+                if (cells.length === 0) return;
+                
+                const rowData = [
+                    cells[0].textContent,
+                    cells[1].textContent,
+                    cells[2].textContent
+                ].map(field => {
+                    let text = String(field).trim();
+                    text = text.replace(/"/g, '""');
+                    if (text.includes(',') || text.includes('"')) {
+                        text = `"${text}"`;
+                    }
+                    return text;
+                });
+                
+                csvContent += rowData.join(',') + '\n';
+            });
+            
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            
+            const timestamp = new Date().toISOString().split('T')[0];
+            link.setAttribute('href', url);
+            link.setAttribute('download', `subjects_${timestamp}.csv`);
+            link.style.visibility = 'hidden';
+            
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         }
         
         // Add subject

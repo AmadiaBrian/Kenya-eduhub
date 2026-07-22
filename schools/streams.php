@@ -1,7 +1,7 @@
 <?php
 // Streams Management Page
 // Authentication is handled by index.php router
-
+$school_id = $_SESSION['school_id'];
 $school_name = $_SESSION['school_name'] ?? 'School';
 ?>
 <!DOCTYPE html>
@@ -526,18 +526,86 @@ $school_name = $_SESSION['school_name'] ?? 'School';
     <main class="main-content" id="mainContent">
         <h1 class="page-title">Streams Management</h1>
         
+        <!-- Stream Statistics -->
+        <div id="streamStats" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 24px;">
+            <?php
+            $totalStreams = 0;
+            $totalStudents = 0;
+            $totalCapacity = 0;
+            $totalClasses = 0;
+            
+            try {
+                $stmt = $pdo->prepare("SELECT s.id, s.capacity, c.class_name FROM streams s JOIN classes c ON s.class_id = c.id WHERE c.school_id = ?");
+                $stmt->execute([$school_id]);
+                $streams = $stmt->fetchAll();
+                
+                $classNames = [];
+                foreach ($streams as $stream) {
+                    $totalStreams++;
+                    $totalCapacity += $stream['capacity'];
+                    if (!in_array($stream['class_name'], $classNames)) {
+                        $classNames[] = $stream['class_name'];
+                    }
+                    
+                    // Count students for this stream
+                    $studentStmt = $pdo->prepare("SELECT COUNT(*) as count FROM students WHERE stream_id = ?");
+                    $studentStmt->execute([$stream['id']]);
+                    $studentCount = $studentStmt->fetch()['count'];
+                    $totalStudents += $studentCount;
+                }
+                $totalClasses = count($classNames);
+            } catch (PDOException $e) {
+                error_log("Failed to fetch stream stats: " . $e->getMessage());
+            }
+            ?>
+            <div style="background: #e8f0fe; padding: 16px; border-radius: 8px; text-align: center;">
+                <div style="font-size: 24px; font-weight: 600; color: #1967d2;"><?php echo $totalStreams; ?></div>
+                <div style="font-size: 12px; color: #5f6368;">Total Streams</div>
+            </div>
+            <div style="background: #e6f4ea; padding: 16px; border-radius: 8px; text-align: center;">
+                <div style="font-size: 24px; font-weight: 600; color: #137333;"><?php echo $totalClasses; ?></div>
+                <div style="font-size: 12px; color: #5f6368;">Classes with Streams</div>
+            </div>
+            <div style="background: #fef7e0; padding: 16px; border-radius: 8px; text-align: center;">
+                <div style="font-size: 24px; font-weight: 600; color: #b06000;"><?php echo $totalStudents; ?></div>
+                <div style="font-size: 12px; color: #5f6368;">Total Students</div>
+            </div>
+            <div style="background: #fce8e6; padding: 16px; border-radius: 8px; text-align: center;">
+                <div style="font-size: 24px; font-weight: 600; color: #c5221f;"><?php echo $totalCapacity; ?></div>
+                <div style="font-size: 12px; color: #5f6368;">Total Capacity</div>
+            </div>
+        </div>
+        
         <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
+            <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
                 <span>All Streams</span>
-                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addStreamModal">
-                    <i class="fas fa-plus me-2"></i> Add Stream
-                </button>
+                <div class="d-flex gap-2 flex-wrap">
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addStreamModal">
+                        <i class="fas fa-plus me-2"></i> Add Stream
+                    </button>
+                    <button class="btn btn-success" onclick="exportStreams()">
+                        <i class="fas fa-download me-2"></i> Export
+                    </button>
+                </div>
             </div>
             <div class="card-body">
-                <div class="mb-3">
-                    <select class="form-control" id="filterClass" onchange="loadStreams()">
-                        <option value="">All Classes</option>
-                    </select>
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <input type="text" class="form-control" id="searchStream" placeholder="Search by stream name or class..." onkeyup="filterStreams()">
+                    </div>
+                    <div class="col-md-4">
+                        <select class="form-control" id="filterClass" onchange="loadStreams()">
+                            <option value="">All Classes</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <select class="form-control" id="filterStreamCapacity" onchange="filterStreams()">
+                            <option value="">All Capacities</option>
+                            <option value="low">Low (&lt;30)</option>
+                            <option value="medium">Medium (30-50)</option>
+                            <option value="high">High (&gt;50)</option>
+                        </select>
+                    </div>
                 </div>
                 <div class="table-responsive">
                     <table class="table">
@@ -674,6 +742,76 @@ $school_name = $_SESSION['school_name'] ?? 'School';
             } catch (error) {
                 console.error('Error loading streams:', error);
             }
+        }
+        
+        // Filter streams
+        function filterStreams() {
+            const search = document.getElementById('searchStream').value.toLowerCase();
+            const capacity = document.getElementById('filterStreamCapacity').value;
+            
+            const rows = document.querySelectorAll('#streamsTable tr');
+            rows.forEach(row => {
+                const cells = row.querySelectorAll('td');
+                if (cells.length === 0) return;
+                
+                const streamName = cells[0].textContent.toLowerCase();
+                const className = cells[1].textContent.toLowerCase();
+                const capacityValue = parseInt(cells[3].textContent);
+                
+                const matchesSearch = streamName.includes(search) || className.includes(search);
+                
+                let matchesCapacity = true;
+                if (capacity === 'low') {
+                    matchesCapacity = capacityValue < 30;
+                } else if (capacity === 'medium') {
+                    matchesCapacity = capacityValue >= 30 && capacityValue <= 50;
+                } else if (capacity === 'high') {
+                    matchesCapacity = capacityValue > 50;
+                }
+                
+                row.style.display = (matchesSearch && matchesCapacity) ? '' : 'none';
+            });
+        }
+        
+        // Export streams to CSV
+        function exportStreams() {
+            const rows = document.querySelectorAll('#streamsTable tr');
+            let csvContent = 'Stream Name,Class,Level,Capacity,Students\n';
+            
+            rows.forEach(row => {
+                const cells = row.querySelectorAll('td');
+                if (cells.length === 0) return;
+                
+                const rowData = [
+                    cells[0].textContent,
+                    cells[1].textContent,
+                    cells[2].textContent,
+                    cells[3].textContent,
+                    cells[4].textContent
+                ].map(field => {
+                    let text = String(field).trim();
+                    text = text.replace(/"/g, '""');
+                    if (text.includes(',') || text.includes('"')) {
+                        text = `"${text}"`;
+                    }
+                    return text;
+                });
+                
+                csvContent += rowData.join(',') + '\n';
+            });
+            
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            
+            const timestamp = new Date().toISOString().split('T')[0];
+            link.setAttribute('href', url);
+            link.setAttribute('download', `streams_${timestamp}.csv`);
+            link.style.visibility = 'hidden';
+            
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         }
         
         async function addStream() {

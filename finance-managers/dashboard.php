@@ -36,6 +36,35 @@ try {
     
     $stats['outstanding_balance'] = $total_fees - $total_paid;
     
+    // Payment method breakdown
+    $stmt = $pdo->prepare("SELECT payment_method, COUNT(*) as count, SUM(amount) as total
+                          FROM fee_payments fp
+                          JOIN students s ON fp.student_id = s.id
+                          WHERE s.school_id = ? AND fp.year = ? AND fp.status = 'completed'
+                          GROUP BY payment_method");
+    $stmt->execute([$school_id, $current_year]);
+    $payment_methods = $stmt->fetchAll();
+    
+    // Monthly revenue data
+    $stmt = $pdo->prepare("SELECT MONTH(payment_date) as month, SUM(amount) as total
+                          FROM fee_payments fp
+                          JOIN students s ON fp.student_id = s.id
+                          WHERE s.school_id = ? AND fp.year = ? AND fp.status = 'completed'
+                          GROUP BY MONTH(payment_date)
+                          ORDER BY month");
+    $stmt->execute([$school_id, $current_year]);
+    $monthly_revenue = $stmt->fetchAll();
+    
+    // Term-wise collection data
+    $stmt = $pdo->prepare("SELECT term, SUM(amount) as total
+                          FROM fee_payments fp
+                          JOIN students s ON fp.student_id = s.id
+                          WHERE s.school_id = ? AND fp.year = ? AND fp.status = 'completed'
+                          GROUP BY term
+                          ORDER BY FIELD(term, 'Term 1', 'Term 2', 'Term 3')");
+    $stmt->execute([$school_id, $current_year]);
+    $term_collections = $stmt->fetchAll();
+    
     // Recent payments (only successful/completed)
     $stmt = $pdo->prepare("SELECT fp.id, fp.receipt_number, fp.amount, fp.payment_date, fp.payment_method, fp.term, fp.year, fp.fee_type, s.first_name, s.last_name, s.admission_number 
                           FROM fee_payments fp 
@@ -72,6 +101,9 @@ try {
     $stats['total_students'] = 0;
     $stats['fee_collections'] = 0;
     $stats['outstanding_balance'] = 0;
+    $payment_methods = [];
+    $monthly_revenue = [];
+    $term_collections = [];
     $recent_payments = [];
 }
 ?>
@@ -84,6 +116,7 @@ try {
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="../assets/css/notifications.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
             --primary-color: #FF6B35;
@@ -249,67 +282,90 @@ try {
         }
         
         .page-title {
-            font-size: 22px;
-            font-weight: 400;
+            font-size: 28px;
+            font-weight: 700;
             color: #202124;
-            margin-bottom: 24px;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #FF6B35, #008000);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .page-subtitle {
+            font-size: 14px;
+            color: #5f6368;
+            margin-bottom: 32px;
+            font-weight: 400;
         }
         
         /* Stats Grid */
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 24px;
             margin-bottom: 32px;
+            padding-bottom: 32px;
+            border-bottom: 1px solid #e0e0e0;
         }
         
         .stat-card {
             background: var(--bg-color);
-            border: 1px solid #e8eaed;
-            border-radius: 8px;
-            padding: 24px;
+            padding: 28px;
             text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-4px);
         }
         
         .stat-icon {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            background: #fff3e0;
+            width: 72px;
+            height: 72px;
             color: #FF6B35;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 24px;
-            margin: 0 auto 16px;
+            font-size: 28px;
+            margin: 0 auto 20px;
         }
         
         .stat-value {
-            font-size: 32px;
-            font-weight: 500;
-            color: #202124;
+            font-size: 36px;
+            font-weight: 700;
+            color: #FF6B35;
             margin-bottom: 8px;
         }
         
         .stat-label {
             font-size: 14px;
-            color: #5f6368;
+            color: #000;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
         
         /* Cards */
         .card {
             background: var(--bg-color);
-            border: 1px solid #e8eaed;
-            border-radius: 8px;
-            padding: 24px;
+            padding: 28px;
             margin-bottom: 24px;
+            transition: all 0.3s ease;
+            padding-bottom: 32px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .card:hover {
+            transform: translateY(-2px);
         }
         
         .card-title {
-            font-size: 18px;
-            font-weight: 500;
+            font-size: 20px;
+            font-weight: 600;
             color: #202124;
-            margin-bottom: 16px;
+            margin-bottom: 20px;
+            position: relative;
         }
         
         .table {
@@ -377,6 +433,41 @@ try {
             border: 1px solid #1967d2;
         }
         
+        .badge-warning {
+            background: #fff3e0;
+            color: #b06000;
+            border: 1px solid #b06000;
+        }
+        
+        /* Chart Containers */
+        .chart-container {
+            background: var(--bg-color);
+            padding: 24px;
+            margin-bottom: 24px;
+            transition: all 0.3s ease;
+        }
+        
+        .chart-container:hover {
+            transform: translateY(-2px);
+        }
+        
+        .chart-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #202124;
+            margin-bottom: 20px;
+            position: relative;
+        }
+        
+        .chart-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+            padding-bottom: 32px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
         /* Responsive */
         @media (max-width: 768px) {
             .sidebar {
@@ -389,11 +480,39 @@ try {
             
             .main-content {
                 margin-left: 0;
+                padding: 16px;
             }
             
             .stats-grid {
-                grid-template-columns: repeat(2, 1fr);
+                grid-template-columns: 1fr;
                 gap: 16px;
+            }
+            
+            .stat-card {
+                padding: 20px;
+            }
+            
+            .stat-icon {
+                width: 56px;
+                height: 56px;
+                font-size: 24px;
+            }
+            
+            .stat-value {
+                font-size: 28px;
+            }
+            
+            .chart-grid {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+            
+            .chart-container {
+                padding: 16px;
+            }
+            
+            .card {
+                padding: 20px;
             }
             
             .table-responsive {
@@ -403,7 +522,74 @@ try {
             
             .table {
                 min-width: 100%;
+                font-size: 12px;
             }
+            
+            .table th, .table td {
+                padding: 8px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .page-title {
+                font-size: 18px;
+            }
+            
+            .stat-value {
+                font-size: 24px;
+            }
+            
+            .chart-title {
+                font-size: 16px;
+            }
+            
+            .card-title {
+                font-size: 18px;
+            }
+        }
+        
+        /* Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .stat-card, .card, .chart-container {
+            animation: fadeIn 0.5s ease-out;
+        }
+        
+        .stat-card:nth-child(1) {
+            animation-delay: 0.1s;
+        }
+        
+        .stat-card:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+        
+        .stat-card:nth-child(3) {
+            animation-delay: 0.3s;
+        }
+        
+        .chart-container:nth-child(1) {
+            animation-delay: 0.4s;
+        }
+        
+        .chart-container:nth-child(2) {
+            animation-delay: 0.5s;
+        }
+        
+        .chart-container:nth-child(3) {
+            animation-delay: 0.6s;
+        }
+        
+        .chart-container:nth-child(4) {
+            animation-delay: 0.7s;
         }
     </style>
 </head>
@@ -446,6 +632,9 @@ try {
             <a class="nav-link" href="reports">
                 <i class="fas fa-chart-bar"></i> Reports
             </a>
+            <a class="nav-link" href="reminders">
+                <i class="fas fa-bell"></i> Payment Reminders
+            </a>
             <a class="nav-link" href="account">
                 <i class="fas fa-wallet"></i> Account Balance
             </a>
@@ -463,7 +652,8 @@ try {
     
     <!-- Main Content -->
     <main class="main-content" id="mainContent">
-        <h1 class="page-title">Finance Dashboard)</h1>
+        <h1 class="page-title">Finance Dashboard</h1>
+        <p class="page-subtitle">Real-time financial overview and analytics</p>
         
         <!-- Stats Grid -->
         <div class="stats-grid">
@@ -489,6 +679,26 @@ try {
                 </div>
                 <div class="stat-value">KES <?php echo number_format($stats['outstanding_balance'], 2); ?></div>
                 <div class="stat-label">Outstanding Balance</div>
+            </div>
+        </div>
+        
+        <!-- Financial Charts -->
+        <div class="chart-grid">
+            <div class="chart-container">
+                <h3 class="chart-title">Monthly Revenue Trend (<?php echo $current_year; ?>)</h3>
+                <canvas id="monthlyRevenueChart"></canvas>
+            </div>
+            <div class="chart-container">
+                <h3 class="chart-title">Payment Method Distribution</h3>
+                <canvas id="paymentMethodChart"></canvas>
+            </div>
+            <div class="chart-container">
+                <h3 class="chart-title">Term-wise Fee Collection</h3>
+                <canvas id="termCollectionChart"></canvas>
+            </div>
+            <div class="chart-container">
+                <h3 class="chart-title">Collection Overview</h3>
+                <canvas id="collectionOverviewChart"></canvas>
             </div>
         </div>
         
@@ -587,6 +797,154 @@ try {
             sidebar.classList.toggle('show');
             mainContent.classList.toggle('expanded');
         }
+
+        // Prepare chart data
+        const monthlyRevenueData = <?php echo json_encode($monthly_revenue); ?>;
+        const paymentMethodsData = <?php echo json_encode($payment_methods); ?>;
+        const termCollectionsData = <?php echo json_encode($term_collections); ?>;
+        const feeCollections = <?php echo $stats['fee_collections']; ?>;
+        const outstandingBalance = <?php echo $stats['outstanding_balance']; ?>;
+        const totalFees = feeCollections + outstandingBalance;
+
+        // Monthly Revenue Chart
+        const monthlyCtx = document.getElementById('monthlyRevenueChart').getContext('2d');
+        const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        const monthlyData = new Array(12).fill(0);
+        monthlyRevenueData.forEach(item => {
+            monthlyData[item.month - 1] = item.total;
+        });
+
+        new Chart(monthlyCtx, {
+            type: 'line',
+            data: {
+                labels: monthNames,
+                datasets: [{
+                    label: 'Revenue (KES)',
+                    data: monthlyData,
+                    borderColor: '#FF6B35',
+                    backgroundColor: 'rgba(255, 107, 53, 0.1)',
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return 'KES ' + value.toLocaleString();
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Payment Method Distribution Chart
+        const paymentCtx = document.getElementById('paymentMethodChart').getContext('2d');
+        const paymentLabels = paymentMethodsData.map(item => item.payment_method);
+        const paymentAmounts = paymentMethodsData.map(item => item.total);
+        const paymentColors = ['#FF6B35', '#008000', '#1E88E5', '#FFC107', '#9C27B0'];
+
+        new Chart(paymentCtx, {
+            type: 'doughnut',
+            data: {
+                labels: paymentLabels,
+                datasets: [{
+                    data: paymentAmounts,
+                    backgroundColor: paymentColors.slice(0, paymentLabels.length),
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return context.label + ': KES ' + context.raw.toLocaleString();
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Term-wise Collection Chart
+        const termCtx = document.getElementById('termCollectionChart').getContext('2d');
+        const termLabels = termCollectionsData.map(item => item.term);
+        const termAmounts = termCollectionsData.map(item => item.total);
+
+        new Chart(termCtx, {
+            type: 'bar',
+            data: {
+                labels: termLabels,
+                datasets: [{
+                    label: 'Collection (KES)',
+                    data: termAmounts,
+                    backgroundColor: ['#FF6B35', '#008000', '#1E88E5'],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return 'KES ' + value.toLocaleString();
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Collection Overview Chart
+        const overviewCtx = document.getElementById('collectionOverviewChart').getContext('2d');
+        new Chart(overviewCtx, {
+            type: 'pie',
+            data: {
+                labels: ['Collected', 'Outstanding'],
+                datasets: [{
+                    data: [feeCollections, outstandingBalance],
+                    backgroundColor: ['#008000', '#FF6B35'],
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const percentage = ((context.raw / totalFees) * 100).toFixed(1);
+                                return context.label + ': KES ' + context.raw.toLocaleString() + ' (' + percentage + '%)';
+                            }
+                        }
+                    }
+                }
+            }
+        });
     </script>
     <script src="../assets/js/notifications.js"></script>
     
