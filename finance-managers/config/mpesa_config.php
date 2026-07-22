@@ -26,10 +26,10 @@ return [
     ],
     
     // Callback URLs (configure your public URL)
-    'callback_base_url' => 'https://5411-41-90-66-170.ngrok-free.app', // Replace with your public URL
+    'callback_base_url' => 'https://mothers-chest-counter-unfortunately.trycloudflare.com', // Replace with your public URL
     'b2c_timeout_url' => '/Kenyaeduhub/finance-managers/b2c/b2c_timeout.php',
     'b2c_result_url' => '/Kenyaeduhub/finance-managers/b2c/b2c_result.php',
     
     // Callback authentication (optional but recommended)
-    'callback_api_key' => 'your_secure_api_key_here', // Replace with a secure random key
+    'callback_api_key' => '', // Disabled - Safaricom doesn't send API keys
 ];

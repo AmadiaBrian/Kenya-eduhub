@@ -537,14 +537,91 @@ try {
     <main class="main-content" id="mainContent">
         <h1 class="page-title">Parents Management</h1>
         
+        <!-- Parent Statistics -->
+        <div id="parentStats" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 24px;">
+            <?php
+            $totalParents = 0;
+            $totalLinkedStudents = 0;
+            $fatherCount = 0;
+            $motherCount = 0;
+            $guardianCount = 0;
+            
+            try {
+                $stmt = $pdo->prepare("SELECT p.id, p.relationship FROM parents p WHERE p.school_id = ?");
+                $stmt->execute([$school_id]);
+                $parents = $stmt->fetchAll();
+                
+                foreach ($parents as $parent) {
+                    $totalParents++;
+                    if ($parent['relationship'] === 'Father') $fatherCount++;
+                    if ($parent['relationship'] === 'Mother') $motherCount++;
+                    if ($parent['relationship'] === 'Guardian') $guardianCount++;
+                    
+                    // Count linked students for this parent
+                    $studentStmt = $pdo->prepare("SELECT COUNT(*) as count FROM student_parents sp JOIN students s ON sp.student_id = s.id WHERE sp.parent_id = ? AND s.school_id = ?");
+                    $studentStmt->execute([$parent['id'], $school_id]);
+                    $studentCount = $studentStmt->fetch()['count'];
+                    $totalLinkedStudents += $studentCount;
+                }
+            } catch (PDOException $e) {
+                error_log("Failed to fetch parent stats: " . $e->getMessage());
+            }
+            ?>
+            <div style="background: #e8f0fe; padding: 16px; border-radius: 8px; text-align: center;">
+                <div style="font-size: 24px; font-weight: 600; color: #1967d2;"><?php echo $totalParents; ?></div>
+                <div style="font-size: 12px; color: #5f6368;">Total Parents</div>
+            </div>
+            <div style="background: #e6f4ea; padding: 16px; border-radius: 8px; text-align: center;">
+                <div style="font-size: 24px; font-weight: 600; color: #137333;"><?php echo $totalLinkedStudents; ?></div>
+                <div style="font-size: 12px; color: #5f6368;">Linked Students</div>
+            </div>
+            <div style="background: #fef7e0; padding: 16px; border-radius: 8px; text-align: center;">
+                <div style="font-size: 24px; font-weight: 600; color: #b06000;"><?php echo $fatherCount; ?></div>
+                <div style="font-size: 12px; color: #5f6368;">Fathers</div>
+            </div>
+            <div style="background: #fce8e6; padding: 16px; border-radius: 8px; text-align: center;">
+                <div style="font-size: 24px; font-weight: 600; color: #c5221f;"><?php echo $motherCount; ?></div>
+                <div style="font-size: 12px; color: #5f6368;">Mothers</div>
+            </div>
+            <div style="background: #f1f3f4; padding: 16px; border-radius: 8px; text-align: center;">
+                <div style="font-size: 24px; font-weight: 600; color: #5f6368;"><?php echo $guardianCount; ?></div>
+                <div style="font-size: 12px; color: #5f6368;">Guardians</div>
+            </div>
+        </div>
+        
         <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
+            <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
                 <span>All Parents</span>
-                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addParentModal">
-                    <i class="fas fa-plus me-2"></i> Add Parent
-                </button>
+                <div class="d-flex gap-2 flex-wrap">
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addParentModal">
+                        <i class="fas fa-plus me-2"></i> Add Parent
+                    </button>
+                    <button class="btn btn-success" onclick="exportParents()">
+                        <i class="fas fa-download me-2"></i> Export
+                    </button>
+                </div>
             </div>
             <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <input type="text" class="form-control" id="searchParent" placeholder="Search by name, email, or phone..." onkeyup="filterParents()">
+                    </div>
+                    <div class="col-md-4">
+                        <select class="form-control" id="filterRelationship" onchange="filterParents()">
+                            <option value="">All Relationships</option>
+                            <option value="Father">Father</option>
+                            <option value="Mother">Mother</option>
+                            <option value="Guardian">Guardian</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <select class="form-control" id="filterStudents" onchange="filterParents()">
+                            <option value="">All Students</option>
+                            <option value="has_students">Has Linked Students</option>
+                            <option value="no_students">No Linked Students</option>
+                        </select>
+                    </div>
+                </div>
                 <div class="table-responsive">
                     <table class="table">
                         <thead>
@@ -736,6 +813,79 @@ try {
             } catch (error) {
                 console.error('Error loading parents:', error);
             }
+        }
+        
+        // Filter parents
+        function filterParents() {
+            const search = document.getElementById('searchParent').value.toLowerCase();
+            const relationship = document.getElementById('filterRelationship').value;
+            const studentsFilter = document.getElementById('filterStudents').value;
+            
+            const rows = document.querySelectorAll('#parentsTable tr');
+            rows.forEach(row => {
+                const cells = row.querySelectorAll('td');
+                if (cells.length === 0) return;
+                
+                const name = cells[0].textContent.toLowerCase();
+                const email = cells[1].textContent.toLowerCase();
+                const phone = cells[2].textContent.toLowerCase();
+                const rowRelationship = cells[4].textContent;
+                const linkedStudents = cells[5].textContent.toLowerCase();
+                
+                const matchesSearch = name.includes(search) || email.includes(search) || phone.includes(search);
+                const matchesRelationship = !relationship || rowRelationship.includes(relationship);
+                
+                let matchesStudents = true;
+                if (studentsFilter === 'has_students') {
+                    matchesStudents = linkedStudents !== 'no students linked';
+                } else if (studentsFilter === 'no_students') {
+                    matchesStudents = linkedStudents === 'no students linked';
+                }
+                
+                row.style.display = (matchesSearch && matchesRelationship && matchesStudents) ? '' : 'none';
+            });
+        }
+        
+        // Export parents to CSV
+        function exportParents() {
+            const rows = document.querySelectorAll('#parentsTable tr');
+            let csvContent = 'Name,Email,Phone,ID Number,Relationship,Linked Students\n';
+            
+            rows.forEach(row => {
+                const cells = row.querySelectorAll('td');
+                if (cells.length === 0) return;
+                
+                const rowData = [
+                    cells[0].textContent,
+                    cells[1].textContent,
+                    cells[2].textContent,
+                    cells[3].textContent,
+                    cells[4].textContent,
+                    cells[5].textContent
+                ].map(field => {
+                    let text = String(field).trim();
+                    text = text.replace(/"/g, '""');
+                    if (text.includes(',') || text.includes('"')) {
+                        text = `"${text}"`;
+                    }
+                    return text;
+                });
+                
+                csvContent += rowData.join(',') + '\n';
+            });
+            
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            
+            const timestamp = new Date().toISOString().split('T')[0];
+            link.setAttribute('href', url);
+            link.setAttribute('download', `parents_${timestamp}.csv`);
+            link.style.visibility = 'hidden';
+            
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         }
         
         async function addParent() {

@@ -703,6 +703,53 @@ try {
     <main class="main-content" id="mainContent">
         <h1 class="page-title">Attendance Management</h1>
         
+        <!-- Attendance Statistics -->
+        <div id="attendanceStats" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 24px;">
+            <?php
+            $totalRecords = 0;
+            $presentCount = 0;
+            $absentCount = 0;
+            $lateCount = 0;
+            $excusedCount = 0;
+            
+            try {
+                $stmt = $pdo->prepare("SELECT a.status FROM attendance a JOIN students s ON a.student_id = s.id WHERE s.school_id = ?");
+                $stmt->execute([$school_id]);
+                $records = $stmt->fetchAll();
+                
+                foreach ($records as $record) {
+                    $totalRecords++;
+                    if ($record['status'] === 'present') $presentCount++;
+                    if ($record['status'] === 'absent') $absentCount++;
+                    if ($record['status'] === 'late') $lateCount++;
+                    if ($record['status'] === 'excused') $excusedCount++;
+                }
+            } catch (PDOException $e) {
+                error_log("Failed to fetch attendance stats: " . $e->getMessage());
+            }
+            ?>
+            <div style="background: #e8f0fe; padding: 16px; border-radius: 8px; text-align: center;">
+                <div style="font-size: 24px; font-weight: 600; color: #1967d2;"><?php echo $totalRecords; ?></div>
+                <div style="font-size: 12px; color: #5f6368;">Total Records</div>
+            </div>
+            <div style="background: #e6f4ea; padding: 16px; border-radius: 8px; text-align: center;">
+                <div style="font-size: 24px; font-weight: 600; color: #137333;"><?php echo $presentCount; ?></div>
+                <div style="font-size: 12px; color: #5f6368;">Present</div>
+            </div>
+            <div style="background: #fce8e6; padding: 16px; border-radius: 8px; text-align: center;">
+                <div style="font-size: 24px; font-weight: 600; color: #c5221f;"><?php echo $absentCount; ?></div>
+                <div style="font-size: 12px; color: #5f6368;">Absent</div>
+            </div>
+            <div style="background: #fef7e0; padding: 16px; border-radius: 8px; text-align: center;">
+                <div style="font-size: 24px; font-weight: 600; color: #b06000;"><?php echo $lateCount; ?></div>
+                <div style="font-size: 12px; color: #5f6368;">Late</div>
+            </div>
+            <div style="background: #f1f3f4; padding: 16px; border-radius: 8px; text-align: center;">
+                <div style="font-size: 24px; font-weight: 600; color: #5f6368;"><?php echo $excusedCount; ?></div>
+                <div style="font-size: 12px; color: #5f6368;">Excused</div>
+            </div>
+        </div>
+        
         <!-- Quick Access -->
         <div class="card">
             <h2 class="card-title">Quick Access</h2>
@@ -790,11 +837,16 @@ try {
         <!-- Attendance Table -->
         <?php if ($selected_class && !empty($students)): ?>
         <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
+            <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
                 <h2 class="card-title mb-0">Mark Attendance - <?php echo htmlspecialchars($selected_date); ?></h2>
-                <button class="btn btn-primary" onclick="saveAttendance()">
-                    <i class="fas fa-save"></i> Save Attendance
-                </button>
+                <div class="d-flex gap-2 flex-wrap">
+                    <button class="btn btn-primary" onclick="saveAttendance()">
+                        <i class="fas fa-save"></i> Save Attendance
+                    </button>
+                    <button class="btn btn-success" onclick="exportAttendance()">
+                        <i class="fas fa-download"></i> Export
+                    </button>
+                </div>
             </div>
             <div class="card-body">
                 <div class="table-responsive">
@@ -1000,29 +1052,65 @@ try {
             
             fetch('api/attendance.php', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ attendance: attendanceData })
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(attendanceData)
             })
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    alert('Attendance saved successfully! ' + data.count + ' records updated.');
+                    alert('Attendance saved successfully!');
+                    location.reload();
                 } else {
-                    alert('Error saving attendance: ' + data.error);
+                    alert(data.error || 'Failed to save attendance');
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('Error saving attendance. Please try again.');
+                alert('An error occurred');
             });
         }
-
-        // Initialize streams on page load
-        document.addEventListener('DOMContentLoaded', function() {
-            updateStreams();
-        });
+        
+        // Export attendance to CSV
+        function exportAttendance() {
+            const rows = document.querySelectorAll('#attendanceForm tbody tr');
+            let csvContent = 'Adm No,Student Name,Class,Stream,Status,Remarks\n';
+            
+            rows.forEach(row => {
+                const cells = row.querySelectorAll('td');
+                if (cells.length === 0) return;
+                
+                const rowData = [
+                    cells[0].textContent,
+                    cells[1].textContent,
+                    cells[2].textContent,
+                    cells[3].textContent,
+                    cells[4].querySelector('select')?.value || '',
+                    cells[5].querySelector('input')?.value || ''
+                ].map(field => {
+                    let text = String(field).trim();
+                    text = text.replace(/"/g, '""');
+                    if (text.includes(',') || text.includes('"')) {
+                        text = `"${text}"`;
+                    }
+                    return text;
+                });
+                
+                csvContent += rowData.join(',') + '\n';
+            });
+            
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            
+            const timestamp = new Date().toISOString().split('T')[0];
+            link.setAttribute('href', url);
+            link.setAttribute('download', `attendance_${timestamp}.csv`);
+            link.style.visibility = 'hidden';
+            
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
     </script>
     <script src="../assets/js/notifications.js"></script>
     

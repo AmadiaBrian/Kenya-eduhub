@@ -1,6 +1,10 @@
 <?php
 // School Grading Management
-// Authentication is handled by index.php router
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+require_once __DIR__ . '/../config/database.php';
+
 $school_id = $_SESSION['school_id'];
 $school_name = $_SESSION['school_name'] ?? 'School';
 
@@ -81,6 +85,50 @@ if (isset($_GET['delete_subject_scales']) && isset($_GET['subject_id'])) {
     }
 }
 
+// Handle edit grading scale
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_scale'])) {
+    $scale_id = $_POST['scale_id'] ?? '';
+    $min_score = $_POST['min_score'] ?? '';
+    $max_score = $_POST['max_score'] ?? '';
+    $grade_name = $_POST['grade_name'] ?? '';
+    $grade_description = $_POST['grade_description'] ?? '';
+    $points = $_POST['points'] ?? '0';
+    
+    $errors = [];
+    if (empty($min_score)) $errors[] = 'Min score is required';
+    if (empty($max_score)) $errors[] = 'Max score is required';
+    if (empty($grade_name)) $errors[] = 'Grade name is required';
+    if ($min_score < 0 || $max_score > 100) $errors[] = 'Scores must be between 0 and 100';
+    if ($min_score > $max_score) $errors[] = 'Min score cannot be greater than max score';
+    
+    if (empty($errors)) {
+        try {
+            $stmt = $pdo->prepare("UPDATE grading_scales SET min_score = ?, max_score = ?, grade_name = ?, grade_description = ?, points = ? WHERE id = ? AND school_id = ?");
+            $stmt->execute([$min_score, $max_score, $grade_name, $grade_description, $points, $scale_id, $school_id]);
+            
+            if ($stmt->rowCount() > 0) {
+                $success = "Grading scale updated successfully!";
+            } else {
+                $error = "Failed to update grading scale";
+            }
+            
+            // Refresh grading scales
+            $stmt = $pdo->prepare("SELECT gs.*, s.subject_name 
+                                  FROM grading_scales gs 
+                                  LEFT JOIN subjects s ON gs.subject_id = s.id 
+                                  WHERE gs.school_id = ? 
+                                  ORDER BY s.subject_name, gs.min_score");
+            $stmt->execute([$school_id]);
+            $grading_scales = $stmt->fetchAll();
+        } catch (PDOException $e) {
+            error_log("Failed to update grading scale: " . $e->getMessage());
+            $error = "Failed to update grading scale";
+        }
+    } else {
+        $error = implode(', ', $errors);
+    }
+}
+
 // Handle CSV template download
 if (isset($_GET['download_template']) && isset($_GET['subject_id'])) {
     $subject_id = $_GET['subject_id'];
@@ -100,14 +148,14 @@ if (isset($_GET['download_template']) && isset($_GET['subject_id'])) {
     header('Content-Disposition: attachment; filename="' . $subject['subject_name'] . '_grading_template.csv"');
     
     $output = fopen('php://output', 'w');
-    fputcsv($output, ['Min Score', 'Max Score', 'Grade Name', 'Grade Description']);
-    fputcsv($output, ['0', '40', 'F', 'Fail']);
-    fputcsv($output, ['41', '50', 'D', 'Pass']);
-    fputcsv($output, ['51', '60', 'C', 'Average']);
-    fputcsv($output, ['61', '70', 'B', 'Good']);
-    fputcsv($output, ['71', '80', 'A-', 'Very Good']);
-    fputcsv($output, ['81', '90', 'A', 'Excellent']);
-    fputcsv($output, ['91', '100', 'A+', 'Outstanding']);
+    fputcsv($output, ['Min Score', 'Max Score', 'Grade Name', 'Grade Description', 'Points']);
+    fputcsv($output, ['0', '40', 'F', 'Fail', '1']);
+    fputcsv($output, ['41', '50', 'D', 'Pass', '2']);
+    fputcsv($output, ['51', '60', 'C', 'Average', '5']);
+    fputcsv($output, ['61', '70', 'B', 'Good', '8']);
+    fputcsv($output, ['71', '80', 'A-', 'Very Good', '10']);
+    fputcsv($output, ['81', '90', 'A', 'Excellent', '11']);
+    fputcsv($output, ['91', '100', 'A+', 'Outstanding', '12']);
     fclose($output);
     
     exit;
@@ -154,12 +202,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['grading_file'])) {
                                 $max_score = intval(trim($data[1]));
                                 $grade_name = trim($data[2]);
                                 $grade_description = isset($data[3]) ? trim($data[3]) : '';
+                                $points = isset($data[4]) ? intval(trim($data[4])) : 0;
                                 
                                 if ($min_score >= 0 && $max_score <= 100 && $min_score <= $max_score && !empty($grade_name)) {
-                                    $stmt = $pdo->prepare("INSERT INTO grading_scales (school_id, subject_id, min_score, max_score, grade_name, grade_description) VALUES (?, ?, ?, ?, ?, ?)");
-                                    $stmt->execute([$school_id, $subject_id, $min_score, $max_score, $grade_name, $grade_description]);
+                                    $stmt = $pdo->prepare("INSERT INTO grading_scales (school_id, subject_id, min_score, max_score, grade_name, grade_description, points) VALUES (?, ?, ?, ?, ?, ?, ?)");
+                                    $stmt->execute([$school_id, $subject_id, $min_score, $max_score, $grade_name, $grade_description, $points]);
                                     $row_count++;
-                                    error_log("Inserted: school_id=$school_id, subject_id=$subject_id, min=$min_score, max=$max_score, grade=$grade_name");
+                                    error_log("Inserted: school_id=$school_id, subject_id=$subject_id, min=$min_score, max=$max_score, grade=$grade_name, points=$points");
                                 }
                             }
                         }
@@ -275,23 +324,96 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['grading_file'])) {
         }
         
         .btn-primary {
-            background: #FF6B35;
+            background: linear-gradient(135deg, #FF6B35 0%, #e55a2b 100%);
             color: white;
             border: none;
+            box-shadow: 0 4px 6px rgba(255, 107, 53, 0.3);
+            transition: all 0.3s ease;
         }
         
         .btn-primary:hover {
-            background: #e55a2b;
+            background: linear-gradient(135deg, #e55a2b 0%, #d9480f 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(255, 107, 53, 0.4);
+        }
+        
+        .btn-primary:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(255, 107, 53, 0.3);
         }
         
         .btn-outline-primary {
             background: white;
             color: #FF6B35;
-            border: 1px solid #FF6B35;
+            border: 2px solid #FF6B35;
+            box-shadow: 0 2px 4px rgba(255, 107, 53, 0.1);
+            transition: all 0.3s ease;
         }
         
         .btn-outline-primary:hover {
-            background: #fff3e0;
+            background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+            border-color: #e55a2b;
+            color: #e55a2b;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(255, 107, 53, 0.2);
+        }
+        
+        .btn-danger {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            color: white;
+            border: none;
+            box-shadow: 0 4px 6px rgba(220, 53, 69, 0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-danger:hover {
+            background: linear-gradient(135deg, #c82333 0%, #bd2130 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(220, 53, 69, 0.4);
+        }
+        
+        .btn-danger:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(220, 53, 69, 0.3);
+        }
+        
+        .btn-warning {
+            background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%);
+            color: #212529;
+            border: none;
+            box-shadow: 0 4px 6px rgba(255, 193, 7, 0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-warning:hover {
+            background: linear-gradient(135deg, #e0a800 0%, #d39e00 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(255, 193, 7, 0.4);
+        }
+        
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 12px;
+            border-radius: 6px;
+            font-weight: 500;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            letter-spacing: 0.3px;
+        }
+        
+        .btn i {
+            font-size: 14px;
         }
         
         .alert {
@@ -683,47 +805,73 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['grading_file'])) {
         <div class="card">
             <h2 class="card-title">Current Grading Scales</h2>
             <div class="table-responsive">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Subject</th>
-                            <th>Min Score</th>
-                            <th>Max Score</th>
-                            <th>Grade Name</th>
-                            <th>Description</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php if (empty($grading_scales)): ?>
-                            <tr><td colspan="6" class="text-center">No grading scales defined yet</td></tr>
-                        <?php else: ?>
-                            <?php foreach ($grading_scales as $scale): ?>
-                                <tr>
-                                    <td><?php echo htmlspecialchars($scale['subject_name'] ?? 'General'); ?></td>
-                                    <td><?php echo $scale['min_score']; ?></td>
-                                    <td><?php echo $scale['max_score']; ?></td>
-                                    <td><strong><?php echo htmlspecialchars($scale['grade_name']); ?></strong></td>
-                                    <td><?php echo htmlspecialchars($scale['grade_description'] ?? '-'); ?></td>
-                                    <td>
-                                        <a href="grading.php?delete_scale=1&scale_id=<?php echo $scale['id']; ?>" 
-                                           class="btn btn-sm btn-danger" 
-                                           onclick="return confirm('Are you sure you want to delete this grading scale?')">
-                                            <i class="fas fa-trash"></i> Delete
-                                        </a>
-                                        <?php if ($scale['subject_id']): ?>
-                                            <a href="grading.php?delete_subject_scales=1&subject_id=<?php echo $scale['subject_id']; ?>" 
-                                               class="btn btn-sm btn-warning" 
-                                               onclick="return confirm('Are you sure you want to delete ALL grading scales for this subject?')">
-                                                <i class="fas fa-trash-alt"></i> Delete All
-                                            </a>
-                                        <?php endif; ?>
-                                    </td>
-                                </tr>
-                            <?php endforeach; ?>
-                        <?php endif; ?>
-                    </tbody>
-                </table>
+                <?php if (empty($grading_scales)): ?>
+                    <p class="text-center text-muted">No grading scales defined yet</p>
+                <?php else: ?>
+                    <?php
+                    // Group grading scales by subject
+                    $grouped_scales = [];
+                    foreach ($grading_scales as $scale) {
+                        $subject_name = $scale['subject_name'] ?? 'General';
+                        $subject_id = $scale['subject_id'] ?? null;
+                        if (!isset($grouped_scales[$subject_name])) {
+                            $grouped_scales[$subject_name] = [
+                                'subject_id' => $subject_id,
+                                'scales' => []
+                            ];
+                        }
+                        $grouped_scales[$subject_name]['scales'][] = $scale;
+                    }
+                    ?>
+                    
+                    <?php foreach ($grouped_scales as $subject_name => $subject_data): ?>
+                        <div style="margin-bottom: 30px;">
+                            <h4 style="color: #FF6B35; margin-bottom: 15px; font-weight: 600;">
+                                <i class="fas fa-book"></i> <?php echo htmlspecialchars($subject_name); ?>
+                                <?php if ($subject_data['subject_id']): ?>
+                                    <a href="grading.php?delete_subject_scales=1&subject_id=<?php echo $subject_data['subject_id']; ?>" 
+                                       class="btn btn-sm btn-danger float-end" 
+                                       onclick="return confirm('Are you sure you want to delete ALL grading scales for <?php echo htmlspecialchars($subject_name); ?>?')">
+                                        <i class="fas fa-trash-alt"></i> Delete All
+                                    </a>
+                                <?php endif; ?>
+                            </h4>
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Min Score</th>
+                                        <th>Max Score</th>
+                                        <th>Grade Name</th>
+                                        <th>Description</th>
+                                        <th>Points</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php foreach ($subject_data['scales'] as $scale): ?>
+                                        <tr>
+                                            <td><?php echo $scale['min_score']; ?></td>
+                                            <td><?php echo $scale['max_score']; ?></td>
+                                            <td><strong><?php echo htmlspecialchars($scale['grade_name']); ?></strong></td>
+                                            <td><?php echo htmlspecialchars($scale['grade_description'] ?? '-'); ?></td>
+                                            <td><strong><?php echo $scale['points'] ?? 0; ?></strong></td>
+                                            <td>
+                                                <button class="btn btn-sm btn-primary" onclick="editScale(<?php echo $scale['id']; ?>, '<?php echo $scale['min_score']; ?>', '<?php echo $scale['max_score']; ?>', '<?php echo htmlspecialchars($scale['grade_name']); ?>', '<?php echo htmlspecialchars($scale['grade_description'] ?? ''); ?>', '<?php echo $scale['points'] ?? 0; ?>')">
+                                                    <i class="fas fa-edit"></i> Edit
+                                                </button>
+                                                <a href="grading.php?delete_scale=1&scale_id=<?php echo $scale['id']; ?>" 
+                                                   class="btn btn-sm btn-danger" 
+                                                   onclick="return confirm('Are you sure you want to delete this grading scale?')">
+                                                    <i class="fas fa-trash"></i> Delete
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    <?php endforeach; ?>
+                <?php endif; ?>
             </div>
         </div>
     </main>
@@ -745,7 +893,73 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['grading_file'])) {
             }
             window.location.href = 'grading?download_template=1&subject_id=' + subjectId;
         }
+        
+        function editScale(id, minScore, maxScore, gradeName, gradeDescription, points) {
+            document.getElementById('scale_id').value = id;
+            document.getElementById('min_score').value = minScore;
+            document.getElementById('max_score').value = maxScore;
+            document.getElementById('grade_name').value = gradeName;
+            document.getElementById('grade_description').value = gradeDescription;
+            document.getElementById('points').value = points;
+            
+            const modal = document.getElementById('editModal');
+            modal.style.display = 'block';
+        }
+        
+        function closeModal() {
+            document.getElementById('editModal').style.display = 'none';
+        }
+        
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('editModal');
+            if (event.target == modal) {
+                modal.style.display = 'none';
+            }
+        }
     </script>
+    
+    <!-- Edit Modal -->
+    <div id="editModal" style="display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5);">
+        <div style="background-color: #fefefe; margin: 10% auto; padding: 20px; border: 1px solid #888; width: 90%; max-width: 500px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+            <h3 style="color: #FF6B35; margin-bottom: 20px;">Edit Grading Scale</h3>
+            <form method="POST">
+                <input type="hidden" name="edit_scale" value="1">
+                <input type="hidden" name="scale_id" id="scale_id">
+                
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 500; color: #5f6368;">Min Score</label>
+                    <input type="number" name="min_score" id="min_score" class="form-control" min="0" max="100" required>
+                </div>
+                
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 500; color: #5f6368;">Max Score</label>
+                    <input type="number" name="max_score" id="max_score" class="form-control" min="0" max="100" required>
+                </div>
+                
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 500; color: #5f6368;">Grade Name</label>
+                    <input type="text" name="grade_name" id="grade_name" class="form-control" required>
+                </div>
+                
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 500; color: #5f6368;">Grade Description</label>
+                    <input type="text" name="grade_description" id="grade_description" class="form-control">
+                </div>
+                
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 500; color: #5f6368;">Points</label>
+                    <input type="number" name="points" id="points" class="form-control" min="1" max="12" required>
+                </div>
+                
+                <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;">
+                    <button type="button" class="btn" style="background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%); color: white; box-shadow: 0 4px 6px rgba(108, 117, 125, 0.3);" onclick="closeModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
     <script src="../assets/js/notifications.js"></script>
     
     <!-- Footer -->

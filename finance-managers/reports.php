@@ -523,6 +523,9 @@ try {
             <a class="nav-link active" href="reports">
                 <i class="fas fa-chart-bar"></i> Reports
             </a>
+            <a class="nav-link" href="reminders">
+                <i class="fas fa-bell"></i> Payment Reminders
+            </a>
             <a class="nav-link" href="account">
                 <i class="fas fa-wallet"></i> Account Balance
             </a>
@@ -581,6 +584,44 @@ try {
                     </div>
                 </div>
             </form>
+        </div>
+
+        <!-- Generate Reports Card -->
+        <div class="card">
+            <h2 class="card-title">Generate Financial Reports</h2>
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Report Type</label>
+                    <select class="form-control" id="report_type">
+                        <option value="daily_revenue">Daily Revenue Report</option>
+                        <option value="monthly_revenue">Monthly Revenue Report</option>
+                        <option value="class_collection">Class-wise Collection Report</option>
+                        <option value="payment_method">Payment Method Breakdown</option>
+                        <option value="term_summary">Term-wise Summary</option>
+                    </select>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label class="form-label">Format</label>
+                    <select class="form-control" id="report_format">
+                        <option value="pdf">PDF</option>
+                        <option value="csv">CSV (Excel)</option>
+                    </select>
+                </div>
+                <div class="col-md-2 mb-3">
+                    <label class="form-label">Year</label>
+                    <select class="form-control" id="report_year">
+                        <?php for ($y = date('Y'); $y >= date('Y') - 5; $y--): ?>
+                            <option value="<?php echo $y; ?>" <?php echo $filter_year == $y ? 'selected' : ''; ?>><?php echo $y; ?></option>
+                        <?php endfor; ?>
+                    </select>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label class="form-label">&nbsp;</label>
+                    <button type="button" class="btn btn-primary w-100" onclick="generateFinancialReport()" style="background-color: #ff6600; color: white; border: none;">
+                        <i class="fas fa-file-pdf me-2"></i> Generate Report
+                    </button>
+                </div>
+            </div>
         </div>
         
         <!-- Summary Card -->
@@ -785,6 +826,48 @@ try {
             sidebar.classList.toggle('collapsed');
             sidebar.classList.toggle('show');
             mainContent.classList.toggle('expanded');
+        }
+
+        async function generateFinancialReport() {
+            const reportType = document.getElementById('report_type').value;
+            const format = document.getElementById('report_format').value;
+            const year = document.getElementById('report_year').value;
+            
+            try {
+                const formData = new FormData();
+                formData.append('report_type', reportType);
+                formData.append('format', format);
+                formData.append('year', year);
+                
+                const response = await fetch('/Kenyaeduhub/finance-managers/api/generate_financial_report.php', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Check if mobile/small screen
+                    const isMobile = window.innerWidth <= 768;
+                    
+                    if (isMobile) {
+                        // Download directly on mobile
+                        const link = document.createElement('a');
+                        link.href = '/Kenyaeduhub' + data.report_url;
+                        link.download = data.report_filename;
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                    } else {
+                        // Open in new tab on desktop
+                        window.open('/Kenyaeduhub' + data.report_url, '_blank');
+                    }
+                } else {
+                    alert('Failed to generate report: ' + (data.error || 'Unknown error'));
+                }
+            } catch (error) {
+                alert('Error generating report: ' + error.message);
+            }
         }
     </script>
     <script src="../assets/js/notifications.js"></script>

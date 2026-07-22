@@ -1,0 +1,14 @@
+2026-07-12 18:58:08 - B2C Result: {"Result":{"ResultType":0,"ResultCode":4001,"ResultDesc":"Insufficient balance","OriginatorConversationID":"4311-46f6-9a91-011b31669b70166588","ConversationID":"AG_20260712_0100100316s3pshk8cxg","TransactionID":"UGC0000000","ReferenceData":{"ReferenceItem":{"Key":"QueueTimeoutURL","Value":"https:\/\/internalsandbox.safaricom.co.ke\/mpesa\/b2cresults\/v1\/submit"}}}}
+2026-07-12 18:58:08 - B2C Failed: Insufficient balance, WithdrawalID: 37
+2026-07-12 19:03:55 - B2C Result: {"Result":{"ResultType":0,"ResultCode":4001,"ResultDesc":"Insufficient balance","OriginatorConversationID":"4311-46f6-9a91-011b31669b70166855","ConversationID":"AG_20260712_0100100316ziy0r7g334","TransactionID":"UGC0000000","ReferenceData":{"ReferenceItem":{"Key":"QueueTimeoutURL","Value":"https:\/\/internalsandbox.safaricom.co.ke\/mpesa\/b2cresults\/v1\/submit"}}}}
+2026-07-12 19:03:55 - B2C Failed: Insufficient balance, WithdrawalID: 38
+2026-07-14 23:50:30 - B2C Result: {"Result":{"ResultType":0,"ResultCode":4001,"ResultDesc":"Insufficient balance","OriginatorConversationID":"ff3e-4fa4-abc0-8eb3aa92c0d9110087","ConversationID":"AG_20260715_0100100301s7pngznnhy","TransactionID":"UGF0000000","ReferenceData":{"ReferenceItem":{"Key":"QueueTimeoutURL","Value":"https:\/\/internalsandbox.safaricom.co.ke\/mpesa\/b2cresults\/v1\/submit"}}}}
+2026-07-14 23:50:30 - B2C Failed: Insufficient balance, WithdrawalID: 40
+2026-07-15 00:10:54 - B2C Result: {"Result":{"ResultType":0,"ResultCode":4001,"ResultDesc":"Insufficient balance","OriginatorConversationID":"3a62-4214-aa55-1c05a6d85a1c29486","ConversationID":"AG_20260715_0100100302ighd81jdj9","TransactionID":"UGF0000000","ReferenceData":{"ReferenceItem":{"Key":"QueueTimeoutURL","Value":"https:\/\/internalsandbox.safaricom.co.ke\/mpesa\/b2cresults\/v1\/submit"}}}}
+2026-07-15 00:10:54 - B2C Failed: Insufficient balance, WithdrawalID: 41
+2026-07-19 21:51:50 - B2C Result: 
+2026-07-19 21:51:50 - B2C Result withdrawal not found. ConversationID: , OriginatorConversationID: 
+2026-07-19 21:52:02 - B2C Result: 
+2026-07-19 21:52:02 - B2C Result withdrawal not found. ConversationID: , OriginatorConversationID: 
+2026-07-20 04:10:22 - B2C Result: {"Result":{"ResultType":0,"ResultCode":4001,"ResultDesc":"Insufficient balance","OriginatorConversationID":"6839-428d-8589-2bcb00296f3788315","ConversationID":"AG_20260720_010010030b29th2u5c1g","TransactionID":"UGK0000000","ReferenceData":{"ReferenceItem":{"Key":"QueueTimeoutURL","Value":"https:\/\/internalsandbox.safaricom.co.ke\/mpesa\/b2cresults\/v1\/submit"}}}}
+2026-07-20 04:10:22 - B2C Failed: Insufficient balance, WithdrawalID: 64

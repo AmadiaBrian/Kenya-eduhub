@@ -23,6 +23,7 @@ try {
     <title>Fees - <?php echo htmlspecialchars($school_name); ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/notifications.css">
     <style>
         :root {
             --primary-color: #1a73e8;
@@ -604,6 +605,77 @@ try {
     <main class="main-content" id="mainContent">
         <h1 class="page-title">Fees Management</h1>
         
+        <!-- Fee Statistics -->
+        <div id="feeStats" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 24px;">
+            <?php
+            $totalPayments = 0;
+            $totalCollected = 0;
+            $totalStructure = 0;
+            $totalOutstanding = 0;
+            $paymentCount = 0;
+            
+            try {
+                // Count total payments
+                $stmt = $pdo->prepare("SELECT COUNT(*) as count FROM fee_payments fp JOIN students s ON fp.student_id = s.id WHERE s.school_id = ? AND fp.status = 'completed'");
+                $stmt->execute([$school_id]);
+                $paymentData = $stmt->fetch();
+                $paymentCount = $paymentData['count'];
+                $totalPayments = $paymentCount;
+                
+                // Calculate actual outstanding balance matching the balances query logic
+                $stmt = $pdo->prepare("
+                    SELECT SUM(fs.amount - COALESCE(fp.paid, 0)) as outstanding
+                    FROM fee_structure fs
+                    JOIN classes c ON fs.class_id = c.id
+                    LEFT JOIN (
+                        SELECT student_id, term, year, fee_type, SUM(amount) as paid
+                        FROM fee_payments 
+                        WHERE status = 'completed'
+                        GROUP BY student_id, term, year, fee_type
+                    ) fp ON fs.class_id IN (
+                        SELECT class_id FROM students WHERE school_id = ?
+                    ) AND fs.term = fp.term AND fs.year = fp.year 
+                    AND (fs.fee_type = fp.fee_type OR (fp.fee_type IS NULL AND fs.fee_type = 'Tuition'))
+                    WHERE c.school_id = ?
+                ");
+                $stmt->execute([$school_id, $school_id]);
+                $outstandingData = $stmt->fetch();
+                $totalOutstanding = $outstandingData['outstanding'] ?? 0;
+                
+                // Total collected (all completed payments)
+                $stmt = $pdo->prepare("SELECT SUM(amount) as total FROM fee_payments fp JOIN students s ON fp.student_id = s.id WHERE s.school_id = ? AND fp.status = 'completed'");
+                $stmt->execute([$school_id]);
+                $collectedData = $stmt->fetch();
+                $totalCollected = $collectedData['total'] ?? 0;
+                
+                // Total fee structure amount
+                $stmt = $pdo->prepare("SELECT SUM(amount) as total FROM fee_structure fs JOIN classes c ON fs.class_id = c.id WHERE c.school_id = ?");
+                $stmt->execute([$school_id]);
+                $structureData = $stmt->fetch();
+                $totalStructure = $structureData['total'] ?? 0;
+                
+            } catch (PDOException $e) {
+                error_log("Failed to fetch fee stats: " . $e->getMessage());
+            }
+            ?>
+            <div style="background: #e8f0fe; padding: 16px; border-radius: 8px; text-align: center;">
+                <div style="font-size: 24px; font-weight: 600; color: #1967d2;"><?php echo $totalPayments; ?></div>
+                <div style="font-size: 12px; color: #5f6368;">Total Payments</div>
+            </div>
+            <div style="background: #e6f4ea; padding: 16px; border-radius: 8px; text-align: center;">
+                <div style="font-size: 24px; font-weight: 600; color: #137333;">KES <?php echo number_format($totalCollected); ?></div>
+                <div style="font-size: 12px; color: #5f6368;">Total Collected</div>
+            </div>
+            <div style="background: #fef7e0; padding: 16px; border-radius: 8px; text-align: center;">
+                <div style="font-size: 24px; font-weight: 600; color: #b06000;">KES <?php echo number_format($totalStructure); ?></div>
+                <div style="font-size: 12px; color: #5f6368;">Fee Structure Total</div>
+            </div>
+            <div style="background: #fce8e6; padding: 16px; border-radius: 8px; text-align: center;">
+                <div style="font-size: 24px; font-weight: 600; color: #c5221f;">KES <?php echo number_format($totalOutstanding); ?></div>
+                <div style="font-size: 12px; color: #5f6368;">Outstanding Balance</div>
+            </div>
+        </div>
+        
         <!-- Quick Access -->
         <div class="card">
             <h2 class="card-title">Quick Access</h2>
@@ -649,13 +721,39 @@ try {
         
         <!-- Fee Structure Section -->
         <div class="card mb-4">
-            <div class="card-header d-flex justify-content-between align-items-center">
+            <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
                 <span>Fee Structure</span>
-                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addFeeStructureModal">
-                    <i class="fas fa-plus me-2"></i> Add Fee Structure
-                </button>
+                <div class="d-flex gap-2 flex-wrap">
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addFeeStructureModal">
+                        <i class="fas fa-plus me-2"></i> Add Fee Structure
+                    </button>
+                    <button class="btn btn-success" onclick="exportFeeStructure()">
+                        <i class="fas fa-download me-2"></i> Export
+                    </button>
+                </div>
             </div>
             <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-3">
+                        <select class="form-control" id="filterStructureClass" onchange="filterFeeStructure()">
+                            <option value="">All Classes</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-control" id="filterStructureTerm" onchange="filterFeeStructure()">
+                            <option value="">All Terms</option>
+                            <option value="Term 1">Term 1</option>
+                            <option value="Term 2">Term 2</option>
+                            <option value="Term 3">Term 3</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <input type="number" class="form-control" id="filterStructureYear" placeholder="Year" onchange="filterFeeStructure()">
+                    </div>
+                    <div class="col-md-3">
+                        <input type="text" class="form-control" id="searchStructure" placeholder="Search..." onkeyup="filterFeeStructure()">
+                    </div>
+                </div>
                 <div class="table-responsive">
                     <table class="table">
                         <thead>
@@ -678,13 +776,43 @@ try {
         
         <!-- Fee Payments Section -->
         <div class="card mb-4">
-            <div class="card-header d-flex justify-content-between align-items-center">
+            <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
                 <span>Fee Payments</span>
-                <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addPaymentModal">
-                    <i class="fas fa-plus me-2"></i> Record Payment
-                </button>
+                <div class="d-flex gap-2 flex-wrap">
+                    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addPaymentModal">
+                        <i class="fas fa-plus me-2"></i> Record Payment
+                    </button>
+                    <button class="btn btn-success" onclick="exportPayments()">
+                        <i class="fas fa-download me-2"></i> Export
+                    </button>
+                </div>
             </div>
             <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-3">
+                        <input type="text" class="form-control" id="searchPayment" placeholder="Search student..." onkeyup="filterPayments()">
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-control" id="filterPaymentMethod" onchange="filterPayments()">
+                            <option value="">All Methods</option>
+                            <option value="Cash">Cash</option>
+                            <option value="M-Pesa">M-Pesa</option>
+                            <option value="Bank Transfer">Bank Transfer</option>
+                            <option value="Cheque">Cheque</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-control" id="filterPaymentTerm" onchange="filterPayments()">
+                            <option value="">All Terms</option>
+                            <option value="Term 1">Term 1</option>
+                            <option value="Term 2">Term 2</option>
+                            <option value="Term 3">Term 3</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <input type="date" class="form-control" id="filterPaymentDate" onchange="filterPayments()">
+                    </div>
+                </div>
                 <div class="table-responsive">
                     <table class="table">
                         <thead>
@@ -697,10 +825,11 @@ try {
                                 <th>Method</th>
                                 <th>Term</th>
                                 <th>Actions</th>
+                                <th>Statement</th>
                             </tr>
                         </thead>
                         <tbody id="paymentsTable">
-                            <tr><td colspan="8" class="text-center">Loading...</td></tr>
+                            <tr><td colspan="9" class="text-center">Loading...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -735,6 +864,12 @@ try {
                     <button class="btn btn-sm btn-secondary" onclick="clearFilters()">
                         <i class="fas fa-times"></i> Clear
                     </button>
+                    <button class="btn btn-sm btn-warning" onclick="sendFeeReminders()">
+                        <i class="fas fa-bell"></i> Send Reminders
+                    </button>
+                    <button class="btn btn-sm btn-info" onclick="sendRemindersToAll()">
+                        <i class="fas fa-users"></i> Send to All
+                    </button>
                 </div>
             </div>
             <div class="card-body">
@@ -742,6 +877,7 @@ try {
                     <table class="table">
                         <thead>
                             <tr>
+                                <th><input type="checkbox" id="selectAllBalances" onchange="toggleAllBalances()"></th>
                                 <th>Admission No</th>
                                 <th>Student Name</th>
                                 <th>Class</th>
@@ -753,10 +889,11 @@ try {
                                 <th>Paid</th>
                                 <th>Balance</th>
                                 <th>Status</th>
+                                <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody id="balancesTable">
-                            <tr><td colspan="11" class="text-center">Select filters and click View</td></tr>
+                            <tr><td colspan="12" class="text-center">Select filters and click View</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -930,28 +1067,46 @@ try {
                 const response = await fetch('api/fees.php?type=structure');
                 const data = await response.json();
                 if (data.success) {
-                    const tbody = document.getElementById('feeStructureTable');
-                    tbody.innerHTML = data.data.map(fee => `
-                        <tr>
-                            <td>${fee.class_name}</td>
-                            <td>${fee.term}</td>
-                            <td>${fee.year}</td>
-                            <td>KES ${fee.amount.toLocaleString()}</td>
-                            <td>${fee.description || '-'}</td>
-                            <td>
-                                <button class="btn btn-sm btn-outline-primary me-1" onclick="editFeeStructure(${fee.id}, '${fee.class_id}', '${fee.term}', ${fee.year}, '${fee.fee_type}', ${fee.amount}, '${fee.description || ''}')">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                <button class="btn btn-sm btn-danger" onclick="deleteFeeStructure(${fee.id})">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </td>
-                        </tr>
-                    `).join('');
+                    window.feeStructureData = data.data;
+                    renderFeeStructure(data.data);
+                    populateClassFilter(data.data);
                 }
             } catch (error) {
                 console.error('Error loading fee structures:', error);
             }
+        }
+        
+        // Render fee structure to table
+        function renderFeeStructure(structures) {
+            const tbody = document.getElementById('feeStructureTable');
+            tbody.innerHTML = structures.map(fee => `
+                <tr>
+                    <td>${fee.class_name}</td>
+                    <td>${fee.term}</td>
+                    <td>${fee.year}</td>
+                    <td>KES ${fee.amount.toLocaleString()}</td>
+                    <td>${fee.description || '-'}</td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-primary me-1" onclick="editFeeStructure(${fee.id}, '${fee.class_id}', '${fee.term}', ${fee.year}, '${fee.fee_type}', ${fee.amount}, '${fee.description || ''}')">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-sm btn-danger" onclick="deleteFeeStructure(${fee.id})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+        
+        // Populate class filter dropdown
+        function populateClassFilter(structures) {
+            const classes = [...new Set(structures.map(s => s.class_id))];
+            const classSelect = document.getElementById('filterStructureClass');
+            classSelect.innerHTML = '<option value="">All Classes</option>';
+            classes.forEach(classId => {
+                const className = structures.find(s => s.class_id === classId)?.class_name;
+                classSelect.innerHTML += `<option value="${classId}">${className}</option>`;
+            });
         }
         
         // Load payments
@@ -960,27 +1115,38 @@ try {
                 const response = await fetch('api/fees.php?type=payments');
                 const data = await response.json();
                 if (data.success) {
-                    const tbody = document.getElementById('paymentsTable');
-                    tbody.innerHTML = data.data.map(payment => `
-                        <tr>
-                            <td>${payment.receipt_number}</td>
-                            <td>${payment.student_name}</td>
-                            <td><strong>${payment.fee_type || 'Tuition'}</strong></td>
-                            <td>KES ${payment.amount.toLocaleString()}</td>
-                            <td>${payment.payment_date}</td>
-                            <td>${payment.payment_method}</td>
-                            <td>${payment.term}</td>
-                            <td>
-                                <button class="btn btn-sm btn-danger" onclick="deletePayment(${payment.id})">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </td>
-                        </tr>
-                    `).join('');
+                    window.paymentsData = data.data;
+                    renderPayments(data.data);
                 }
             } catch (error) {
                 console.error('Error loading payments:', error);
             }
+        }
+        
+        // Render payments to table
+        function renderPayments(payments) {
+            const tbody = document.getElementById('paymentsTable');
+            tbody.innerHTML = payments.map(payment => `
+                <tr>
+                    <td>${payment.receipt_number}</td>
+                    <td>${payment.student_name}</td>
+                    <td><strong>${payment.fee_type || 'Tuition'}</strong></td>
+                    <td>KES ${payment.amount.toLocaleString()}</td>
+                    <td>${payment.payment_date}</td>
+                    <td>${payment.payment_method}</td>
+                    <td>${payment.term}</td>
+                    <td>
+                        <button class="btn btn-sm btn-danger" onclick="deletePayment(${payment.id})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                    <td>
+                        <button class="btn btn-sm btn-primary" onclick="generateFeeStatement(${payment.student_id})">
+                            <i class="fas fa-file-invoice"></i> Statement
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
         }
         
         // Add fee structure
@@ -1142,6 +1308,244 @@ try {
             }
         }
         
+        // Filter fee structure
+        function filterFeeStructure() {
+            const classFilter = document.getElementById('filterStructureClass').value;
+            const termFilter = document.getElementById('filterStructureTerm').value;
+            const yearFilter = document.getElementById('filterStructureYear').value;
+            const searchFilter = document.getElementById('searchStructure').value.toLowerCase();
+            
+            if (!window.feeStructureData) return;
+            
+            const filtered = window.feeStructureData.filter(item => {
+                const matchesClass = !classFilter || item.class_id == classFilter;
+                const matchesTerm = !termFilter || item.term === termFilter;
+                const matchesYear = !yearFilter || item.year == yearFilter;
+                const matchesSearch = !searchFilter || 
+                    item.class_name.toLowerCase().includes(searchFilter) ||
+                    item.description.toLowerCase().includes(searchFilter);
+                
+                return matchesClass && matchesTerm && matchesYear && matchesSearch;
+            });
+            
+            renderFeeStructure(filtered);
+        }
+        
+        // Filter payments
+        function filterPayments() {
+            const searchFilter = document.getElementById('searchPayment').value.toLowerCase();
+            const methodFilter = document.getElementById('filterPaymentMethod').value;
+            const termFilter = document.getElementById('filterPaymentTerm').value;
+            const dateFilter = document.getElementById('filterPaymentDate').value;
+            
+            if (!window.paymentsData) return;
+            
+            const filtered = window.paymentsData.filter(item => {
+                const matchesSearch = !searchFilter || 
+                    item.student_name.toLowerCase().includes(searchFilter) ||
+                    item.admission_number.toLowerCase().includes(searchFilter);
+                const matchesMethod = !methodFilter || item.payment_method === methodFilter;
+                const matchesTerm = !termFilter || item.term === termFilter;
+                const matchesDate = !dateFilter || item.payment_date === dateFilter;
+                
+                return matchesSearch && matchesMethod && matchesTerm && matchesDate;
+            });
+            
+            renderPayments(filtered);
+        }
+        
+        // Export fee structure to CSV
+        function exportFeeStructure() {
+            if (!window.feeStructureData) return;
+            
+            let csvContent = 'Class,Term,Year,Amount,Description\n';
+            
+            window.feeStructureData.forEach(item => {
+                const rowData = [
+                    item.class_name,
+                    item.term,
+                    item.year,
+                    item.amount,
+                    item.description || ''
+                ].map(field => {
+                    let text = String(field).trim();
+                    text = text.replace(/"/g, '""');
+                    if (text.includes(',') || text.includes('"')) {
+                        text = `"${text}"`;
+                    }
+                    return text;
+                });
+                
+                csvContent += rowData.join(',') + '\n';
+            });
+            
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            
+            const timestamp = new Date().toISOString().split('T')[0];
+            link.setAttribute('href', url);
+            link.setAttribute('download', `fee_structure_${timestamp}.csv`);
+            link.style.visibility = 'hidden';
+            
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+        
+        // Export payments to CSV
+        function exportPayments() {
+            if (!window.paymentsData) return;
+            
+            let csvContent = 'Receipt No,Student Name,Admission No,Fee Type,Amount,Payment Date,Method,Term\n';
+            
+            window.paymentsData.forEach(item => {
+                const rowData = [
+                    item.receipt_number,
+                    item.student_name,
+                    item.admission_number,
+                    item.fee_type,
+                    item.amount,
+                    item.payment_date,
+                    item.payment_method,
+                    item.term
+                ].map(field => {
+                    let text = String(field).trim();
+                    text = text.replace(/"/g, '""');
+                    if (text.includes(',') || text.includes('"')) {
+                        text = `"${text}"`;
+                    }
+                    return text;
+                });
+                
+                csvContent += rowData.join(',') + '\n';
+            });
+            
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            
+            const timestamp = new Date().toISOString().split('T')[0];
+            link.setAttribute('href', url);
+            link.setAttribute('download', `fee_payments_${timestamp}.csv`);
+            link.style.visibility = 'hidden';
+            
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+        
+        // Toggle all balance checkboxes
+        function toggleAllBalances() {
+            const selectAll = document.getElementById('selectAllBalances');
+            const checkboxes = document.querySelectorAll('.balance-checkbox');
+            checkboxes.forEach(cb => {
+                if (!cb.disabled) {
+                    cb.checked = selectAll.checked;
+                }
+            });
+        }
+        
+        // Send fee reminders to selected parents
+        async function sendFeeReminders() {
+            const selectedCheckboxes = document.querySelectorAll('.balance-checkbox:checked');
+            
+            if (selectedCheckboxes.length === 0) {
+                await notificationSystem.alert('Please select at least one student with outstanding balance to send reminders.');
+                return;
+            }
+            
+            const students = [];
+            selectedCheckboxes.forEach(cb => {
+                students.push({
+                    student_id: cb.dataset.studentId,
+                    student_name: cb.dataset.studentName,
+                    admission_number: cb.dataset.admission,
+                    balance: cb.dataset.balance
+                });
+            });
+            
+            const confirmed = await notificationSystem.confirm(`Send fee reminders to ${students.length} parent(s)?`);
+            if (!confirmed) {
+                return;
+            }
+            
+            // Show loading spinner
+            const sendBtn = document.querySelector('button[onclick="sendFeeReminders()"]');
+            const originalText = sendBtn.innerHTML;
+            sendBtn.disabled = true;
+            sendBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+            
+            try {
+                const response = await fetch('api/send_fee_reminders.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ students: students })
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    notificationSystem.success('Success', `Reminders sent successfully to ${data.sent_count} parent(s).`);
+                    // Clear selections
+                    document.getElementById('selectAllBalances').checked = false;
+                    selectedCheckboxes.forEach(cb => cb.checked = false);
+                } else {
+                    notificationSystem.error('Error', data.error || 'Failed to send reminders');
+                }
+            } catch (error) {
+                console.error('Error sending reminders:', error);
+                notificationSystem.error('Error', 'An error occurred while sending reminders');
+            } finally {
+                // Restore button
+                sendBtn.disabled = false;
+                sendBtn.innerHTML = originalText;
+            }
+        }
+        
+        // Send reminders to all parents with outstanding balances
+        async function sendRemindersToAll() {
+            const confirmed = await notificationSystem.confirm('Send fee reminders to ALL parents with outstanding balances in the school?');
+            
+            if (!confirmed) {
+                return;
+            }
+            
+            // Show loading spinner
+            const sendBtn = document.querySelector('button[onclick="sendRemindersToAll()"]');
+            
+            if (!sendBtn) {
+                notificationSystem.error('Error', 'Send to All button not found');
+                return;
+            }
+            
+            const originalText = sendBtn.innerHTML;
+            sendBtn.disabled = true;
+            sendBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+            
+            try {
+                const response = await fetch('api/send_fee_reminders.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ send_to_all: true })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    notificationSystem.success('Success', `Reminders sent successfully to ${data.sent_count} parent(s).`);
+                } else {
+                    notificationSystem.error('Error', data.error || 'Failed to send reminders');
+                }
+            } catch (error) {
+                console.error('Error sending reminders to all:', error);
+                notificationSystem.error('Error', 'An error occurred while sending reminders');
+            } finally {
+                // Restore button
+                sendBtn.disabled = false;
+                sendBtn.innerHTML = originalText;
+            }
+        }
+        
         // Load balances
         async function loadBalances() {
             const term = document.getElementById('balanceTerm').value;
@@ -1177,8 +1581,12 @@ try {
         // Render balances to table
         function renderBalances(balances) {
             const tbody = document.getElementById('balancesTable');
-            tbody.innerHTML = balances.map(balance => `
+            tbody.innerHTML = balances.map(balance => {
+                const balanceValue = parseFloat(balance.balance) || 0;
+                const hasOutstanding = balanceValue > 0;
+                return `
                 <tr>
+                    <td><input type="checkbox" class="balance-checkbox" data-student-id="${balance.student_id}" data-balance="${balanceValue}" data-student-name="${balance.student_name}" data-admission="${balance.admission_number}" ${hasOutstanding ? '' : 'disabled'}></td>
                     <td>${balance.admission_number}</td>
                     <td>${balance.student_name}</td>
                     <td>${balance.class_name || '-'}</td>
@@ -1187,14 +1595,14 @@ try {
                     <td>${balance.year}</td>
                     <td>KES ${balance.fee_amount.toLocaleString()}</td>
                     <td>KES ${balance.paid_amount.toLocaleString()}</td>
-                    <td>KES ${balance.balance.toLocaleString()}</td>
+                    <td>KES ${balanceValue.toLocaleString()}</td>
                     <td>
-                        <span class="badge ${balance.balance <= 0 ? 'bg-success' : 'bg-warning'}">
-                            ${balance.balance <= 0 ? 'Paid' : 'Balance Due'}
+                        <span class="badge ${balanceValue <= 0 ? 'bg-success' : 'bg-warning'}">
+                            ${balanceValue <= 0 ? 'Paid' : 'Balance Due'}
                         </span>
                     </td>
                 </tr>
-            `).join('');
+            `}).join('');
         }
         
         // Filter balances by admission number or name
@@ -1358,8 +1766,50 @@ try {
                             ${balance.balance <= 0 ? 'Paid' : 'Balance Due'}
                         </span>
                     </td>
+                    <td>
+                        <button class="btn btn-sm btn-primary" onclick="generateFeeStatement(${balance.student_id})">
+                            <i class="fas fa-file-invoice"></i> Statement
+                        </button>
+                    </td>
                 </tr>
             `).join('');
+        }
+        
+        // Generate fee statement for a student
+        async function generateFeeStatement(studentId) {
+            try {
+                const formData = new FormData();
+                formData.append('student_id', studentId);
+                
+                const response = await fetch('api/generate_fee_statement.php', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Check if mobile/small screen
+                    const isMobile = window.innerWidth <= 768;
+                    
+                    if (isMobile) {
+                        // Download directly on mobile
+                        const link = document.createElement('a');
+                        link.href = '/Kenyaeduhub' + data.statement_url;
+                        link.download = data.statement_filename;
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                    } else {
+                        // Open in new tab on desktop
+                        window.open('/Kenyaeduhub' + data.statement_url, '_blank');
+                    }
+                } else {
+                    alert('Failed to generate fee statement: ' + (data.error || 'Unknown error'));
+                }
+            } catch (error) {
+                alert('Error generating fee statement: ' + error.message);
+            }
         }
         
         // Initialize

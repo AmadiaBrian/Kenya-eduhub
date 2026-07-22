@@ -315,6 +315,42 @@ try {
             background: #f0f0f0;
         }
         
+        /* Terminal-like section */
+        .terminal {
+            background: #1e1e1e;
+            color: #00ff00;
+            font-family: 'Courier New', monospace;
+            padding: 15px;
+            border-radius: 5px;
+            height: 300px;
+            overflow-y: auto;
+            border: 1px solid #333;
+            margin-bottom: 20px;
+            font-size: 13px;
+            line-height: 1.4;
+        }
+        
+        .terminal-line {
+            margin: 2px 0;
+            word-wrap: break-word;
+        }
+        
+        .terminal-line.success {
+            color: #00ff00;
+        }
+        
+        .terminal-line.error {
+            color: #ff0000;
+        }
+        
+        .terminal-line.info {
+            color: #00ffff;
+        }
+        
+        .terminal-line.warning {
+            color: #ffff00;
+        }
+        
         @media (max-width: 768px) {
             html, body {
                 overflow-x: hidden;
@@ -584,6 +620,100 @@ try {
             </div>
         </div>
         
+        <div class="card mb-4">
+            <div class="card-header">
+                <i class="fas fa-envelope me-2"></i> Email SMTP Settings
+            </div>
+            <div class="card-body">
+                <!-- Current Settings Display -->
+                <div id="currentSmtpSettings" class="mb-4" style="display: none;">
+                    <h5 class="mb-3">Current SMTP Settings</h5>
+                    <div class="table-responsive">
+                        <table class="table">
+                            <tr>
+                                <td><strong>Email:</strong></td>
+                                <td id="displayEmail">-</td>
+                            </tr>
+                            <tr>
+                                <td><strong>App Password:</strong></td>
+                                <td>
+                                    <span id="displayPassword">••••••••••••••••</span>
+                                    <button type="button" class="btn btn-sm btn-link" onclick="toggleDisplayPassword()" style="padding: 0; margin-left: 10px;">
+                                        <i class="fas fa-eye" id="displayPasswordIcon"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>SMTP Host:</strong></td>
+                                <td id="displayHost">-</td>
+                            </tr>
+                            <tr>
+                                <td><strong>SMTP Port:</strong></td>
+                                <td id="displayPort">-</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Encryption:</strong></td>
+                                <td id="displayEncryption">-</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Last Updated:</strong></td>
+                                <td id="displayUpdated">-</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- Settings Form -->
+                <form id="smtpSettingsForm">
+                    <div class="mb-3">
+                        <label class="form-label">Gmail Email Address</label>
+                        <input type="email" class="form-control" id="smtpEmail" placeholder="your-school@gmail.com" required>
+                        <small class="text-muted">Use your school's Gmail address for sending results via PHPMailer</small>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Gmail App Password</label>
+                        <div class="input-group">
+                            <input type="password" class="form-control" id="smtpPassword" placeholder="Enter your Gmail App Password" required>
+                            <button class="btn btn-outline-secondary" type="button" onclick="togglePasswordVisibility('smtpPassword', this)">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                        <small class="text-muted">Generate an App Password from your Google Account Security settings</small>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">SMTP Host</label>
+                        <input type="text" class="form-control" id="smtpHost" value="smtp.gmail.com" readonly>
+                        <small class="text-muted">Gmail SMTP server (default: smtp.gmail.com)</small>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">SMTP Port</label>
+                        <input type="number" class="form-control" id="smtpPort" value="587" readonly>
+                        <small class="text-muted">Gmail SMTP port (default: 587 for TLS)</small>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Encryption</label>
+                        <input type="text" class="form-control" id="smtpEncryption" value="tls" readonly>
+                        <small class="text-muted">Encryption method (default: TLS)</small>
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save me-2"></i> Save SMTP Settings
+                    </button>
+                    <button type="button" class="btn btn-outline-primary" onclick="testSmtpConnection()">
+                        <i class="fas fa-vial me-2"></i> Test Connection
+                    </button>
+                </form>
+                
+                <!-- Terminal Output Section -->
+                <div class="mt-4">
+                    <h5 class="mb-2">SMTP Connection Test Output</h5>
+                    <div id="terminal" class="terminal">
+                        <div class="terminal-line info" id="terminalPath">Ready to test SMTP connection...</div>
+                        <div class="terminal-line info">Enter email and app password above, then click "Test Connection"</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
         <div class="card">
             <div class="card-header">
                 <i class="fas fa-info-circle me-2"></i> School Information
@@ -624,8 +754,30 @@ try {
         
         // Load current settings
         document.addEventListener('DOMContentLoaded', function() {
-            // Settings are already loaded from PHP
+            loadSmtpSettings();
+            
+            // Set initial terminal message
+            const terminalPath = document.getElementById('terminalPath');
+            if (terminalPath) {
+                terminalPath.textContent = 'kenyaeduhub@smtp-test> Ready to test SMTP connection...';
+            }
         });
+        
+        // Toggle password visibility
+        function togglePasswordVisibility(inputId, button) {
+            const input = document.getElementById(inputId);
+            const icon = button.querySelector('i');
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
         
         // Upload logo
         async function uploadLogo() {
@@ -699,6 +851,162 @@ try {
                 notificationSystem.error('Error', 'An error occurred. Please try again.');
             }
         });
+        
+        // Load SMTP settings
+        async function loadSmtpSettings() {
+            try {
+                const response = await fetch('api/smtp_settings.php');
+                const data = await response.json();
+                
+                if (data.success && data.data) {
+                    // Populate form fields
+                    document.getElementById('smtpEmail').value = data.data.email || '';
+                    document.getElementById('smtpPassword').value = data.data.app_password || '';
+                    document.getElementById('smtpHost').value = data.data.smtp_host || 'smtp.gmail.com';
+                    document.getElementById('smtpPort').value = data.data.smtp_port || 587;
+                    document.getElementById('smtpEncryption').value = data.data.encryption || 'tls';
+                    
+                    // Populate display table
+                    document.getElementById('displayEmail').textContent = data.data.email || '-';
+                    document.getElementById('displayPassword').textContent = '••••••••••••••••';
+                    document.getElementById('displayPassword').dataset.password = data.data.app_password || '';
+                    document.getElementById('displayHost').textContent = data.data.smtp_host || '-';
+                    document.getElementById('displayPort').textContent = data.data.smtp_port || '-';
+                    document.getElementById('displayEncryption').textContent = data.data.encryption || '-';
+                    
+                    if (data.data.updated_at) {
+                        const updatedDate = new Date(data.data.updated_at);
+                        document.getElementById('displayUpdated').textContent = updatedDate.toLocaleString();
+                    } else {
+                        document.getElementById('displayUpdated').textContent = '-';
+                    }
+                    
+                    // Show current settings display
+                    document.getElementById('currentSmtpSettings').style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Error loading SMTP settings:', error);
+            }
+        }
+        
+        // Save SMTP settings
+        document.getElementById('smtpSettingsForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('smtpEmail').value;
+            const appPassword = document.getElementById('smtpPassword').value;
+            const smtpHost = document.getElementById('smtpHost').value;
+            const smtpPort = document.getElementById('smtpPort').value;
+            const encryption = document.getElementById('smtpEncryption').value;
+            
+            try {
+                const response = await fetch('api/smtp_settings.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email: email,
+                        app_password: appPassword,
+                        smtp_host: smtpHost,
+                        smtp_port: smtpPort,
+                        encryption: encryption
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    notificationSystem.success('SMTP settings saved successfully!');
+                } else {
+                    notificationSystem.error(data.error || 'Failed to save SMTP settings');
+                }
+            } catch (error) {
+                notificationSystem.error('Error', 'An error occurred. Please try again.');
+            }
+        });
+        
+        // Test SMTP connection
+        async function testSmtpConnection() {
+            const terminal = document.getElementById('terminal');
+            const email = document.getElementById('smtpEmail').value;
+            const appPassword = document.getElementById('smtpPassword').value;
+            
+            // Clear terminal and add initial message
+            terminal.innerHTML = '';
+            addTerminalLine('kenyaeduhub@smtp-test> Starting SMTP connection test...', 'info');
+            addTerminalLine('kenyaeduhub@smtp-test> Email: ' + email, 'info');
+            addTerminalLine('kenyaeduhub@smtp-test> Password length: ' + appPassword.length + ' characters', 'info');
+            
+            if (!email || !appPassword) {
+                addTerminalLine('kenyaeduhub@smtp-test> ERROR: Missing email or app password', 'error');
+                addTerminalLine('kenyaeduhub@smtp-test> Please enter both fields and try again', 'warning');
+                return;
+            }
+            
+            try {
+                addTerminalLine('kenyaeduhub@smtp-test> Sending test request to API...', 'info');
+                
+                const response = await fetch('api/smtp_settings.php?action=test', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email: email,
+                        app_password: appPassword
+                    })
+                });
+                
+                addTerminalLine('kenyaeduhub@smtp-test> Response received (Status: ' + response.status + ')', 'info');
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    addTerminalLine('kenyaeduhub@smtp-test> SUCCESS: SMTP connection test successful!', 'success');
+                    addTerminalLine('kenyaeduhub@smtp-test> Gmail SMTP server is accessible and credentials are valid', 'success');
+                } else {
+                    addTerminalLine('kenyaeduhub@smtp-test> ERROR: SMTP connection test failed', 'error');
+                    addTerminalLine('kenyaeduhub@smtp-test> Error details: ' + (data.error || 'Unknown error'), 'error');
+                    addTerminalLine('kenyaeduhub@smtp-test> Please check your email and app password', 'warning');
+                }
+            } catch (error) {
+                addTerminalLine('kenyaeduhub@smtp-test> ERROR: Request failed', 'error');
+                addTerminalLine('kenyaeduhub@smtp-test> Error details: ' + error.message, 'error');
+                addTerminalLine('kenyaeduhub@smtp-test> Please check your network connection', 'warning');
+            }
+            
+            addTerminalLine('kenyaeduhub@smtp-test> Test completed', 'info');
+        }
+        
+        // Helper function to add lines to terminal
+        function addTerminalLine(text, type = 'info') {
+            const terminal = document.getElementById('terminal');
+            const line = document.createElement('div');
+            line.className = 'terminal-line ' + type;
+            line.textContent = text;
+            terminal.appendChild(line);
+            terminal.scrollTop = terminal.scrollHeight; // Auto-scroll to bottom
+        }
+        
+        // Toggle display password visibility
+        function toggleDisplayPassword() {
+            const passwordElement = document.getElementById('displayPassword');
+            const iconElement = document.getElementById('displayPasswordIcon');
+            const actualPassword = passwordElement.dataset.password;
+            
+            if (passwordElement.textContent === '••••••••••••••••') {
+                // Show actual password
+                passwordElement.textContent = actualPassword;
+                iconElement.classList.remove('fa-eye');
+                iconElement.classList.add('fa-eye-slash');
+            } else {
+                // Show masked password
+                passwordElement.textContent = '••••••••••••••••';
+                iconElement.classList.remove('fa-eye-slash');
+                iconElement.classList.add('fa-eye');
+            }
+        }
     </script>
     <script src="../assets/js/notifications.js"></script>
     

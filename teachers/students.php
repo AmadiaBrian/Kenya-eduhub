@@ -215,10 +215,11 @@ if ($teacher && $teacher['teacher_type'] === 'subject_teacher') {
         /* Cards */
         .card {
             background: var(--bg-color);
-            border: 1px solid #e8eaed;
+            border: none;
             border-radius: 8px;
             padding: 24px;
             margin-bottom: 24px;
+            box-shadow: none;
         }
         
         .card-title {
@@ -375,6 +376,9 @@ if ($teacher && $teacher['teacher_type'] === 'subject_teacher') {
             <a class="nav-link active" href="students">
                 <i class="fas fa-user-graduate"></i> Students
             </a>
+            <a class="nav-link" href="assignments">
+                <i class="fas fa-tasks"></i> Assignments
+            </a>
             <a class="nav-link" href="parents">
                 <i class="fas fa-users"></i> Parents
             </a>
@@ -397,16 +401,23 @@ if ($teacher && $teacher['teacher_type'] === 'subject_teacher') {
         <div class="card mb-4">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <span>Filter Students</span>
+                <button class="btn btn-sm btn-info" onclick="exportStudents()" style="border-radius: 25px;">
+                    <i class="fas fa-download me-1"></i> Export CSV
+                </button>
             </div>
             <div class="card-body">
                 <div class="row">
-                    <div class="col-md-4">
+                    <div class="col-md-3">
+                        <label class="form-label">Search</label>
+                        <input type="text" class="form-control" id="searchStudents" placeholder="Name or admission no" oninput="filterStudents()" style="border-radius: 25px;">
+                    </div>
+                    <div class="col-md-2">
                         <label class="form-label">Class</label>
                         <?php if ($teacher && $teacher['teacher_type'] === 'class_teacher'): ?>
-                            <input type="text" class="form-control" id="filterClassDisplay" value="<?php echo htmlspecialchars($class_name); ?>" readonly>
+                            <input type="text" class="form-control" id="filterClassDisplay" value="<?php echo htmlspecialchars($class_name); ?>" readonly style="border-radius: 25px;">
                             <input type="hidden" id="filterClassId" value="<?php echo $class_id; ?>">
                         <?php else: ?>
-                            <select class="form-control" id="filterClassId">
+                            <select class="form-control" id="filterClassId" onchange="filterStudents()" style="border-radius: 25px;">
                                 <option value="">All Classes</option>
                                 <?php foreach ($subject_assignments as $assignment): ?>
                                     <option value="<?php echo $assignment['class_id']; ?>"><?php echo htmlspecialchars($assignment['class_name']); ?> (<?php echo htmlspecialchars($assignment['subject']); ?>)</option>
@@ -414,21 +425,63 @@ if ($teacher && $teacher['teacher_type'] === 'subject_teacher') {
                             </select>
                         <?php endif; ?>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-2">
+                        <label class="form-label">Stream</label>
+                        <select class="form-control" id="filterStream" onchange="filterStudents()" style="border-radius: 25px;">
+                            <option value="">All Streams</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Gender</label>
+                        <select class="form-control" id="filterGender" onchange="filterStudents()" style="border-radius: 25px;">
+                            <option value="">All</option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
                         <label class="form-label">Status</label>
-                        <select class="form-control" id="filterStatus">
+                        <select class="form-control" id="filterStatus" onchange="filterStudents()" style="border-radius: 25px;">
                             <option value="">All Status</option>
                             <option value="active">Active</option>
                             <option value="inactive">Inactive</option>
                         </select>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-1">
                         <label class="form-label">&nbsp;</label>
-                        <button class="btn btn-primary w-100" onclick="loadStudents()">
-                            <i class="fas fa-search me-2"></i> Filter
+                        <button class="btn btn-secondary w-100" onclick="resetFilters()" style="border-radius: 25px;">
+                            <i class="fas fa-undo"></i>
                         </button>
                     </div>
                 </div>
+            </div>
+        </div>
+        
+        <!-- Student Statistics -->
+        <div id="studentStats" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 24px;">
+            <div style="background: #e8f0fe; padding: 16px; border-radius: 8px; text-align: center;">
+                <div style="font-size: 24px; font-weight: 600; color: #1967d2;" id="totalStudents">0</div>
+                <div style="font-size: 12px; color: #5f6368;">Total Students</div>
+            </div>
+            <div style="background: #e6f4ea; padding: 16px; border-radius: 8px; text-align: center;">
+                <div style="font-size: 24px; font-weight: 600; color: #137333;" id="activeStudents">0</div>
+                <div style="font-size: 12px; color: #5f6368;">Active</div>
+            </div>
+            <div style="background: #fce8e6; padding: 16px; border-radius: 8px; text-align: center;">
+                <div style="font-size: 24px; font-weight: 600; color: #c5221f;" id="inactiveStudents">0</div>
+                <div style="font-size: 12px; color: #5f6368;">Inactive</div>
+            </div>
+            <div style="background: #fef7e0; padding: 16px; border-radius: 8px; text-align: center;">
+                <div style="font-size: 24px; font-weight: 600; color: #b06000;" id="totalBalance">KES 0</div>
+                <div style="font-size: 12px; color: #5f6368;">Total Balance</div>
+            </div>
+            <div style="background: #f1f3f4; padding: 16px; border-radius: 8px; text-align: center;">
+                <div style="font-size: 24px; font-weight: 600; color: #5f6368;" id="maleStudents">0</div>
+                <div style="font-size: 12px; color: #5f6368;">Male</div>
+            </div>
+            <div style="background: #e8f0fe; padding: 16px; border-radius: 8px; text-align: center;">
+                <div style="font-size: 24px; font-weight: 600; color: #1967d2;" id="femaleStudents">0</div>
+                <div style="font-size: 12px; color: #5f6368;">Female</div>
             </div>
         </div>
         
@@ -504,6 +557,8 @@ if ($teacher && $teacher['teacher_type'] === 'subject_teacher') {
             mainContent.classList.toggle('expanded');
         }
         
+        let allStudents = [];
+        
         // Load students
         async function loadStudents() {
             const classId = document.getElementById('filterClassId').value;
@@ -519,107 +574,259 @@ if ($teacher && $teacher['teacher_type'] === 'subject_teacher') {
                 const response = await fetch(url);
                 const data = await response.json();
                 if (data.success) {
-                    const container = document.getElementById('feeTypeTables');
-                    
-                    // Group students by fee types present in their fee_balances
-                    const feeTypeGroups = {};
-                    data.data.forEach(student => {
-                        if (student.fee_balances) {
-                            Object.keys(student.fee_balances).forEach(feeType => {
-                                if (!feeTypeGroups[feeType]) {
-                                    feeTypeGroups[feeType] = [];
-                                }
-                                feeTypeGroups[feeType].push(student);
-                            });
-                        }
-                    });
-                    
-                    // If no fee types found, show message
-                    if (Object.keys(feeTypeGroups).length === 0) {
-                        container.innerHTML = `
-                            <div class="card">
-                                <div class="card-header">
-                                    <span>No Fee Data</span>
-                                </div>
-                                <div class="card-body">
-                                    <p class="text-center text-muted">No fee data available for these students.</p>
-                                </div>
-                            </div>
-                        `;
-                        return;
-                    }
-                    
-                    // Generate a table for each fee type
-                    let html = '';
-                    Object.keys(feeTypeGroups).sort().forEach(feeType => {
-                        const students = feeTypeGroups[feeType];
-                        html += `
-                            <div class="card" style="margin-bottom: 24px;">
-                                <div class="card-header">
-                                    <span>${feeType} Fee Balances</span>
-                                </div>
-                                <div class="card-body">
-                                    <div class="table-responsive">
-                                        <table class="table">
-                                            <thead>
-                                                <tr>
-                                                    <th>Admission No</th>
-                                                    <th>Name</th>
-                                                    <th>Gender</th>
-                                                    <th>Class</th>
-                                                    <th>Stream</th>
-                                                    <th>Status</th>
-                                                    <th>Total Fees</th>
-                                                    <th>Total Paid</th>
-                                                    <th>Balance</th>
-                                                    <th>Actions</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                ${students.map(student => {
-                                                    const feeData = student.fee_balances[feeType] || { total_fees: 0, total_paid: 0, balance: 0 };
-                                                    const balance = feeData.balance;
-                                                    const balanceClass = balance > 0 ? 'text-danger' : (balance < 0 ? 'text-success' : 'text-muted');
-                                                    const balanceText = balance > 0 ? `KES ${balance.toFixed(2)} (Due)` : (balance < 0 ? `KES ${Math.abs(balance).toFixed(2)} (Overpaid)` : 'KES 0.00 (Paid)');
-                                                    
-                                                    return `
-                                                        <tr>
-                                                            <td>${student.admission_number}</td>
-                                                            <td>${student.first_name} ${student.last_name}</td>
-                                                            <td>${student.gender}</td>
-                                                            <td>${student.class_name || '-'}</td>
-                                                            <td>${student.stream_name || '-'}</td>
-                                                            <td>
-                                                                <span class="badge ${student.status === 'active' ? 'bg-success' : 'bg-secondary'}">
-                                                                    ${student.status}
-                                                                </span>
-                                                            </td>
-                                                            <td>KES ${feeData.total_fees.toFixed(2)}</td>
-                                                            <td>KES ${feeData.total_paid.toFixed(2)}</td>
-                                                            <td class="${balanceClass}">
-                                                                <strong>${balanceText}</strong>
-                                                            </td>
-                                                            <td>
-                                                                <button class="btn btn-sm btn-info" onclick="viewStudentDetails(${student.id})">
-                                                                    <i class="fas fa-eye"></i> View
-                                                                </button>
-                                                            </td>
-                                                        </tr>
-                                                    `;
-                                                }).join('')}
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
-                        `;
-                    });
-                    
-                    container.innerHTML = html;
+                    allStudents = data.data;
+                    populateStreamFilter(allStudents);
+                    updateStudentStats(allStudents);
+                    filterStudents();
                 }
             } catch (error) {
                 console.error('Error loading students:', error);
             }
+        }
+        
+        function populateStreamFilter(students) {
+            const streams = [...new Set(students.map(s => s.stream_name).filter(s => s))];
+            const streamSelect = document.getElementById('filterStream');
+            streamSelect.innerHTML = '<option value="">All Streams</option>';
+            streams.forEach(streamName => {
+                streamSelect.innerHTML += `<option value="${streamName}">${streamName}</option>`;
+            });
+        }
+        
+        function filterStudents() {
+            const searchTerm = document.getElementById('searchStudents').value.toLowerCase();
+            const classId = document.getElementById('filterClassId').value;
+            const stream = document.getElementById('filterStream').value;
+            const gender = document.getElementById('filterGender').value;
+            const status = document.getElementById('filterStatus').value;
+            
+            const filtered = allStudents.filter(student => {
+                const matchesSearch = !searchTerm || 
+                    student.admission_number.toLowerCase().includes(searchTerm) ||
+                    `${student.first_name} ${student.last_name}`.toLowerCase().includes(searchTerm);
+                
+                const matchesClass = !classId || student.class_id == classId;
+                const matchesStream = !stream || student.stream_name === stream;
+                const matchesGender = !gender || student.gender === gender;
+                const matchesStatus = !status || student.status === status;
+                
+                return matchesSearch && matchesClass && matchesStream && matchesGender && matchesStatus;
+            });
+            
+            updateStudentStats(filtered);
+            renderStudents(filtered);
+        }
+        
+        function renderStudents(students) {
+            const container = document.getElementById('feeTypeTables');
+            
+            // Group students by fee types present in their fee_balances
+            const feeTypeGroups = {};
+            students.forEach(student => {
+                if (student.fee_balances) {
+                    Object.keys(student.fee_balances).forEach(feeType => {
+                        if (!feeTypeGroups[feeType]) {
+                            feeTypeGroups[feeType] = [];
+                        }
+                        feeTypeGroups[feeType].push(student);
+                    });
+                }
+            });
+            
+            // If no fee types found, show message
+            if (Object.keys(feeTypeGroups).length === 0) {
+                container.innerHTML = `
+                    <div class="card">
+                        <div class="card-header">
+                            <span>No Fee Data</span>
+                        </div>
+                        <div class="card-body">
+                            <p class="text-center text-muted">No fee data available for these students.</p>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Generate a table for each fee type
+            let html = '';
+            Object.keys(feeTypeGroups).sort().forEach(feeType => {
+                const students = feeTypeGroups[feeType];
+                html += `
+                    <div class="card" style="margin-bottom: 24px;">
+                        <div class="card-header">
+                            <span>${feeType} Fee Balances</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Admission No</th>
+                                            <th>Name</th>
+                                            <th>Gender</th>
+                                            <th>Class</th>
+                                            <th>Stream</th>
+                                            <th>Status</th>
+                                            <th>Total Fees</th>
+                                            <th>Total Paid</th>
+                                            <th>Balance</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        ${students.map(student => {
+                                            const feeData = student.fee_balances[feeType] || { total_fees: 0, total_paid: 0, balance: 0 };
+                                            const balance = feeData.balance;
+                                            const balanceClass = balance > 0 ? 'text-danger' : (balance < 0 ? 'text-success' : 'text-muted');
+                                            const balanceText = balance > 0 ? `KES ${balance.toFixed(2)} (Due)` : (balance < 0 ? `KES ${Math.abs(balance).toFixed(2)} (Overpaid)` : 'KES 0.00 (Paid)');
+                                            
+                                            return `
+                                                <tr>
+                                                    <td>${student.admission_number}</td>
+                                                    <td>${student.first_name} ${student.last_name}</td>
+                                                    <td>${student.gender}</td>
+                                                    <td>${student.class_name || '-'}</td>
+                                                    <td>${student.stream_name || '-'}</td>
+                                                    <td>
+                                                        <span class="badge ${student.status === 'active' ? 'bg-success' : 'bg-secondary'}">
+                                                            ${student.status}
+                                                        </span>
+                                                    </td>
+                                                    <td>KES ${feeData.total_fees.toFixed(2)}</td>
+                                                    <td>KES ${feeData.total_paid.toFixed(2)}</td>
+                                                    <td class="${balanceClass}">
+                                                        <strong>${balanceText}</strong>
+                                                    </td>
+                                                    <td>
+                                                        <button class="btn btn-sm btn-info" onclick="viewStudentDetails(${student.id})" style="border-radius: 25px;">
+                                                            <i class="fas fa-eye"></i> View
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            `;
+                                        }).join('')}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+        
+        function updateStudentStats(students) {
+            const total = students.length;
+            const active = students.filter(s => s.status === 'active').length;
+            const inactive = students.filter(s => s.status === 'inactive').length;
+            const male = students.filter(s => s.gender === 'Male').length;
+            const female = students.filter(s => s.gender === 'Female').length;
+            
+            let totalBalance = 0;
+            students.forEach(student => {
+                if (student.fee_balances) {
+                    Object.values(student.fee_balances).forEach(feeData => {
+                        totalBalance += feeData.balance || 0;
+                    });
+                }
+            });
+            
+            document.getElementById('totalStudents').textContent = total;
+            document.getElementById('activeStudents').textContent = active;
+            document.getElementById('inactiveStudents').textContent = inactive;
+            document.getElementById('maleStudents').textContent = male;
+            document.getElementById('femaleStudents').textContent = female;
+            document.getElementById('totalBalance').textContent = `KES ${totalBalance.toFixed(2)}`;
+        }
+        
+        function resetFilters() {
+            document.getElementById('searchStudents').value = '';
+            document.getElementById('filterStream').value = '';
+            document.getElementById('filterGender').value = '';
+            document.getElementById('filterStatus').value = '';
+            filterStudents();
+        }
+        
+        function exportStudents() {
+            if (allStudents.length === 0) {
+                alert('No student data to export.');
+                return;
+            }
+            
+            // Get current filtered students
+            const searchTerm = document.getElementById('searchStudents').value.toLowerCase();
+            const classId = document.getElementById('filterClassId').value;
+            const stream = document.getElementById('filterStream').value;
+            const gender = document.getElementById('filterGender').value;
+            const status = document.getElementById('filterStatus').value;
+            
+            const filtered = allStudents.filter(student => {
+                const matchesSearch = !searchTerm || 
+                    student.admission_number.toLowerCase().includes(searchTerm) ||
+                    `${student.first_name} ${student.last_name}`.toLowerCase().includes(searchTerm);
+                
+                const matchesClass = !classId || student.class_id == classId;
+                const matchesStream = !stream || student.stream_name === stream;
+                const matchesGender = !gender || student.gender === gender;
+                const matchesStatus = !status || student.status === status;
+                
+                return matchesSearch && matchesClass && matchesStream && matchesGender && matchesStatus;
+            });
+            
+            if (filtered.length === 0) {
+                alert('No matching students to export.');
+                return;
+            }
+            
+            // Create CSV content
+            let csvContent = 'Admission No,Name,Gender,Class,Stream,Status,Total Fees,Total Paid,Balance\n';
+            
+            filtered.forEach(student => {
+                let totalFees = 0, totalPaid = 0, balance = 0;
+                if (student.fee_balances) {
+                    Object.values(student.fee_balances).forEach(feeData => {
+                        totalFees += feeData.total_fees || 0;
+                        totalPaid += feeData.total_paid || 0;
+                        balance += feeData.balance || 0;
+                    });
+                }
+                
+                const rowData = [
+                    student.admission_number,
+                    `${student.first_name} ${student.last_name}`,
+                    student.gender,
+                    student.class_name || '-',
+                    student.stream_name || '-',
+                    student.status,
+                    totalFees.toFixed(2),
+                    totalPaid.toFixed(2),
+                    balance.toFixed(2)
+                ].map(field => {
+                    let text = String(field).trim();
+                    text = text.replace(/"/g, '""');
+                    if (text.includes(',') || text.includes('"')) {
+                        text = `"${text}"`;
+                    }
+                    return text;
+                });
+                csvContent += rowData.join(',') + '\n';
+            });
+            
+            // Create download link
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            
+            const timestamp = new Date().toISOString().split('T')[0];
+            link.setAttribute('href', url);
+            link.setAttribute('download', `students_${timestamp}.csv`);
+            link.style.visibility = 'hidden';
+            
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         }
         
         // View student details

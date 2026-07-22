@@ -591,6 +591,56 @@ $school_name = $_SESSION['school_name'] ?? 'School';
     <main class="main-content" id="mainContent">
         <h1 class="page-title">Academic Performance</h1>
         
+        <!-- Performance Statistics -->
+        <div id="performanceStats" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 24px;">
+            <?php
+            $school_id = $_SESSION['school_id'];
+            $totalRecords = 0;
+            $averageMarks = 0;
+            $highestGrade = 0;
+            $totalStudents = 0;
+            
+            try {
+                $stmt = $pdo->prepare("SELECT pr.marks, pr.student_id FROM academic_performance pr JOIN students s ON pr.student_id = s.id WHERE s.school_id = ?");
+                $stmt->execute([$school_id]);
+                $records = $stmt->fetchAll();
+                
+                $studentIds = [];
+                $totalMarks = 0;
+                foreach ($records as $record) {
+                    $totalRecords++;
+                    $totalMarks += $record['marks'];
+                    if (!in_array($record['student_id'], $studentIds)) {
+                        $studentIds[] = $record['student_id'];
+                    }
+                    if ($record['marks'] > $highestGrade) {
+                        $highestGrade = $record['marks'];
+                    }
+                }
+                $totalStudents = count($studentIds);
+                $averageMarks = $totalRecords > 0 ? round($totalMarks / $totalRecords, 1) : 0;
+            } catch (PDOException $e) {
+                error_log("Failed to fetch performance stats: " . $e->getMessage());
+            }
+            ?>
+            <div style="background: #e8f0fe; padding: 16px; border-radius: 8px; text-align: center;">
+                <div style="font-size: 24px; font-weight: 600; color: #1967d2;"><?php echo $totalRecords; ?></div>
+                <div style="font-size: 12px; color: #5f6368;">Total Records</div>
+            </div>
+            <div style="background: #e6f4ea; padding: 16px; border-radius: 8px; text-align: center;">
+                <div style="font-size: 24px; font-weight: 600; color: #137333;"><?php echo $averageMarks; ?>%</div>
+                <div style="font-size: 12px; color: #5f6368;">Average Marks</div>
+            </div>
+            <div style="background: #fef7e0; padding: 16px; border-radius: 8px; text-align: center;">
+                <div style="font-size: 24px; font-weight: 600; color: #b06000;"><?php echo $highestGrade; ?>%</div>
+                <div style="font-size: 12px; color: #5f6368;">Highest Grade</div>
+            </div>
+            <div style="background: #fce8e6; padding: 16px; border-radius: 8px; text-align: center;">
+                <div style="font-size: 24px; font-weight: 600; color: #c5221f;"><?php echo $totalStudents; ?></div>
+                <div style="font-size: 12px; color: #5f6368;">Students Assessed</div>
+            </div>
+        </div>
+        
         <!-- Quick Access -->
         <div class="card">
             <h2 class="card-title">Quick Access</h2>
@@ -635,23 +685,29 @@ $school_name = $_SESSION['school_name'] ?? 'School';
         </div>
         
         <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <span>Performance Records</span>
+                <button class="btn btn-success" onclick="exportPerformance()">
+                    <i class="fas fa-download me-2"></i> Export
+                </button>
+            </div>
             <div class="card-body">
                 <div class="row mb-3">
                     <div class="col-md-3">
-                        <input type="text" class="form-control" id="searchPerformance" placeholder="Search by name or admission number">
+                        <input type="text" class="form-control" id="searchPerformance" placeholder="Search by name or admission number" onkeyup="filterPerformanceRecords()">
                     </div>
                     <div class="col-md-2">
-                        <select class="form-control" id="filterClass">
+                        <select class="form-control" id="filterClass" onchange="filterPerformanceRecords()">
                             <option value="">All Classes</option>
                         </select>
                     </div>
                     <div class="col-md-2">
-                        <select class="form-control" id="filterStream">
+                        <select class="form-control" id="filterStream" onchange="filterPerformanceRecords()">
                             <option value="">All Streams</option>
                         </select>
                     </div>
                     <div class="col-md-2">
-                        <select class="form-control" id="filterTerm">
+                        <select class="form-control" id="filterTerm" onchange="filterPerformanceRecords()">
                             <option value="">All Terms</option>
                             <option value="Term 1">Term 1</option>
                             <option value="Term 2">Term 2</option>
@@ -659,7 +715,7 @@ $school_name = $_SESSION['school_name'] ?? 'School';
                         </select>
                     </div>
                     <div class="col-md-2">
-                        <select class="form-control" id="filterYear">
+                        <select class="form-control" id="filterYear" onchange="filterPerformanceRecords()">
                             <option value="">All Years</option>
                             <option value="2024">2024</option>
                             <option value="2025">2025</option>
@@ -667,41 +723,40 @@ $school_name = $_SESSION['school_name'] ?? 'School';
                         </select>
                     </div>
                     <div class="col-md-2">
-                        <select class="form-control" id="filterSubject">
+                        <select class="form-control" id="filterSubject" onchange="filterPerformanceRecords()">
                             <option value="">All Subjects</option>
                         </select>
                     </div>
                 </div>
                 <div class="row mb-3">
                     <div class="col-md-12">
-                        <button class="btn btn-primary" onclick="filterPerformanceRecords()">
-                            <i class="fas fa-filter"></i> Filter
-                        </button>
                         <button class="btn btn-secondary" onclick="resetFilters()">
                             <i class="fas fa-undo"></i> Reset
                         </button>
                     </div>
                 </div>
-                <div class="table-responsive" style="overflow-x: auto;">
-                    <table class="table" style="min-width: 800px;">
-                        <thead>
-                            <tr>
-                                <th>Admission No</th>
-                                <th>Student Name</th>
-                                <th>Class</th>
-                                <th>Stream</th>
-                                <th>Term</th>
-                                <th>Year</th>
-                                <th>Subject</th>
-                                <th>Marks</th>
-                                <th>Grade</th>
-                                <th>Remarks</th>
-                            </tr>
-                        </thead>
-                        <tbody id="recordsTable">
-                            <tr><td colspan="10" class="text-center">Loading performance records...</td></tr>
-                        </tbody>
-                    </table>
+                <div id="recordsContainer" style="display: flex; flex-direction: column; gap: 20px;">
+                    <div class="table-responsive" style="overflow-x: auto;">
+                        <table class="table" style="min-width: 800px;">
+                            <thead>
+                                <tr>
+                                    <th>Admission No</th>
+                                    <th>Student Name</th>
+                                    <th>Class</th>
+                                    <th>Stream</th>
+                                    <th>Term</th>
+                                    <th>Year</th>
+                                    <th>Subject</th>
+                                    <th>Marks</th>
+                                    <th>Grade</th>
+                                    <th>Remarks</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recordsTable">
+                                <tr><td colspan="10" class="text-center">Loading performance records...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
@@ -789,32 +844,49 @@ $school_name = $_SESSION['school_name'] ?? 'School';
                 return matchesSearch && matchesClass && matchesStream && matchesTerm && matchesYear && matchesSubject;
             });
             
-            const tbody = document.getElementById('recordsTable');
+            const container = document.getElementById('recordsContainer');
             if (filtered.length > 0) {
-                // Group by class if "All Classes" is selected
-                if (!classFilter) {
-                    const groupedByClass = {};
+                // Group by subject if no subject filter is applied
+                if (!subjectFilter) {
+                    const groupedBySubject = {};
                     filtered.forEach(record => {
-                        const className = record.class_name || 'No Class';
-                        if (!groupedByClass[className]) {
-                            groupedByClass[className] = [];
+                        const subjectName = record.subject || 'No Subject';
+                        if (!groupedBySubject[subjectName]) {
+                            groupedBySubject[subjectName] = [];
                         }
-                        groupedByClass[className].push(record);
+                        groupedBySubject[subjectName].push(record);
                     });
                     
-                    // Sort classes alphabetically
-                    const sortedClasses = Object.keys(groupedByClass).sort();
+                    // Sort subjects alphabetically
+                    const sortedSubjects = Object.keys(groupedBySubject).sort();
                     
                     let html = '';
-                    sortedClasses.forEach(className => {
+                    sortedSubjects.forEach(subjectName => {
                         html += `
-                            <tr class="table-primary">
-                                <td colspan="10" style="font-weight: bold; background-color: #e8f0fe;">
-                                    <i class="fas fa-chalkboard"></i> ${className} (${groupedByClass[className].length} students)
-                                </td>
-                            </tr>
+                            <div class="card">
+                                <div class="card-header" style="background-color: #e8f0fe; font-weight: bold;">
+                                    <i class="fas fa-book"></i> ${subjectName} (${groupedBySubject[subjectName].length} records)
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive" style="overflow-x: auto;">
+                                        <table class="table" style="min-width: 800px;">
+                                            <thead>
+                                                <tr>
+                                                    <th>Admission No</th>
+                                                    <th>Student Name</th>
+                                                    <th>Class</th>
+                                                    <th>Stream</th>
+                                                    <th>Term</th>
+                                                    <th>Year</th>
+                                                    <th>Marks</th>
+                                                    <th>Grade</th>
+                                                    <th>Remarks</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
                         `;
-                        groupedByClass[className].forEach(record => {
+                        
+                        groupedBySubject[subjectName].forEach(record => {
                             html += `
                                 <tr>
                                     <td>${record.admission_number}</td>
@@ -823,34 +895,63 @@ $school_name = $_SESSION['school_name'] ?? 'School';
                                     <td>${record.stream_name || '-'}</td>
                                     <td>${record.term}</td>
                                     <td>${record.year}</td>
-                                    <td>${record.subject}</td>
                                     <td>${record.marks}</td>
                                     <td>${record.grade || '-'}</td>
                                     <td>${record.remarks || '-'}</td>
                                 </tr>
                             `;
                         });
+                        
+                        html += `
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
                     });
-                    tbody.innerHTML = html;
+                    container.innerHTML = html;
                 } else {
-                    // Show flat list when specific class is selected
-                    tbody.innerHTML = filtered.map(record => `
-                        <tr>
-                            <td>${record.admission_number}</td>
-                            <td>${record.first_name} ${record.last_name}</td>
-                            <td>${record.class_name || '-'}</td>
-                            <td>${record.stream_name || '-'}</td>
-                            <td>${record.term}</td>
-                            <td>${record.year}</td>
-                            <td>${record.subject}</td>
-                            <td>${record.marks}</td>
-                            <td>${record.grade || '-'}</td>
-                            <td>${record.remarks || '-'}</td>
-                        </tr>
-                    `).join('');
+                    // Show single table when specific subject is selected
+                    container.innerHTML = `
+                        <div class="table-responsive" style="overflow-x: auto;">
+                            <table class="table" style="min-width: 800px;">
+                                <thead>
+                                    <tr>
+                                        <th>Admission No</th>
+                                        <th>Student Name</th>
+                                        <th>Class</th>
+                                        <th>Stream</th>
+                                        <th>Term</th>
+                                        <th>Year</th>
+                                        <th>Subject</th>
+                                        <th>Marks</th>
+                                        <th>Grade</th>
+                                        <th>Remarks</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${filtered.map(record => `
+                                        <tr>
+                                            <td>${record.admission_number}</td>
+                                            <td>${record.first_name} ${record.last_name}</td>
+                                            <td>${record.class_name || '-'}</td>
+                                            <td>${record.stream_name || '-'}</td>
+                                            <td>${record.term}</td>
+                                            <td>${record.year}</td>
+                                            <td>${record.subject}</td>
+                                            <td>${record.marks}</td>
+                                            <td>${record.grade || '-'}</td>
+                                            <td>${record.remarks || '-'}</td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    `;
                 }
             } else {
-                tbody.innerHTML = '<tr><td colspan="10" class="text-center">No matching records found</td></tr>';
+                container.innerHTML = '<p class="text-center">No matching records found</p>';
             }
         }
         
@@ -862,6 +963,69 @@ $school_name = $_SESSION['school_name'] ?? 'School';
             document.getElementById('filterYear').value = '';
             document.getElementById('filterSubject').value = '';
             filterPerformanceRecords();
+        }
+        
+        // Export performance to CSV
+        function exportPerformance() {
+            const searchTerm = document.getElementById('searchPerformance').value.toLowerCase();
+            const classFilter = document.getElementById('filterClass').value;
+            const streamFilter = document.getElementById('filterStream').value;
+            const termFilter = document.getElementById('filterTerm').value;
+            const yearFilter = document.getElementById('filterYear').value;
+            const subjectFilter = document.getElementById('filterSubject').value;
+            
+            const filtered = allPerformanceRecords.filter(record => {
+                const matchesSearch = !searchTerm || 
+                    record.admission_number.toLowerCase().includes(searchTerm) ||
+                    `${record.first_name} ${record.last_name}`.toLowerCase().includes(searchTerm);
+                
+                const matchesClass = !classFilter || record.class_name === classFilter;
+                const matchesStream = !streamFilter || record.stream_name === streamFilter;
+                const matchesTerm = !termFilter || record.term === termFilter;
+                const matchesYear = !yearFilter || record.year == yearFilter;
+                const matchesSubject = !subjectFilter || record.subject === subjectFilter;
+                
+                return matchesSearch && matchesClass && matchesStream && matchesTerm && matchesYear && matchesSubject;
+            });
+            
+            let csvContent = 'Admission No,Student Name,Class,Stream,Term,Year,Subject,Marks,Grade,Remarks\n';
+            
+            filtered.forEach(record => {
+                const rowData = [
+                    record.admission_number,
+                    `${record.first_name} ${record.last_name}`,
+                    record.class_name || '-',
+                    record.stream_name || '-',
+                    record.term,
+                    record.year,
+                    record.subject,
+                    record.marks,
+                    record.grade || '-',
+                    record.remarks || '-'
+                ].map(field => {
+                    let text = String(field).trim();
+                    text = text.replace(/"/g, '""');
+                    if (text.includes(',') || text.includes('"')) {
+                        text = `"${text}"`;
+                    }
+                    return text;
+                });
+                
+                csvContent += rowData.join(',') + '\n';
+            });
+            
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            
+            const timestamp = new Date().toISOString().split('T')[0];
+            link.setAttribute('href', url);
+            link.setAttribute('download', `performance_${timestamp}.csv`);
+            link.style.visibility = 'hidden';
+            
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         }
         
         // Add event listeners for real-time filtering

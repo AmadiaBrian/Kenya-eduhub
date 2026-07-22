@@ -7,6 +7,10 @@
 header('Content-Type: application/json');
 require_once __DIR__ . '/../../config.php';
 
+// Debug logging
+error_log("B2C callback called at " . date('Y-m-d H:i:s'));
+error_log("POST data: " . file_get_contents('php://input'));
+
 // Load M-Pesa configuration for callback authentication
 $mpesa_config = require __DIR__ . '/../config/mpesa_config.php';
 

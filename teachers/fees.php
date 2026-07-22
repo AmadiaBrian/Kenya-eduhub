@@ -430,10 +430,11 @@ if ($selected_student_id) {
         /* Cards */
         .card {
             background: var(--bg-color);
-            border: 1px solid #e8eaed;
+            border: none;
             border-radius: 8px;
             padding: 24px;
             margin-bottom: 24px;
+            box-shadow: none;
         }
         
         .card-title {
@@ -683,6 +684,9 @@ if ($selected_student_id) {
             <a class="nav-link" href="performance">
                 <i class="fas fa-chart-line"></i> Performance
             </a>
+            <a class="nav-link" href="assignments">
+                <i class="fas fa-tasks"></i> Assignments
+            </a>
             <a class="nav-link" href="parents">
                 <i class="fas fa-users"></i> Parents
             </a>
@@ -738,6 +742,16 @@ if ($selected_student_id) {
                         <?php endforeach; ?>
                     </select>
                 </div>
+                <div class="filter-group" style="margin-top: 15px;">
+                    <button class="btn" onclick="generateClassFeeStatement()" style="background-color: #ff6600; color: white; border: none; width: 100%; margin-bottom: 10px;">
+                        <i class="fas fa-file-invoice"></i> Generate Class Fee Statement
+                    </button>
+                    <?php if ($selected_student_id): ?>
+                    <button class="btn" onclick="generateStudentFeeStatement(<?php echo $selected_student_id; ?>)" style="background-color: #ff6600; color: white; border: none; width: 100%;">
+                        <i class="fas fa-file-invoice-dollar"></i> Generate Student Fee Statement
+                    </button>
+                    <?php endif; ?>
+                </div>
             </div>
             
             <!-- Quick Access -->
@@ -786,7 +800,117 @@ if ($selected_student_id) {
             <!-- Stream Fee Summary -->
             <?php if (!empty($stream_fee_summary)): ?>
                 <div class="card" id="streamFeeSummary">
-                    <h2 class="card-title">Stream Fee Summary - <?php echo date('Y'); ?></h2>
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h2 class="card-title" style="margin-bottom: 0;">Stream Fee Summary - <?php echo date('Y'); ?></h2>
+                        <button class="btn btn-sm btn-info" onclick="exportFeeSummary()" style="border-radius: 25px;">
+                            <i class="fas fa-download me-1"></i> Export CSV
+                        </button>
+                    </div>
+                    
+                    <!-- Fee Statistics -->
+                    <div id="feeStats" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 24px;">
+                        <?php
+                        $totalFees = 0;
+                        $totalPaid = 0;
+                        $totalBalance = 0;
+                        $totalStudents = 0;
+                        $paidStudents = 0;
+                        $partialStudents = 0;
+                        $unpaidStudents = 0;
+                        
+                        // Aggregate all fees per student first
+                        $studentAggregates = [];
+                        
+                        foreach ($stream_fee_summary as $fee_type => $students) {
+                            foreach ($students as $student) {
+                                $admission = $student['admission_number'] ?? '';
+                                
+                                if (!isset($studentAggregates[$admission])) {
+                                    $studentAggregates[$admission] = [
+                                        'total_fee' => 0,
+                                        'total_paid' => 0,
+                                        'total_balance' => 0
+                                    ];
+                                }
+                                
+                                $studentAggregates[$admission]['total_fee'] += $student['total_fee'];
+                                $studentAggregates[$admission]['total_paid'] += $student['total_paid'];
+                                $studentAggregates[$admission]['total_balance'] += $student['total_balance'];
+                            }
+                        }
+                        
+                        // Now calculate statistics from aggregated data
+                        foreach ($studentAggregates as $admission => $data) {
+                            $totalFees += $data['total_fee'];
+                            $totalPaid += $data['total_paid'];
+                            $totalBalance += $data['total_balance'];
+                            $totalStudents++;
+                            
+                            if ($data['total_balance'] <= 0) {
+                                $paidStudents++;
+                            } elseif ($data['total_paid'] > 0) {
+                                $partialStudents++;
+                            } else {
+                                $unpaidStudents++;
+                            }
+                        }
+                        
+                        $collectionRate = $totalFees > 0 ? round(($totalPaid / $totalFees) * 100, 1) : 0;
+                        ?>
+                        <div style="background: #e8f0fe; padding: 16px; border-radius: 8px; text-align: center;">
+                            <div style="font-size: 24px; font-weight: 600; color: #1967d2;"><?php echo $totalStudents; ?></div>
+                            <div style="font-size: 12px; color: #5f6368;">Total Students</div>
+                        </div>
+                        <div style="background: #e6f4ea; padding: 16px; border-radius: 8px; text-align: center;">
+                            <div style="font-size: 24px; font-weight: 600; color: #137333;">KES <?php echo number_format($totalPaid); ?></div>
+                            <div style="font-size: 12px; color: #5f6368;">Total Collected</div>
+                        </div>
+                        <div style="background: #fce8e6; padding: 16px; border-radius: 8px; text-align: center;">
+                            <div style="font-size: 24px; font-weight: 600; color: #c5221f;">KES <?php echo number_format($totalBalance); ?></div>
+                            <div style="font-size: 12px; color: #5f6368;">Total Balance</div>
+                        </div>
+                        <div style="background: #fef7e0; padding: 16px; border-radius: 8px; text-align: center;">
+                            <div style="font-size: 24px; font-weight: 600; color: #b06000;"><?php echo $collectionRate; ?>%</div>
+                            <div style="font-size: 12px; color: #5f6368;">Collection Rate</div>
+                        </div>
+                        <div style="background: #f1f3f4; padding: 16px; border-radius: 8px; text-align: center;">
+                            <div style="font-size: 24px; font-weight: 600; color: #5f6368;"><?php echo $paidStudents; ?></div>
+                            <div style="font-size: 12px; color: #5f6368;">Fully Paid</div>
+                        </div>
+                        <div style="background: #e8f0fe; padding: 16px; border-radius: 8px; text-align: center;">
+                            <div style="font-size: 24px; font-weight: 600; color: #1967d2;"><?php echo $unpaidStudents; ?></div>
+                            <div style="font-size: 12px; color: #5f6368;">Not Paid</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Filters -->
+                    <div class="row" style="margin-bottom: 20px;">
+                        <div class="col-md-4">
+                            <label class="form-label">Fee Type</label>
+                            <select class="form-control" id="filterFeeType" onchange="filterFeeSummary()" style="border-radius: 25px;">
+                                <option value="">All Fee Types</option>
+                                <?php foreach (array_keys($stream_fee_summary) as $fee_type): ?>
+                                    <option value="<?php echo htmlspecialchars($fee_type); ?>"><?php echo htmlspecialchars($fee_type); ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Payment Status</label>
+                            <select class="form-control" id="filterPaymentStatus" onchange="filterFeeSummary()" style="border-radius: 25px;">
+                                <option value="">All Status</option>
+                                <option value="paid">Paid</option>
+                                <option value="partial">Partial</option>
+                                <option value="unpaid">Not Paid</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">&nbsp;</label>
+                            <button class="btn btn-primary w-100" onclick="sendFeeReminders()" style="border-radius: 25px;">
+                                <i class="fas fa-envelope me-2"></i> Send Fee Reminders
+                            </button>
+                        </div>
+                    </div>
+                    
                     <p class="text-muted" style="margin-bottom: 16px;">
                         Fee balances for all students in your stream, grouped by fee type
                     </p>
@@ -1038,6 +1162,349 @@ if ($selected_student_id) {
                         section.style.display = 'block';
                     }
                 });
+            }
+        }
+
+        async function generateClassFeeStatement() {
+            try {
+                const response = await fetch('api/generate_class_fee_statement.php', {
+                    method: 'POST',
+                    body: new FormData()
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Check if mobile/small screen
+                    const isMobile = window.innerWidth <= 768;
+                    
+                    if (isMobile) {
+                        // Download directly on mobile
+                        const link = document.createElement('a');
+                        link.href = '/Kenyaeduhub' + data.statement_url;
+                        link.download = data.statement_filename;
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                    } else {
+                        // Open in new tab on desktop
+                        window.open('/Kenyaeduhub' + data.statement_url, '_blank');
+                    }
+                } else {
+                    alert('Failed to generate class fee statement: ' + (data.error || 'Unknown error'));
+                }
+            } catch (error) {
+                alert('Error generating class fee statement: ' + error.message);
+            }
+        }
+
+        function filterFeeSummary() {
+            const feeTypeFilter = document.getElementById('filterFeeType').value;
+            const statusFilter = document.getElementById('filterPaymentStatus').value;
+            
+            const feeTypeSections = document.querySelectorAll('[data-fee-type]');
+            
+            feeTypeSections.forEach(section => {
+                const feeType = section.getAttribute('data-fee-type');
+                const rows = section.querySelectorAll('tbody tr');
+                
+                // Filter by fee type
+                if (feeTypeFilter && feeType !== feeTypeFilter) {
+                    section.style.display = 'none';
+                    return;
+                }
+                
+                let hasVisibleRows = false;
+                rows.forEach(row => {
+                    const statusCell = row.querySelector('td:nth-child(7)');
+                    const statusText = statusCell ? statusCell.textContent.trim().toLowerCase() : '';
+                    
+                    let matchesStatus = true;
+                    if (statusFilter) {
+                        if (statusFilter === 'paid' && !statusText.includes('paid')) {
+                            matchesStatus = false;
+                        } else if (statusFilter === 'partial' && !statusText.includes('partial')) {
+                            matchesStatus = false;
+                        } else if (statusFilter === 'unpaid' && !statusText.includes('not paid')) {
+                            matchesStatus = false;
+                        }
+                    }
+                    
+                    if (matchesStatus) {
+                        row.style.display = '';
+                        hasVisibleRows = true;
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+                
+                section.style.display = hasVisibleRows ? 'block' : 'none';
+            });
+        }
+        
+        function exportFeeSummary() {
+            const feeTypeFilter = document.getElementById('filterFeeType').value;
+            const statusFilter = document.getElementById('filterPaymentStatus').value;
+            
+            let csvContent = 'Admission No,Student Name,Stream,Fee Type,Total Fees,Total Paid,Total Balance,Status\n';
+            
+            const feeTypeSections = document.querySelectorAll('[data-fee-type]');
+            feeTypeSections.forEach(section => {
+                const feeType = section.getAttribute('data-fee-type');
+                
+                if (feeTypeFilter && feeType !== feeTypeFilter) return;
+                
+                const rows = section.querySelectorAll('tbody tr');
+                rows.forEach(row => {
+                    if (row.style.display === 'none') return;
+                    
+                    const cells = row.querySelectorAll('td');
+                    const statusText = cells[6] ? cells[6].textContent.trim() : '';
+                    
+                    let matchesStatus = true;
+                    if (statusFilter) {
+                        if (statusFilter === 'paid' && !statusText.includes('Paid')) {
+                            matchesStatus = false;
+                        } else if (statusFilter === 'partial' && !statusText.includes('Partial')) {
+                            matchesStatus = false;
+                        } else if (statusFilter === 'unpaid' && !statusText.includes('Not Paid')) {
+                            matchesStatus = false;
+                        }
+                    }
+                    
+                    if (matchesStatus) {
+                        const rowData = [
+                            cells[0].textContent,
+                            cells[1].textContent,
+                            cells[2].textContent,
+                            feeType,
+                            cells[3].textContent.replace('KES ', ''),
+                            cells[4].textContent.replace('KES ', ''),
+                            cells[5].textContent.replace('KES ', ''),
+                            statusText
+                        ].map(field => {
+                            let text = String(field).trim();
+                            text = text.replace(/"/g, '""');
+                            if (text.includes(',') || text.includes('"')) {
+                                text = `"${text}"`;
+                            }
+                            return text;
+                        });
+                        csvContent += rowData.join(',') + '\n';
+                    }
+                });
+            });
+            
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            
+            const timestamp = new Date().toISOString().split('T')[0];
+            link.setAttribute('href', url);
+            link.setAttribute('download', `fee_summary_${timestamp}.csv`);
+            link.style.visibility = 'hidden';
+            
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+        
+        let isSending = false;
+        
+        async function sendFeeReminders() {
+            if (isSending) {
+                console.log('Already sending, ignoring duplicate call');
+                return;
+            }
+            
+            isSending = true;
+            
+            try {
+                console.log('sendFeeReminders called');
+                
+                const feeTypeFilter = document.getElementById('filterFeeType').value;
+                const statusFilter = document.getElementById('filterPaymentStatus').value;
+                
+                console.log('Filters:', feeTypeFilter, statusFilter);
+            
+            // Collect all students based on fee type filter
+            const students = [];
+            const feeTypeSections = document.querySelectorAll('[data-fee-type]');
+            
+            console.log('Found fee type sections:', feeTypeSections.length);
+            
+            feeTypeSections.forEach(section => {
+                const feeType = section.getAttribute('data-fee-type');
+                
+                if (feeTypeFilter && feeType !== feeTypeFilter) return;
+                
+                const rows = section.querySelectorAll('tbody tr');
+                console.log('Processing section:', feeType, 'rows:', rows.length);
+                
+                rows.forEach(row => {
+                    if (row.style.display === 'none') return;
+                    
+                    const cells = row.querySelectorAll('td');
+                    const statusText = cells[6] ? cells[6].textContent.trim() : '';
+                    const balanceText = cells[5] ? cells[5].textContent.replace('KES ', '') : '0';
+                    const balance = parseFloat(balanceText.replace(/,/g, ''));
+                    const totalFees = cells[3] ? cells[3].textContent.replace('KES ', '') : '0';
+                    const totalPaid = cells[4] ? cells[4].textContent.replace('KES ', '') : '0';
+                    
+                    let matchesStatus = true;
+                    if (statusFilter) {
+                        if (statusFilter === 'paid' && !statusText.includes('Paid')) {
+                            matchesStatus = false;
+                        } else if (statusFilter === 'partial' && !statusText.includes('Partial')) {
+                            matchesStatus = false;
+                        } else if (statusFilter === 'unpaid' && !statusText.includes('Not Paid')) {
+                            matchesStatus = false;
+                        }
+                    }
+                    
+                    if (matchesStatus) {
+                        students.push({
+                            admission: cells[0].textContent,
+                            name: cells[1].textContent,
+                            stream: cells[2].textContent,
+                            feeType: feeType,
+                            term: '<?php echo date('Y'); ?>',
+                            totalFees: totalFees,
+                            totalPaid: totalPaid,
+                            balance: balanceText,
+                            status: statusText
+                        });
+                    }
+                });
+            });
+            
+            console.log('Collected students before dedup:', students.length);
+            
+            // Remove duplicate students (by admission number)
+            const uniqueStudents = [];
+            const seenAdmissions = new Set();
+            console.log('Starting deduplication...');
+            console.log('Students array:', students);
+            
+            students.forEach((student, index) => {
+                console.log(`Processing student ${index}:`, student.admission);
+                if (!seenAdmissions.has(student.admission)) {
+                    seenAdmissions.add(student.admission);
+                    uniqueStudents.push(student);
+                }
+            });
+            
+            console.log('Deduplication complete, uniqueStudents:', uniqueStudents.length);
+            
+            // Use uniqueStudents directly instead of reassigning
+            const finalStudents = uniqueStudents;
+            
+            console.log('Collected students after dedup:', finalStudents.length);
+            
+            if (finalStudents.length === 0) {
+                alert('No students found based on current filters.');
+                isSending = false;
+                return;
+            }
+            
+            // Show loading state
+            const btn = event.target;
+            const originalText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Generating PDF...';
+            
+            const currentDate = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+            const feeTypeLabel = feeTypeFilter || 'All Fee Types';
+            
+            const totalFeesSum = finalStudents.reduce((sum, s) => sum + parseFloat(s.totalFees.replace(/,/g, '')), 0);
+            const totalPaidSum = finalStudents.reduce((sum, s) => sum + parseFloat(s.totalPaid.replace(/,/g, '')), 0);
+            const totalBalanceSum = finalStudents.reduce((sum, s) => sum + parseFloat(s.balance.replace(/,/g, '')), 0);
+            const paidCount = finalStudents.filter(s => s.status.includes('Paid')).length;
+            const unpaidCount = finalStudents.filter(s => s.status.includes('Not Paid')).length;
+            const partialCount = finalStudents.filter(s => s.status.includes('Partial')).length;
+            
+            console.log('About to send to API...');
+            
+            // Generate PDF content
+            const pdfContent = {
+                school_id: <?php echo $school_id; ?>,
+                school_name: 'Kenya EduHub',
+                date: currentDate,
+                academic_year: finalStudents[0].term,
+                fee_type: feeTypeLabel,
+                students: finalStudents,
+                summary: {
+                    total_students: finalStudents.length,
+                    fully_paid: paidCount,
+                    partial_payment: partialCount,
+                    not_paid: unpaidCount,
+                    total_fees: totalFeesSum,
+                    total_paid: totalPaidSum,
+                    total_balance: totalBalanceSum
+                }
+            };
+            
+            // Send to API to generate PDF and email
+            const response = await fetch('api/generate_fee_summary_pdf.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(pdfContent)
+            });
+            
+            console.log('API response received');
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                alert('Fee summary PDF generated and sent successfully to all parents!');
+            } else {
+                alert('Failed to generate and send PDF: ' + (data.error || 'Unknown error'));
+            }
+            } catch (error) {
+                console.error('Error sending fee reminders:', error);
+                alert('An error occurred while sending the fee reminders: ' + error.message);
+            } finally {
+                isSending = false;
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = originalText;
+                }
+            }
+        }
+        
+        async function generateStudentFeeStatement(studentId) {
+            try {
+                const formData = new FormData();
+                formData.append('student_id', studentId);
+                
+                const response = await fetch('api/generate_student_fee_statement.php', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Check if mobile/small screen
+                    const isMobile = window.innerWidth <= 768;
+                    
+                    if (isMobile) {
+                        // Download directly on mobile
+                        const link = document.createElement('a');
+                        link.href = '/Kenyaeduhub' + data.statement_url;
+                        link.download = data.statement_filename;
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                    } else {
+                        // Open in new tab on desktop
+                        window.open('/Kenyaeduhub' + data.statement_url, '_blank');
+                    }
+                } else {
+                    alert('Failed to generate student fee statement: ' + (data.error || 'Unknown error'));
+                }
+            } catch (error) {
+                alert('Error generating student fee statement: ' + error.message);
             }
         }
     </script>

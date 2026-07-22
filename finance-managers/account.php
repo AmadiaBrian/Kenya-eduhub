@@ -59,10 +59,20 @@ try {
 }
 
 $pending_withdrawals = 0;
+$pending_withdrawal_details = [];
 try {
     $stmt = $pdo->prepare("SELECT COALESCE(SUM(amount), 0) FROM school_withdrawals WHERE school_id = ? AND status = 'pending'");
     $stmt->execute([$school_id]);
     $pending_withdrawals = (float) $stmt->fetchColumn();
+    
+    // Get details of pending withdrawals for debugging
+    $stmt = $pdo->prepare("SELECT id, amount, status, reference_number, created_at FROM school_withdrawals WHERE school_id = ? AND status = 'pending'");
+    $stmt->execute([$school_id]);
+    $pending_withdrawal_details = $stmt->fetchAll();
+    
+    // Debug logging
+    error_log("Balance Check - School ID: $school_id, Total Balance: $school_balance, Pending Withdrawals: $pending_withdrawals, Available: " . max(0, (float) $school_balance - $pending_withdrawals));
+    error_log("Pending Withdrawal Details: " . json_encode($pending_withdrawal_details));
 } catch (PDOException $e) {
     error_log("Failed to fetch pending withdrawals: " . $e->getMessage());
 }
@@ -967,13 +977,10 @@ try {
             console.log('Form data prepared, sending to server...');
             
             // Send AJAX request
-            const currentPath = window.location.pathname;
-            const basePath = currentPath.substring(0, currentPath.lastIndexOf('/'));
-            const apiUrl = basePath + '/b2c/b2c_process.php';
+            const apiUrl = 'b2c/b2c_process.php'; // Use direct relative path with .php extension
             
-            console.log('Current path:', currentPath);
-            console.log('Base path:', basePath);
             console.log('API URL:', apiUrl);
+            console.log('Full URL:', window.location.origin + window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/')) + '/' + apiUrl);
             
             fetch(apiUrl, {
                 method: 'POST',

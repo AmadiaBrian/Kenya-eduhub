@@ -49,7 +49,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $student_id = $record['student_id'] ?? null;
             $term = $record['term'] ?? null;
             $year = $record['year'] ?? null;
-            $subject = $record['subject'] ?? null;
+            $subject = strtoupper(trim($record['subject'] ?? '')); // Normalize subject to uppercase
             $marks = $record['marks'] ?? null;
             $grade = $record['grade'] ?? null;
             $remarks = $record['remarks'] ?? '';
@@ -69,8 +69,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 continue;
             }
             
-            // Check if performance already exists for this student, term, year, and subject
-            $stmt = $pdo->prepare("SELECT id FROM academic_performance WHERE student_id = ? AND term = ? AND year = ? AND subject = ?");
+            // Check if performance already exists for this student, term, year, and subject (case-insensitive)
+            $stmt = $pdo->prepare("SELECT id FROM academic_performance WHERE student_id = ? AND term = ? AND year = ? AND UPPER(subject) = UPPER(?)");
             $stmt->execute([$student_id, $term, $year, $subject]);
             $existing = $stmt->fetch();
             
@@ -106,13 +106,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     error_log("Performance GET request: student_id=$student_id, term=$term, year=$year, subject=$subject, class_id=$class_id, school_id=$school_id");
     
     try {
-        $query = "SELECT ap.*, s.admission_number, s.first_name, s.last_name, c.class_name, st.stream_name 
+        $query = "SELECT ap.*, s.admission_number, s.first_name, s.last_name, c.class_name, st.stream_name, 
+                         (SELECT gs.points FROM grading_scales gs 
+                          WHERE gs.school_id = ? 
+                          AND ap.marks BETWEEN gs.min_score AND gs.max_score
+                          AND UPPER(ap.grade) = UPPER(gs.grade_name)
+                          LIMIT 1) as grade_points
                   FROM academic_performance ap 
                   JOIN students s ON ap.student_id = s.id 
                   LEFT JOIN classes c ON s.class_id = c.id 
                   LEFT JOIN streams st ON s.stream_id = st.id 
                   WHERE s.school_id = ?";
-        $params = [$school_id];
+        $params = [$school_id, $school_id];
         
         if ($student_id) {
             $query .= " AND ap.student_id = ?";

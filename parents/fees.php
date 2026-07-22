@@ -27,6 +27,7 @@ try {
     
     // Get fee data for selected child
     $fee_data = [];
+    $reminder_history = [];
     if ($selected_child_id) {
         $stmt = $pdo->prepare("SELECT s.*, c.class_name FROM students s LEFT JOIN classes c ON s.class_id = c.id WHERE s.id = ?");
         $stmt->execute([$selected_child_id]);
@@ -127,12 +128,25 @@ try {
                 'current_year' => $current_year,
                 'fee_structure_status' => $fee_structure_status
             ];
+            
+            // Get reminder history for this child
+            $stmt = $pdo->prepare("
+                SELECT rh.*, s.first_name, s.last_name 
+                FROM reminder_history rh
+                JOIN students s ON rh.student_id = s.id
+                WHERE rh.student_id = ? AND rh.school_id = ?
+                ORDER BY rh.created_at DESC
+                LIMIT 10
+            ");
+            $stmt->execute([$selected_child_id, $school_id]);
+            $reminder_history = $stmt->fetchAll();
         }
     }
 } catch (PDOException $e) {
     error_log("Failed to fetch fee data: " . $e->getMessage());
     $children = [];
     $fee_data = [];
+    $reminder_history = [];
 }
 ?>
 <!DOCTYPE html>
@@ -572,6 +586,9 @@ try {
             <a class="nav-link" href="attendance">
                 <i class="fas fa-calendar-check"></i> Attendance
             </a>
+            <a class="nav-link" href="assignments">
+                <i class="fas fa-tasks"></i> Assignments
+            </a>
             <a class="nav-link active" href="fees">
                 <i class="fas fa-money-bill-wave"></i> Fee Payments
             </a>
@@ -607,6 +624,16 @@ try {
                     <?php endforeach; ?>
                 </select>
             </div>
+            <?php if ($selected_child_id): ?>
+            <div class="filter-group" style="margin-top: 15px;">
+                <button class="btn" onclick="generateFeeStatement(<?php echo $selected_child_id; ?>)" style="background-color: #ff6600; color: white; border: none; width: 100%; margin-bottom: 10px;">
+                    <i class="fas fa-file-invoice"></i> Generate Fee Statement
+                </button>
+                <button class="btn" onclick="generateFeeStructure(<?php echo $selected_child_id; ?>)" style="background-color: #ff6600; color: white; border: none; width: 100%;">
+                    <i class="fas fa-list-alt"></i> Fee Structure Document
+                </button>
+            </div>
+            <?php endif; ?>
         </div>
         
         <!-- Quick Access -->
@@ -798,6 +825,7 @@ try {
                                     <th>Payment Method</th>
                                     <th>Reference</th>
                                     <th>Status</th>
+                                    <th>Action</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -813,6 +841,11 @@ try {
                                                 <?php echo htmlspecialchars($payment['status'] ?? '-'); ?>
                                             </span>
                                         </td>
+                                        <td>
+                                            <button class="btn btn-sm" onclick="generateReceipt(<?php echo $payment['id']; ?>)" style="background-color: #ff6600; color: white; border: none;">
+                                                <i class="fas fa-print"></i> Receipt
+                                            </button>
+                                        </td>
                                     </tr>
                                 <?php endforeach; ?>
                             </tbody>
@@ -820,6 +853,67 @@ try {
                     </div>
                 <?php endif; ?>
             </div>
+            
+            <!-- Reminder History Card -->
+            <?php if (!empty($reminder_history)): ?>
+                <div class="card">
+                    <h2 class="card-title">Payment Reminders</h2>
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Term</th>
+                                    <th>Year</th>
+                                    <th>Outstanding Amount</th>
+                                    <th>Type</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($reminder_history as $reminder): ?>
+                                    <tr>
+                                        <td><?php echo date('M d, Y H:i', strtotime($reminder['created_at'])); ?></td>
+                                        <td><?php echo htmlspecialchars($reminder['term']); ?></td>
+                                        <td><?php echo htmlspecialchars($reminder['year']); ?></td>
+                                        <td>KES <?php echo number_format($reminder['outstanding_amount'], 2); ?></td>
+                                        <td>
+                                            <?php if ($reminder['reminder_type'] === 'email'): ?>
+                                                <span class="badge" style="background: #e8f0fe; color: #1a73e8;">
+                                                    <i class="fas fa-envelope"></i> Email
+                                                </span>
+                                            <?php elseif ($reminder['reminder_type'] === 'letter'): ?>
+                                                <span class="badge" style="background: #fce8e6; color: #c5221f;">
+                                                    <i class="fas fa-file-alt"></i> Letter
+                                                </span>
+                                            <?php else: ?>
+                                                <span class="badge" style="background: #f1f3f4; color: #5f6368;">
+                                                    <i class="fas fa-phone"></i> Manual
+                                                </span>
+                                            <?php endif; ?>
+                                        </td>
+                                        <td>
+                                            <?php if ($reminder['status'] === 'sent'): ?>
+                                                <span class="badge" style="background: #e6f4ea; color: #137333;">
+                                                    <i class="fas fa-check"></i> Sent
+                                                </span>
+                                            <?php elseif ($reminder['status'] === 'failed'): ?>
+                                                <span class="badge" style="background: #fce8e6; color: #c5221f;">
+                                                    <i class="fas fa-times"></i> Failed
+                                                </span>
+                                            <?php else: ?>
+                                                <span class="badge" style="background: #fef7e0; color: #b06000;">
+                                                    <i class="fas fa-clock"></i> Pending
+                                                </span>
+                                            <?php endif; ?>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            <?php endif; ?>
         <?php else: ?>
             <div class="card">
                 <p class="text-muted">Please select a child to view their fee payment history.</p>
@@ -834,6 +928,114 @@ try {
             sidebar.classList.toggle('collapsed');
             sidebar.classList.toggle('show');
             mainContent.classList.toggle('expanded');
+        }
+
+        async function generateReceipt(paymentId) {
+            try {
+                const formData = new FormData();
+                formData.append('payment_id', paymentId);
+                
+                const response = await fetch('api/generate_receipt.php', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Check if mobile/small screen
+                    const isMobile = window.innerWidth <= 768;
+                    
+                    if (isMobile) {
+                        // Download directly on mobile
+                        const link = document.createElement('a');
+                        link.href = '/Kenyaeduhub' + data.receipt_url;
+                        link.download = data.receipt_url.split('/').pop();
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                    } else {
+                        // Open in new tab on desktop
+                        window.open('/Kenyaeduhub' + data.receipt_url, '_blank');
+                    }
+                } else {
+                    alert('Failed to generate receipt: ' + (data.error || 'Unknown error'));
+                }
+            } catch (error) {
+                alert('Error generating receipt: ' + error.message);
+            }
+        }
+
+        async function generateFeeStatement(studentId) {
+            try {
+                const formData = new FormData();
+                formData.append('student_id', studentId);
+                
+                const response = await fetch('api/generate_fee_statement.php', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Check if mobile/small screen
+                    const isMobile = window.innerWidth <= 768;
+                    
+                    if (isMobile) {
+                        // Download directly on mobile
+                        const link = document.createElement('a');
+                        link.href = '/Kenyaeduhub' + data.statement_url;
+                        link.download = data.statement_filename;
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                    } else {
+                        // Open in new tab on desktop
+                        window.open('/Kenyaeduhub' + data.statement_url, '_blank');
+                    }
+                } else {
+                    alert('Failed to generate fee statement: ' + (data.error || 'Unknown error'));
+                }
+            } catch (error) {
+                alert('Error generating fee statement: ' + error.message);
+            }
+        }
+
+        async function generateFeeStructure(studentId) {
+            try {
+                const formData = new FormData();
+                formData.append('student_id', studentId);
+                
+                const response = await fetch('api/generate_fee_structure.php', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Check if mobile/small screen
+                    const isMobile = window.innerWidth <= 768;
+                    
+                    if (isMobile) {
+                        // Download directly on mobile
+                        const link = document.createElement('a');
+                        link.href = '/Kenyaeduhub' + data.structure_url;
+                        link.download = data.structure_filename;
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                    } else {
+                        // Open in new tab on desktop
+                        window.open('/Kenyaeduhub' + data.structure_url, '_blank');
+                    }
+                } else {
+                    alert('Failed to generate fee structure: ' + (data.error || 'Unknown error'));
+                }
+            } catch (error) {
+                alert('Error generating fee structure: ' + error.message);
+            }
         }
 
         // Payment Modal Functions - Google Console Dashboard Style

@@ -1,6 +1,7 @@
 <?php
 // Classes Management Page
 // Authentication is handled by index.php router
+$school_id = $_SESSION['school_id'];
 $school_name = $_SESSION['school_name'] ?? 'School';
 ?>
 <!DOCTYPE html>
@@ -525,14 +526,91 @@ $school_name = $_SESSION['school_name'] ?? 'School';
     <main class="main-content" id="mainContent">
         <h1 class="page-title">Classes Management</h1>
         
+        <!-- Class Statistics -->
+        <div id="classStats" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 24px;">
+            <?php
+            $totalClasses = 0;
+            $totalStreams = 0;
+            $totalStudents = 0;
+            $totalCapacity = 0;
+            
+            try {
+                $stmt = $pdo->prepare("SELECT id, capacity FROM classes WHERE school_id = ?");
+                $stmt->execute([$school_id]);
+                $classes = $stmt->fetchAll();
+                
+                foreach ($classes as $class) {
+                    $totalClasses++;
+                    $totalCapacity += $class['capacity'];
+                    
+                    // Count streams for this class
+                    $streamStmt = $pdo->prepare("SELECT COUNT(*) as count FROM streams WHERE class_id = ?");
+                    $streamStmt->execute([$class['id']]);
+                    $streamCount = $streamStmt->fetch()['count'];
+                    $totalStreams += $streamCount;
+                    
+                    // Count students for this class
+                    $studentStmt = $pdo->prepare("SELECT COUNT(*) as count FROM students WHERE class_id = ?");
+                    $studentStmt->execute([$class['id']]);
+                    $studentCount = $studentStmt->fetch()['count'];
+                    $totalStudents += $studentCount;
+                }
+            } catch (PDOException $e) {
+                error_log("Failed to fetch class stats: " . $e->getMessage());
+            }
+            ?>
+            <div style="background: #e8f0fe; padding: 16px; border-radius: 8px; text-align: center;">
+                <div style="font-size: 24px; font-weight: 600; color: #1967d2;"><?php echo $totalClasses; ?></div>
+                <div style="font-size: 12px; color: #5f6368;">Total Classes</div>
+            </div>
+            <div style="background: #e6f4ea; padding: 16px; border-radius: 8px; text-align: center;">
+                <div style="font-size: 24px; font-weight: 600; color: #137333;"><?php echo $totalStreams; ?></div>
+                <div style="font-size: 12px; color: #5f6368;">Total Streams</div>
+            </div>
+            <div style="background: #fef7e0; padding: 16px; border-radius: 8px; text-align: center;">
+                <div style="font-size: 24px; font-weight: 600; color: #b06000;"><?php echo $totalStudents; ?></div>
+                <div style="font-size: 12px; color: #5f6368;">Total Students</div>
+            </div>
+            <div style="background: #fce8e6; padding: 16px; border-radius: 8px; text-align: center;">
+                <div style="font-size: 24px; font-weight: 600; color: #c5221f;"><?php echo $totalCapacity; ?></div>
+                <div style="font-size: 12px; color: #5f6368;">Total Capacity</div>
+            </div>
+        </div>
+        
         <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
+            <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
                 <span>All Classes</span>
-                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addClassModal">
-                    <i class="fas fa-plus me-2"></i> Add Class
-                </button>
+                <div class="d-flex gap-2 flex-wrap">
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addClassModal">
+                        <i class="fas fa-plus me-2"></i> Add Class
+                    </button>
+                    <button class="btn btn-success" onclick="exportClasses()">
+                        <i class="fas fa-download me-2"></i> Export
+                    </button>
+                </div>
             </div>
             <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <input type="text" class="form-control" id="searchClass" placeholder="Search by class name or level..." onkeyup="filterClasses()">
+                    </div>
+                    <div class="col-md-4">
+                        <select class="form-control" id="filterClassLevel" onchange="filterClasses()">
+                            <option value="">All Levels</option>
+                            <option value="Primary">Primary</option>
+                            <option value="Secondary">Secondary</option>
+                            <option value="College">College</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <select class="form-control" id="filterClassCapacity" onchange="filterClasses()">
+                            <option value="">All Capacities</option>
+                            <option value="low">Low (&lt;30)</option>
+                            <option value="medium">Medium (30-50)</option>
+                            <option value="high">High (&gt;50)</option>
+                        </select>
+                    </div>
+                </div>
                 <div class="table-responsive">
                     <table class="table">
                         <thead>
@@ -645,6 +723,78 @@ $school_name = $_SESSION['school_name'] ?? 'School';
             } catch (error) {
                 console.error('Error loading classes:', error);
             }
+        }
+        
+        // Filter classes
+        function filterClasses() {
+            const search = document.getElementById('searchClass').value.toLowerCase();
+            const level = document.getElementById('filterClassLevel').value;
+            const capacity = document.getElementById('filterClassCapacity').value;
+            
+            const rows = document.querySelectorAll('#classesTable tr');
+            rows.forEach(row => {
+                const cells = row.querySelectorAll('td');
+                if (cells.length === 0) return;
+                
+                const className = cells[0].textContent.toLowerCase();
+                const classLevel = cells[1].textContent.toLowerCase();
+                const capacityValue = parseInt(cells[2].textContent);
+                
+                const matchesSearch = className.includes(search) || classLevel.includes(search);
+                const matchesLevel = !level || classLevel.includes(level.toLowerCase());
+                
+                let matchesCapacity = true;
+                if (capacity === 'low') {
+                    matchesCapacity = capacityValue < 30;
+                } else if (capacity === 'medium') {
+                    matchesCapacity = capacityValue >= 30 && capacityValue <= 50;
+                } else if (capacity === 'high') {
+                    matchesCapacity = capacityValue > 50;
+                }
+                
+                row.style.display = (matchesSearch && matchesLevel && matchesCapacity) ? '' : 'none';
+            });
+        }
+        
+        // Export classes to CSV
+        function exportClasses() {
+            const rows = document.querySelectorAll('#classesTable tr');
+            let csvContent = 'Class Name,Level,Capacity,Streams,Students\n';
+            
+            rows.forEach(row => {
+                const cells = row.querySelectorAll('td');
+                if (cells.length === 0) return;
+                
+                const rowData = [
+                    cells[0].textContent,
+                    cells[1].textContent,
+                    cells[2].textContent,
+                    cells[3].textContent,
+                    cells[4].textContent
+                ].map(field => {
+                    let text = String(field).trim();
+                    text = text.replace(/"/g, '""');
+                    if (text.includes(',') || text.includes('"')) {
+                        text = `"${text}"`;
+                    }
+                    return text;
+                });
+                
+                csvContent += rowData.join(',') + '\n';
+            });
+            
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            
+            const timestamp = new Date().toISOString().split('T')[0];
+            link.setAttribute('href', url);
+            link.setAttribute('download', `classes_${timestamp}.csv`);
+            link.style.visibility = 'hidden';
+            
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         }
         
         async function addClass() {

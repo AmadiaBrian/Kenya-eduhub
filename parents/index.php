@@ -14,7 +14,8 @@ $allowed_routes = [
     'attendance',
     'fees',
     'performance',
-    'children'
+    'children',
+    'assignments'
 ];
 
 // Validate route

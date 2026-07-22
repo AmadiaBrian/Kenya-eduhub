@@ -96,7 +96,7 @@ if (isset($_GET['download_template']) && $_GET['download_template'] === 'true') 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['performance_file']) && isset($_POST['bulk_upload'])) {
     $term = $_POST['term'] ?? '';
     $year = $_POST['year'] ?? '';
-    $subject = $_POST['subject'] ?? '';
+    $subject = strtoupper(trim($_POST['subject'] ?? '')); // Normalize subject to uppercase
     $streamId = $_POST['streamId'] ?? '';
     
     // Fetch grading scales for grade calculation
@@ -136,6 +136,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['performance_file']) 
                         
                         $row_count = 0;
                         $error_count = 0;
+                        $processed_admissions = []; // Track processed admission numbers to prevent duplicates
                         
                         while (($data = fgetcsv($handle)) !== FALSE) {
                             if (count($data) >= 2) {
@@ -143,6 +144,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['performance_file']) 
                                 $marks = floatval(trim($data[1]));
                                 
                                 if (!empty($admission_number) && $marks >= 0 && $marks <= 100) {
+                                    // Skip if this admission number was already processed in this upload
+                                    if (in_array($admission_number, $processed_admissions)) {
+                                        error_log("Skipping duplicate admission number in CSV: $admission_number");
+                                        $error_count++;
+                                        continue;
+                                    }
+                                    
                                     // Find student by admission number
                                     $stmt = $pdo->prepare("SELECT id FROM students WHERE admission_number = ? AND school_id = ?");
                                     $stmt->execute([$admission_number, $teacher['school_id']]);
@@ -179,6 +187,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['performance_file']) 
                                         }
                                         
                                         $row_count++;
+                                        $processed_admissions[] = $admission_number; // Mark as processed
                                     } else {
                                         $error_count++;
                                     }
@@ -216,14 +225,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['performance_file']) 
 
 // Get grading scales for the teacher's school with subject information
 $grading_scales = [];
+$all_subjects = [];
 if ($teacher) {
     try {
+        // Fetch all subjects for the school
+        $stmt = $pdo->prepare("SELECT * FROM subjects WHERE school_id = ? AND status = 'active' ORDER BY subject_name");
+        $stmt->execute([$teacher['school_id']]);
+        $all_subjects = $stmt->fetchAll();
+        
         error_log("=== GRADING SYSTEM DEBUG (PHP) ===");
         error_log("Teacher ID: " . $teacher_id);
         error_log("Teacher school_id: " . $teacher['school_id']);
         error_log("Teacher subject_id: " . ($teacher['subject_id'] ?? 'null'));
         error_log("Teacher subject: " . ($teacher['subject'] ?? 'null'));
         error_log("Teacher type: " . ($teacher['teacher_type'] ?? 'null'));
+        error_log("Found " . count($all_subjects) . " subjects for school");
         
         // Check what subjects this teacher teaches
         if ($teacher['teacher_type'] === 'subject_teacher') {
@@ -239,15 +255,7 @@ if ($teacher) {
             }
         }
         
-        // Also check what subject_id=2 corresponds to
-        $stmt = $pdo->prepare("SELECT * FROM subjects WHERE id = 2");
-        $stmt->execute();
-        $subject_2 = $stmt->fetch();
-        if ($subject_2) {
-            error_log("Subject ID 2 in database: " . $subject_2['subject_name'] . " (school_id: " . $subject_2['school_id'] . ")");
-        }
-        
-        // Get all grading scales (temporarily removing school filter for debugging)
+        // Get all grading scales
         $stmt = $pdo->prepare("SELECT gs.*, s.subject_name, s.id as subject_db_id, s.school_id as subject_school_id 
                               FROM grading_scales gs 
                               LEFT JOIN subjects s ON gs.subject_id = s.id 
@@ -256,15 +264,6 @@ if ($teacher) {
         $grading_scales = $stmt->fetchAll();
         
         error_log("Found " . count($grading_scales) . " grading scales for subjects in school_id=" . $teacher['school_id']);
-        foreach ($grading_scales as $scale) {
-            error_log("Scale: subject_id=" . $scale['subject_id'] . ", subject_name=" . $scale['subject_name'] . ", subject_school_id=" . $scale['subject_school_id'] . ", min=" . $scale['min_score'] . ", max=" . $scale['max_score'] . ", grade=" . $scale['grade_name']);
-        }
-        
-        // Also check what grading scales exist for subject_id=2 regardless of school
-        $stmt = $pdo->prepare("SELECT * FROM grading_scales WHERE subject_id = 2");
-        $stmt->execute();
-        $subject_2_scales = $stmt->fetchAll();
-        error_log("Found " . count($subject_2_scales) . " grading scales for subject_id=2 (all schools)");
     } catch (PDOException $e) {
         error_log("Failed to fetch grading scales: " . $e->getMessage());
     }
@@ -454,10 +453,11 @@ if ($teacher) {
         /* Cards */
         .card {
             background: var(--bg-color);
-            border: 1px solid #e8eaed;
+            border: none;
             border-radius: 8px;
             padding: 24px;
             margin-bottom: 24px;
+            box-shadow: none;
         }
         
         .card-title {
@@ -645,6 +645,9 @@ if ($teacher) {
             <a class="nav-link" href="students">
                 <i class="fas fa-user-graduate"></i> Students
             </a>
+            <a class="nav-link" href="assignments">
+                <i class="fas fa-tasks"></i> Assignments
+            </a>
             <a class="nav-link" href="parents">
                 <i class="fas fa-users"></i> Parents
             </a>
@@ -681,16 +684,16 @@ if ($teacher) {
         <div class="card mb-4">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <span>Bulk Performance Upload</span>
-                <button class="btn btn-sm btn-outline-primary" onclick="downloadPerformanceTemplate()">
-                    <i class="fas fa-download me-2"></i> Download CSV Template
+                <button class="btn btn-sm btn-info" onclick="downloadPerformanceTemplate()" style="border-radius: 25px;">
+                    <i class="fas fa-download me-1"></i> Download Template
                 </button>
             </div>
             <div class="card-body">
-                <form method="POST" enctype="multipart/form-data">
+                <form method="POST" enctype="multipart/form-data" id="bulkUploadForm">
                     <div class="row mb-3">
                         <div class="col-md-3">
                             <label class="form-label">Term</label>
-                            <select class="form-control" name="term" required>
+                            <select class="form-control" name="term" required style="border-radius: 25px;">
                                 <option value="Term 1">Term 1</option>
                                 <option value="Term 2">Term 2</option>
                                 <option value="Term 3">Term 3</option>
@@ -698,15 +701,26 @@ if ($teacher) {
                         </div>
                         <div class="col-md-3">
                             <label class="form-label">Year</label>
-                            <input type="number" class="form-control" name="year" value="2026" required>
+                            <input type="number" class="form-control" name="year" value="2026" required style="border-radius: 25px;">
                         </div>
                         <div class="col-md-3">
                             <label class="form-label">Subject</label>
-                            <input type="text" class="form-control" name="subject" id="bulkSubject" required>
+                            <?php if ($teacher && $teacher['teacher_type'] === 'class_teacher'): ?>
+                                <select class="form-control" name="subject" id="bulkSubject" style="border-radius: 25px;">
+                                    <option value="">Select Subject</option>
+                                    <?php foreach ($all_subjects as $subject): ?>
+                                        <option value="<?php echo htmlspecialchars($subject['subject_name']); ?>">
+                                            <?php echo htmlspecialchars($subject['subject_name']); ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            <?php else: ?>
+                                <input type="text" class="form-control" name="subject" id="bulkSubject" required readonly style="border-radius: 25px;">
+                            <?php endif; ?>
                         </div>
                         <div class="col-md-3">
                             <label class="form-label">Stream</label>
-                            <select class="form-control" name="streamId" id="bulkStreamId" required>
+                            <select class="form-control" name="streamId" id="bulkStreamId" required style="border-radius: 25px;">
                                 <option value="">Select Stream</option>
                                 <?php foreach ($streams as $stream): ?>
                                     <option value="<?php echo $stream['id']; ?>">
@@ -716,12 +730,28 @@ if ($teacher) {
                             </select>
                         </div>
                     </div>
+                    
+                    <!-- Modern File Upload Zone -->
                     <div class="mb-3">
                         <label class="form-label">Upload CSV File</label>
-                        <input type="file" class="form-control" name="performance_file" accept=".csv" required>
-                        <small class="text-muted">Upload the completed CSV file with student admission numbers and marks</small>
+                        <div id="dropZone" style="border: 2px dashed #dadce0; border-radius: 8px; padding: 20px; text-align: center; cursor: pointer; transition: all 0.3s; background: #f8f9fa;">
+                            <input type="file" class="form-control" name="performance_file" accept=".csv" required id="fileInput" style="display: none;">
+                            <div id="dropZoneContent">
+                                <i class="fas fa-cloud-upload-alt" style="font-size: 32px; color: #dadce0; margin-bottom: 12px;"></i>
+                                <p style="color: #5f6368; margin-bottom: 4px; font-size: 13px;">Drag and drop CSV file here</p>
+                                <p style="color: #9aa0a6; font-size: 12px;">or click to browse</p>
+                            </div>
+                            <div id="fileSelected" style="display: none;">
+                                <i class="fas fa-file-csv" style="font-size: 32px; color: #137333; margin-bottom: 8px;"></i>
+                                <p style="color: #202124; font-weight: 500; margin-bottom: 4px; font-size: 13px;" id="fileName"></p>
+                                <button type="button" class="btn btn-sm btn-outline-danger" onclick="clearFile()" style="border-radius: 25px; font-size: 12px; padding: 6px 12px;">
+                                    <i class="fas fa-times me-1"></i> Remove
+                                </button>
+                            </div>
+                        </div>
                     </div>
-                    <button type="submit" name="bulk_upload" value="true" class="btn btn-primary">
+                    
+                    <button type="submit" name="bulk_upload" value="true" class="btn btn-primary" style="border-radius: 25px; padding: 12px 32px;">
                         <i class="fas fa-upload me-2"></i> Upload Performance Records
                     </button>
                 </form>
@@ -751,28 +781,6 @@ if ($teacher) {
                         <?php if ($teacher && $teacher['teacher_type'] === 'class_teacher'): ?>
                             <input type="text" class="form-control" id="classDisplay" value="<?php echo htmlspecialchars($class_name); ?>" readonly>
                             <input type="hidden" id="classId" value="<?php echo $class_id; ?>">
-                            <?php 
-                            // Get subject name from subjects table if teacher has subject_id, otherwise use teacher.subject
-                            $teacher_subject = $teacher['subject'] ?? '';
-                            if (isset($teacher['subject_id']) && $teacher['subject_id']) {
-                                try {
-                                    $stmt = $pdo->prepare("SELECT subject_name FROM subjects WHERE id = ?");
-                                    $stmt->execute([$teacher['subject_id']]);
-                                    $subject_row = $stmt->fetch();
-                                    if ($subject_row) {
-                                        $teacher_subject = $subject_row['subject_name'];
-                                    }
-                                } catch (PDOException $e) {
-                                    error_log("Failed to fetch subject name: " . $e->getMessage());
-                                }
-                            }
-                            ?>
-                            <input type="hidden" id="subject" value="<?php echo htmlspecialchars($teacher_subject); ?>">
-                            <script>
-                                // Auto-fill bulk upload fields for class teachers
-                                document.getElementById('bulkSubject').value = '<?php echo htmlspecialchars($teacher_subject); ?>';
-                                document.getElementById('bulkStreamId').value = ''; // Let teacher select stream
-                            </script>
                         <?php else: ?>
                             <select class="form-control" id="classId" onchange="updateSubject()">
                                 <option value="">Select Class</option>
@@ -792,6 +800,30 @@ if ($teacher) {
                                 </script>
                             <?php endif; ?>
                         <?php endif; ?>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Subject</label>
+                        <?php if ($teacher && $teacher['teacher_type'] === 'class_teacher'): ?>
+                            <select class="form-control" id="subjectInput" onchange="updateSubjectFromDropdown()">
+                                <option value="">Select Subject</option>
+                                <?php foreach ($all_subjects as $subject): ?>
+                                    <option value="<?php echo htmlspecialchars($subject['subject_name']); ?>">
+                                        <?php echo htmlspecialchars($subject['subject_name']); ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                            <script>
+                                // Class teachers select from school subjects
+                                function updateSubjectFromDropdown() {
+                                    const subject = document.getElementById('subjectInput').value;
+                                    document.getElementById('subject').value = subject;
+                                    document.getElementById('bulkSubject').value = subject;
+                                }
+                            </script>
+                        <?php else: ?>
+                            <input type="text" class="form-control" id="subjectInput" readonly placeholder="Auto-filled from class selection">
+                        <?php endif; ?>
+                        <input type="hidden" id="subject" value="">
                     </div>
                     <div class="col-md-2">
                         <label class="form-label">Stream</label>
@@ -831,11 +863,12 @@ if ($teacher) {
                                     <th>Student Name</th>
                                     <th>Marks</th>
                                     <th>Grade</th>
+                                    <th>Points</th>
                                     <th>Remarks</th>
                                 </tr>
                             </thead>
                             <tbody id="performanceTable">
-                                <tr><td colspan="5" class="text-center">Loading...</td></tr>
+                                <tr><td colspan="6" class="text-center">Loading...</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -849,10 +882,37 @@ if ($teacher) {
         </div>
         
         <div class="card">
-            <div class="card-header">
+            <div class="card-header d-flex justify-content-between align-items-center">
                 <span>Performance Records</span>
+                <button class="btn btn-sm btn-info" onclick="exportPerformance()" style="border-radius: 25px;">
+                    <i class="fas fa-download me-1"></i> Export CSV
+                </button>
             </div>
             <div class="card-body">
+                <!-- Performance Statistics -->
+                <div id="performanceStats" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 20px;">
+                    <div style="background: #e8f0fe; padding: 16px; border-radius: 8px; text-align: center;">
+                        <div style="font-size: 24px; font-weight: 600; color: #1967d2;" id="totalRecords">0</div>
+                        <div style="font-size: 12px; color: #5f6368;">Total Records</div>
+                    </div>
+                    <div style="background: #e6f4ea; padding: 16px; border-radius: 8px; text-align: center;">
+                        <div style="font-size: 24px; font-weight: 600; color: #137333;" id="averageScore">0</div>
+                        <div style="font-size: 12px; color: #5f6368;">Average Score</div>
+                    </div>
+                    <div style="background: #fce8e6; padding: 16px; border-radius: 8px; text-align: center;">
+                        <div style="font-size: 24px; font-weight: 600; color: #c5221f;" id="highestScore">0</div>
+                        <div style="font-size: 12px; color: #5f6368;">Highest Score</div>
+                    </div>
+                    <div style="background: #fef7e0; padding: 16px; border-radius: 8px; text-align: center;">
+                        <div style="font-size: 24px; font-weight: 600; color: #b06000;" id="lowestScore">0</div>
+                        <div style="font-size: 12px; color: #5f6368;">Lowest Score</div>
+                    </div>
+                    <div style="background: #f1f3f4; padding: 16px; border-radius: 8px; text-align: center;">
+                        <div style="font-size: 24px; font-weight: 600; color: #5f6368;" id="passRate">0%</div>
+                        <div style="font-size: 12px; color: #5f6368;">Pass Rate (50%+)</div>
+                    </div>
+                </div>
+                
                 <div class="row mb-3">
                     <div class="col-md-3">
                         <input type="text" class="form-control" id="searchPerformance" placeholder="Search by name or admission number">
@@ -891,34 +951,37 @@ if ($teacher) {
                 </div>
                 <div class="row mb-3">
                     <div class="col-md-12">
-                        <button class="btn btn-primary" onclick="filterPerformanceRecords()">
+                        <button class="btn btn-primary" onclick="filterPerformanceRecords()" style="border-radius: 25px;">
                             <i class="fas fa-filter"></i> Filter
                         </button>
-                        <button class="btn btn-secondary" onclick="resetFilters()">
+                        <button class="btn btn-secondary" onclick="resetFilters()" style="border-radius: 25px;">
                             <i class="fas fa-undo"></i> Reset
                         </button>
                     </div>
                 </div>
-                <div class="table-responsive" style="overflow-x: auto;">
-                    <table class="table" style="min-width: 800px;">
-                        <thead>
-                            <tr>
-                                <th>Admission No</th>
-                                <th>Student Name</th>
-                                <th>Class</th>
-                                <th>Stream</th>
-                                <th>Term</th>
-                                <th>Year</th>
-                                <th>Subject</th>
-                                <th>Marks</th>
-                                <th>Grade</th>
-                                <th>Remarks</th>
-                            </tr>
-                        </thead>
-                        <tbody id="recordsTable">
-                            <tr><td colspan="10" class="text-center">No performance records found</td></tr>
-                        </tbody>
-                    </table>
+                <div id="recordsContainer" style="display: flex; flex-direction: column; gap: 20px;">
+                    <div class="table-responsive" style="overflow-x: auto;">
+                        <table class="table" style="min-width: 800px;">
+                            <thead>
+                                <tr>
+                                    <th>Admission No</th>
+                                    <th>Student Name</th>
+                                    <th>Class</th>
+                                    <th>Stream</th>
+                                    <th>Term</th>
+                                    <th>Year</th>
+                                    <th>Subject</th>
+                                    <th>Marks</th>
+                                    <th>Grade</th>
+                                    <th>Points</th>
+                                    <th>Remarks</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recordsTable">
+                                <tr><td colspan="11" class="text-center">No performance records found</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
@@ -991,6 +1054,7 @@ if ($teacher) {
             const subjectId = selectedOption.getAttribute('data-subject-id') || '';
             document.getElementById('subject').value = subject;
             document.getElementById('subjectId').value = subjectId;
+            document.getElementById('subjectInput').value = subject;
             
             // Auto-fill bulk upload fields
             document.getElementById('bulkSubject').value = subject;
@@ -1063,6 +1127,10 @@ if ($teacher) {
                                        value="${existingRecord ? existingRecord.grade : ''}">
                             </td>
                             <td>
+                                <input type="number" class="form-control form-control-sm points-input" readonly
+                                       value="${existingRecord && existingRecord.grade_points ? existingRecord.grade_points : ''}">
+                            </td>
+                            <td>
                                 <input type="text" class="form-control form-control-sm remarks-input" placeholder="Optional"
                                        value="${existingRecord ? existingRecord.remarks : ''}">
                             </td>
@@ -1124,6 +1192,7 @@ if ($teacher) {
             
             let grade = '';
             let gradeDescription = '';
+            let points = 0;
             
             console.log('Calculating grade for marks:', marks);
             console.log('Available grading scales:', gradingScales.length);
@@ -1133,7 +1202,8 @@ if ($teacher) {
                 if (marks >= scale.min_score && marks <= scale.max_score) {
                     grade = scale.grade_name;
                     gradeDescription = scale.grade_description || '';
-                    console.log('Matched grade:', grade, 'for range:', scale.min_score, '-', scale.max_score, 'Description:', gradeDescription);
+                    points = scale.points || 0;
+                    console.log('Matched grade:', grade, 'for range:', scale.min_score, '-', scale.max_score, 'Description:', gradeDescription, 'Points:', points);
                     break;
                 }
             }
@@ -1142,10 +1212,17 @@ if ($teacher) {
             if (!grade) {
                 console.log('No grading scale match');
                 grade = 'No match';
+                points = 0;
             }
             
             const row = input.closest('tr');
             row.querySelector('.grade-input').value = grade;
+            
+            // Update points field
+            const pointsInput = row.querySelector('.points-input');
+            if (pointsInput) {
+                pointsInput.value = points;
+            }
             
             // Auto-fill remarks with grade description if remarks field is empty
             const remarksInput = row.querySelector('.remarks-input');
@@ -1285,32 +1362,53 @@ if ($teacher) {
                 return matchesSearch && matchesClass && matchesStream && matchesTerm && matchesYear && matchesSubject;
             });
             
-            const tbody = document.getElementById('recordsTable');
+            // Update statistics
+            updatePerformanceStats(filtered);
+            
+            const container = document.getElementById('recordsContainer');
             if (filtered.length > 0) {
-                // Group by class if "All Classes" is selected
-                if (!classFilter) {
-                    const groupedByClass = {};
+                // Group by subject if no subject filter is applied
+                if (!subjectFilter) {
+                    const groupedBySubject = {};
                     filtered.forEach(record => {
-                        const className = record.class_name || 'No Class';
-                        if (!groupedByClass[className]) {
-                            groupedByClass[className] = [];
+                        const subjectName = record.subject || 'No Subject';
+                        if (!groupedBySubject[subjectName]) {
+                            groupedBySubject[subjectName] = [];
                         }
-                        groupedByClass[className].push(record);
+                        groupedBySubject[subjectName].push(record);
                     });
                     
-                    // Sort classes alphabetically
-                    const sortedClasses = Object.keys(groupedByClass).sort();
+                    // Sort subjects alphabetically
+                    const sortedSubjects = Object.keys(groupedBySubject).sort();
                     
                     let html = '';
-                    sortedClasses.forEach(className => {
+                    sortedSubjects.forEach(subjectName => {
                         html += `
-                            <tr class="table-primary">
-                                <td colspan="10" style="font-weight: bold; background-color: #e8f0fe;">
-                                    <i class="fas fa-chalkboard"></i> ${className} (${groupedByClass[className].length} students)
-                                </td>
-                            </tr>
+                            <div class="card">
+                                <div class="card-header" style="background-color: #e8f0fe; font-weight: bold;">
+                                    <i class="fas fa-book"></i> ${subjectName} (${groupedBySubject[subjectName].length} records)
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive" style="overflow-x: auto;">
+                                        <table class="table" style="min-width: 800px;">
+                                            <thead>
+                                                <tr>
+                                                    <th>Admission No</th>
+                                                    <th>Student Name</th>
+                                                    <th>Class</th>
+                                                    <th>Stream</th>
+                                                    <th>Term</th>
+                                                    <th>Year</th>
+                                                    <th>Marks</th>
+                                                    <th>Grade</th>
+                                                    <th>Points</th>
+                                                    <th>Remarks</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
                         `;
-                        groupedByClass[className].forEach(record => {
+                        
+                        groupedBySubject[subjectName].forEach(record => {
                             html += `
                                 <tr>
                                     <td>${record.admission_number}</td>
@@ -1319,34 +1417,66 @@ if ($teacher) {
                                     <td>${record.stream_name || '-'}</td>
                                     <td>${record.term}</td>
                                     <td>${record.year}</td>
-                                    <td>${record.subject}</td>
                                     <td>${record.marks}</td>
                                     <td>${record.grade || '-'}</td>
+                                    <td><strong>${record.grade_points || '-'}</strong></td>
                                     <td>${record.remarks || '-'}</td>
                                 </tr>
                             `;
                         });
+                        
+                        html += `
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
                     });
-                    tbody.innerHTML = html;
+                    container.innerHTML = html;
                 } else {
-                    // Show flat list when specific class is selected
-                    tbody.innerHTML = filtered.map(record => `
-                        <tr>
-                            <td>${record.admission_number}</td>
-                            <td>${record.first_name} ${record.last_name}</td>
-                            <td>${record.class_name || '-'}</td>
-                            <td>${record.stream_name || '-'}</td>
-                            <td>${record.term}</td>
-                            <td>${record.year}</td>
-                            <td>${record.subject}</td>
-                            <td>${record.marks}</td>
-                            <td>${record.grade || '-'}</td>
-                            <td>${record.remarks || '-'}</td>
-                        </tr>
-                    `).join('');
+                    // Show single table when specific subject is selected
+                    container.innerHTML = `
+                        <div class="table-responsive" style="overflow-x: auto;">
+                            <table class="table" style="min-width: 800px;">
+                                <thead>
+                                    <tr>
+                                        <th>Admission No</th>
+                                        <th>Student Name</th>
+                                        <th>Class</th>
+                                        <th>Stream</th>
+                                        <th>Term</th>
+                                        <th>Year</th>
+                                        <th>Subject</th>
+                                        <th>Marks</th>
+                                        <th>Grade</th>
+                                        <th>Points</th>
+                                        <th>Remarks</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${filtered.map(record => `
+                                        <tr>
+                                            <td>${record.admission_number}</td>
+                                            <td>${record.first_name} ${record.last_name}</td>
+                                            <td>${record.class_name || '-'}</td>
+                                            <td>${record.stream_name || '-'}</td>
+                                            <td>${record.term}</td>
+                                            <td>${record.year}</td>
+                                            <td>${record.subject}</td>
+                                            <td>${record.marks}</td>
+                                            <td>${record.grade || '-'}</td>
+                                            <td><strong>${record.grade_points || '-'}</strong></td>
+                                            <td>${record.remarks || '-'}</td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    `;
                 }
             } else {
-                tbody.innerHTML = '<tr><td colspan="10" class="text-center">No matching records found</td></tr>';
+                container.innerHTML = '<p class="text-center">No matching records found</p>';
             }
         }
         
@@ -1360,6 +1490,97 @@ if ($teacher) {
             filterPerformanceRecords();
         }
         
+        function updatePerformanceStats(records) {
+            const total = records.length;
+            const marks = records.map(r => parseFloat(r.marks) || 0);
+            const average = total > 0 ? (marks.reduce((a, b) => a + b, 0) / total).toFixed(1) : 0;
+            const highest = total > 0 ? Math.max(...marks) : 0;
+            const lowest = total > 0 ? Math.min(...marks) : 0;
+            const passed = marks.filter(m => m >= 50).length;
+            const passRate = total > 0 ? Math.round((passed / total) * 100) : 0;
+            
+            document.getElementById('totalRecords').textContent = total;
+            document.getElementById('averageScore').textContent = average;
+            document.getElementById('highestScore').textContent = highest;
+            document.getElementById('lowestScore').textContent = lowest;
+            document.getElementById('passRate').textContent = passRate + '%';
+        }
+        
+        function exportPerformance() {
+            if (allPerformanceRecords.length === 0) {
+                alert('No performance data to export.');
+                return;
+            }
+            
+            // Get current filtered records
+            const searchTerm = document.getElementById('searchPerformance').value.toLowerCase();
+            const classFilter = document.getElementById('filterClass').value;
+            const streamFilter = document.getElementById('filterStream').value;
+            const termFilter = document.getElementById('filterTerm').value;
+            const yearFilter = document.getElementById('filterYear').value;
+            const subjectFilter = document.getElementById('filterSubject').value;
+            
+            const filtered = allPerformanceRecords.filter(record => {
+                const matchesSearch = !searchTerm || 
+                    record.admission_number.toLowerCase().includes(searchTerm) ||
+                    `${record.first_name} ${record.last_name}`.toLowerCase().includes(searchTerm);
+                
+                const matchesClass = !classFilter || record.class_name === classFilter;
+                const matchesStream = !streamFilter || record.stream_name === streamFilter;
+                const matchesTerm = !termFilter || record.term === termFilter;
+                const matchesYear = !yearFilter || record.year == yearFilter;
+                const matchesSubject = !subjectFilter || record.subject === subjectFilter;
+                
+                return matchesSearch && matchesClass && matchesStream && matchesTerm && matchesYear && matchesSubject;
+            });
+            
+            if (filtered.length === 0) {
+                alert('No matching records to export.');
+                return;
+            }
+            
+            // Create CSV content
+            let csvContent = 'Admission No,Student Name,Class,Stream,Term,Year,Subject,Marks,Grade,Points,Remarks\n';
+            
+            filtered.forEach(record => {
+                const rowData = [
+                    record.admission_number,
+                    `${record.first_name} ${record.last_name}`,
+                    record.class_name || '-',
+                    record.stream_name || '-',
+                    record.term,
+                    record.year,
+                    record.subject,
+                    record.marks,
+                    record.grade || '-',
+                    record.grade_points || '-',
+                    record.remarks || '-'
+                ].map(field => {
+                    let text = String(field).trim();
+                    text = text.replace(/"/g, '""');
+                    if (text.includes(',') || text.includes('"')) {
+                        text = `"${text}"`;
+                    }
+                    return text;
+                });
+                csvContent += rowData.join(',') + '\n';
+            });
+            
+            // Create download link
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            
+            const timestamp = new Date().toISOString().split('T')[0];
+            link.setAttribute('href', url);
+            link.setAttribute('download', `performance_records_${timestamp}.csv`);
+            link.style.visibility = 'hidden';
+            
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+        
         // Add event listeners for real-time filtering
         document.addEventListener('DOMContentLoaded', function() {
             loadPerformanceRecords();
@@ -1370,7 +1591,65 @@ if ($teacher) {
             document.getElementById('filterTerm').addEventListener('change', filterPerformanceRecords);
             document.getElementById('filterYear').addEventListener('change', filterPerformanceRecords);
             document.getElementById('filterSubject').addEventListener('change', filterPerformanceRecords);
+            
+            // File upload drag and drop functionality
+            const dropZone = document.getElementById('dropZone');
+            const fileInput = document.getElementById('fileInput');
+            const dropZoneContent = document.getElementById('dropZoneContent');
+            const fileSelected = document.getElementById('fileSelected');
+            const fileName = document.getElementById('fileName');
+            
+            // Click to browse
+            dropZone.addEventListener('click', () => fileInput.click());
+            
+            // File input change
+            fileInput.addEventListener('change', (e) => {
+                if (e.target.files.length > 0) {
+                    showSelectedFile(e.target.files[0].name);
+                }
+            });
+            
+            // Drag and drop events
+            dropZone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                dropZone.style.borderColor = '#FF6B35';
+                dropZone.style.background = '#fff3e0';
+            });
+            
+            dropZone.addEventListener('dragleave', (e) => {
+                e.preventDefault();
+                dropZone.style.borderColor = '#dadce0';
+                dropZone.style.background = '#f8f9fa';
+            });
+            
+            dropZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dropZone.style.borderColor = '#dadce0';
+                dropZone.style.background = '#f8f9fa';
+                
+                if (e.dataTransfer.files.length > 0) {
+                    const file = e.dataTransfer.files[0];
+                    if (file.name.endsWith('.csv')) {
+                        fileInput.files = e.dataTransfer.files;
+                        showSelectedFile(file.name);
+                    } else {
+                        alert('Please upload a CSV file');
+                    }
+                }
+            });
         });
+        
+        function showSelectedFile(name) {
+            document.getElementById('dropZoneContent').style.display = 'none';
+            document.getElementById('fileSelected').style.display = 'block';
+            document.getElementById('fileName').textContent = name;
+        }
+        
+        function clearFile() {
+            document.getElementById('fileInput').value = '';
+            document.getElementById('dropZoneContent').style.display = 'block';
+            document.getElementById('fileSelected').style.display = 'none';
+        }
         
         // View performance details
         async function viewPerformanceDetails(recordId) {

@@ -690,14 +690,97 @@ try {
             </div>
         </div>
         
+        <!-- Student Statistics -->
+        <div id="studentStats" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 24px;">
+            <?php
+            $totalStudents = 0;
+            $maleStudents = 0;
+            $femaleStudents = 0;
+            $activeStudents = 0;
+            $inactiveStudents = 0;
+            
+            try {
+                $stmt = $pdo->prepare("SELECT gender, status FROM students WHERE school_id = ?");
+                $stmt->execute([$school_id]);
+                $students = $stmt->fetchAll();
+                
+                foreach ($students as $student) {
+                    $totalStudents++;
+                    if ($student['gender'] === 'Male') $maleStudents++;
+                    if ($student['gender'] === 'Female') $femaleStudents++;
+                    if ($student['status'] === 'active') $activeStudents++;
+                    if ($student['status'] === 'inactive') $inactiveStudents++;
+                }
+            } catch (PDOException $e) {
+                error_log("Failed to fetch student stats: " . $e->getMessage());
+            }
+            ?>
+            <div style="background: #e8f0fe; padding: 16px; border-radius: 8px; text-align: center;">
+                <div style="font-size: 24px; font-weight: 600; color: #1967d2;"><?php echo $totalStudents; ?></div>
+                <div style="font-size: 12px; color: #5f6368;">Total Students</div>
+            </div>
+            <div style="background: #e8f0fe; padding: 16px; border-radius: 8px; text-align: center;">
+                <div style="font-size: 24px; font-weight: 600; color: #1967d2;"><?php echo $maleStudents; ?></div>
+                <div style="font-size: 12px; color: #5f6368;">Male</div>
+            </div>
+            <div style="background: #fce8e6; padding: 16px; border-radius: 8px; text-align: center;">
+                <div style="font-size: 24px; font-weight: 600; color: #c5221f;"><?php echo $femaleStudents; ?></div>
+                <div style="font-size: 12px; color: #5f6368;">Female</div>
+            </div>
+            <div style="background: #e6f4ea; padding: 16px; border-radius: 8px; text-align: center;">
+                <div style="font-size: 24px; font-weight: 600; color: #137333;"><?php echo $activeStudents; ?></div>
+                <div style="font-size: 12px; color: #5f6368;">Active</div>
+            </div>
+            <div style="background: #f1f3f4; padding: 16px; border-radius: 8px; text-align: center;">
+                <div style="font-size: 24px; font-weight: 600; color: #5f6368;"><?php echo $inactiveStudents; ?></div>
+                <div style="font-size: 12px; color: #5f6368;">Inactive</div>
+            </div>
+        </div>
+        
         <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
+            <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
                 <span>All Students</span>
-                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addStudentModal">
-                    <i class="fas fa-plus me-2"></i> Add Student
-                </button>
+                <div class="d-flex gap-2 flex-wrap">
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addStudentModal">
+                        <i class="fas fa-plus me-2"></i> Add Student
+                    </button>
+                    <button class="btn btn-success" onclick="exportStudents()">
+                        <i class="fas fa-download me-2"></i> Export
+                    </button>
+                </div>
             </div>
             <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <input type="text" class="form-control" id="searchStudent" placeholder="Search by name or admission number..." onkeyup="filterStudents()">
+                    </div>
+                    <div class="col-md-2">
+                        <select class="form-control" id="filterGender" onchange="filterStudents()">
+                            <option value="">All Genders</option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <select class="form-control" id="filterStatus" onchange="filterStudents()">
+                            <option value="">All Status</option>
+                            <option value="active">Active</option>
+                            <option value="inactive">Inactive</option>
+                            <option value="transferred">Transferred</option>
+                            <option value="graduated">Graduated</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <select class="form-control" id="filterClass" onchange="filterStudents()">
+                            <option value="">All Classes</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <select class="form-control" id="filterStream" onchange="filterStudents()">
+                            <option value="">All Streams</option>
+                        </select>
+                    </div>
+                </div>
                 <div class="table-responsive">
                     <table class="table">
                         <thead>
@@ -925,6 +1008,7 @@ try {
                     const options = classesData.data.map(c => `<option value="${c.id}">${c.class_name} (${c.class_level})</option>`).join('');
                     document.getElementById('classId').innerHTML = '<option value="">Select Class</option>' + options;
                     document.getElementById('editClassId').innerHTML = '<option value="">Select Class</option>' + options;
+                    document.getElementById('filterClass').innerHTML = '<option value="">All Classes</option>' + options;
                 }
             } catch (error) {
                 console.error('Error loading dropdowns:', error);
@@ -947,6 +1031,99 @@ try {
                 }
             }
         });
+        
+        // Load streams for filter based on class
+        document.getElementById('filterClass').addEventListener('change', async function() {
+            const classId = this.value;
+            if (classId) {
+                try {
+                    const response = await fetch(`api/streams.php?class_id=${classId}`);
+                    const data = await response.json();
+                    if (data.success) {
+                        const options = data.data.map(s => `<option value="${s.id}">${s.stream_name}</option>`).join('');
+                        document.getElementById('filterStream').innerHTML = '<option value="">All Streams</option>' + options;
+                    }
+                } catch (error) {
+                    console.error('Error loading streams:', error);
+                }
+            } else {
+                document.getElementById('filterStream').innerHTML = '<option value="">All Streams</option>';
+            }
+        });
+        
+        // Filter students
+        function filterStudents() {
+            const search = document.getElementById('searchStudent').value.toLowerCase();
+            const gender = document.getElementById('filterGender').value;
+            const status = document.getElementById('filterStatus').value;
+            const classId = document.getElementById('filterClass').value;
+            const streamId = document.getElementById('filterStream').value;
+            
+            const rows = document.querySelectorAll('#studentsTable tr');
+            rows.forEach(row => {
+                const cells = row.querySelectorAll('td');
+                if (cells.length === 0) return;
+                
+                const admission = cells[0].textContent.toLowerCase();
+                const name = cells[1].textContent.toLowerCase();
+                const rowGender = cells[2].textContent;
+                const rowClass = cells[3].textContent;
+                const rowStream = cells[4].textContent;
+                const rowStatus = cells[6].textContent.toLowerCase();
+                
+                const matchesSearch = admission.includes(search) || name.includes(search);
+                const matchesGender = !gender || rowGender === gender;
+                const matchesStatus = !status || rowStatus.includes(status.toLowerCase());
+                const matchesClass = !classId || rowClass.includes(classId);
+                const matchesStream = !streamId || rowStream.includes(streamId);
+                
+                row.style.display = (matchesSearch && matchesGender && matchesStatus && matchesClass && matchesStream) ? '' : 'none';
+            });
+        }
+        
+        // Export students to CSV
+        function exportStudents() {
+            const rows = document.querySelectorAll('#studentsTable tr');
+            let csvContent = 'Admission Number,Name,Gender,Class,Stream,Parent,Status,Fee Balance\n';
+            
+            rows.forEach(row => {
+                const cells = row.querySelectorAll('td');
+                if (cells.length === 0) return;
+                
+                const rowData = [
+                    cells[0].textContent,
+                    cells[1].textContent,
+                    cells[2].textContent,
+                    cells[3].textContent,
+                    cells[4].textContent,
+                    cells[5].textContent,
+                    cells[6].textContent,
+                    cells[7].textContent
+                ].map(field => {
+                    let text = String(field).trim();
+                    text = text.replace(/"/g, '""');
+                    if (text.includes(',') || text.includes('"')) {
+                        text = `"${text}"`;
+                    }
+                    return text;
+                });
+                
+                csvContent += rowData.join(',') + '\n';
+            });
+            
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            
+            const timestamp = new Date().toISOString().split('T')[0];
+            link.setAttribute('href', url);
+            link.setAttribute('download', `students_${timestamp}.csv`);
+            link.style.visibility = 'hidden';
+            
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
         
         // Add student
         async function addStudent() {

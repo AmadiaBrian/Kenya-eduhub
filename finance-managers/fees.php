@@ -492,6 +492,9 @@ try {
             <a class="nav-link" href="reports">
                 <i class="fas fa-chart-bar"></i> Reports
             </a>
+            <a class="nav-link" href="reminders">
+                <i class="fas fa-bell"></i> Payment Reminders
+            </a>
             <a class="nav-link" href="account">
                 <i class="fas fa-wallet"></i> Account Balance
             </a>
@@ -572,6 +575,37 @@ try {
                 </div>
             </form>
         </div>
+
+        <!-- Fee Statement Generation Card -->
+        <div class="card">
+            <h2 class="card-title">Generate Fee Statements</h2>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Generate Class Fee Statement</label>
+                    <select class="form-control" id="class_statement_select" style="margin-bottom: 10px;">
+                        <option value="">Select Class</option>
+                        <?php foreach ($classes as $class): ?>
+                            <option value="<?php echo $class['id']; ?>"><?php echo htmlspecialchars($class['class_name']); ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                    <button type="button" class="btn" onclick="generateClassFeeStatement()" style="background-color: #ff6600; color: white; border: none;">
+                        <i class="fas fa-file-invoice me-2"></i> Generate Class Statement
+                    </button>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Generate Student Fee Statement</label>
+                    <select class="form-control" id="student_statement_select" style="margin-bottom: 10px;">
+                        <option value="">Select Student</option>
+                        <?php foreach ($students as $student): ?>
+                            <option value="<?php echo $student['id']; ?>"><?php echo htmlspecialchars($student['first_name'] . ' ' . $student['last_name'] . ' - ' . $student['admission_number']); ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                    <button type="button" class="btn" onclick="generateStudentFeeStatement()" style="background-color: #ff6600; color: white; border: none;">
+                        <i class="fas fa-file-invoice-dollar me-2"></i> Generate Student Statement
+                    </button>
+                </div>
+            </div>
+        </div>
         
         <!-- Record Payment Card -->
         <div class="card">
@@ -618,7 +652,7 @@ try {
                     </div>
                     <div class="col-md-1 mb-3">
                         <label class="form-label">&nbsp;</label>
-                        <button type="submit" name="record_payment" class="btn btn-primary w-100">
+                        <button type="submit" name="record_payment" class="btn" style="background-color: #ff6600; color: white; border: none; padding: 8px 16px; display: inline-flex; align-items: center;">
                             <i class="fas fa-check me-2"></i> Record
                         </button>
                     </div>
@@ -746,6 +780,90 @@ try {
             
             // Scroll to the fee structure form
             document.querySelector('.card').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        async function generateClassFeeStatement() {
+            const classId = document.getElementById('class_statement_select').value;
+            if (!classId) {
+                alert('Please select a class');
+                return;
+            }
+
+            try {
+                const formData = new FormData();
+                formData.append('class_id', classId);
+                
+                const response = await fetch('api/generate_class_fee_statement.php', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Check if mobile/small screen
+                    const isMobile = window.innerWidth <= 768;
+                    
+                    if (isMobile) {
+                        // Download directly on mobile
+                        const link = document.createElement('a');
+                        link.href = '/Kenyaeduhub' + data.statement_url;
+                        link.download = data.statement_filename;
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                    } else {
+                        // Open in new tab on desktop
+                        window.open('/Kenyaeduhub' + data.statement_url, '_blank');
+                    }
+                } else {
+                    alert('Failed to generate class fee statement: ' + (data.error || 'Unknown error'));
+                }
+            } catch (error) {
+                alert('Error generating class fee statement: ' + error.message);
+            }
+        }
+
+        async function generateStudentFeeStatement() {
+            const studentId = document.getElementById('student_statement_select').value;
+            if (!studentId) {
+                alert('Please select a student');
+                return;
+            }
+
+            try {
+                const formData = new FormData();
+                formData.append('student_id', studentId);
+                
+                const response = await fetch('api/generate_student_fee_statement.php', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Check if mobile/small screen
+                    const isMobile = window.innerWidth <= 768;
+                    
+                    if (isMobile) {
+                        // Download directly on mobile
+                        const link = document.createElement('a');
+                        link.href = '/Kenyaeduhub' + data.statement_url;
+                        link.download = data.statement_filename;
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                    } else {
+                        // Open in new tab on desktop
+                        window.open('/Kenyaeduhub' + data.statement_url, '_blank');
+                    }
+                } else {
+                    alert('Failed to generate student fee statement: ' + (data.error || 'Unknown error'));
+                }
+            } catch (error) {
+                alert('Error generating student fee statement: ' + error.message);
+            }
         }
     </script>
     <script src="../assets/js/notifications.js"></script>
