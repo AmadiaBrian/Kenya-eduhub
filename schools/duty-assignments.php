@@ -1,6 +1,21 @@
 <?php
 // Teacher Duty Assignments - Weekly Rotation System
-// Authentication is handled by index.php router
+// Ensure session is started and config is loaded
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+// Load config if not already loaded
+if (!isset($pdo)) {
+    require_once __DIR__ . '/../config.php';
+}
+
+// Authentication check
+if (!isset($_SESSION['school_id']) || !isset($_SESSION['school_token'])) {
+    header('Location: index.php?route=login');
+    exit;
+}
+
 $school_name = $_SESSION['school_name'] ?? 'School';
 $school_id = $_SESSION['school_id'];
 
@@ -425,6 +440,12 @@ foreach ($duty_assignments as $assignment) {
                 </li>
                 <li class="nav-item mb-2">
                     <a class="nav-link" href="teachers"><i class="fas fa-chalkboard-teacher me-2"></i>Teachers</a>
+                </li>
+                <li class="nav-item mb-2">
+                    <a class="nav-link" href="subjects"><i class="fas fa-book me-2"></i>Subjects</a>
+                </li>
+                <li class="nav-item mb-2">
+                    <a class="nav-link" href="exam-types"><i class="fas fa-clipboard-list me-2"></i>Exam Types</a>
                 </li>
                 <li class="nav-item mb-2">
                     <a class="nav-link active" href="duty-assignments"><i class="fas fa-clipboard-list me-2"></i>Duty Assignments</a>

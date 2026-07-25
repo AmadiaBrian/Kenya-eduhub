@@ -1,6 +1,21 @@
 <?php
 // Invoice Management Page
-// Authentication is handled by index.php router
+// Ensure session is started and config is loaded
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+// Load config if not already loaded
+if (!isset($pdo)) {
+    require_once __DIR__ . '/../config.php';
+}
+
+// Authentication check
+if (!isset($_SESSION['school_id']) || !isset($_SESSION['school_token'])) {
+    header('Location: index.php?route=login');
+    exit;
+}
+
 $school_id = $_SESSION['school_id'];
 $school_name = $_SESSION['school_name'] ?? 'School';
 
@@ -603,6 +618,12 @@ try {
                 </a>
                 <a class="nav-link" href="subjects">
                     <i class="fas fa-book"></i> Subjects
+                </a>
+                <a class="nav-link" href="exam-types">
+                    <i class="fas fa-clipboard-list"></i> Exam Types
+                </a>
+                <a class="nav-link" href="timetable">
+                    <i class="fas fa-calendar-alt"></i> Timetable
                 </a>
                 <a class="nav-link" href="grading">
                     <i class="fas fa-chart-bar"></i> Grading

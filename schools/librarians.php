@@ -1,6 +1,21 @@
 <?php
 // Librarians Management Page
-// Authentication is handled by index.php router
+// Ensure session is started and config is loaded
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+// Load config if not already loaded
+if (!isset($pdo)) {
+    require_once __DIR__ . '/../config.php';
+}
+
+// Authentication check
+if (!isset($_SESSION['school_id']) || !isset($_SESSION['school_token'])) {
+    header('Location: index.php?route=login');
+    exit;
+}
+
 $school_id = $_SESSION['school_id'];
 $school_name = $_SESSION['school_name'] ?? 'School';
 
@@ -558,6 +573,18 @@ try {
             <a href="classes" class="nav-link">
                 <i class="fas fa-chalkboard"></i>
                 <span>Classes</span>
+            </a>
+            <a href="subjects" class="nav-link">
+                <i class="fas fa-book"></i>
+                <span>Subjects</span>
+            </a>
+            <a href="exam-types" class="nav-link">
+                <i class="fas fa-clipboard-list"></i>
+                <span>Exam Types</span>
+            </a>
+            <a href="timetable" class="nav-link">
+                <i class="fas fa-calendar-alt"></i>
+                <span>Timetable</span>
             </a>
             <a href="attendance" class="nav-link">
                 <i class="fas fa-clipboard-check"></i>

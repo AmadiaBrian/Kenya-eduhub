@@ -12,12 +12,14 @@ $allowed_routes = [
     'dashboard',
     'account',
     'attendance',
+    'calendar',
     'classes',
     'disciplinary-action-types',
     'disciplinary',
     'disciplinary_document',
     'disciplinary_view',
     'duty-assignments',
+    'exam-types',
     'fees',
     'finance-managers',
     'grading',
@@ -30,7 +32,8 @@ $allowed_routes = [
     'streams',
     'students',
     'subjects',
-    'teachers'
+    'teachers',
+    'timetable'
 ];
 
 // Validate route
@@ -42,10 +45,21 @@ if (!in_array($route, $allowed_routes)) {
 
 // Handle login route separately (no auth required)
 if ($route === 'login') {
-    // If already logged in, redirect to dashboard
-    if (isset($_SESSION['school_id'])) {
-        header('Location: dashboard');
-        exit;
+    // If already logged in with valid school session, redirect to dashboard
+    if (isset($_SESSION['school_id']) && isset($_SESSION['school_token'])) {
+        try {
+            $session_token = $_SESSION['school_token'];
+            $stmt = $pdo->prepare("SELECT * FROM school_sessions WHERE session_token = ? AND expires_at > NOW()");
+            $stmt->execute([$session_token]);
+            $session = $stmt->fetch();
+            
+            if ($session) {
+                header('Location: dashboard');
+                exit;
+            }
+        } catch (PDOException $e) {
+            // Invalid session, continue to login page
+        }
     }
     ?>
 <!DOCTYPE html>
@@ -476,7 +490,9 @@ if ($route === 'login') {
                 <div class="auth-form">
                     <h2>Welcome Back</h2>
                     <p>Login to access your school dashboard</p>
-                    
+
+                    <div id="loginError" class="error-message" style="display: none; background: #fee; color: #c33; padding: 12px; border-radius: 8px; margin-bottom: 20px; font-size: 14px; border: 1px solid #fcc;"></div>
+
                     <form id="loginForm">
                         <div class="form-group">
                             <label for="loginEmail">Email</label>
@@ -497,7 +513,9 @@ if ($route === 'login') {
                 <div class="auth-form">
                     <h2>Register Your School</h2>
                     <p>Join Kenya EduHub and transform your school management</p>
-                    
+
+                    <div id="registerMessage" class="message" style="display: none; padding: 12px; border-radius: 8px; margin-bottom: 20px; font-size: 14px; border: 1px solid;"></div>
+
                     <form id="registerForm">
                         <div class="form-group">
                             <label for="schoolName">School Name</label>
@@ -562,10 +580,14 @@ if ($route === 'login') {
         // Login Form Handler
         document.getElementById('loginForm').addEventListener('submit', async function(e) {
             e.preventDefault();
-            
+
             const email = document.getElementById('loginEmail').value;
             const password = document.getElementById('loginPassword').value;
-            
+            const errorDiv = document.getElementById('loginError');
+
+            // Hide error on new submission
+            errorDiv.style.display = 'none';
+
             try {
                 const response = await fetch('api/login.php', {
                     method: 'POST',
@@ -574,23 +596,25 @@ if ($route === 'login') {
                     },
                     body: JSON.stringify({ email, password })
                 });
-                
+
                 const data = await response.json();
-                
+
                 if (data.success) {
                     window.location.href = 'dashboard';
                 } else {
-                    alert(data.error || 'Login failed');
+                    errorDiv.textContent = data.error || 'Login failed';
+                    errorDiv.style.display = 'block';
                 }
             } catch (error) {
-                alert('An error occurred. Please try again.');
+                errorDiv.textContent = 'An error occurred. Please try again.';
+                errorDiv.style.display = 'block';
             }
         });
         
         // Register Form Handler
         document.getElementById('registerForm').addEventListener('submit', async function(e) {
             e.preventDefault();
-            
+
             const schoolData = {
                 school_name: document.getElementById('schoolName').value,
                 email: document.getElementById('schoolEmail').value,
@@ -601,7 +625,12 @@ if ($route === 'login') {
                 admission_prefix: document.getElementById('admissionPrefix').value,
                 address: document.getElementById('schoolAddress').value
             };
-            
+
+            const messageDiv = document.getElementById('registerMessage');
+
+            // Hide message on new submission
+            messageDiv.style.display = 'none';
+
             try {
                 const response = await fetch('api/register.php', {
                     method: 'POST',
@@ -610,18 +639,32 @@ if ($route === 'login') {
                     },
                     body: JSON.stringify(schoolData)
                 });
-                
+
                 const data = await response.json();
-                
+
                 if (data.success) {
-                    alert('Registration successful! Your account is pending approval. You will be notified once approved.');
+                    messageDiv.textContent = 'Registration successful! Your account is pending approval. You will be notified once approved.';
+                    messageDiv.style.background = '#e8f5e9';
+                    messageDiv.style.color = '#2e7d32';
+                    messageDiv.style.borderColor = '#c8e6c9';
+                    messageDiv.style.display = 'block';
                     document.getElementById('registerForm').reset();
-                    document.querySelector('[data-tab="login"]').click();
+                    setTimeout(() => {
+                        document.querySelector('[data-tab="login"]').click();
+                    }, 2000);
                 } else {
-                    alert(data.error || 'Registration failed');
+                    messageDiv.textContent = data.error || 'Registration failed';
+                    messageDiv.style.background = '#fee';
+                    messageDiv.style.color = '#c33';
+                    messageDiv.style.borderColor = '#fcc';
+                    messageDiv.style.display = 'block';
                 }
             } catch (error) {
-                alert('An error occurred. Please try again.');
+                messageDiv.textContent = 'An error occurred. Please try again.';
+                messageDiv.style.background = '#fee';
+                messageDiv.style.color = '#c33';
+                messageDiv.style.borderColor = '#fcc';
+                messageDiv.style.display = 'block';
             }
         });
     </script>
@@ -655,7 +698,27 @@ if ($route === 'logout') {
 }
 
 // Authentication check for all other routes
-if (!isset($_SESSION['school_id'])) {
+if (!isset($_SESSION['school_id']) || !isset($_SESSION['school_token'])) {
+    header('Location: login');
+    exit;
+}
+
+// Verify school session token is valid
+try {
+    $session_token = $_SESSION['school_token'];
+    $stmt = $pdo->prepare("SELECT * FROM school_sessions WHERE session_token = ? AND expires_at > NOW()");
+    $stmt->execute([$session_token]);
+    $session = $stmt->fetch();
+    
+    if (!$session) {
+        // Invalid or expired session
+        session_unset();
+        session_destroy();
+        header('Location: login');
+        exit;
+    }
+} catch (PDOException $e) {
+    error_log("Session verification failed: " . $e->getMessage());
     header('Location: login');
     exit;
 }

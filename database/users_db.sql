@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jul 22, 2026 at 06:27 AM
+-- Generation Time: Jul 25, 2026 at 02:57 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -33,6 +33,7 @@ CREATE TABLE `academic_performance` (
   `term` varchar(50) NOT NULL,
   `year` int(4) NOT NULL,
   `subject` varchar(100) NOT NULL,
+  `exam_type_id` int(11) DEFAULT NULL,
   `marks` decimal(5,2) NOT NULL,
   `grade` varchar(5) DEFAULT NULL,
   `remarks` text DEFAULT NULL,
@@ -43,9 +44,35 @@ CREATE TABLE `academic_performance` (
 -- Dumping data for table `academic_performance`
 --
 
-INSERT INTO `academic_performance` (`id`, `student_id`, `term`, `year`, `subject`, `marks`, `grade`, `remarks`, `created_at`) VALUES
-(1, 4, 'Term 1', 2026, 'PHYSICS', 60.00, 'A', 'Exelent', '2026-07-04 20:06:10'),
-(5, 4, 'Term 1', 2026, 'CHEMISTRY', 65.00, 'A', 'Exelent', '2026-07-19 15:10:34');
+INSERT INTO `academic_performance` (`id`, `student_id`, `term`, `year`, `subject`, `exam_type_id`, `marks`, `grade`, `remarks`, `created_at`) VALUES
+(1, 4, 'Term 1', 2026, 'PHYSICS', NULL, 60.00, 'A', 'Exelent', '2026-07-04 20:06:10'),
+(5, 4, 'Term 1', 2026, 'CHEMISTRY', NULL, 65.00, 'A', 'Exelent', '2026-07-19 15:10:34'),
+(6, 4, 'Term 2', 2026, 'PHYSICS', 1, 50.00, 'B+', 'Exelent', '2026-07-24 19:54:01'),
+(7, 4, 'Term 2', 2026, 'MATHEMATICS', 1, 50.00, 'B+', 'Exelent', '2026-07-24 22:08:37'),
+(8, 4, 'Term 2', 2026, 'KISWAHILI', 1, 60.00, 'A', 'Exelent', '2026-07-24 22:10:07'),
+(9, 4, 'Term 2', 2026, 'HISTORY AND GOVERNMENT', 1, 80.00, 'A', 'Exelent', '2026-07-24 22:11:01'),
+(10, 4, 'Term 2', 2026, 'GEOGRAPHY', 1, 60.00, 'A', 'Exelent', '2026-07-24 22:11:47'),
+(11, 4, 'Term 2', 2026, 'ENGLISH', 1, 55.00, 'A-', 'Exelent', '2026-07-24 22:12:33'),
+(12, 4, 'Term 2', 2026, 'CRE', 1, 70.00, 'A', 'Exelent', '2026-07-24 22:13:26'),
+(13, 4, 'Term 2', 2026, 'CHEMISTRY', 1, 70.00, 'A', 'Exelent', '2026-07-24 22:14:07'),
+(14, 4, 'Term 2', 2026, 'BUSINESSES STUDIES', 1, 58.00, 'A-', 'Exelent', '2026-07-24 22:15:02'),
+(15, 4, 'Term 2', 2026, 'BIOLOGY', 1, 77.00, 'A', 'Exelent', '2026-07-24 22:15:48'),
+(16, 4, 'Term 2', 2026, 'AGRICULTURE', 1, 62.00, 'A', 'Exelent', '2026-07-24 22:17:06');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `academic_years`
+--
+
+CREATE TABLE `academic_years` (
+  `id` int(11) NOT NULL,
+  `school_id` int(11) NOT NULL,
+  `year` int(11) NOT NULL,
+  `is_active` tinyint(1) DEFAULT 1,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -167,6 +194,11 @@ CREATE TABLE `books` (
   `total_copies` int(11) NOT NULL DEFAULT 0,
   `available_copies` int(11) NOT NULL DEFAULT 0,
   `description` text DEFAULT NULL,
+  `cover_image` varchar(255) DEFAULT NULL,
+  `book_price` decimal(10,2) DEFAULT 0.00,
+  `shelf_location` varchar(50) DEFAULT NULL,
+  `section` varchar(50) DEFAULT NULL,
+  `condition` enum('new','good','fair','poor','damaged') DEFAULT 'new',
   `status` enum('available','unavailable') DEFAULT 'available',
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
@@ -176,8 +208,9 @@ CREATE TABLE `books` (
 -- Dumping data for table `books`
 --
 
-INSERT INTO `books` (`id`, `school_id`, `isbn`, `title`, `author`, `publisher`, `publication_year`, `category`, `total_copies`, `available_copies`, `description`, `status`, `created_at`, `updated_at`) VALUES
-(1, 1, 'TESTING', 'PHYSICS', 'TESTING', 'KLB', 2004, 'TESTING', 40, 40, 'THIS IS PYSICS KELB BOOK', 'available', '2026-07-05 16:00:54', '2026-07-05 16:38:40');
+INSERT INTO `books` (`id`, `school_id`, `isbn`, `title`, `author`, `publisher`, `publication_year`, `category`, `total_copies`, `available_copies`, `description`, `cover_image`, `book_price`, `shelf_location`, `section`, `condition`, `status`, `created_at`, `updated_at`) VALUES
+(4, 1, '9780123456789', 'Test Book for Library System', 'Test Author', 'Test Publisher', 2024, 'Fiction', 4, 7, 'This is a test book for testing the library management system.', 'uploads/book_covers/book_6a62a5b4429868.91443298.png', 500.00, '', '', 'new', 'available', '2026-07-22 16:02:09', '2026-07-24 18:27:47'),
+(5, 1, 'OVERDUE-TEST-001', 'Overdue Test Book', 'Test Author', 'Test Publisher', 2024, 'Fiction', 3, 3, 'Test book specifically for overdue testing', 'uploads/book_covers/book_6a63ad7579c462.17990681.png', 200.00, '', '', 'new', 'available', '2026-07-24 00:03:15', '2026-07-24 18:22:45');
 
 -- --------------------------------------------------------
 
@@ -195,6 +228,7 @@ CREATE TABLE `book_borrowings` (
   `return_date` date DEFAULT NULL,
   `status` enum('borrowed','returned','overdue') DEFAULT 'borrowed',
   `notes` text DEFAULT NULL,
+  `book_condition` varchar(20) DEFAULT 'good',
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -203,8 +237,213 @@ CREATE TABLE `book_borrowings` (
 -- Dumping data for table `book_borrowings`
 --
 
-INSERT INTO `book_borrowings` (`id`, `book_id`, `borrower_type`, `borrower_id`, `borrow_date`, `due_date`, `return_date`, `status`, `notes`, `created_at`, `updated_at`) VALUES
-(1, 1, 'student', 4, '2026-07-05', '2026-07-11', '2026-07-05', 'returned', '', '2026-07-05 16:01:54', '2026-07-05 16:38:40');
+INSERT INTO `book_borrowings` (`id`, `book_id`, `borrower_type`, `borrower_id`, `borrow_date`, `due_date`, `return_date`, `status`, `notes`, `book_condition`, `created_at`, `updated_at`) VALUES
+(3, 4, 'student', 4, '2026-07-12', '2026-07-17', '2026-07-24', 'overdue', 'TEST', 'good', '2026-07-22 16:03:14', '2026-07-23 23:48:40'),
+(4, 4, 'student', 4, '2026-07-24', '2026-07-30', '2026-07-24', 'returned', 'TEST', 'good', '2026-07-23 23:46:00', '2026-07-23 23:48:25'),
+(5, 4, 'student', 4, '2026-07-04', '2026-07-14', '2026-07-24', '', 'test', 'damaged', '2026-07-24 00:01:47', '2026-07-24 14:05:55'),
+(6, 5, 'student', 4, '2026-06-24', '2026-07-09', '2026-07-24', 'overdue', '', 'good', '2026-07-24 00:03:15', '2026-07-24 00:09:53'),
+(7, 4, 'student', 4, '2026-07-04', '2026-07-14', '2026-07-24', '', 'TEST', 'lost', '2026-07-24 18:24:31', '2026-07-24 18:25:38'),
+(8, 4, 'student', 4, '2026-07-04', '2026-07-14', '2026-07-24', '', 'TEST', 'damaged', '2026-07-24 18:27:08', '2026-07-24 18:27:47');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `book_categories`
+--
+
+CREATE TABLE `book_categories` (
+  `id` int(11) NOT NULL,
+  `school_id` int(11) NOT NULL,
+  `category_name` varchar(100) NOT NULL,
+  `description` text DEFAULT NULL,
+  `status` enum('active','inactive') DEFAULT 'active',
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `book_categories`
+--
+
+INSERT INTO `book_categories` (`id`, `school_id`, `category_name`, `description`, `status`, `created_at`, `updated_at`) VALUES
+(1, 1, 'TEST', 'FOR SCHOOL', 'active', '2026-07-22 14:18:42', '2026-07-22 14:18:42'),
+(2, 1, 'Fiction', 'Test category', 'active', '2026-07-22 16:01:41', '2026-07-22 16:01:41');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `book_history`
+--
+
+CREATE TABLE `book_history` (
+  `id` int(11) NOT NULL,
+  `book_id` int(11) NOT NULL,
+  `school_id` int(11) NOT NULL,
+  `action` enum('added','edited','deleted','borrowed','returned','reserved','lost','damaged') NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `user_type` enum('librarian','student','teacher') NOT NULL,
+  `details` text DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `book_history`
+--
+
+INSERT INTO `book_history` (`id`, `book_id`, `school_id`, `action`, `user_id`, `user_type`, `details`, `created_at`) VALUES
+(6, 4, 1, '', 0, '', 'Fine issued: 50 for overdue borrowing ID: 3', '2026-07-22 16:03:14'),
+(8, 4, 1, '', 1, 'librarian', 'MPESA payment initiated: 1 for fine ID: 6', '2026-07-22 16:13:33'),
+(9, 4, 1, '', 0, '', 'MPESA payment failed: Request Cancelled by user. for fine ID: 6', '2026-07-22 16:13:42'),
+(10, 4, 1, '', 1, 'librarian', 'MPESA payment initiated: 1 for fine ID: 6', '2026-07-22 16:18:45'),
+(11, 4, 1, '', 0, '', 'MPESA payment failed: Request Cancelled by user. for fine ID: 6', '2026-07-22 16:18:55'),
+(12, 4, 1, '', 1, 'librarian', 'MPESA payment initiated: 1 for fine ID: 6', '2026-07-22 16:19:40'),
+(13, 4, 1, '', 0, '', 'MPESA payment failed: Request Cancelled by user. for fine ID: 6', '2026-07-22 16:20:04'),
+(14, 4, 1, '', 1, 'librarian', 'MPESA payment initiated: 1 for fine ID: 6', '2026-07-22 16:22:54'),
+(15, 4, 1, '', 0, '', 'MPESA payment failed: Request Cancelled by user. for fine ID: 6', '2026-07-22 16:23:04'),
+(16, 4, 1, '', 1, 'librarian', 'MPESA payment initiated: 1 for fine ID: 6', '2026-07-22 16:29:02'),
+(17, 4, 1, '', 0, '', 'MPESA payment failed: Request Cancelled by user. for fine ID: 6', '2026-07-22 16:29:12'),
+(18, 4, 1, '', 1, 'librarian', 'MPESA payment initiated: 2 for fine ID: 6', '2026-07-22 16:29:47'),
+(19, 4, 1, '', 0, '', 'MPESA payment failed: Request Cancelled by user. for fine ID: 6', '2026-07-22 16:30:12'),
+(20, 4, 1, '', 1, 'librarian', 'MPESA payment initiated: 1 for fine ID: 6', '2026-07-22 16:31:24'),
+(21, 4, 1, '', 0, '', 'MPESA payment failed: Request Cancelled by user. for fine ID: 6', '2026-07-22 16:31:32'),
+(22, 4, 1, '', 1, 'librarian', 'MPESA payment initiated: 1 for fine ID: 6', '2026-07-22 16:34:02'),
+(23, 4, 1, '', 0, '', 'MPESA payment failed: Request Cancelled by user. for fine ID: 6', '2026-07-22 16:34:29'),
+(24, 4, 1, '', 1, 'librarian', 'MPESA payment initiated: 1 for fine ID: 6', '2026-07-22 16:38:10'),
+(25, 4, 1, '', 0, '', 'MPESA payment failed: Request Cancelled by user. for fine ID: 6', '2026-07-22 16:38:18'),
+(26, 4, 1, '', 1, 'librarian', 'MPESA payment initiated: 1 for fine ID: 6', '2026-07-22 16:40:04'),
+(27, 4, 1, '', 0, '', 'MPESA payment successful: 1, Receipt: UGMN80E49M for fine ID: 6', '2026-07-22 16:40:16'),
+(28, 4, 1, '', 1, 'librarian', 'MPESA payment initiated: 1 for fine ID: 6', '2026-07-22 16:41:18'),
+(29, 4, 1, '', 0, '', 'MPESA payment failed: Request Cancelled by user. for fine ID: 6', '2026-07-22 16:41:32'),
+(30, 4, 1, '', 1, 'librarian', 'MPESA payment initiated: 1 for fine ID: 6', '2026-07-22 16:41:48'),
+(31, 4, 1, '', 0, '', 'MPESA payment successful: 1, Receipt: UGMN80DZXL for fine ID: 6', '2026-07-22 16:42:04'),
+(32, 4, 1, '', 1, 'librarian', 'MPESA payment initiated: 1 for fine ID: 6', '2026-07-22 16:44:45'),
+(33, 4, 1, '', 0, '', 'MPESA payment failed: The initiator information is invalid. for fine ID: 6', '2026-07-22 16:44:56'),
+(34, 4, 1, '', 1, 'librarian', 'MPESA payment initiated: 1 for fine ID: 6', '2026-07-22 16:51:13'),
+(35, 4, 1, '', 0, '', 'MPESA payment successful: 1, Receipt: UGMN80E4ND for fine ID: 6', '2026-07-22 16:51:25'),
+(36, 4, 1, '', 1, 'librarian', 'MPESA payment initiated: 47 for fine ID: 6', '2026-07-22 16:55:40'),
+(37, 4, 1, '', 0, '', 'MPESA payment failed: Request Cancelled by user. for fine ID: 6', '2026-07-22 16:55:49'),
+(38, 4, 1, '', 1, 'librarian', 'MPESA payment initiated: 1 for fine ID: 6', '2026-07-22 16:59:44'),
+(39, 4, 1, '', 0, '', 'MPESA payment failed: Request Cancelled by user. for fine ID: 6', '2026-07-22 16:59:56'),
+(40, 4, 1, '', 1, 'librarian', 'MPESA payment initiated: 47 for fine ID: 6', '2026-07-22 17:01:05'),
+(41, 4, 1, '', 1, 'librarian', 'MPESA payment initiated: 1 for fine ID: 6', '2026-07-22 18:53:37'),
+(42, 4, 1, '', 0, '', 'MPESA payment failed: Request Cancelled by user. for fine ID: 6', '2026-07-22 18:53:45'),
+(43, 4, 1, '', 1, 'librarian', 'MPESA payment initiated: 47 for fine ID: 6', '2026-07-22 19:03:36'),
+(44, 4, 1, '', 0, '', 'MPESA payment failed: Request Cancelled by user. for fine ID: 6', '2026-07-22 19:03:49'),
+(45, 4, 1, '', 1, 'librarian', 'MPESA payment initiated: 47 for fine ID: 6', '2026-07-22 19:05:46'),
+(46, 4, 1, '', 0, '', 'MPESA payment failed: Request Cancelled by user. for fine ID: 6', '2026-07-22 19:05:55'),
+(47, 4, 1, '', 1, 'librarian', 'MPESA payment initiated: 47 for fine ID: 6', '2026-07-22 19:13:35'),
+(48, 4, 1, '', 0, '', 'MPESA payment failed: Request Cancelled by user. for fine ID: 6', '2026-07-22 19:13:43'),
+(49, 4, 1, '', 1, 'librarian', 'MPESA payment initiated: 1 for fine ID: 6', '2026-07-22 19:14:19'),
+(50, 4, 1, '', 0, '', 'MPESA payment successful: 1, Receipt: UGMN80ELXU for fine ID: 6', '2026-07-22 19:14:35'),
+(51, 4, 1, '', 1, 'librarian', 'MPESA payment initiated: 46 for fine ID: 6', '2026-07-22 19:16:31'),
+(52, 4, 1, '', 0, '', 'MPESA payment failed: Request Cancelled by user. for fine ID: 6', '2026-07-22 19:16:39'),
+(53, 4, 1, '', 1, 'librarian', 'MPESA payment initiated: 46 for fine ID: 6', '2026-07-22 19:20:24'),
+(54, 4, 1, '', 0, '', 'MPESA payment failed: Request Cancelled by user. for fine ID: 6', '2026-07-22 19:20:45'),
+(55, 4, 1, '', 1, 'librarian', 'MPESA payment initiated: 46 for fine ID: 6', '2026-07-22 19:22:50'),
+(56, 4, 1, '', 0, '', 'MPESA payment failed: Request Cancelled by user. for fine ID: 6', '2026-07-22 19:23:02'),
+(57, 4, 1, '', 1, 'librarian', 'MPESA payment initiated: 46 for fine ID: 6', '2026-07-22 19:23:49'),
+(58, 4, 1, '', 0, '', 'MPESA payment failed: Request Cancelled by user. for fine ID: 6', '2026-07-22 19:24:02'),
+(59, 4, 1, '', 1, 'librarian', 'MPESA payment initiated: 46 for fine ID: 6', '2026-07-22 19:25:26'),
+(60, 4, 1, '', 0, '', 'MPESA payment failed: Request Cancelled by user. for fine ID: 6', '2026-07-22 19:25:37'),
+(61, 4, 1, '', 1, 'librarian', 'MPESA payment initiated: 46 for fine ID: 6', '2026-07-22 19:26:37'),
+(62, 4, 1, '', 0, '', 'MPESA payment failed: Request Cancelled by user. for fine ID: 6', '2026-07-22 19:26:51'),
+(63, 4, 1, '', 1, 'librarian', 'MPESA payment initiated: 46 for fine ID: 6', '2026-07-22 19:29:40'),
+(64, 4, 1, '', 0, '', 'MPESA payment failed: Request Cancelled by user. for fine ID: 6', '2026-07-22 19:29:49'),
+(65, 4, 1, '', 1, 'librarian', 'MPESA payment initiated: 1 for fine ID: 6', '2026-07-22 19:30:13'),
+(66, 4, 1, '', 0, '', 'MPESA payment successful: 1, Receipt: UGMN80ES0M for fine ID: 6', '2026-07-22 19:30:24'),
+(67, 4, 1, '', 1, 'librarian', 'MPESA payment initiated: 1 for fine ID: 6', '2026-07-22 19:34:09'),
+(68, 4, 1, '', 0, '', 'MPESA payment failed: Request Cancelled by user. for fine ID: 6', '2026-07-22 19:34:30'),
+(69, 4, 1, '', 1, 'librarian', 'MPESA payment initiated: 1 for fine ID: 6', '2026-07-22 19:34:53'),
+(70, 4, 1, '', 0, '', 'MPESA payment successful: 1, Receipt: UGMN80ES2Y for fine ID: 6', '2026-07-22 19:35:07'),
+(71, 4, 1, '', 1, 'librarian', 'MPESA payment initiated: 44 for fine ID: 6', '2026-07-22 19:37:32'),
+(72, 4, 1, '', 0, '', 'MPESA payment failed: No response from user. for fine ID: 6', '2026-07-22 19:38:06'),
+(73, 4, 1, '', 1, 'librarian', 'MPESA payment initiated: 44 for fine ID: 6', '2026-07-22 19:38:09'),
+(74, 4, 1, '', 0, '', 'MPESA payment failed: Request Cancelled by user. for fine ID: 6', '2026-07-22 19:38:28'),
+(75, 4, 1, '', 1, 'librarian', 'MPESA payment initiated: 44 for fine ID: 6', '2026-07-22 20:03:11'),
+(76, 4, 1, '', 0, '', 'MPESA payment failed: Request Cancelled by user. for fine ID: 6', '2026-07-22 20:03:25'),
+(77, 4, 1, '', 1, 'librarian', 'MPESA payment initiated: 44 for fine ID: 6', '2026-07-22 21:13:05'),
+(78, 4, 1, '', 0, '', 'MPESA payment failed: Request Cancelled by user. for fine ID: 6', '2026-07-22 21:13:17'),
+(79, 4, 1, '', 1, 'librarian', 'MPESA payment initiated: 1 for fine ID: 6', '2026-07-23 22:36:44'),
+(80, 4, 1, '', 0, '', 'MPESA payment failed: Request Cancelled by user. for fine ID: 6', '2026-07-23 22:36:53'),
+(81, 4, 1, '', 1, 'librarian', 'MPESA payment initiated: 1 for fine ID: 6', '2026-07-23 22:40:06'),
+(82, 4, 1, '', 0, '', 'MPESA payment successful: 1, Receipt: UGON80IRKO for fine ID: 6', '2026-07-23 22:40:18'),
+(83, 4, 1, 'edited', 1, 'librarian', 'Edited book: Test Book for Library System by Test Author', '2026-07-23 23:37:24'),
+(84, 4, 1, 'edited', 1, 'librarian', 'Edited book: Test Book for Library System by Test Author', '2026-07-24 12:38:48'),
+(85, 4, 1, '', 0, '', 'Fine issued: 500.00 for lost book (10 days overdue): Test Book for Library System', '2026-07-24 13:19:52'),
+(86, 4, 1, '', 1, 'librarian', 'MPESA payment initiated: 1 for fine ID: 26', '2026-07-24 13:24:31'),
+(87, 4, 1, '', 0, '', 'MPESA payment failed: No response from user. for fine ID: 26', '2026-07-24 13:24:59'),
+(88, 4, 1, '', 1, 'librarian', 'MPESA payment initiated: 500 for fine ID: 26', '2026-07-24 13:25:12'),
+(89, 4, 1, '', 0, '', 'MPESA payment failed: Request Cancelled by user. for fine ID: 26', '2026-07-24 13:25:16'),
+(90, 4, 1, '', 1, 'librarian', 'MPESA payment initiated: 1 for fine ID: 26', '2026-07-24 13:25:36'),
+(91, 4, 1, '', 0, '', 'MPESA payment failed: No response from user. for fine ID: 26', '2026-07-24 13:26:04'),
+(92, 4, 1, '', 1, 'librarian', 'MPESA payment initiated: 1 for fine ID: 26', '2026-07-24 13:26:53'),
+(93, 4, 1, '', 0, '', 'MPESA payment failed: No response from user. for fine ID: 26', '2026-07-24 13:27:22'),
+(94, 4, 1, '', 1, 'librarian', 'MPESA payment initiated: 1 for fine ID: 26', '2026-07-24 13:27:50'),
+(95, 4, 1, '', 0, '', 'MPESA payment successful: 1, Receipt: UGON80L1VF for fine ID: 26', '2026-07-24 13:28:04'),
+(96, 5, 1, 'edited', 1, 'librarian', 'Edited book: Overdue Test Book by Test Author', '2026-07-24 18:22:28'),
+(97, 5, 1, 'edited', 1, 'librarian', 'Edited book: Overdue Test Book by Test Author', '2026-07-24 18:22:45'),
+(98, 4, 1, '', 1, 'librarian', 'Fine issued: 500.00 for lost book: ', '2026-07-24 18:25:38'),
+(99, 4, 1, '', 1, 'librarian', 'Fine issued: 125 for damaged book: ', '2026-07-24 18:27:47'),
+(100, 4, 1, '', 2, '', 'Payment: 1 via mpesa (Parent: 2) (Phone: 0745959757, Ref: MPESA-1784934200-6389)', '2026-07-24 23:03:20'),
+(101, 4, 1, '', 2, '', 'MPESA payment initiated: 1 for fine ID: 28', '2026-07-24 23:09:36'),
+(102, 4, 1, '', 2, '', 'MPESA payment initiated: 1 for fine ID: 28', '2026-07-24 23:13:33'),
+(103, 4, 1, '', 2, '', 'MPESA payment initiated: 1 for fine ID: 28', '2026-07-24 23:13:42'),
+(104, 4, 1, '', 2, '', 'MPESA payment initiated: 1 for fine ID: 28', '2026-07-24 23:15:13'),
+(105, 4, 1, '', 2, '', 'MPESA payment initiated: 1 for fine ID: 28', '2026-07-24 23:20:19'),
+(106, 4, 1, '', 2, '', 'MPESA payment initiated: 1 for fine ID: 28', '2026-07-24 23:21:47'),
+(107, 4, 1, '', 1, 'librarian', 'MPESA payment initiated: 1 for fine ID: 28', '2026-07-24 23:23:37'),
+(108, 4, 1, '', 2, '', 'MPESA payment initiated: 1 for fine ID: 28', '2026-07-24 23:24:12'),
+(109, 4, 1, '', 2, '', 'MPESA payment initiated: 1 for fine ID: 28', '2026-07-24 23:26:11'),
+(110, 4, 1, '', 2, '', 'MPESA payment initiated: 124 for fine ID: 28', '2026-07-24 23:27:38'),
+(111, 4, 1, '', 2, '', 'MPESA payment initiated: 124 for fine ID: 28', '2026-07-24 23:29:00'),
+(112, 4, 1, '', 2, '', 'MPESA payment initiated: 124 for fine ID: 28', '2026-07-24 23:30:10'),
+(113, 4, 1, '', 2, '', 'MPESA payment initiated: 124 for fine ID: 28', '2026-07-24 23:30:56'),
+(114, 4, 1, '', 2, '', 'MPESA payment initiated: 124 for fine ID: 28', '2026-07-24 23:32:53'),
+(115, 4, 1, '', 2, '', 'MPESA payment initiated: 124 for fine ID: 28', '2026-07-24 23:36:23'),
+(116, 4, 1, '', 2, '', 'MPESA payment initiated: 124 for fine ID: 28', '2026-07-24 23:37:25'),
+(117, 4, 1, '', 2, '', 'MPESA payment initiated: 124 for fine ID: 28', '2026-07-24 23:39:48'),
+(118, 4, 1, '', 2, '', 'MPESA payment initiated: 124 for fine ID: 28', '2026-07-24 23:40:37'),
+(119, 4, 1, '', 2, '', 'MPESA payment initiated: 124 for fine ID: 28', '2026-07-24 23:44:52'),
+(120, 4, 1, '', 2, '', 'MPESA payment initiated: 124 for fine ID: 28', '2026-07-24 23:45:53'),
+(121, 4, 1, '', 2, '', 'MPESA payment initiated: 124 for fine ID: 28', '2026-07-24 23:46:29'),
+(122, 4, 1, '', 2, '', 'MPESA payment initiated: 124 for fine ID: 28', '2026-07-24 23:47:12'),
+(123, 4, 1, '', 2, '', 'MPESA payment initiated: 1 for fine ID: 28', '2026-07-24 23:48:25'),
+(124, 4, 1, '', 0, '', 'MPESA payment failed: Request Cancelled by user. for fine ID: 28', '2026-07-24 23:48:34'),
+(125, 4, 1, '', 2, '', 'MPESA payment initiated: 1 for fine ID: 28', '2026-07-24 23:49:33'),
+(126, 4, 1, '', 0, '', 'MPESA payment failed: Request Cancelled by user. for fine ID: 28', '2026-07-24 23:49:41'),
+(127, 4, 1, '', 2, '', 'MPESA payment initiated: 1 for fine ID: 28', '2026-07-24 23:50:01'),
+(128, 4, 1, '', 0, '', 'MPESA payment failed: The initiator information is invalid. for fine ID: 28', '2026-07-24 23:50:11'),
+(129, 4, 1, '', 2, '', 'MPESA payment initiated: 1 for fine ID: 28', '2026-07-24 23:50:27'),
+(130, 4, 1, '', 0, '', 'MPESA payment successful: 1, Receipt: UGPN80MX5K for fine ID: 28', '2026-07-24 23:50:40'),
+(131, 4, 1, '', 2, '', 'MPESA payment initiated: 123 for fine ID: 28', '2026-07-25 00:04:03'),
+(132, 4, 1, '', 0, '', 'MPESA payment failed: Request Cancelled by user. for fine ID: 28', '2026-07-25 00:04:11'),
+(133, 4, 1, '', 2, '', 'MPESA payment initiated: 1 for fine ID: 28', '2026-07-25 00:31:05'),
+(134, 4, 1, '', 2, '', 'MPESA payment initiated: 123 for fine ID: 28', '2026-07-25 00:32:36'),
+(135, 4, 1, '', 1, 'librarian', 'MPESA payment initiated: 123 for fine ID: 28', '2026-07-25 00:33:37'),
+(136, 4, 1, '', 2, '', 'MPESA payment initiated: 123 for fine ID: 28', '2026-07-25 00:34:14'),
+(137, 4, 1, '', 2, '', 'MPESA payment initiated: 1 for fine ID: 28', '2026-07-25 00:35:58'),
+(138, 4, 1, '', 1, 'librarian', 'MPESA payment initiated: 123 for fine ID: 28', '2026-07-25 00:37:51'),
+(139, 4, 1, '', 1, 'librarian', 'MPESA payment initiated: 123 for fine ID: 28', '2026-07-25 00:39:33'),
+(140, 4, 1, '', 0, '', 'MPESA payment failed: Request Cancelled by user. for fine ID: 28', '2026-07-25 00:39:40'),
+(141, 4, 1, '', 2, '', 'MPESA payment initiated: 123 for fine ID: 28', '2026-07-25 00:40:14'),
+(142, 4, 1, '', 0, '', 'MPESA payment failed: Request Cancelled by user. for fine ID: 28', '2026-07-25 00:40:21');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `book_reservations`
+--
+
+CREATE TABLE `book_reservations` (
+  `id` int(11) NOT NULL,
+  `book_id` int(11) NOT NULL,
+  `school_id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `user_type` enum('student','teacher') NOT NULL,
+  `reservation_date` timestamp NOT NULL DEFAULT current_timestamp(),
+  `expiry_date` timestamp NULL DEFAULT NULL,
+  `status` enum('pending','fulfilled','cancelled','expired') DEFAULT 'pending'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -363,6 +602,73 @@ INSERT INTO `duty_assignments` (`id`, `school_id`, `teacher_id`, `duty_type`, `w
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `exams`
+--
+
+CREATE TABLE `exams` (
+  `id` int(11) NOT NULL,
+  `school_id` int(11) NOT NULL,
+  `exam_type_id` int(11) NOT NULL,
+  `exam_name` varchar(200) NOT NULL,
+  `term` varchar(50) NOT NULL,
+  `year` int(4) NOT NULL,
+  `exam_date` date DEFAULT NULL,
+  `start_time` time DEFAULT NULL,
+  `end_time` time DEFAULT NULL,
+  `venue` varchar(100) DEFAULT NULL,
+  `instructions` text DEFAULT NULL,
+  `status` enum('draft','scheduled','completed','cancelled') DEFAULT 'draft',
+  `created_by` int(11) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `exam_results`
+--
+
+CREATE TABLE `exam_results` (
+  `id` int(11) NOT NULL,
+  `exam_id` int(11) NOT NULL,
+  `student_id` int(11) NOT NULL,
+  `marks_obtained` decimal(5,2) NOT NULL,
+  `grade` varchar(5) DEFAULT NULL,
+  `remarks` text DEFAULT NULL,
+  `created_by` int(11) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `exam_types`
+--
+
+CREATE TABLE `exam_types` (
+  `id` int(11) NOT NULL,
+  `school_id` int(11) NOT NULL,
+  `exam_type_name` varchar(100) NOT NULL,
+  `exam_type_code` varchar(20) NOT NULL,
+  `description` text DEFAULT NULL,
+  `is_active` tinyint(1) DEFAULT 1,
+  `created_by` int(11) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `exam_types`
+--
+
+INSERT INTO `exam_types` (`id`, `school_id`, `exam_type_name`, `exam_type_code`, `description`, `is_active`, `created_by`, `created_at`, `updated_at`) VALUES
+(1, 1, 'END TERM', '001', 'TESTING', 1, 1, '2026-07-24 19:10:02', '2026-07-24 19:10:02');
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `fee_payments`
 --
 
@@ -387,59 +693,66 @@ CREATE TABLE `fee_payments` (
 --
 
 INSERT INTO `fee_payments` (`id`, `school_id`, `student_id`, `amount`, `payment_date`, `payment_method`, `status`, `transaction_id`, `term`, `year`, `fee_type`, `receipt_number`, `created_at`) VALUES
-(1, 0, 4, 10000.00, '2026-07-04', 'Cash', 'completed', NULL, 'Term 1', 2026, 'Tuition', 'RCP5387B24511', '2026-07-04 16:22:10'),
-(4, 0, 4, 10000.00, '2026-07-06', 'M-Pesa', 'pending', 'ws_CO_06072026161947741745959757', 'Term 1', 2026, 'Tuition', 'FEE-6A4BAB718842E-4', '2026-07-06 13:19:45'),
-(5, 0, 4, 1.00, '2026-07-06', 'M-Pesa', 'pending', 'ws_CO_06072026162245832745959757', 'Term 1', 2026, 'RMADIAL', 'FEE-6A4BAC23849C8-4', '2026-07-06 13:22:43'),
-(6, 0, 4, 1.00, '2026-07-06', 'M-Pesa', 'pending', 'ws_CO_06072026162721054745959757', 'Term 1', 2026, 'RMADIAL', 'FEE-6A4BAD3685A24-4', '2026-07-06 13:27:18'),
-(7, 0, 4, 1.00, '2026-07-06', 'M-Pesa', 'pending', 'ws_CO_06072026162937457745959757', 'Term 1', 2026, 'RMADIAL', 'FEE-6A4BADBF3A697-4', '2026-07-06 13:29:35'),
-(9, 0, 4, 1.00, '2026-07-06', 'M-Pesa', 'pending', 'ws_CO_06072026164502622745959757', 'Term 1', 2026, 'Tuition', 'FEE-6A4BB15C0D457-4', '2026-07-06 13:45:00'),
-(10, 0, 4, 1.00, '2026-07-06', 'M-Pesa', 'pending', 'ws_CO_06072026164809092745959757', 'Term 1', 2026, 'Tuition', 'FEE-6A4BB216BF201-4', '2026-07-06 13:48:06'),
-(11, 0, 4, 1.00, '2026-07-06', 'M-Pesa', 'pending', 'ws_CO_06072026165312339745959757', 'Term 1', 2026, 'Tuition', 'FEE-6A4BB346012F3-4', '2026-07-06 13:53:10'),
-(12, 0, 4, 1.00, '2026-07-06', 'M-Pesa', 'pending', 'ws_CO_06072026165804641745959757', 'Term 1', 2026, 'Tuition', 'FEE-6A4BB46A39825-4', '2026-07-06 13:58:02'),
-(13, 0, 4, 1.00, '2026-07-06', 'M-Pesa', 'pending', 'ws_CO_06072026165919353745959757', 'Term 1', 2026, 'Tuition', 'FEE-6A4BB4B5461EA-4', '2026-07-06 13:59:17'),
-(15, 0, 4, 1.00, '2026-07-06', 'M-Pesa', 'pending', 'ws_CO_06072026170344621745959757', 'Term 1', 2026, 'Tuition', 'FEE-6A4BB5BE7CFA9-4', '2026-07-06 14:03:42'),
-(17, 0, 4, 1.00, '2026-07-06', 'M-Pesa', 'pending', 'ws_CO_06072026170821085745959757', 'Term 1', 2026, 'Tuition', 'FEE-6A4BB6D2F0658-4', '2026-07-06 14:08:18'),
-(18, 0, 4, 1.00, '2026-07-06', 'M-Pesa', 'pending', 'ws_CO_06072026171221337745959757', 'Term 1', 2026, 'Tuition', 'FEE-6A4BB7C30E2F2-4', '2026-07-06 14:12:19'),
-(19, 0, 4, 1.00, '2026-07-06', 'M-Pesa', 'pending', 'ws_CO_06072026171254912745959757', 'Term 1', 2026, 'Tuition', 'FEE-6A4BB7E50A040-4', '2026-07-06 14:12:53'),
-(20, 0, 4, 9999.00, '2026-07-06', 'M-Pesa', 'pending', 'ws_CO_06072026171844486745959757', 'Term 1', 2026, 'Tuition', 'FEE-6A4BB942AF300-4', '2026-07-06 14:18:42'),
-(21, 0, 4, 1.00, '2026-07-06', 'M-Pesa', 'pending', 'ws_CO_06072026171902319745959757', 'Term 1', 2026, 'Tuition', 'FEE-6A4BB95414111-4', '2026-07-06 14:19:00'),
-(22, 0, 4, 1.00, '2026-07-06', 'M-Pesa', 'pending', 'ws_CO_06072026171929700745959757', 'Term 1', 2026, 'Tuition', 'FEE-6A4BB96FA4ED9-4', '2026-07-06 14:19:27'),
-(23, 0, 4, 9999.00, '2026-07-06', 'M-Pesa', 'pending', 'ws_CO_06072026172002247745959757', 'Term 1', 2026, 'Tuition', 'FEE-6A4BB99000731-4', '2026-07-06 14:20:00'),
-(24, 0, 4, 9.00, '2026-07-06', 'M-Pesa', 'pending', 'ws_CO_06072026172019159745959757', 'Term 1', 2026, 'Tuition', 'FEE-6A4BB9A130BC9-4', '2026-07-06 14:20:17'),
-(25, 0, 4, 100.00, '2026-07-06', 'M-Pesa', 'pending', 'ws_CO_06072026172105511745959757', 'Term 1', 2026, 'Tuition', 'FEE-6A4BB9CF73BF1-4', '2026-07-06 14:21:03'),
-(26, 0, 4, 1.00, '2026-07-06', 'M-Pesa', 'completed', 'ws_CO_06072026172559027745959757', 'Term 1', 2026, 'Tuition', 'UG6N8AI2DU', '2026-07-06 14:25:56'),
-(27, 0, 4, 1.00, '2026-07-06', 'M-Pesa', 'pending', 'ws_CO_06072026173140419745959757', 'Term 1', 2026, 'Tuition', 'FEE-6A4BBC4A1EDB6-4', '2026-07-06 14:31:38'),
-(28, 0, 4, 9998.00, '2026-07-06', 'M-Pesa', 'pending', 'ws_CO_06072026173208882745959757', 'Term 1', 2026, 'Tuition', 'FEE-6A4BBC670F887-4', '2026-07-06 14:32:07'),
-(29, 0, 4, 1.00, '2026-07-06', 'M-Pesa', 'pending', 'ws_CO_06072026173227982745959757', 'Term 1', 2026, 'Tuition', 'FEE-6A4BBC7999B10-4', '2026-07-06 14:32:25'),
-(30, 0, 4, 1.00, '2026-07-06', 'M-Pesa', 'pending', 'ws_CO_06072026174712259745959757', 'Term 1', 2026, 'Tuition', 'FEE-6A4BBFEE0C271-4', '2026-07-06 14:47:10'),
-(31, 0, 4, 1.00, '2026-07-06', 'M-Pesa', 'pending', 'ws_CO_06072026175347333745959757', 'Term 1', 2026, 'Tuition', 'FEE-6A4BC1792E164-4', '2026-07-06 14:53:45'),
-(32, 0, 4, 1.00, '2026-07-06', 'M-Pesa', 'pending', 'ws_CO_06072026180201106745959757', 'Term 1', 2026, 'Tuition', 'FEE-6A4BC366AB08B-4', '2026-07-06 15:01:58'),
-(33, 0, 4, 1.00, '2026-07-06', 'M-Pesa', 'pending', 'ws_CO_06072026180238799745959757', 'Term 1', 2026, 'Tuition', 'FEE-6A4BC38C7F528-4', '2026-07-06 15:02:36'),
-(34, 0, 4, 1.00, '2026-07-06', 'M-Pesa', 'failed', 'ws_CO_06072026180355817745959757', 'Term 1', 2026, 'Tuition', '', '2026-07-06 15:03:53'),
-(35, 0, 4, 1.00, '2026-07-06', 'M-Pesa', 'pending', 'ws_CO_06072026180700777745959757', 'Term 1', 2026, 'Tuition', 'FEE-6A4BC4920ABC5-4', '2026-07-06 15:06:58'),
-(36, 0, 4, 1.00, '2026-07-06', 'M-Pesa', 'pending', 'ws_CO_06072026181305975745959757', 'Term 1', 2026, 'Tuition', 'FEE-6A4BC5FF43952-4', '2026-07-06 15:13:03'),
-(37, 0, 4, 1.00, '2026-07-06', 'M-Pesa', 'failed', 'ws_CO_06072026181349475745959757', 'Term 1', 2026, 'Tuition', 'UG6N8AI79R', '2026-07-06 15:13:46'),
-(38, 0, 4, 1.00, '2026-07-06', 'M-Pesa', 'failed', 'ws_CO_06072026181938961745959757', 'Term 1', 2026, 'Tuition', 'UG6N8AIAGX', '2026-07-06 15:19:36'),
-(39, 0, 4, 1.00, '2026-07-06', 'M-Pesa', 'pending', 'ws_CO_06072026182650228745959757', 'Term 1', 2026, 'Tuition', 'FEE-6A4BC937A0293-4', '2026-07-06 15:26:47'),
-(40, 0, 4, 1.00, '2026-07-06', 'M-Pesa', 'completed', 'ws_CO_06072026183827234745959757', 'Term 1', 2026, 'Tuition', 'UG6N8AIHB4', '2026-07-06 15:38:24'),
-(42, 0, 4, 1.00, '2026-07-06', 'M-Pesa', 'completed', 'ws_CO_06072026183934251745959757', 'Term 1', 2026, 'RMADIAL', 'UG6N8AIET0', '2026-07-06 15:39:31'),
-(45, 0, 4, 1.00, '2026-07-07', 'M-Pesa', 'completed', 'ws_CO_07072026134642480745959757', 'Term 1', 2026, 'Tuition', 'UG7N8ALA2Y', '2026-07-07 10:46:40'),
-(46, 0, 4, 1.00, '2026-07-07', 'M-Pesa', 'completed', 'ws_CO_07072026234056220745959757', 'Term 1', 2026, 'Tuition', 'UG7N8ANIWC', '2026-07-07 20:40:54'),
-(47, 0, 4, 1.00, '2026-07-08', 'M-Pesa', 'completed', 'ws_CO_TEST_1783460732', 'Term 1', 2026, 'Tuition', 'TEST1783460732', '2026-07-07 21:45:32'),
-(48, 0, 4, 1.00, '2026-07-08', 'M-Pesa', 'completed', 'ws_CO_08072026004628902745959757', 'Term 1', 2026, 'Tuition', 'UG8N8ANLTG', '2026-07-07 21:46:26'),
-(49, 0, 4, 1.00, '2026-07-08', 'M-Pesa', 'completed', 'ws_CO_08072026113856483745959757', 'Term 1', 2026, 'Tuition', 'UG8N8AOV3O', '2026-07-08 08:38:52'),
-(51, 0, 4, 1.00, '2026-07-15', 'M-Pesa', 'completed', 'ws_CO_15072026011155751745959757', 'Term 1', 2026, 'Tuition', 'UGFN8BG3G5', '2026-07-14 22:11:53'),
-(52, 0, 4, 1.00, '2026-07-16', 'M-Pesa', 'completed', 'ws_CO_16072026121807872745959757', 'Term 1', 2026, 'Tuition', 'UGGN8BL5Y8', '2026-07-16 09:18:06'),
-(53, 0, 4, 2.00, '2026-07-16', 'M-Pesa', 'completed', 'ws_CO_16072026121906511745959757', 'Term 1', 2026, 'Tuition', 'UGGN8BL4JP', '2026-07-16 09:19:03'),
-(55, 0, 4, 1.00, '2026-07-19', 'M-Pesa', 'completed', 'ws_CO_19072026162300421745959757', 'Term 1', 2026, 'Tuition', 'UGJN801DNO', '2026-07-19 13:22:56'),
-(56, 0, 4, 2.00, '2026-07-19', 'M-Pesa', 'completed', 'ws_CO_19072026162337917745959757', 'Term 1', 2026, 'Tuition', 'UGJN801C80', '2026-07-19 13:23:34'),
-(57, 0, 4, 2.00, '2026-07-19', 'M-Pesa', 'pending', 'ws_CO_19072026200130556745959757', 'Term 1', 2026, 'Tuition', 'FEE-6A5D02E8A3038-4', '2026-07-19 17:01:28'),
-(58, 0, 4, 2.00, '2026-07-19', 'M-Pesa', 'completed', 'ws_CO_19072026200320607745959757', 'Term 1', 2026, 'Tuition', 'UGJN802DVF', '2026-07-19 17:03:18'),
-(59, 0, 4, 1.00, '2026-07-19', 'M-Pesa', 'completed', 'ws_CO_19072026231905970745959757', 'Term 1', 2026, 'Tuition', 'UGJN8032CK', '2026-07-19 20:19:04'),
-(60, 0, 4, 1.00, '2026-07-20', 'M-Pesa', 'pending', 'ws_CO_20072026050232743745959757', 'Term 1', 2026, 'Tuition', 'FEE-6A5D81B7B1C55-4', '2026-07-20 02:02:31'),
-(61, 0, 4, 1.00, '2026-07-20', 'M-Pesa', 'pending', 'ws_CO_20072026050423172745959757', 'Term 1', 2026, 'Tuition', 'FEE-6A5D8226392C9-4', '2026-07-20 02:04:22'),
-(62, 0, 4, 1.00, '2026-07-20', 'M-Pesa', 'pending', 'ws_CO_20072026051045220745959757', 'Term 1', 2026, 'Tuition', 'FEE-6A5D83A48037B-4', '2026-07-20 02:10:44'),
-(63, 0, 4, 9983.00, '2026-07-20', 'M-Pesa', 'pending', 'ws_CO_20072026051128616745959757', 'Term 1', 2026, 'Tuition', 'FEE-6A5D83CF9B6EE-4', '2026-07-20 02:11:27');
+(1, 1, 4, 10000.00, '2026-07-04', 'Cash', 'completed', NULL, 'Term 1', 2026, 'Tuition', 'RCP5387B24511', '2026-07-04 16:22:10'),
+(4, 1, 4, 10000.00, '2026-07-06', 'M-Pesa', 'pending', 'ws_CO_06072026161947741745959757', 'Term 1', 2026, 'Tuition', 'FEE-6A4BAB718842E-4', '2026-07-06 13:19:45'),
+(5, 1, 4, 1.00, '2026-07-06', 'M-Pesa', 'pending', 'ws_CO_06072026162245832745959757', 'Term 1', 2026, 'RMADIAL', 'FEE-6A4BAC23849C8-4', '2026-07-06 13:22:43'),
+(6, 1, 4, 1.00, '2026-07-06', 'M-Pesa', 'pending', 'ws_CO_06072026162721054745959757', 'Term 1', 2026, 'RMADIAL', 'FEE-6A4BAD3685A24-4', '2026-07-06 13:27:18'),
+(7, 1, 4, 1.00, '2026-07-06', 'M-Pesa', 'pending', 'ws_CO_06072026162937457745959757', 'Term 1', 2026, 'RMADIAL', 'FEE-6A4BADBF3A697-4', '2026-07-06 13:29:35'),
+(9, 1, 4, 1.00, '2026-07-06', 'M-Pesa', 'pending', 'ws_CO_06072026164502622745959757', 'Term 1', 2026, 'Tuition', 'FEE-6A4BB15C0D457-4', '2026-07-06 13:45:00'),
+(10, 1, 4, 1.00, '2026-07-06', 'M-Pesa', 'pending', 'ws_CO_06072026164809092745959757', 'Term 1', 2026, 'Tuition', 'FEE-6A4BB216BF201-4', '2026-07-06 13:48:06'),
+(11, 1, 4, 1.00, '2026-07-06', 'M-Pesa', 'pending', 'ws_CO_06072026165312339745959757', 'Term 1', 2026, 'Tuition', 'FEE-6A4BB346012F3-4', '2026-07-06 13:53:10'),
+(12, 1, 4, 1.00, '2026-07-06', 'M-Pesa', 'pending', 'ws_CO_06072026165804641745959757', 'Term 1', 2026, 'Tuition', 'FEE-6A4BB46A39825-4', '2026-07-06 13:58:02'),
+(13, 1, 4, 1.00, '2026-07-06', 'M-Pesa', 'pending', 'ws_CO_06072026165919353745959757', 'Term 1', 2026, 'Tuition', 'FEE-6A4BB4B5461EA-4', '2026-07-06 13:59:17'),
+(15, 1, 4, 1.00, '2026-07-06', 'M-Pesa', 'pending', 'ws_CO_06072026170344621745959757', 'Term 1', 2026, 'Tuition', 'FEE-6A4BB5BE7CFA9-4', '2026-07-06 14:03:42'),
+(17, 1, 4, 1.00, '2026-07-06', 'M-Pesa', 'pending', 'ws_CO_06072026170821085745959757', 'Term 1', 2026, 'Tuition', 'FEE-6A4BB6D2F0658-4', '2026-07-06 14:08:18'),
+(18, 1, 4, 1.00, '2026-07-06', 'M-Pesa', 'pending', 'ws_CO_06072026171221337745959757', 'Term 1', 2026, 'Tuition', 'FEE-6A4BB7C30E2F2-4', '2026-07-06 14:12:19'),
+(19, 1, 4, 1.00, '2026-07-06', 'M-Pesa', 'pending', 'ws_CO_06072026171254912745959757', 'Term 1', 2026, 'Tuition', 'FEE-6A4BB7E50A040-4', '2026-07-06 14:12:53'),
+(20, 1, 4, 9999.00, '2026-07-06', 'M-Pesa', 'pending', 'ws_CO_06072026171844486745959757', 'Term 1', 2026, 'Tuition', 'FEE-6A4BB942AF300-4', '2026-07-06 14:18:42'),
+(21, 1, 4, 1.00, '2026-07-06', 'M-Pesa', 'pending', 'ws_CO_06072026171902319745959757', 'Term 1', 2026, 'Tuition', 'FEE-6A4BB95414111-4', '2026-07-06 14:19:00'),
+(22, 1, 4, 1.00, '2026-07-06', 'M-Pesa', 'pending', 'ws_CO_06072026171929700745959757', 'Term 1', 2026, 'Tuition', 'FEE-6A4BB96FA4ED9-4', '2026-07-06 14:19:27'),
+(23, 1, 4, 9999.00, '2026-07-06', 'M-Pesa', 'pending', 'ws_CO_06072026172002247745959757', 'Term 1', 2026, 'Tuition', 'FEE-6A4BB99000731-4', '2026-07-06 14:20:00'),
+(24, 1, 4, 9.00, '2026-07-06', 'M-Pesa', 'pending', 'ws_CO_06072026172019159745959757', 'Term 1', 2026, 'Tuition', 'FEE-6A4BB9A130BC9-4', '2026-07-06 14:20:17'),
+(25, 1, 4, 100.00, '2026-07-06', 'M-Pesa', 'pending', 'ws_CO_06072026172105511745959757', 'Term 1', 2026, 'Tuition', 'FEE-6A4BB9CF73BF1-4', '2026-07-06 14:21:03'),
+(26, 1, 4, 1.00, '2026-07-06', 'M-Pesa', 'completed', 'ws_CO_06072026172559027745959757', 'Term 1', 2026, 'Tuition', 'UG6N8AI2DU', '2026-07-06 14:25:56'),
+(27, 1, 4, 1.00, '2026-07-06', 'M-Pesa', 'pending', 'ws_CO_06072026173140419745959757', 'Term 1', 2026, 'Tuition', 'FEE-6A4BBC4A1EDB6-4', '2026-07-06 14:31:38'),
+(28, 1, 4, 9998.00, '2026-07-06', 'M-Pesa', 'pending', 'ws_CO_06072026173208882745959757', 'Term 1', 2026, 'Tuition', 'FEE-6A4BBC670F887-4', '2026-07-06 14:32:07'),
+(29, 1, 4, 1.00, '2026-07-06', 'M-Pesa', 'pending', 'ws_CO_06072026173227982745959757', 'Term 1', 2026, 'Tuition', 'FEE-6A4BBC7999B10-4', '2026-07-06 14:32:25'),
+(30, 1, 4, 1.00, '2026-07-06', 'M-Pesa', 'pending', 'ws_CO_06072026174712259745959757', 'Term 1', 2026, 'Tuition', 'FEE-6A4BBFEE0C271-4', '2026-07-06 14:47:10'),
+(31, 1, 4, 1.00, '2026-07-06', 'M-Pesa', 'pending', 'ws_CO_06072026175347333745959757', 'Term 1', 2026, 'Tuition', 'FEE-6A4BC1792E164-4', '2026-07-06 14:53:45'),
+(32, 1, 4, 1.00, '2026-07-06', 'M-Pesa', 'pending', 'ws_CO_06072026180201106745959757', 'Term 1', 2026, 'Tuition', 'FEE-6A4BC366AB08B-4', '2026-07-06 15:01:58'),
+(33, 1, 4, 1.00, '2026-07-06', 'M-Pesa', 'pending', 'ws_CO_06072026180238799745959757', 'Term 1', 2026, 'Tuition', 'FEE-6A4BC38C7F528-4', '2026-07-06 15:02:36'),
+(34, 1, 4, 1.00, '2026-07-06', 'M-Pesa', 'failed', 'ws_CO_06072026180355817745959757', 'Term 1', 2026, 'Tuition', '', '2026-07-06 15:03:53'),
+(35, 1, 4, 1.00, '2026-07-06', 'M-Pesa', 'pending', 'ws_CO_06072026180700777745959757', 'Term 1', 2026, 'Tuition', 'FEE-6A4BC4920ABC5-4', '2026-07-06 15:06:58'),
+(36, 1, 4, 1.00, '2026-07-06', 'M-Pesa', 'pending', 'ws_CO_06072026181305975745959757', 'Term 1', 2026, 'Tuition', 'FEE-6A4BC5FF43952-4', '2026-07-06 15:13:03'),
+(37, 1, 4, 1.00, '2026-07-06', 'M-Pesa', 'failed', 'ws_CO_06072026181349475745959757', 'Term 1', 2026, 'Tuition', 'UG6N8AI79R', '2026-07-06 15:13:46'),
+(38, 1, 4, 1.00, '2026-07-06', 'M-Pesa', 'failed', 'ws_CO_06072026181938961745959757', 'Term 1', 2026, 'Tuition', 'UG6N8AIAGX', '2026-07-06 15:19:36'),
+(39, 1, 4, 1.00, '2026-07-06', 'M-Pesa', 'pending', 'ws_CO_06072026182650228745959757', 'Term 1', 2026, 'Tuition', 'FEE-6A4BC937A0293-4', '2026-07-06 15:26:47'),
+(40, 1, 4, 1.00, '2026-07-06', 'M-Pesa', 'completed', 'ws_CO_06072026183827234745959757', 'Term 1', 2026, 'Tuition', 'UG6N8AIHB4', '2026-07-06 15:38:24'),
+(42, 1, 4, 1.00, '2026-07-06', 'M-Pesa', 'completed', 'ws_CO_06072026183934251745959757', 'Term 1', 2026, 'RMADIAL', 'UG6N8AIET0', '2026-07-06 15:39:31'),
+(45, 1, 4, 1.00, '2026-07-07', 'M-Pesa', 'completed', 'ws_CO_07072026134642480745959757', 'Term 1', 2026, 'Tuition', 'UG7N8ALA2Y', '2026-07-07 10:46:40'),
+(46, 1, 4, 1.00, '2026-07-07', 'M-Pesa', 'completed', 'ws_CO_07072026234056220745959757', 'Term 1', 2026, 'Tuition', 'UG7N8ANIWC', '2026-07-07 20:40:54'),
+(47, 1, 4, 1.00, '2026-07-08', 'M-Pesa', 'completed', 'ws_CO_TEST_1783460732', 'Term 1', 2026, 'Tuition', 'TEST1783460732', '2026-07-07 21:45:32'),
+(48, 1, 4, 1.00, '2026-07-08', 'M-Pesa', 'completed', 'ws_CO_08072026004628902745959757', 'Term 1', 2026, 'Tuition', 'UG8N8ANLTG', '2026-07-07 21:46:26'),
+(49, 1, 4, 1.00, '2026-07-08', 'M-Pesa', 'completed', 'ws_CO_08072026113856483745959757', 'Term 1', 2026, 'Tuition', 'UG8N8AOV3O', '2026-07-08 08:38:52'),
+(51, 1, 4, 1.00, '2026-07-15', 'M-Pesa', 'completed', 'ws_CO_15072026011155751745959757', 'Term 1', 2026, 'Tuition', 'UGFN8BG3G5', '2026-07-14 22:11:53'),
+(52, 1, 4, 1.00, '2026-07-16', 'M-Pesa', 'completed', 'ws_CO_16072026121807872745959757', 'Term 1', 2026, 'Tuition', 'UGGN8BL5Y8', '2026-07-16 09:18:06'),
+(53, 1, 4, 2.00, '2026-07-16', 'M-Pesa', 'completed', 'ws_CO_16072026121906511745959757', 'Term 1', 2026, 'Tuition', 'UGGN8BL4JP', '2026-07-16 09:19:03'),
+(55, 1, 4, 1.00, '2026-07-19', 'M-Pesa', 'completed', 'ws_CO_19072026162300421745959757', 'Term 1', 2026, 'Tuition', 'UGJN801DNO', '2026-07-19 13:22:56'),
+(56, 1, 4, 2.00, '2026-07-19', 'M-Pesa', 'completed', 'ws_CO_19072026162337917745959757', 'Term 1', 2026, 'Tuition', 'UGJN801C80', '2026-07-19 13:23:34'),
+(57, 1, 4, 2.00, '2026-07-19', 'M-Pesa', 'pending', 'ws_CO_19072026200130556745959757', 'Term 1', 2026, 'Tuition', 'FEE-6A5D02E8A3038-4', '2026-07-19 17:01:28'),
+(58, 1, 4, 2.00, '2026-07-19', 'M-Pesa', 'completed', 'ws_CO_19072026200320607745959757', 'Term 1', 2026, 'Tuition', 'UGJN802DVF', '2026-07-19 17:03:18'),
+(59, 1, 4, 1.00, '2026-07-19', 'M-Pesa', 'completed', 'ws_CO_19072026231905970745959757', 'Term 1', 2026, 'Tuition', 'UGJN8032CK', '2026-07-19 20:19:04'),
+(60, 1, 4, 1.00, '2026-07-20', 'M-Pesa', 'pending', 'ws_CO_20072026050232743745959757', 'Term 1', 2026, 'Tuition', 'FEE-6A5D81B7B1C55-4', '2026-07-20 02:02:31'),
+(61, 1, 4, 1.00, '2026-07-20', 'M-Pesa', 'pending', 'ws_CO_20072026050423172745959757', 'Term 1', 2026, 'Tuition', 'FEE-6A5D8226392C9-4', '2026-07-20 02:04:22'),
+(62, 1, 4, 1.00, '2026-07-20', 'M-Pesa', 'pending', 'ws_CO_20072026051045220745959757', 'Term 1', 2026, 'Tuition', 'FEE-6A5D83A48037B-4', '2026-07-20 02:10:44'),
+(63, 1, 4, 9983.00, '2026-07-20', 'M-Pesa', 'pending', 'ws_CO_20072026051128616745959757', 'Term 1', 2026, 'Tuition', 'FEE-6A5D83CF9B6EE-4', '2026-07-20 02:11:27'),
+(67, 1, 4, 1.00, '2026-07-22', 'M-Pesa', 'completed', 'ws_CO_22072026225433145745959757', 'Term 1', 2026, 'Tuition', 'UGMN80EP8R', '2026-07-22 19:54:29'),
+(70, 1, 4, 1.00, '2026-07-23', 'M-Pesa', 'completed', 'ws_CO_23072026192534871745959757', 'Term 1', 2026, 'Tuition', 'UGNN80HUQC', '2026-07-23 16:25:32'),
+(71, 1, 4, 1.00, '2026-07-24', 'M-Pesa', 'pending', 'ws_CO_24072026012614195745959757', 'Term 2', 2026, 'Tuition', 'FEE-6A629504C0EE5-4', '2026-07-23 22:26:12'),
+(72, 1, 4, 1.00, '2026-07-24', 'M-Pesa', 'pending', 'ws_CO_24072026012652605745959757', 'Term 2', 2026, 'Tuition', 'FEE-6A62952B03727-4', '2026-07-23 22:26:51'),
+(73, 0, 4, 1.00, '2026-07-24', 'M-Pesa', 'pending', 'ws_CO_24072026012936815745959757', 'Term 2', 2026, 'Tuition', 'FEE-6A6295CF50B13-4', '2026-07-23 22:29:35'),
+(74, 0, 4, 1.00, '2026-07-24', 'M-Pesa', 'pending', 'ws_CO_24072026013300460745959757', 'Term 2', 2026, 'Tuition', 'FEE-6A62969ACA0D5-4', '2026-07-23 22:32:58'),
+(76, 0, 4, 1.00, '2026-07-24', 'M-Pesa', 'completed', 'ws_CO_24072026013732159745959757', 'Term 2', 2026, 'Tuition', 'UGON80IRKH', '2026-07-23 22:37:30');
 
 -- --------------------------------------------------------
 
@@ -464,10 +777,10 @@ CREATE TABLE `fee_structure` (
 --
 
 INSERT INTO `fee_structure` (`id`, `school_id`, `class_id`, `term`, `year`, `fee_type`, `amount`, `description`, `created_at`) VALUES
-(1, 1, 1, 'Term 1', 2026, 'Tuition', 20000.00, 'THIS IS TERM 1 FEE', '2026-07-04 16:14:40'),
 (2, 1, 1, 'Term 2', 2026, 'Tuition', 15000.00, 'THIS SI TERM 2 FEE', '2026-07-05 10:29:58'),
 (3, 1, 1, 'Term 3', 2026, 'Tuition', 10000.00, 'THIS IS TERM 3 FEE\r\n', '2026-07-05 11:02:55'),
-(4, 1, 1, 'Term 1', 2026, 'RMADIAL', 1000.00, 'THIS IS REMEDIAL FEE', '2026-07-05 14:42:56');
+(4, 1, 1, 'Term 1', 2026, 'RMADIAL', 1000.00, 'THIS IS REMEDIAL FEE', '2026-07-05 14:42:56'),
+(5, 1, 1, 'Term 1', 2026, 'Tuition', 21000.00, 'this is term 1 fee', '2026-07-22 20:18:28');
 
 -- --------------------------------------------------------
 
@@ -545,7 +858,11 @@ INSERT INTO `finance_manager_sessions` (`id`, `finance_manager_id`, `session_tok
 (7, 1, '8b0622b0aa6975758b38d3ca718acc7e31bd568aa1108f26148e7d02bccfa56f', '2026-07-15 07:59:54', '2026-07-14 21:59:54'),
 (8, 1, '87d181ea6484991901e72cd62191e8e8fe62a310c4dac2a6bdb2f03e2d050788', '2026-07-16 16:31:28', '2026-07-16 06:31:28'),
 (9, 1, 'bd5dce255efd23d6931b4997ac6eb02b81d17b068fe7b423e4ab98091c83a26b', '2026-07-20 03:05:21', '2026-07-19 17:05:21'),
-(10, 1, '01ac277a201d297c5b0b403bb47f7d8828ea21fedd9f881f6210172d0e71f99a', '2026-07-21 06:20:25', '2026-07-20 20:20:25');
+(10, 1, '01ac277a201d297c5b0b403bb47f7d8828ea21fedd9f881f6210172d0e71f99a', '2026-07-21 06:20:25', '2026-07-20 20:20:25'),
+(11, 1, 'be481b1fa660f9c720d7e884f8f1428dd45e56d83915fcc1a7e35c380cb4c536', '2026-07-24 07:27:33', '2026-07-23 21:27:33'),
+(12, 1, 'e7383e7be492222e3c5ca7cc618919eb63294b567e92d72397d9390fe12f6389', '2026-07-24 08:03:25', '2026-07-23 22:03:25'),
+(13, 1, '9390f5189cd4601be6918b8d5acdbb37fe0e447d21c3ef6e2034253047d74f9e', '2026-07-24 08:59:15', '2026-07-23 22:59:15'),
+(14, 1, '8a5ea9554ef6d5846067e365e65f9c7d3e4d8e545040dce4031d0fca4ca7fccf', '2026-07-25 10:01:57', '2026-07-25 00:01:57');
 
 -- --------------------------------------------------------
 
@@ -593,7 +910,141 @@ INSERT INTO `grading_scales` (`id`, `school_id`, `subject_id`, `min_score`, `max
 (48, 1, 2, 45, 49, 'B', 'Exelent', 9, '2026-07-19 14:34:06'),
 (49, 1, 2, 50, 54, 'B+', 'Exelent', 10, '2026-07-19 14:34:06'),
 (50, 1, 2, 55, 59, 'A-', 'Exelent', 11, '2026-07-19 14:34:06'),
-(51, 1, 2, 60, 100, 'A', 'Exelent', 12, '2026-07-19 14:34:06');
+(51, 1, 2, 60, 100, 'A', 'Exelent', 12, '2026-07-19 14:34:06'),
+(52, 1, 4, 0, 29, 'E', 'Fail', 1, '2026-07-24 20:13:54'),
+(53, 1, 4, 30, 34, 'D-', 'Fail', 2, '2026-07-24 20:13:54'),
+(54, 1, 4, 35, 39, 'D-', 'Poor', 3, '2026-07-24 20:13:54'),
+(55, 1, 4, 40, 44, 'D+', 'Fair', 4, '2026-07-24 20:13:54'),
+(56, 1, 4, 45, 49, 'C-', 'Good', 5, '2026-07-24 20:13:54'),
+(57, 1, 4, 50, 54, 'C', 'Good', 6, '2026-07-24 20:13:54'),
+(58, 1, 4, 55, 59, 'C+', 'Very Good', 7, '2026-07-24 20:13:54'),
+(59, 1, 4, 60, 64, 'B-', 'Very Good', 8, '2026-07-24 20:13:54'),
+(60, 1, 4, 65, 69, 'B', 'Excellent', 9, '2026-07-24 20:13:54'),
+(61, 1, 4, 70, 74, 'B+', 'Excellent', 10, '2026-07-24 20:13:54'),
+(62, 1, 4, 75, 79, 'A-', 'Excellent', 11, '2026-07-24 20:13:54'),
+(63, 1, 4, 80, 100, 'A', 'Excellent', 12, '2026-07-24 20:13:54'),
+(64, 1, 8, 0, 37, 'E', 'Fail', 1, '2026-07-24 20:24:48'),
+(65, 1, 8, 38, 42, 'D-', 'Fail', 2, '2026-07-24 20:24:48'),
+(66, 1, 8, 43, 47, 'D', 'Poor', 3, '2026-07-24 20:24:48'),
+(67, 1, 8, 48, 52, 'D+', 'Fair', 4, '2026-07-24 20:24:48'),
+(68, 1, 8, 53, 57, 'C-', 'Good', 5, '2026-07-24 20:24:48'),
+(69, 1, 8, 58, 62, 'C', 'Good', 6, '2026-07-24 20:24:48'),
+(70, 1, 8, 63, 67, 'C+', 'Very Good', 7, '2026-07-24 20:24:48'),
+(71, 1, 8, 68, 72, 'B-', 'Very Good', 8, '2026-07-24 20:24:48'),
+(72, 1, 8, 73, 77, 'B', 'Very Good', 9, '2026-07-24 20:24:48'),
+(73, 1, 8, 78, 82, 'B+', 'Exelent', 10, '2026-07-24 20:24:48'),
+(74, 1, 8, 83, 87, 'A-', 'Exelent', 11, '2026-07-24 20:24:48'),
+(75, 1, 8, 88, 100, 'A', 'Exelent', 12, '2026-07-24 20:24:48'),
+(76, 1, 12, 0, 27, 'E', 'Fail', 1, '2026-07-24 20:36:58'),
+(77, 1, 12, 28, 32, 'D-', 'Fail', 2, '2026-07-24 20:36:58'),
+(78, 1, 12, 33, 37, 'D', 'Poor', 3, '2026-07-24 20:36:58'),
+(79, 1, 12, 38, 42, 'D+', 'Poor', 4, '2026-07-24 20:36:58'),
+(80, 1, 12, 43, 47, 'C-', 'Good', 5, '2026-07-24 20:36:58'),
+(81, 1, 12, 48, 52, 'C', 'Good', 6, '2026-07-24 20:36:58'),
+(82, 1, 12, 53, 57, 'C+', 'Good', 7, '2026-07-24 20:36:58'),
+(83, 1, 12, 58, 62, 'B-', 'Very Good', 8, '2026-07-24 20:36:58'),
+(84, 1, 12, 63, 67, 'B', 'Very Good', 9, '2026-07-24 20:36:58'),
+(85, 1, 12, 68, 72, 'B+', 'Exelent', 10, '2026-07-24 20:36:58'),
+(86, 1, 12, 73, 77, 'A-', 'Exelent', 11, '2026-07-24 20:36:58'),
+(87, 1, 12, 78, 100, 'A', 'Exelent', 12, '2026-07-24 20:36:58'),
+(88, 1, 11, 0, 29, 'E', 'Fail', 1, '2026-07-24 20:47:03'),
+(89, 1, 11, 30, 34, 'D-', 'Fail', 2, '2026-07-24 20:47:03'),
+(90, 1, 11, 35, 39, 'D', 'Por', 3, '2026-07-24 20:47:03'),
+(91, 1, 11, 40, 44, 'D+', 'Por', 4, '2026-07-24 20:47:03'),
+(92, 1, 11, 45, 49, 'C-', 'Good', 5, '2026-07-24 20:47:03'),
+(93, 1, 11, 50, 54, 'C', 'Good', 6, '2026-07-24 20:47:03'),
+(94, 1, 11, 55, 59, 'C+', 'Good', 7, '2026-07-24 20:47:03'),
+(95, 1, 11, 60, 64, 'B-', 'Very Good', 8, '2026-07-24 20:47:03'),
+(96, 1, 11, 65, 69, 'B', 'Very Good', 9, '2026-07-24 20:47:03'),
+(97, 1, 11, 70, 74, 'B+', 'Exelent', 10, '2026-07-24 20:47:03'),
+(98, 1, 11, 75, 79, 'A-', 'Exelent', 11, '2026-07-24 20:47:03'),
+(99, 1, 11, 80, 100, 'A', 'Exelent', 12, '2026-07-24 20:47:03'),
+(100, 1, 6, 0, 11, 'E', 'Fail', 1, '2026-07-24 20:58:00'),
+(101, 1, 6, 12, 18, 'D-', 'Fail', 2, '2026-07-24 20:58:00'),
+(102, 1, 6, 19, 24, 'D', 'Poor', 3, '2026-07-24 20:58:00'),
+(103, 1, 6, 25, 30, 'D+', 'Poor', 4, '2026-07-24 20:58:00'),
+(104, 1, 6, 31, 36, 'C-', 'Good', 5, '2026-07-24 20:58:00'),
+(105, 1, 6, 37, 42, 'C', 'Good', 6, '2026-07-24 20:58:00'),
+(106, 1, 6, 43, 48, 'C+', 'Good', 7, '2026-07-24 20:58:00'),
+(107, 1, 6, 49, 54, 'B-', 'Very Good', 8, '2026-07-24 20:58:00'),
+(108, 1, 6, 55, 59, 'B', 'Very Good', 9, '2026-07-24 20:58:00'),
+(109, 1, 6, 60, 64, 'B+', 'Exelent', 10, '2026-07-24 20:58:00'),
+(110, 1, 6, 65, 69, 'A-', 'Exelent', 11, '2026-07-24 20:58:00'),
+(111, 1, 6, 70, 100, 'A', 'Exelent', 12, '2026-07-24 20:58:00'),
+(112, 1, 9, 0, 29, 'E', 'Fail', 1, '2026-07-24 21:08:55'),
+(113, 1, 9, 30, 34, 'D-', 'Fail', 2, '2026-07-24 21:08:55'),
+(114, 1, 9, 35, 39, 'D', 'Poor', 3, '2026-07-24 21:08:55'),
+(115, 1, 9, 40, 44, 'D+', 'Poor', 4, '2026-07-24 21:08:55'),
+(116, 1, 9, 45, 49, 'C-', 'Good', 5, '2026-07-24 21:08:55'),
+(117, 1, 9, 50, 54, 'C', 'Good', 6, '2026-07-24 21:08:55'),
+(118, 1, 9, 55, 59, 'C+', 'Good', 7, '2026-07-24 21:08:55'),
+(119, 1, 9, 60, 64, 'B-', 'Very Good', 8, '2026-07-24 21:08:55'),
+(120, 1, 9, 65, 69, 'B', 'Very Good', 9, '2026-07-24 21:08:55'),
+(121, 1, 9, 70, 74, 'B+', 'Exelent', 10, '2026-07-24 21:08:55'),
+(122, 1, 9, 75, 84, 'A-', 'Exelent', 11, '2026-07-24 21:08:55'),
+(123, 1, 9, 85, 100, 'A', 'Exelent', 12, '2026-07-24 21:08:55'),
+(124, 1, 5, 0, 15, 'E', 'Fail', 1, '2026-07-24 21:16:39'),
+(125, 1, 5, 16, 20, 'D-', 'Fail', 2, '2026-07-24 21:16:39'),
+(126, 1, 5, 21, 25, 'D', 'Poor', 3, '2026-07-24 21:16:39'),
+(127, 1, 5, 26, 30, 'D+', 'Poor', 4, '2026-07-24 21:16:39'),
+(128, 1, 5, 31, 35, 'C-', 'Good', 5, '2026-07-24 21:16:39'),
+(129, 1, 5, 36, 40, 'C', 'Good', 6, '2026-07-24 21:16:39'),
+(130, 1, 5, 41, 45, 'C+', 'Good', 7, '2026-07-24 21:16:39'),
+(131, 1, 5, 46, 50, 'B-', 'Very Good', 8, '2026-07-24 21:16:39'),
+(132, 1, 5, 51, 55, 'B', 'Very Good', 9, '2026-07-24 21:16:39'),
+(133, 1, 5, 56, 60, 'B+', 'Exelent', 10, '2026-07-24 21:16:39'),
+(134, 1, 5, 61, 65, 'A-', 'Exelent', 11, '2026-07-24 21:16:39'),
+(135, 1, 5, 66, 100, 'A', 'Exelent', 12, '2026-07-24 21:16:39'),
+(136, 1, 7, 0, 39, 'E', 'Fail', 1, '2026-07-24 21:29:28'),
+(137, 1, 7, 40, 44, 'D-', 'Fail', 2, '2026-07-24 21:29:28'),
+(138, 1, 7, 45, 49, 'D', 'Poor', 3, '2026-07-24 21:29:28'),
+(139, 1, 7, 50, 54, 'D+', 'Poor', 4, '2026-07-24 21:29:28'),
+(140, 1, 7, 55, 59, 'C-', 'Good', 5, '2026-07-24 21:29:28'),
+(141, 1, 7, 60, 64, 'C', 'Good', 6, '2026-07-24 21:29:28'),
+(142, 1, 7, 65, 65, 'C+', 'Good', 7, '2026-07-24 21:29:28'),
+(143, 1, 7, 70, 74, 'B-', 'Very Good', 8, '2026-07-24 21:29:28'),
+(144, 1, 7, 75, 79, 'B', 'Very Good', 9, '2026-07-24 21:29:28'),
+(145, 1, 7, 80, 84, 'B+', 'Exelent', 10, '2026-07-24 21:29:28'),
+(146, 1, 7, 85, 89, 'A-', 'Exelent', 11, '2026-07-24 21:29:28'),
+(147, 1, 7, 90, 100, 'A', 'Exelent', 12, '2026-07-24 21:29:28'),
+(148, 1, 10, 0, 14, 'E', 'Fail', 1, '2026-07-24 21:38:17'),
+(149, 1, 10, 15, 19, 'D-', 'Fail', 2, '2026-07-24 21:38:17'),
+(150, 1, 10, 20, 29, 'D', 'Poor', 3, '2026-07-24 21:38:17'),
+(151, 1, 10, 30, 54, 'D+', 'Poor', 4, '2026-07-24 21:38:17'),
+(152, 1, 10, 35, 39, 'C-', 'Good', 5, '2026-07-24 21:38:17'),
+(153, 1, 10, 40, 44, 'C', 'Good', 6, '2026-07-24 21:38:17'),
+(154, 1, 10, 45, 54, 'C+', 'Good', 7, '2026-07-24 21:38:17'),
+(155, 1, 10, 55, 59, 'B-', 'Very Good', 8, '2026-07-24 21:38:17'),
+(156, 1, 10, 60, 69, 'B', 'Very Good', 9, '2026-07-24 21:38:17'),
+(157, 1, 10, 70, 74, 'B+', 'Exelent', 10, '2026-07-24 21:38:17'),
+(158, 1, 10, 75, 79, 'A-', 'Exelent', 11, '2026-07-24 21:38:17'),
+(159, 1, 10, 80, 100, 'A', 'Exelent', 12, '2026-07-24 21:38:17');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `holidays`
+--
+
+CREATE TABLE `holidays` (
+  `id` int(11) NOT NULL,
+  `school_id` int(11) NOT NULL,
+  `holiday_name` varchar(100) NOT NULL,
+  `description` text DEFAULT NULL,
+  `start_date` date NOT NULL,
+  `end_date` date NOT NULL,
+  `holiday_type` enum('public','school','religious','other') DEFAULT 'school',
+  `is_active` tinyint(1) DEFAULT 1,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `holidays`
+--
+
+INSERT INTO `holidays` (`id`, `school_id`, `holiday_name`, `description`, `start_date`, `end_date`, `holiday_type`, `is_active`, `created_at`, `updated_at`) VALUES
+(1, 1, 'TERM I', 'TEST', '2026-04-04', '2026-04-26', 'school', 1, '2026-07-23 20:23:39', '2026-07-23 20:23:39');
 
 -- --------------------------------------------------------
 
@@ -659,13 +1110,6 @@ CREATE TABLE `invoice_items` (
   `description` text DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `invoice_items`
---
-
-INSERT INTO `invoice_items` (`id`, `invoice_id`, `fee_structure_id`, `fee_type`, `amount`, `description`, `created_at`) VALUES
-(4, 3, 1, 'Tuition', 20000.00, 'THIS IS TERM 1 FEE', '2026-07-16 08:56:01');
 
 -- --------------------------------------------------------
 
@@ -790,7 +1234,48 @@ INSERT INTO `librarian_sessions` (`id`, `librarian_id`, `session_token`, `expire
 (3, 1, '1117c71b44894e86c01ac178d8b06fbc916fe900417c6d93719e4a659f3d4076', '2026-07-06 02:50:37', '2026-07-05 16:50:37'),
 (4, 1, 'd72ab46a73f824e5f63865a07512b6698f5a60efb27d7f9314c6bea371ed0314', '2026-07-15 08:38:12', '2026-07-14 22:38:12'),
 (5, 1, 'f1cfdca4e958faebbb021506fd2935f451f938b7fc31ccbd3d0b2a06abb23b06', '2026-07-16 16:36:32', '2026-07-16 06:36:32'),
-(6, 1, '49feddd1ce03d2969205a501b8e1c7dfdc9e5d2a0ff6c2f49732420b103d8a85', '2026-07-21 06:20:05', '2026-07-20 20:20:05');
+(6, 1, '49feddd1ce03d2969205a501b8e1c7dfdc9e5d2a0ff6c2f49732420b103d8a85', '2026-07-21 06:20:05', '2026-07-20 20:20:05'),
+(8, 1, 'b983a065fc682539104a54465dc29ace236532d5999159320e55a9b4897c7974', '2026-07-22 23:45:26', '2026-07-22 13:45:26'),
+(9, 1, '0b33def5e0edc697db122c32b6249d5be35bdbfa69e1123d9f2bc2c6fa7d0291', '2026-07-24 08:36:12', '2026-07-23 22:36:12'),
+(10, 1, 'c8c0b5d024dc9af9d87468752ea0d6e3bf88f8b65eb8b5e1d4748eb99fb3fe28', '2026-07-24 09:12:08', '2026-07-23 23:12:08'),
+(11, 1, '9180e323dd7ec22a5b28fe879749b67a679ee474436c16912350cb99932fe38c', '2026-07-24 22:16:41', '2026-07-24 12:16:41'),
+(12, 1, '0e119556302c021db4aa56ed1ffb851d040f01dda9a0a7c3ee8e7e48848807a9', '2026-07-25 04:14:20', '2026-07-24 18:14:20'),
+(13, 1, 'c7608c2ddc4d511bf86dee7e45dc86c8bbe1e6c194381c2800b489cf86958f82', '2026-07-25 08:42:50', '2026-07-24 22:42:50');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `library_fines`
+--
+
+CREATE TABLE `library_fines` (
+  `id` int(11) NOT NULL,
+  `school_id` int(11) NOT NULL,
+  `book_id` int(11) NOT NULL,
+  `borrowing_id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `user_type` enum('student','teacher') NOT NULL,
+  `amount` decimal(10,2) NOT NULL,
+  `amount_paid` decimal(10,2) DEFAULT 0.00,
+  `status` enum('unpaid','partial','paid','waived','pending') DEFAULT NULL,
+  `issue_date` timestamp NOT NULL DEFAULT current_timestamp(),
+  `due_date` timestamp NULL DEFAULT NULL,
+  `fine_type` varchar(20) DEFAULT 'overdue',
+  `payment_date` timestamp NULL DEFAULT NULL,
+  `payment_method` enum('cash','mpesa') DEFAULT 'cash',
+  `transaction_reference` varchar(100) DEFAULT NULL,
+  `receipt_number` varchar(255) DEFAULT NULL,
+  `waiver_reason` text DEFAULT NULL,
+  `waived_by` int(11) DEFAULT NULL,
+  `waived_date` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `library_fines`
+--
+
+INSERT INTO `library_fines` (`id`, `school_id`, `book_id`, `borrowing_id`, `user_id`, `user_type`, `amount`, `amount_paid`, `status`, `issue_date`, `due_date`, `fine_type`, `payment_date`, `payment_method`, `transaction_reference`, `receipt_number`, `waiver_reason`, `waived_by`, `waived_date`) VALUES
+(28, 1, 4, 8, 4, 'student', 125.00, 2.00, 'unpaid', '2026-07-24 18:27:47', '2026-08-23 18:27:47', 'damaged', '2026-07-24 23:50:40', NULL, 'ws_CO_25072026034015366745959757', 'UGPN80MX5K', NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -866,7 +1351,12 @@ INSERT INTO `parent_sessions` (`id`, `parent_id`, `session_token`, `expires_at`,
 (13, 2, '76a430889e19485376b6df7ac3c1b2842ab67b64c3f528252299ce548f5ccf42', '2026-07-19 23:12:26', '2026-07-19 13:12:26'),
 (14, 2, '4d0b2f65ffa32817dc5ee664c7d1a250746948c5a45e00e4c3fb6fd83377cad3', '2026-07-21 06:21:29', '2026-07-20 20:21:29'),
 (15, 2, '5cc7b5877911f142ca20874eef5facce4ae8a87cb868db45e4aed959661f1a0d', '2026-07-22 09:50:07', '2026-07-21 23:50:07'),
-(16, 2, '9bd64721cc5cc666f8ac487084c9e9d3eab13231be7ba10934d4a6b0af217832', '2026-07-22 14:03:39', '2026-07-22 04:03:39');
+(16, 2, '9bd64721cc5cc666f8ac487084c9e9d3eab13231be7ba10934d4a6b0af217832', '2026-07-22 14:03:39', '2026-07-22 04:03:39'),
+(17, 2, '6c981d14f16c79e3e852e12fc420d7555ca30c51eacae3619501d8a856eba045', '2026-07-22 23:06:38', '2026-07-22 13:06:38'),
+(18, 2, '234d772b2c5133790f01f42fca46f5744dfb82c51338d9622a3c8bb7f414d075', '2026-07-23 05:48:59', '2026-07-22 19:48:59'),
+(19, 2, '7c0463e27e6e9537057f76a58fe89fc3fd8ac6e64a402cee5301f6ca8a6e3723', '2026-07-24 02:24:07', '2026-07-23 16:24:07'),
+(20, 2, '162e9b096f6dd5b855c0e45918a052c0f732917279688ab457b353421aaa0341', '2026-07-24 08:25:53', '2026-07-23 22:25:53'),
+(21, 2, '3361a763aaeed17adf0ebffd7d79877d50e60cc38cfeb1f7595bad2a7d884a99', '2026-07-25 05:56:49', '2026-07-24 19:56:49');
 
 -- --------------------------------------------------------
 
@@ -926,7 +1416,8 @@ INSERT INTO `reminder_history` (`id`, `student_id`, `school_id`, `year`, `term`,
 (10, 4, 1, 2026, 'Term 1', 9983.00, 'email', '', 'sent', '2026-07-20 00:29:48', '2026-07-20 00:29:48'),
 (11, 4, 1, 2026, 'Term 1', 9983.00, 'email', '', 'sent', '2026-07-20 00:31:23', '2026-07-20 00:31:23'),
 (12, 4, 1, 2026, 'Term 1', 9983.00, 'email', '', 'sent', '2026-07-20 00:31:27', '2026-07-20 00:31:27'),
-(13, 4, 1, 2026, 'Term 1', 9983.00, 'email', '', 'sent', '2026-07-20 00:31:33', '2026-07-20 00:31:33');
+(13, 4, 1, 2026, 'Term 1', 9983.00, 'email', '', 'sent', '2026-07-20 00:31:33', '2026-07-20 00:31:33'),
+(14, 4, 1, 2026, 'Term 1', 10981.00, 'email', '', 'sent', '2026-07-23 22:39:05', '2026-07-23 22:39:05');
 
 -- --------------------------------------------------------
 
@@ -995,7 +1486,8 @@ CREATE TABLE `schools` (
 --
 
 INSERT INTO `schools` (`id`, `school_code`, `school_name`, `email`, `password`, `phone`, `address`, `county`, `school_type`, `admission_prefix`, `status`, `logo`, `created_at`, `updated_at`) VALUES
-(1, 'SCH176C0AD1', 'NDERE SENIOR SCHOOL', 'otisbrian46@gmail.com', '$2y$10$cVlyR0SCbJTqz7twg0/a2.VVdmROdKmDt.8A5kgi.f8Bm1yEK.6oG', '0745959757', 'Kisumu\n40100 kisumu', 'HOMABAY', 'Secondary', 'NDS', 'active', '../uploads/schools/school_1_1783185722.png', '2026-07-04 15:06:57', '2026-07-04 17:25:35');
+(1, 'SCH176C0AD1', 'NDERE SENIOR SCHOOL', 'otisbrian46@gmail.com', '$2y$10$cVlyR0SCbJTqz7twg0/a2.VVdmROdKmDt.8A5kgi.f8Bm1yEK.6oG', '0745959757', 'Kisumu\n40100 kisumu', 'HOMABAY', 'Secondary', 'NDS', 'active', '../uploads/schools/school_1_1783185722.png', '2026-07-04 15:06:57', '2026-07-04 17:25:35'),
+(2, 'SCH1432B168', 'WIOBIERO SENIOR SCHOOL', 'otienobrian029@gmail.com', '$2y$10$QyUnDPtCEiqQpcX7uPOCruiTGtM64pNztG20LBJS7/v9snfRz.eTu', '0745959757', 'Kisumu\n40100 kisumu', 'SIAYA', 'Primary', 'NDS', 'active', NULL, '2026-07-23 22:45:36', '2026-07-23 22:48:32');
 
 -- --------------------------------------------------------
 
@@ -1058,7 +1550,16 @@ INSERT INTO `school_b2c_responses` (`id`, `withdrawal_id`, `callback_type`, `res
 (54, NULL, 'result', '', '', '', '', NULL, NULL, NULL, NULL, '', '2026-07-19 20:40:11'),
 (55, 62, 'result', '4001', 'Insufficient balance', '7cd0-4a28-8d04-cb27fe4732c675739', 'AG_20260720_0100100303magp3v5e6s', 'UGK0000000', NULL, NULL, NULL, '{\"Result\":{\"ResultType\":0,\"ResultCode\":4001,\"ResultDesc\":\"Insufficient balance\",\"OriginatorConversationID\":\"7cd0-4a28-8d04-cb27fe4732c675739\",\"ConversationID\":\"AG_20260720_0100100303magp3v5e6s\",\"TransactionID\":\"UGK0000000\",\"ReferenceData\":{\"ReferenceItem\":{\"Key\":\"QueueTimeoutURL\",\"Value\":\"https:\\/\\/internalsandbox.safaricom.co.ke\\/mpesa\\/b2cresults\\/v1\\/submit\"}}}}', '2026-07-19 22:41:59'),
 (56, 63, 'result', '4001', 'Insufficient balance', '6839-428d-8589-2bcb00296f3788158', 'AG_20260720_010010030ay9icuyg8xg', 'UGK0000000', NULL, NULL, NULL, '{\"Result\":{\"ResultType\":0,\"ResultCode\":4001,\"ResultDesc\":\"Insufficient balance\",\"OriginatorConversationID\":\"6839-428d-8589-2bcb00296f3788158\",\"ConversationID\":\"AG_20260720_010010030ay9icuyg8xg\",\"TransactionID\":\"UGK0000000\",\"ReferenceData\":{\"ReferenceItem\":{\"Key\":\"QueueTimeoutURL\",\"Value\":\"https:\\/\\/internalsandbox.safaricom.co.ke\\/mpesa\\/b2cresults\\/v1\\/submit\"}}}}', '2026-07-20 02:07:15'),
-(57, 64, 'result', '4001', 'Insufficient balance', '6839-428d-8589-2bcb00296f3788315', 'AG_20260720_010010030b29th2u5c1g', 'UGK0000000', NULL, NULL, NULL, '{\"Result\":{\"ResultType\":0,\"ResultCode\":4001,\"ResultDesc\":\"Insufficient balance\",\"OriginatorConversationID\":\"6839-428d-8589-2bcb00296f3788315\",\"ConversationID\":\"AG_20260720_010010030b29th2u5c1g\",\"TransactionID\":\"UGK0000000\",\"ReferenceData\":{\"ReferenceItem\":{\"Key\":\"QueueTimeoutURL\",\"Value\":\"https:\\/\\/internalsandbox.safaricom.co.ke\\/mpesa\\/b2cresults\\/v1\\/submit\"}}}}', '2026-07-20 02:10:22');
+(57, 64, 'result', '4001', 'Insufficient balance', '6839-428d-8589-2bcb00296f3788315', 'AG_20260720_010010030b29th2u5c1g', 'UGK0000000', NULL, NULL, NULL, '{\"Result\":{\"ResultType\":0,\"ResultCode\":4001,\"ResultDesc\":\"Insufficient balance\",\"OriginatorConversationID\":\"6839-428d-8589-2bcb00296f3788315\",\"ConversationID\":\"AG_20260720_010010030b29th2u5c1g\",\"TransactionID\":\"UGK0000000\",\"ReferenceData\":{\"ReferenceItem\":{\"Key\":\"QueueTimeoutURL\",\"Value\":\"https:\\/\\/internalsandbox.safaricom.co.ke\\/mpesa\\/b2cresults\\/v1\\/submit\"}}}}', '2026-07-20 02:10:22'),
+(58, 76, 'result', '0', 'The service request is processed successfully.', '6e47-4967-bcb9-74445bede7d2149876', 'AG_20260725_0100100306hfuhjt5vaj', 'UGP030DS9I', 10.00, '254708374149 - John Doe', '25.07.2026 03:01:31', '{\"Result\":{\"ResultType\":0,\"ResultCode\":0,\"ResultDesc\":\"The service request is processed successfully.\",\"OriginatorConversationID\":\"6e47-4967-bcb9-74445bede7d2149876\",\"ConversationID\":\"AG_20260725_0100100306hfuhjt5vaj\",\"TransactionID\":\"UGP030DS9I\",\"ResultParameters\":{\"ResultParameter\":[{\"Key\":\"TransactionAmount\",\"Value\":10},{\"Key\":\"TransactionReceipt\",\"Value\":\"UGP030DS9I\"},{\"Key\":\"ReceiverPartyPublicName\",\"Value\":\"254708374149 - John Doe\"},{\"Key\":\"TransactionCompletedDateTime\",\"Value\":\"25.07.2026 03:01:31\"},{\"Key\":\"B2CUtilityAccountAvailableFunds\",\"Value\":3020629.44},{\"Key\":\"B2CWorkingAccountAvailableFunds\",\"Value\":584459.00},{\"Key\":\"B2CRecipientIsRegisteredCustomer\",\"Value\":\"Y\"},{\"Key\":\"B2CChargesPaidAccountAvailableFunds\",\"Value\":-2420.00}]},\"ReferenceData\":{\"ReferenceItem\":{\"Key\":\"QueueTimeoutURL\",\"Value\":\"https:\\/\\/internalsandbox.safaricom.co.ke\\/mpesa\\/b2cresults\\/v1\\/submit\"}}}}', '2026-07-25 00:02:17'),
+(59, 77, 'result', '0', 'The service request is processed successfully.', '6e47-4967-bcb9-74445bede7d2149944', 'AG_20260725_0100100306isnutdzh5z', 'UGP030DTRC', 10.00, '254708374149 - John Doe', '25.07.2026 03:02:35', '{\"Result\":{\"ResultType\":0,\"ResultCode\":0,\"ResultDesc\":\"The service request is processed successfully.\",\"OriginatorConversationID\":\"6e47-4967-bcb9-74445bede7d2149944\",\"ConversationID\":\"AG_20260725_0100100306isnutdzh5z\",\"TransactionID\":\"UGP030DTRC\",\"ResultParameters\":{\"ResultParameter\":[{\"Key\":\"TransactionAmount\",\"Value\":10},{\"Key\":\"TransactionReceipt\",\"Value\":\"UGP030DTRC\"},{\"Key\":\"ReceiverPartyPublicName\",\"Value\":\"254708374149 - John Doe\"},{\"Key\":\"TransactionCompletedDateTime\",\"Value\":\"25.07.2026 03:02:35\"},{\"Key\":\"B2CUtilityAccountAvailableFunds\",\"Value\":3020585.84},{\"Key\":\"B2CWorkingAccountAvailableFunds\",\"Value\":584459.00},{\"Key\":\"B2CRecipientIsRegisteredCustomer\",\"Value\":\"Y\"},{\"Key\":\"B2CChargesPaidAccountAvailableFunds\",\"Value\":-2420.00}]},\"ReferenceData\":{\"ReferenceItem\":{\"Key\":\"QueueTimeoutURL\",\"Value\":\"https:\\/\\/internalsandbox.safaricom.co.ke\\/mpesa\\/b2cresults\\/v1\\/submit\"}}}}', '2026-07-25 00:03:20'),
+(60, 78, 'result', '0', 'The service request is processed successfully.', 'b13d-4e1d-8fb5-0f0d66c4323015398', 'AG_20260725_0100100306lgkp3uxieq', 'UGP030DS9J', 10.00, '254708374149 - John Doe', '25.07.2026 03:04:39', '{\"Result\":{\"ResultType\":0,\"ResultCode\":0,\"ResultDesc\":\"The service request is processed successfully.\",\"OriginatorConversationID\":\"b13d-4e1d-8fb5-0f0d66c4323015398\",\"ConversationID\":\"AG_20260725_0100100306lgkp3uxieq\",\"TransactionID\":\"UGP030DS9J\",\"ResultParameters\":{\"ResultParameter\":[{\"Key\":\"TransactionAmount\",\"Value\":10},{\"Key\":\"TransactionReceipt\",\"Value\":\"UGP030DS9J\"},{\"Key\":\"ReceiverPartyPublicName\",\"Value\":\"254708374149 - John Doe\"},{\"Key\":\"TransactionCompletedDateTime\",\"Value\":\"25.07.2026 03:04:39\"},{\"Key\":\"B2CUtilityAccountAvailableFunds\",\"Value\":3020542.24},{\"Key\":\"B2CWorkingAccountAvailableFunds\",\"Value\":584459.00},{\"Key\":\"B2CRecipientIsRegisteredCustomer\",\"Value\":\"Y\"},{\"Key\":\"B2CChargesPaidAccountAvailableFunds\",\"Value\":-2420.00}]},\"ReferenceData\":{\"ReferenceItem\":{\"Key\":\"QueueTimeoutURL\",\"Value\":\"https:\\/\\/internalsandbox.safaricom.co.ke\\/mpesa\\/b2cresults\\/v1\\/submit\"}}}}', '2026-07-25 00:05:24'),
+(61, 79, 'result', '0', 'The service request is processed successfully.', '6e47-4967-bcb9-74445bede7d2150262', 'AG_20260725_0100100306pdhg6hp4zb', 'UGP030DTRD', 10.00, '254708374149 - John Doe', '25.07.2026 03:07:41', '{\"Result\":{\"ResultType\":0,\"ResultCode\":0,\"ResultDesc\":\"The service request is processed successfully.\",\"OriginatorConversationID\":\"6e47-4967-bcb9-74445bede7d2150262\",\"ConversationID\":\"AG_20260725_0100100306pdhg6hp4zb\",\"TransactionID\":\"UGP030DTRD\",\"ResultParameters\":{\"ResultParameter\":[{\"Key\":\"TransactionAmount\",\"Value\":10},{\"Key\":\"TransactionReceipt\",\"Value\":\"UGP030DTRD\"},{\"Key\":\"ReceiverPartyPublicName\",\"Value\":\"254708374149 - John Doe\"},{\"Key\":\"TransactionCompletedDateTime\",\"Value\":\"25.07.2026 03:07:41\"},{\"Key\":\"B2CUtilityAccountAvailableFunds\",\"Value\":3020498.64},{\"Key\":\"B2CWorkingAccountAvailableFunds\",\"Value\":584459.00},{\"Key\":\"B2CRecipientIsRegisteredCustomer\",\"Value\":\"Y\"},{\"Key\":\"B2CChargesPaidAccountAvailableFunds\",\"Value\":-2420.00}]},\"ReferenceData\":{\"ReferenceItem\":{\"Key\":\"QueueTimeoutURL\",\"Value\":\"https:\\/\\/internalsandbox.safaricom.co.ke\\/mpesa\\/b2cresults\\/v1\\/submit\"}}}}', '2026-07-25 00:08:27'),
+(62, 80, 'result', '0', 'The service request is processed successfully.', 'b13d-4e1d-8fb5-0f0d66c4323015602', 'AG_20260725_0100100306smeff2m19e', 'UGP030DS9L', 10.00, '254708374149 - John Doe', '25.07.2026 03:10:13', '{\"Result\":{\"ResultType\":0,\"ResultCode\":0,\"ResultDesc\":\"The service request is processed successfully.\",\"OriginatorConversationID\":\"b13d-4e1d-8fb5-0f0d66c4323015602\",\"ConversationID\":\"AG_20260725_0100100306smeff2m19e\",\"TransactionID\":\"UGP030DS9L\",\"ResultParameters\":{\"ResultParameter\":[{\"Key\":\"TransactionAmount\",\"Value\":10},{\"Key\":\"TransactionReceipt\",\"Value\":\"UGP030DS9L\"},{\"Key\":\"ReceiverPartyPublicName\",\"Value\":\"254708374149 - John Doe\"},{\"Key\":\"TransactionCompletedDateTime\",\"Value\":\"25.07.2026 03:10:13\"},{\"Key\":\"B2CUtilityAccountAvailableFunds\",\"Value\":3020455.04},{\"Key\":\"B2CWorkingAccountAvailableFunds\",\"Value\":584459.00},{\"Key\":\"B2CRecipientIsRegisteredCustomer\",\"Value\":\"Y\"},{\"Key\":\"B2CChargesPaidAccountAvailableFunds\",\"Value\":-2420.00}]},\"ReferenceData\":{\"ReferenceItem\":{\"Key\":\"QueueTimeoutURL\",\"Value\":\"https:\\/\\/internalsandbox.safaricom.co.ke\\/mpesa\\/b2cresults\\/v1\\/submit\"}}}}', '2026-07-25 00:10:59'),
+(63, 81, 'result', '0', 'The service request is processed successfully.', 'b13d-4e1d-8fb5-0f0d66c4323015718', 'AG_20260725_0100100306vs08jfd9dp', 'UGP030DTRE', 10.00, '254708374149 - John Doe', '25.07.2026 03:12:40', '{\"Result\":{\"ResultType\":0,\"ResultCode\":0,\"ResultDesc\":\"The service request is processed successfully.\",\"OriginatorConversationID\":\"b13d-4e1d-8fb5-0f0d66c4323015718\",\"ConversationID\":\"AG_20260725_0100100306vs08jfd9dp\",\"TransactionID\":\"UGP030DTRE\",\"ResultParameters\":{\"ResultParameter\":[{\"Key\":\"TransactionAmount\",\"Value\":10},{\"Key\":\"TransactionReceipt\",\"Value\":\"UGP030DTRE\"},{\"Key\":\"ReceiverPartyPublicName\",\"Value\":\"254708374149 - John Doe\"},{\"Key\":\"TransactionCompletedDateTime\",\"Value\":\"25.07.2026 03:12:40\"},{\"Key\":\"B2CUtilityAccountAvailableFunds\",\"Value\":3020411.44},{\"Key\":\"B2CWorkingAccountAvailableFunds\",\"Value\":584459.00},{\"Key\":\"B2CRecipientIsRegisteredCustomer\",\"Value\":\"Y\"},{\"Key\":\"B2CChargesPaidAccountAvailableFunds\",\"Value\":-2420.00}]},\"ReferenceData\":{\"ReferenceItem\":{\"Key\":\"QueueTimeoutURL\",\"Value\":\"https:\\/\\/internalsandbox.safaricom.co.ke\\/mpesa\\/b2cresults\\/v1\\/submit\"}}}}', '2026-07-25 00:13:26'),
+(64, 82, 'result', '0', 'The service request is processed successfully.', '6e47-4967-bcb9-74445bede7d2150843', 'AG_20260725_01001003072oz2xm4nf9', 'UGP030DS9N', 10.00, '254708374149 - John Doe', '25.07.2026 03:18:03', '{\"Result\":{\"ResultType\":0,\"ResultCode\":0,\"ResultDesc\":\"The service request is processed successfully.\",\"OriginatorConversationID\":\"6e47-4967-bcb9-74445bede7d2150843\",\"ConversationID\":\"AG_20260725_01001003072oz2xm4nf9\",\"TransactionID\":\"UGP030DS9N\",\"ResultParameters\":{\"ResultParameter\":[{\"Key\":\"TransactionAmount\",\"Value\":10},{\"Key\":\"TransactionReceipt\",\"Value\":\"UGP030DS9N\"},{\"Key\":\"ReceiverPartyPublicName\",\"Value\":\"254708374149 - John Doe\"},{\"Key\":\"TransactionCompletedDateTime\",\"Value\":\"25.07.2026 03:18:03\"},{\"Key\":\"B2CUtilityAccountAvailableFunds\",\"Value\":3020367.84},{\"Key\":\"B2CWorkingAccountAvailableFunds\",\"Value\":584459.00},{\"Key\":\"B2CRecipientIsRegisteredCustomer\",\"Value\":\"Y\"},{\"Key\":\"B2CChargesPaidAccountAvailableFunds\",\"Value\":-2420.00}]},\"ReferenceData\":{\"ReferenceItem\":{\"Key\":\"QueueTimeoutURL\",\"Value\":\"https:\\/\\/internalsandbox.safaricom.co.ke\\/mpesa\\/b2cresults\\/v1\\/submit\"}}}}', '2026-07-25 00:18:48'),
+(65, 83, 'result', '0', 'The service request is processed successfully.', 'b13d-4e1d-8fb5-0f0d66c4323016055', 'AG_20260725_01001003077xj8a055yi', 'UGP030DTRI', 10.00, '254708374149 - John Doe', '25.07.2026 03:22:07', '{\"Result\":{\"ResultType\":0,\"ResultCode\":0,\"ResultDesc\":\"The service request is processed successfully.\",\"OriginatorConversationID\":\"b13d-4e1d-8fb5-0f0d66c4323016055\",\"ConversationID\":\"AG_20260725_01001003077xj8a055yi\",\"TransactionID\":\"UGP030DTRI\",\"ResultParameters\":{\"ResultParameter\":[{\"Key\":\"TransactionAmount\",\"Value\":10},{\"Key\":\"TransactionReceipt\",\"Value\":\"UGP030DTRI\"},{\"Key\":\"ReceiverPartyPublicName\",\"Value\":\"254708374149 - John Doe\"},{\"Key\":\"TransactionCompletedDateTime\",\"Value\":\"25.07.2026 03:22:07\"},{\"Key\":\"B2CUtilityAccountAvailableFunds\",\"Value\":3020324.24},{\"Key\":\"B2CWorkingAccountAvailableFunds\",\"Value\":584459.00},{\"Key\":\"B2CRecipientIsRegisteredCustomer\",\"Value\":\"Y\"},{\"Key\":\"B2CChargesPaidAccountAvailableFunds\",\"Value\":-2420.00}]},\"ReferenceData\":{\"ReferenceItem\":{\"Key\":\"QueueTimeoutURL\",\"Value\":\"https:\\/\\/internalsandbox.safaricom.co.ke\\/mpesa\\/b2cresults\\/v1\\/submit\"}}}}', '2026-07-25 00:22:53'),
+(66, 84, 'result', '0', 'The service request is processed successfully.', '6e47-4967-bcb9-74445bede7d2151316', 'AG_20260725_0100100307cpjvnuq7c3', 'UGP030DTRJ', 10.00, '254708374149 - John Doe', '25.07.2026 03:25:50', '{\"Result\":{\"ResultType\":0,\"ResultCode\":0,\"ResultDesc\":\"The service request is processed successfully.\",\"OriginatorConversationID\":\"6e47-4967-bcb9-74445bede7d2151316\",\"ConversationID\":\"AG_20260725_0100100307cpjvnuq7c3\",\"TransactionID\":\"UGP030DTRJ\",\"ResultParameters\":{\"ResultParameter\":[{\"Key\":\"TransactionAmount\",\"Value\":10},{\"Key\":\"TransactionReceipt\",\"Value\":\"UGP030DTRJ\"},{\"Key\":\"ReceiverPartyPublicName\",\"Value\":\"254708374149 - John Doe\"},{\"Key\":\"TransactionCompletedDateTime\",\"Value\":\"25.07.2026 03:25:50\"},{\"Key\":\"B2CUtilityAccountAvailableFunds\",\"Value\":3020280.64},{\"Key\":\"B2CWorkingAccountAvailableFunds\",\"Value\":584459.00},{\"Key\":\"B2CRecipientIsRegisteredCustomer\",\"Value\":\"Y\"},{\"Key\":\"B2CChargesPaidAccountAvailableFunds\",\"Value\":-2420.00}]},\"ReferenceData\":{\"ReferenceItem\":{\"Key\":\"QueueTimeoutURL\",\"Value\":\"https:\\/\\/internalsandbox.safaricom.co.ke\\/mpesa\\/b2cresults\\/v1\\/submit\"}}}}', '2026-07-25 00:26:36');
 
 -- --------------------------------------------------------
 
@@ -1078,7 +1579,52 @@ CREATE TABLE `school_balances` (
 --
 
 INSERT INTO `school_balances` (`school_id`, `balance`, `created_at`, `updated_at`) VALUES
-(1, 501.00, '2026-07-07 21:25:30', '2026-07-19 20:19:18');
+(1, 473.00, '2026-07-07 21:25:30', '2026-07-25 00:26:36');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `school_breaks`
+--
+
+CREATE TABLE `school_breaks` (
+  `id` int(11) NOT NULL,
+  `school_id` int(11) NOT NULL,
+  `break_name` varchar(100) NOT NULL,
+  `break_type` enum('short_break','lunch_break','recess','other') NOT NULL,
+  `start_time` time NOT NULL,
+  `end_time` time NOT NULL,
+  `is_active` tinyint(1) DEFAULT 1,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `school_breaks`
+--
+
+INSERT INTO `school_breaks` (`id`, `school_id`, `break_name`, `break_type`, `start_time`, `end_time`, `is_active`, `created_at`, `updated_at`) VALUES
+(1, 1, 'Uji Break', 'short_break', '10:00:00', '10:30:00', 1, '2026-07-23 17:09:26', '2026-07-23 17:09:26'),
+(3, 1, 'Lunch', 'lunch_break', '13:00:00', '13:59:00', 1, '2026-07-23 18:28:40', '2026-07-23 18:28:40');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `school_events`
+--
+
+CREATE TABLE `school_events` (
+  `id` int(11) NOT NULL,
+  `school_id` int(11) NOT NULL,
+  `event_name` varchar(100) NOT NULL,
+  `description` text DEFAULT NULL,
+  `event_date` date NOT NULL,
+  `event_time` time DEFAULT NULL,
+  `event_type` enum('exam','meeting','sports','cultural','other') DEFAULT 'other',
+  `is_active` tinyint(1) DEFAULT 1,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -1104,7 +1650,17 @@ INSERT INTO `school_sessions` (`id`, `school_id`, `session_token`, `expires_at`,
 (3, 1, 'e46f2d6963369e9ea14fb8ea86884b1443b3710f1021543fb9cdc284960645d2', '2026-07-06 09:47:22', '2026-07-05 07:47:23'),
 (4, 1, 'de32517c33b19bc744410230496fd4ab8808b331460d1eb4f222e893d25acb01', '2026-07-06 09:59:45', '2026-07-05 07:59:45'),
 (5, 1, 'e2efd128737d6df7090cf4b8b910ebc76c98b6bb07ea9490268adaa73582da0c', '2026-07-06 18:49:35', '2026-07-05 16:49:35'),
-(6, 1, '3754666bdc07457555b6ed2b55582b679dce1715ba3daf21a0ef1d8c7c355f34', '2026-07-23 04:19:29', '2026-07-22 02:19:29');
+(6, 1, '3754666bdc07457555b6ed2b55582b679dce1715ba3daf21a0ef1d8c7c355f34', '2026-07-23 04:19:29', '2026-07-22 02:19:29'),
+(7, 1, '275dd60dee6354ba8875610f0bec1aed39c2e9027fc6adf77f26cb5b1d359cf7', '2026-07-23 14:47:33', '2026-07-22 12:47:33'),
+(8, 1, 'd219e5defdc2aa5543a09f243042881538b139767f836efc58fca7e167c6223d', '2026-07-23 14:57:52', '2026-07-22 12:57:52'),
+(9, 1, '953cb4254f0e21f94f574da8c3ce9af5374f3ab12e6d7941b8a0c0ce177fdc34', '2026-07-23 17:37:49', '2026-07-22 15:37:49'),
+(10, 1, '482036542cd8bc09cbbcdc2f9ff0c64381ab5bf78677b587c1d7e17bdc52e53f', '2026-07-24 16:26:06', '2026-07-23 14:26:06'),
+(11, 2, 'afac73761082daf3cca490511453dfe544c019e448c8c237c45cb3863f729524', '2026-07-25 00:47:36', '2026-07-23 22:47:36'),
+(12, 2, '7760f9238729bc3ab29f159038c424fdbc91ccb09db0c75af85bbdb0fb147781', '2026-07-25 00:49:24', '2026-07-23 22:49:24'),
+(13, 2, '2ee31a70e280242c2b61d99d832dfc72b383f86b68299b65e3f1b2e07a9c25e4', '2026-07-25 00:51:27', '2026-07-23 22:51:27'),
+(14, 1, 'f9d21adb3614d8f976a58b03d06ee16ad6cf6188034f8da3dddf0c5c3fc5e32c', '2026-07-25 00:53:13', '2026-07-23 22:53:13'),
+(15, 2, '2836dde3f778df1ff28fad662881c33b8f80040e75c64f62cb5e9a2eef2404ec', '2026-07-25 20:38:04', '2026-07-24 18:38:04'),
+(16, 1, '905f63a583ea67080e3d0e2d102b7adbcb7a2ee65a1c639cec1a6542793ca142', '2026-07-25 20:38:18', '2026-07-24 18:38:18');
 
 -- --------------------------------------------------------
 
@@ -1182,7 +1738,26 @@ INSERT INTO `school_withdrawals` (`id`, `school_id`, `finance_manager_id`, `amou
 (42, 1, 1, 10.00, 'phone', 'NDERE SENIOR SCHOOL', '254708374149', 'for testing', 'test', 'failed', 'WDR-20260719192524-1-645', '2026-07-19 17:25:24', 'Manually marked as failed to free up available balance', '7cd0-4a28-8d04-cb27fe4732c656325', 'AG_20260719_0100100317r35su95l4f', NULL, NULL, NULL, NULL, NULL),
 (62, 1, 1, 10.00, 'phone', 'NDERE SENIOR SCHOOL', '254708374149', 'for testing', 'TEST', 'failed', 'WDR-20260720004156-1-859', '2026-07-19 22:41:56', 'Insufficient balance', '7cd0-4a28-8d04-cb27fe4732c675739', 'AG_20260720_0100100303magp3v5e6s', NULL, '4001', '{\"Result\":{\"ResultType\":0,\"ResultCode\":4001,\"ResultDesc\":\"Insufficient balance\",\"OriginatorConversationID\":\"7cd0-4a28-8d04-cb27fe4732c675739\",\"ConversationID\":\"AG_20260720_0100100303magp3v5e6s\",\"TransactionID\":\"UGK0000000\",\"ReferenceData\":{\"ReferenceItem\":{\"Key\":\"QueueTimeoutURL\",\"Value\":\"https:\\/\\/internalsandbox.safaricom.co.ke\\/mpesa\\/b2cresults\\/v1\\/submit\"}}}}', NULL, NULL),
 (63, 1, 1, 10.00, 'phone', 'NDERE SENIOR SCHOOL', '254708374149', 'test', 'testing', 'failed', 'WDR-20260720040712-1-863', '2026-07-20 02:07:12', 'Insufficient balance', '6839-428d-8589-2bcb00296f3788158', 'AG_20260720_010010030ay9icuyg8xg', NULL, '4001', '{\"Result\":{\"ResultType\":0,\"ResultCode\":4001,\"ResultDesc\":\"Insufficient balance\",\"OriginatorConversationID\":\"6839-428d-8589-2bcb00296f3788158\",\"ConversationID\":\"AG_20260720_010010030ay9icuyg8xg\",\"TransactionID\":\"UGK0000000\",\"ReferenceData\":{\"ReferenceItem\":{\"Key\":\"QueueTimeoutURL\",\"Value\":\"https:\\/\\/internalsandbox.safaricom.co.ke\\/mpesa\\/b2cresults\\/v1\\/submit\"}}}}', NULL, NULL),
-(64, 1, NULL, 10.00, 'phone', 'NDERE SENIOR SCHOOL', '254708374149', 'for testing', 'test', 'failed', 'WDR-20260720041019-1-108', '2026-07-20 02:10:19', 'Insufficient balance', '6839-428d-8589-2bcb00296f3788315', 'AG_20260720_010010030b29th2u5c1g', NULL, '4001', '{\"Result\":{\"ResultType\":0,\"ResultCode\":4001,\"ResultDesc\":\"Insufficient balance\",\"OriginatorConversationID\":\"6839-428d-8589-2bcb00296f3788315\",\"ConversationID\":\"AG_20260720_010010030b29th2u5c1g\",\"TransactionID\":\"UGK0000000\",\"ReferenceData\":{\"ReferenceItem\":{\"Key\":\"QueueTimeoutURL\",\"Value\":\"https:\\/\\/internalsandbox.safaricom.co.ke\\/mpesa\\/b2cresults\\/v1\\/submit\"}}}}', NULL, NULL);
+(64, 1, NULL, 10.00, 'phone', 'NDERE SENIOR SCHOOL', '254708374149', 'for testing', 'test', 'failed', 'WDR-20260720041019-1-108', '2026-07-20 02:10:19', 'Insufficient balance', '6839-428d-8589-2bcb00296f3788315', 'AG_20260720_010010030b29th2u5c1g', NULL, '4001', '{\"Result\":{\"ResultType\":0,\"ResultCode\":4001,\"ResultDesc\":\"Insufficient balance\",\"OriginatorConversationID\":\"6839-428d-8589-2bcb00296f3788315\",\"ConversationID\":\"AG_20260720_010010030b29th2u5c1g\",\"TransactionID\":\"UGK0000000\",\"ReferenceData\":{\"ReferenceItem\":{\"Key\":\"QueueTimeoutURL\",\"Value\":\"https:\\/\\/internalsandbox.safaricom.co.ke\\/mpesa\\/b2cresults\\/v1\\/submit\"}}}}', NULL, NULL),
+(65, 1, NULL, 50.00, 'library_fine_payment', 'Library Fine Payment', 'TEST-1784734565', NULL, 'Fine payment for book ID: 1, Fine ID: 5', 'completed', 'TEST-1784734565', '2026-07-22 15:36:05', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(66, 1, NULL, 1.00, 'library_fine_payment', 'Library Fine Payment', 'UGMN80E49M', NULL, 'Fine payment for book ID: 4, Fine ID: 6', 'completed', 'UGMN80E49M', '2026-07-22 16:40:16', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(67, 1, NULL, 1.00, 'library_fine_payment', 'Library Fine Payment', 'UGMN80DZXL', NULL, 'Fine payment for book ID: 4, Fine ID: 6', 'completed', 'UGMN80DZXL', '2026-07-22 16:42:04', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(68, 1, NULL, 1.00, 'library_fine_payment', 'Library Fine Payment', 'UGMN80E4ND', NULL, 'Fine payment for book ID: 4, Fine ID: 6', 'completed', 'UGMN80E4ND', '2026-07-22 16:51:25', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(69, 1, NULL, 1.00, 'library_fine_payment', 'Library Fine Payment', 'UGMN80ELXU', NULL, 'Fine payment for book ID: 4, Fine ID: 6', 'completed', 'UGMN80ELXU', '2026-07-22 19:14:35', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(70, 1, NULL, 1.00, 'library_fine_payment', 'Library Fine Payment', 'UGMN80ES0M', NULL, 'Fine payment for book ID: 4, Fine ID: 6', 'completed', 'UGMN80ES0M', '2026-07-22 19:30:24', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(71, 1, NULL, 1.00, 'library_fine_payment', 'Library Fine Payment', 'UGMN80ES2Y', NULL, 'Fine payment for book ID: 4, Fine ID: 6', 'completed', 'UGMN80ES2Y', '2026-07-22 19:35:07', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(73, 1, NULL, 1.00, 'library_fine_payment', 'Library Fine Payment', 'UGON80IRKO', NULL, 'Fine payment for book ID: 4, Fine ID: 6', 'completed', 'UGON80IRKO', '2026-07-23 22:40:18', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(74, 1, NULL, 1.00, 'library_fine_payment', 'Library Fine Payment', 'UGON80L1VF', NULL, 'Fine payment for book ID: 4, Fine ID: 26', 'completed', 'UGON80L1VF', '2026-07-24 13:28:04', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(75, 1, NULL, 1.00, 'library_fine_payment', 'Library Fine Payment', 'UGPN80MX5K', NULL, 'Fine payment for book ID: 4, Fine ID: 28', 'completed', 'UGPN80MX5K', '2026-07-24 23:50:40', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(76, 1, 1, 10.00, 'phone', 'NDERE SENIOR SCHOOL', '254708374149', 'for testing', 'TEST', '', 'WDR-20260725020213-1-587', '2026-07-25 00:02:13', 'The service request is processed successfully.', '6e47-4967-bcb9-74445bede7d2149876', 'AG_20260725_0100100306hfuhjt5vaj', 'UGP030DS9I', '0', '{\"Result\":{\"ResultType\":0,\"ResultCode\":0,\"ResultDesc\":\"The service request is processed successfully.\",\"OriginatorConversationID\":\"6e47-4967-bcb9-74445bede7d2149876\",\"ConversationID\":\"AG_20260725_0100100306hfuhjt5vaj\",\"TransactionID\":\"UGP030DS9I\",\"ResultParameters\":{\"ResultParameter\":[{\"Key\":\"TransactionAmount\",\"Value\":10},{\"Key\":\"TransactionReceipt\",\"Value\":\"UGP030DS9I\"},{\"Key\":\"ReceiverPartyPublicName\",\"Value\":\"254708374149 - John Doe\"},{\"Key\":\"TransactionCompletedDateTime\",\"Value\":\"25.07.2026 03:01:31\"},{\"Key\":\"B2CUtilityAccountAvailableFunds\",\"Value\":3020629.44},{\"Key\":\"B2CWorkingAccountAvailableFunds\",\"Value\":584459.00},{\"Key\":\"B2CRecipientIsRegisteredCustomer\",\"Value\":\"Y\"},{\"Key\":\"B2CChargesPaidAccountAvailableFunds\",\"Value\":-2420.00}]},\"ReferenceData\":{\"ReferenceItem\":{\"Key\":\"QueueTimeoutURL\",\"Value\":\"https:\\/\\/internalsandbox.safaricom.co.ke\\/mpesa\\/b2cresults\\/v1\\/submit\"}}}}', '2026-07-25 00:02:17', '2026-07-25 00:02:17'),
+(77, 1, 1, 10.00, 'phone', 'NDERE SENIOR SCHOOL', '254708374149', 'for testing', 'TEST', '', 'WDR-20260725020316-1-645', '2026-07-25 00:03:16', 'The service request is processed successfully.', '6e47-4967-bcb9-74445bede7d2149944', 'AG_20260725_0100100306isnutdzh5z', 'UGP030DTRC', '0', '{\"Result\":{\"ResultType\":0,\"ResultCode\":0,\"ResultDesc\":\"The service request is processed successfully.\",\"OriginatorConversationID\":\"6e47-4967-bcb9-74445bede7d2149944\",\"ConversationID\":\"AG_20260725_0100100306isnutdzh5z\",\"TransactionID\":\"UGP030DTRC\",\"ResultParameters\":{\"ResultParameter\":[{\"Key\":\"TransactionAmount\",\"Value\":10},{\"Key\":\"TransactionReceipt\",\"Value\":\"UGP030DTRC\"},{\"Key\":\"ReceiverPartyPublicName\",\"Value\":\"254708374149 - John Doe\"},{\"Key\":\"TransactionCompletedDateTime\",\"Value\":\"25.07.2026 03:02:35\"},{\"Key\":\"B2CUtilityAccountAvailableFunds\",\"Value\":3020585.84},{\"Key\":\"B2CWorkingAccountAvailableFunds\",\"Value\":584459.00},{\"Key\":\"B2CRecipientIsRegisteredCustomer\",\"Value\":\"Y\"},{\"Key\":\"B2CChargesPaidAccountAvailableFunds\",\"Value\":-2420.00}]},\"ReferenceData\":{\"ReferenceItem\":{\"Key\":\"QueueTimeoutURL\",\"Value\":\"https:\\/\\/internalsandbox.safaricom.co.ke\\/mpesa\\/b2cresults\\/v1\\/submit\"}}}}', '2026-07-25 00:03:20', '2026-07-25 00:03:20'),
+(78, 1, 1, 10.00, 'phone', 'NDERE SENIOR SCHOOL', '254708374149', 'for testing', 'TEST', '', 'WDR-20260725020521-1-535', '2026-07-25 00:05:21', 'The service request is processed successfully.', 'b13d-4e1d-8fb5-0f0d66c4323015398', 'AG_20260725_0100100306lgkp3uxieq', 'UGP030DS9J', '0', '{\"Result\":{\"ResultType\":0,\"ResultCode\":0,\"ResultDesc\":\"The service request is processed successfully.\",\"OriginatorConversationID\":\"b13d-4e1d-8fb5-0f0d66c4323015398\",\"ConversationID\":\"AG_20260725_0100100306lgkp3uxieq\",\"TransactionID\":\"UGP030DS9J\",\"ResultParameters\":{\"ResultParameter\":[{\"Key\":\"TransactionAmount\",\"Value\":10},{\"Key\":\"TransactionReceipt\",\"Value\":\"UGP030DS9J\"},{\"Key\":\"ReceiverPartyPublicName\",\"Value\":\"254708374149 - John Doe\"},{\"Key\":\"TransactionCompletedDateTime\",\"Value\":\"25.07.2026 03:04:39\"},{\"Key\":\"B2CUtilityAccountAvailableFunds\",\"Value\":3020542.24},{\"Key\":\"B2CWorkingAccountAvailableFunds\",\"Value\":584459.00},{\"Key\":\"B2CRecipientIsRegisteredCustomer\",\"Value\":\"Y\"},{\"Key\":\"B2CChargesPaidAccountAvailableFunds\",\"Value\":-2420.00}]},\"ReferenceData\":{\"ReferenceItem\":{\"Key\":\"QueueTimeoutURL\",\"Value\":\"https:\\/\\/internalsandbox.safaricom.co.ke\\/mpesa\\/b2cresults\\/v1\\/submit\"}}}}', '2026-07-25 00:05:24', '2026-07-25 00:05:24'),
+(79, 1, 1, 10.00, 'phone', 'NDERE SENIOR SCHOOL', '254708374149', 'for testing', 'TEST', '', 'WDR-20260725020823-1-789', '2026-07-25 00:08:23', 'The service request is processed successfully.', '6e47-4967-bcb9-74445bede7d2150262', 'AG_20260725_0100100306pdhg6hp4zb', 'UGP030DTRD', '0', '{\"Result\":{\"ResultType\":0,\"ResultCode\":0,\"ResultDesc\":\"The service request is processed successfully.\",\"OriginatorConversationID\":\"6e47-4967-bcb9-74445bede7d2150262\",\"ConversationID\":\"AG_20260725_0100100306pdhg6hp4zb\",\"TransactionID\":\"UGP030DTRD\",\"ResultParameters\":{\"ResultParameter\":[{\"Key\":\"TransactionAmount\",\"Value\":10},{\"Key\":\"TransactionReceipt\",\"Value\":\"UGP030DTRD\"},{\"Key\":\"ReceiverPartyPublicName\",\"Value\":\"254708374149 - John Doe\"},{\"Key\":\"TransactionCompletedDateTime\",\"Value\":\"25.07.2026 03:07:41\"},{\"Key\":\"B2CUtilityAccountAvailableFunds\",\"Value\":3020498.64},{\"Key\":\"B2CWorkingAccountAvailableFunds\",\"Value\":584459.00},{\"Key\":\"B2CRecipientIsRegisteredCustomer\",\"Value\":\"Y\"},{\"Key\":\"B2CChargesPaidAccountAvailableFunds\",\"Value\":-2420.00}]},\"ReferenceData\":{\"ReferenceItem\":{\"Key\":\"QueueTimeoutURL\",\"Value\":\"https:\\/\\/internalsandbox.safaricom.co.ke\\/mpesa\\/b2cresults\\/v1\\/submit\"}}}}', '2026-07-25 00:08:27', '2026-07-25 00:08:27'),
+(80, 1, 1, 10.00, 'phone', 'NDERE SENIOR SCHOOL', '254708374149', 'for testing', 'TEST', 'completed', 'WDR-20260725021055-1-871', '2026-07-25 00:10:55', 'The service request is processed successfully.', 'b13d-4e1d-8fb5-0f0d66c4323015602', 'AG_20260725_0100100306smeff2m19e', 'UGP030DS9L', '0', '{\"Result\":{\"ResultType\":0,\"ResultCode\":0,\"ResultDesc\":\"The service request is processed successfully.\",\"OriginatorConversationID\":\"b13d-4e1d-8fb5-0f0d66c4323015602\",\"ConversationID\":\"AG_20260725_0100100306smeff2m19e\",\"TransactionID\":\"UGP030DS9L\",\"ResultParameters\":{\"ResultParameter\":[{\"Key\":\"TransactionAmount\",\"Value\":10},{\"Key\":\"TransactionReceipt\",\"Value\":\"UGP030DS9L\"},{\"Key\":\"ReceiverPartyPublicName\",\"Value\":\"254708374149 - John Doe\"},{\"Key\":\"TransactionCompletedDateTime\",\"Value\":\"25.07.2026 03:10:13\"},{\"Key\":\"B2CUtilityAccountAvailableFunds\",\"Value\":3020455.04},{\"Key\":\"B2CWorkingAccountAvailableFunds\",\"Value\":584459.00},{\"Key\":\"B2CRecipientIsRegisteredCustomer\",\"Value\":\"Y\"},{\"Key\":\"B2CChargesPaidAccountAvailableFunds\",\"Value\":-2420.00}]},\"ReferenceData\":{\"ReferenceItem\":{\"Key\":\"QueueTimeoutURL\",\"Value\":\"https:\\/\\/internalsandbox.safaricom.co.ke\\/mpesa\\/b2cresults\\/v1\\/submit\"}}}}', '2026-07-25 00:19:27', '2026-07-25 00:19:27'),
+(81, 1, 1, 10.00, 'phone', 'NDERE SENIOR SCHOOL', '254708374149', 'for testing', 'TESTING', '', 'WDR-20260725021322-1-500', '2026-07-25 00:13:22', 'The service request is processed successfully.', 'b13d-4e1d-8fb5-0f0d66c4323015718', 'AG_20260725_0100100306vs08jfd9dp', 'UGP030DTRE', '0', '{\"Result\":{\"ResultType\":0,\"ResultCode\":0,\"ResultDesc\":\"The service request is processed successfully.\",\"OriginatorConversationID\":\"b13d-4e1d-8fb5-0f0d66c4323015718\",\"ConversationID\":\"AG_20260725_0100100306vs08jfd9dp\",\"TransactionID\":\"UGP030DTRE\",\"ResultParameters\":{\"ResultParameter\":[{\"Key\":\"TransactionAmount\",\"Value\":10},{\"Key\":\"TransactionReceipt\",\"Value\":\"UGP030DTRE\"},{\"Key\":\"ReceiverPartyPublicName\",\"Value\":\"254708374149 - John Doe\"},{\"Key\":\"TransactionCompletedDateTime\",\"Value\":\"25.07.2026 03:12:40\"},{\"Key\":\"B2CUtilityAccountAvailableFunds\",\"Value\":3020411.44},{\"Key\":\"B2CWorkingAccountAvailableFunds\",\"Value\":584459.00},{\"Key\":\"B2CRecipientIsRegisteredCustomer\",\"Value\":\"Y\"},{\"Key\":\"B2CChargesPaidAccountAvailableFunds\",\"Value\":-2420.00}]},\"ReferenceData\":{\"ReferenceItem\":{\"Key\":\"QueueTimeoutURL\",\"Value\":\"https:\\/\\/internalsandbox.safaricom.co.ke\\/mpesa\\/b2cresults\\/v1\\/submit\"}}}}', '2026-07-25 00:13:26', '2026-07-25 00:13:26'),
+(82, 1, 1, 10.00, 'phone', 'NDERE SENIOR SCHOOL', '254708374149', 'for testing', 'TEST', 'completed', 'WDR-20260725021845-1-829', '2026-07-25 00:18:45', 'The service request is processed successfully.', '6e47-4967-bcb9-74445bede7d2150843', 'AG_20260725_01001003072oz2xm4nf9', 'UGP030DS9N', '0', '{\"Result\":{\"ResultType\":0,\"ResultCode\":0,\"ResultDesc\":\"The service request is processed successfully.\",\"OriginatorConversationID\":\"6e47-4967-bcb9-74445bede7d2150843\",\"ConversationID\":\"AG_20260725_01001003072oz2xm4nf9\",\"TransactionID\":\"UGP030DS9N\",\"ResultParameters\":{\"ResultParameter\":[{\"Key\":\"TransactionAmount\",\"Value\":10},{\"Key\":\"TransactionReceipt\",\"Value\":\"UGP030DS9N\"},{\"Key\":\"ReceiverPartyPublicName\",\"Value\":\"254708374149 - John Doe\"},{\"Key\":\"TransactionCompletedDateTime\",\"Value\":\"25.07.2026 03:18:03\"},{\"Key\":\"B2CUtilityAccountAvailableFunds\",\"Value\":3020367.84},{\"Key\":\"B2CWorkingAccountAvailableFunds\",\"Value\":584459.00},{\"Key\":\"B2CRecipientIsRegisteredCustomer\",\"Value\":\"Y\"},{\"Key\":\"B2CChargesPaidAccountAvailableFunds\",\"Value\":-2420.00}]},\"ReferenceData\":{\"ReferenceItem\":{\"Key\":\"QueueTimeoutURL\",\"Value\":\"https:\\/\\/internalsandbox.safaricom.co.ke\\/mpesa\\/b2cresults\\/v1\\/submit\"}}}}', '2026-07-25 00:18:48', '2026-07-25 00:18:48'),
+(83, 1, NULL, 10.00, 'phone', 'NDERE SENIOR SCHOOL', '254708374149', 'for testing', 'TEST', 'completed', 'WDR-20260725022249-1-473', '2026-07-25 00:22:49', 'The service request is processed successfully.', 'b13d-4e1d-8fb5-0f0d66c4323016055', 'AG_20260725_01001003077xj8a055yi', 'UGP030DTRI', '0', '{\"Result\":{\"ResultType\":0,\"ResultCode\":0,\"ResultDesc\":\"The service request is processed successfully.\",\"OriginatorConversationID\":\"b13d-4e1d-8fb5-0f0d66c4323016055\",\"ConversationID\":\"AG_20260725_01001003077xj8a055yi\",\"TransactionID\":\"UGP030DTRI\",\"ResultParameters\":{\"ResultParameter\":[{\"Key\":\"TransactionAmount\",\"Value\":10},{\"Key\":\"TransactionReceipt\",\"Value\":\"UGP030DTRI\"},{\"Key\":\"ReceiverPartyPublicName\",\"Value\":\"254708374149 - John Doe\"},{\"Key\":\"TransactionCompletedDateTime\",\"Value\":\"25.07.2026 03:22:07\"},{\"Key\":\"B2CUtilityAccountAvailableFunds\",\"Value\":3020324.24},{\"Key\":\"B2CWorkingAccountAvailableFunds\",\"Value\":584459.00},{\"Key\":\"B2CRecipientIsRegisteredCustomer\",\"Value\":\"Y\"},{\"Key\":\"B2CChargesPaidAccountAvailableFunds\",\"Value\":-2420.00}]},\"ReferenceData\":{\"ReferenceItem\":{\"Key\":\"QueueTimeoutURL\",\"Value\":\"https:\\/\\/internalsandbox.safaricom.co.ke\\/mpesa\\/b2cresults\\/v1\\/submit\"}}}}', '2026-07-25 00:22:53', '2026-07-25 00:22:53'),
+(84, 1, 1, 10.00, 'phone', 'NDERE SENIOR SCHOOL', '254708374149', 'for testing', 'TEST', 'completed', 'WDR-20260725022632-1-945', '2026-07-25 00:26:32', 'The service request is processed successfully.', '6e47-4967-bcb9-74445bede7d2151316', 'AG_20260725_0100100307cpjvnuq7c3', 'UGP030DTRJ', '0', '{\"Result\":{\"ResultType\":0,\"ResultCode\":0,\"ResultDesc\":\"The service request is processed successfully.\",\"OriginatorConversationID\":\"6e47-4967-bcb9-74445bede7d2151316\",\"ConversationID\":\"AG_20260725_0100100307cpjvnuq7c3\",\"TransactionID\":\"UGP030DTRJ\",\"ResultParameters\":{\"ResultParameter\":[{\"Key\":\"TransactionAmount\",\"Value\":10},{\"Key\":\"TransactionReceipt\",\"Value\":\"UGP030DTRJ\"},{\"Key\":\"ReceiverPartyPublicName\",\"Value\":\"254708374149 - John Doe\"},{\"Key\":\"TransactionCompletedDateTime\",\"Value\":\"25.07.2026 03:25:50\"},{\"Key\":\"B2CUtilityAccountAvailableFunds\",\"Value\":3020280.64},{\"Key\":\"B2CWorkingAccountAvailableFunds\",\"Value\":584459.00},{\"Key\":\"B2CRecipientIsRegisteredCustomer\",\"Value\":\"Y\"},{\"Key\":\"B2CChargesPaidAccountAvailableFunds\",\"Value\":-2420.00}]},\"ReferenceData\":{\"ReferenceItem\":{\"Key\":\"QueueTimeoutURL\",\"Value\":\"https:\\/\\/internalsandbox.safaricom.co.ke\\/mpesa\\/b2cresults\\/v1\\/submit\"}}}}', '2026-07-25 00:26:36', '2026-07-25 00:26:36');
 
 -- --------------------------------------------------------
 
@@ -1409,7 +1984,13 @@ INSERT INTO `teacher_sessions` (`id`, `teacher_id`, `session_token`, `expires_at
 (20, 1, '8381439a09251a9ec45a3eb41e63700b418265adf2ca160ae75a5b0d187e3950', '2026-07-15 08:45:44', '2026-07-14 22:45:44'),
 (21, 1, '561aa07c65d3a78549ac43c50a3b017378ac5c38455721758e286bcbfa0ab8c9', '2026-07-19 23:25:24', '2026-07-19 13:25:24'),
 (22, 1, 'deabee5be13065ded1803bce07a55bf550569fdedbbd870785cd1e53b76263df', '2026-07-21 07:20:33', '2026-07-20 21:20:33'),
-(23, 1, '0458d2922c38e9c6562987e829c35f10e90a88aa6a3c9d4b89aa98d5daa15242', '2026-07-22 08:45:51', '2026-07-21 22:45:51');
+(23, 1, '0458d2922c38e9c6562987e829c35f10e90a88aa6a3c9d4b89aa98d5daa15242', '2026-07-22 08:45:51', '2026-07-21 22:45:51'),
+(24, 1, '16dea596b6e67d2917af104426d745c01dae83371d42d5b9d749a6c21bc06947', '2026-07-22 22:46:44', '2026-07-22 12:46:44'),
+(25, 1, '755871d607fc33be97fcf0ffef3ee2ed1ee3e55b48200ca4a5f9e9993edb85a3', '2026-07-22 22:47:11', '2026-07-22 12:47:11'),
+(26, 1, 'a592529500b207179143dd4bf8d656a1f535e4ce8ce096272f7cdebcdeeb41dd', '2026-07-22 22:55:58', '2026-07-22 12:55:58'),
+(27, 1, 'edcb913aa38f1a80cd27f72d6ce6261efd9199f29831e96fcddee052e49cacc1', '2026-07-23 06:45:05', '2026-07-22 20:45:05'),
+(28, 1, '8bb29c3281a503ad93a00914f71dd7575b72477b33fcd658f0c9064239e56345', '2026-07-24 02:00:20', '2026-07-23 16:00:20'),
+(29, 1, 'c0261ef51759e8a9b09b19485046476f7b6a7a87a0dc18150a2f266bc245eedc', '2026-07-25 05:43:19', '2026-07-24 19:43:19');
 
 -- --------------------------------------------------------
 
@@ -1425,6 +2006,116 @@ CREATE TABLE `teacher_subjects` (
   `subject` varchar(100) NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `terms`
+--
+
+CREATE TABLE `terms` (
+  `id` int(11) NOT NULL,
+  `school_id` int(11) NOT NULL,
+  `year` int(11) NOT NULL,
+  `term_name` varchar(50) NOT NULL,
+  `term_number` tinyint(4) NOT NULL,
+  `start_date` date NOT NULL,
+  `end_date` date NOT NULL,
+  `is_active` tinyint(1) DEFAULT 0,
+  `status` enum('upcoming','active','completed','ended') DEFAULT 'upcoming',
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `terms`
+--
+
+INSERT INTO `terms` (`id`, `school_id`, `year`, `term_name`, `term_number`, `start_date`, `end_date`, `is_active`, `status`, `created_at`, `updated_at`) VALUES
+(2, 1, 2026, 'Term 2', 2, '2026-04-27', '2026-07-31', 1, 'active', '2026-07-23 20:28:56', '2026-07-23 20:28:59'),
+(3, 1, 2026, 'Term 1', 1, '2026-01-05', '2026-04-03', 0, 'upcoming', '2026-07-23 20:59:02', '2026-07-23 20:59:02');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `timetables`
+--
+
+CREATE TABLE `timetables` (
+  `id` int(11) NOT NULL,
+  `school_id` int(11) NOT NULL,
+  `year` int(11) NOT NULL DEFAULT year(curdate()),
+  `name` varchar(255) NOT NULL,
+  `timetable_type` enum('weekly','daily','exam') DEFAULT 'weekly',
+  `term` varchar(50) NOT NULL,
+  `class_id` int(11) NOT NULL,
+  `status` enum('draft','active','archived') DEFAULT 'draft',
+  `created_by` int(11) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `timetables`
+--
+
+INSERT INTO `timetables` (`id`, `school_id`, `year`, `name`, `timetable_type`, `term`, `class_id`, `status`, `created_by`, `created_at`, `updated_at`) VALUES
+(3, 1, 2026, 'TEST', 'weekly', 'Term 1', 1, 'draft', 1, '2026-07-23 18:03:10', '2026-07-23 18:03:10');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `timetable_assignments`
+--
+
+CREATE TABLE `timetable_assignments` (
+  `id` int(11) NOT NULL,
+  `timetable_id` int(11) NOT NULL,
+  `school_id` int(11) NOT NULL,
+  `slot_id` int(11) NOT NULL,
+  `class_id` int(11) NOT NULL,
+  `stream_id` int(11) NOT NULL,
+  `subject_id` int(11) NOT NULL,
+  `teacher_id` int(11) NOT NULL,
+  `notes` text DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `timetable_assignments`
+--
+
+INSERT INTO `timetable_assignments` (`id`, `timetable_id`, `school_id`, `slot_id`, `class_id`, `stream_id`, `subject_id`, `teacher_id`, `notes`, `created_at`, `updated_at`) VALUES
+(2, 3, 1, 12, 1, 1, 2, 1, 'Test', '2026-07-23 18:03:47', '2026-07-23 18:03:47');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `timetable_slots`
+--
+
+CREATE TABLE `timetable_slots` (
+  `id` int(11) NOT NULL,
+  `school_id` int(11) NOT NULL,
+  `year` int(11) NOT NULL DEFAULT year(curdate()),
+  `day_of_week` enum('Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday') NOT NULL,
+  `start_time` time NOT NULL,
+  `end_time` time NOT NULL,
+  `break_type` enum('none','short_break','lunch_break','recess') DEFAULT 'none',
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `timetable_slots`
+--
+
+INSERT INTO `timetable_slots` (`id`, `school_id`, `year`, `day_of_week`, `start_time`, `end_time`, `break_type`, `created_at`) VALUES
+(12, 1, 2026, 'Monday', '08:00:00', '09:59:00', 'none', '2026-07-23 18:02:23'),
+(13, 1, 2026, 'Tuesday', '08:00:00', '09:59:00', 'none', '2026-07-23 18:02:23'),
+(14, 1, 2026, 'Wednesday', '08:00:00', '09:59:00', 'none', '2026-07-23 18:02:23'),
+(15, 1, 2026, 'Thursday', '08:00:00', '09:59:00', 'none', '2026-07-23 18:02:23'),
+(16, 1, 2026, 'Friday', '08:00:00', '09:59:00', 'none', '2026-07-23 18:02:23');
 
 -- --------------------------------------------------------
 
@@ -1589,7 +2280,62 @@ INSERT INTO `transactions` (`ID`, `MerchantRequestID`, `CheckoutRequestID`, `Res
 (137, '6839-428d-8589-2bcb00296f3756241', 'ws_CO_19072026200320607745959757', '0', 'The service request is processed successfully.', 2, 'UGJN802DVF', '254745959757', 0, '2026-07-19 17:03:38'),
 (138, 'test123', 'test456', '0', 'Test callback', 0, '', '', 0, '2026-07-19 19:33:07'),
 (139, '6839-428d-8589-2bcb00296f3768705', 'ws_CO_19072026231905970745959757', '0', 'The service request is processed successfully.', 1, 'UGJN8032CK', '254745959757', 0, '2026-07-19 20:19:18'),
-(140, '6839-428d-8589-2bcb00296f3788764', 'ws_CO_20072026051830140745959757', '1032', 'Request Cancelled by user.', 0, '', '', 0, '2026-07-20 02:18:37');
+(140, '6839-428d-8589-2bcb00296f3788764', 'ws_CO_20072026051830140745959757', '1032', 'Request Cancelled by user.', 0, '', '', 0, '2026-07-20 02:18:37'),
+(141, 'b824-4eab-b51c-485633e35ec2125354', 'ws_CO_22072026191848584745959757', '1032', 'Request Cancelled by user.', 0, '', '', 0, '2026-07-22 16:18:55'),
+(142, 'b824-4eab-b51c-485633e35ec2125392', 'ws_CO_22072026191945220745959757', '1032', 'Request Cancelled by user.', 0, '', '', 0, '2026-07-22 16:20:04'),
+(143, 'b824-4eab-b51c-485633e35ec2125492', 'ws_CO_22072026192258490745959757', '1032', 'Request Cancelled by user.', 0, '', '', 0, '2026-07-22 16:23:04'),
+(144, 'f158-452a-801f-e6b00aad1141126480', 'ws_CO_22072026192907207745959757', '1032', 'Request Cancelled by user.', 0, '', '', 0, '2026-07-22 16:29:12'),
+(145, 'b824-4eab-b51c-485633e35ec2125844', 'ws_CO_22072026192952656745959757', '1032', 'Request Cancelled by user.', 0, '', '', 0, '2026-07-22 16:30:12'),
+(146, 'f158-452a-801f-e6b00aad1141126676', 'ws_CO_22072026193128295745959757', '1032', 'Request Cancelled by user.', 0, '', '', 0, '2026-07-22 16:31:32'),
+(147, 'b824-4eab-b51c-485633e35ec2126014', 'ws_CO_22072026193405309745959757', '1032', 'Request Cancelled by user.', 0, '', '', 0, '2026-07-22 16:34:29'),
+(148, 'f158-452a-801f-e6b00aad1141127195', 'ws_CO_22072026193812993745959757', '1032', 'Request Cancelled by user.', 0, '', '', 0, '2026-07-22 16:38:18'),
+(149, 'b824-4eab-b51c-485633e35ec2126266', 'ws_CO_22072026194007769745959757', '0', 'The service request is processed successfully.', 1, 'UGMN80E49M', '254745959757', 0, '2026-07-22 16:40:16'),
+(150, 'b824-4eab-b51c-485633e35ec2126329', 'ws_CO_22072026194127356745959757', '1032', 'Request Cancelled by user.', 0, '', '', 0, '2026-07-22 16:41:32'),
+(151, 'f158-452a-801f-e6b00aad1141127378', 'ws_CO_22072026194156136745959757', '0', 'The service request is processed successfully.', 1, 'UGMN80DZXL', '254745959757', 0, '2026-07-22 16:42:04'),
+(152, 'b824-4eab-b51c-485633e35ec2126463', 'ws_CO_22072026194449556745959757', '2001', 'The initiator information is invalid.', 0, '', '', 0, '2026-07-22 16:44:56'),
+(153, 'b824-4eab-b51c-485633e35ec2126788', 'ws_CO_22072026195116832745959757', '0', 'The service request is processed successfully.', 1, 'UGMN80E4ND', '254745959757', 0, '2026-07-22 16:51:25'),
+(154, 'f158-452a-801f-e6b00aad1141128384', 'ws_CO_22072026195544088745959757', '1032', 'Request Cancelled by user.', 0, '', '', 0, '2026-07-22 16:55:49'),
+(155, 'b824-4eab-b51c-485633e35ec2127035', 'ws_CO_22072026195949754745959757', '1032', 'Request Cancelled by user.', 0, '', '', 0, '2026-07-22 16:59:56'),
+(156, 'f158-452a-801f-e6b00aad1141139419', 'ws_CO_22072026215340711745959757', '1032', 'Request Cancelled by user.', 0, '', '', 0, '2026-07-22 18:53:45'),
+(157, 'b824-4eab-b51c-485633e35ec2132757', 'ws_CO_22072026220341003745959757', '1032', 'Request Cancelled by user.', 0, '', '', 0, '2026-07-22 19:03:49'),
+(158, 'f158-452a-801f-e6b00aad1141140683', 'ws_CO_22072026220550240745959757', '1032', 'Request Cancelled by user.', 0, '', '', 0, '2026-07-22 19:05:55'),
+(159, 'f158-452a-801f-e6b00aad1141141488', 'ws_CO_22072026221338537745959757', '1032', 'Request Cancelled by user.', 0, '', '', 0, '2026-07-22 19:13:43'),
+(160, 'f158-452a-801f-e6b00aad1141141558', 'ws_CO_22072026221423324745959757', '0', 'The service request is processed successfully.', 1, 'UGMN80ELXU', '254745959757', 0, '2026-07-22 19:14:35'),
+(161, 'b824-4eab-b51c-485633e35ec2133488', 'ws_CO_22072026221634984745959757', '1032', 'Request Cancelled by user.', 0, '', '', 0, '2026-07-22 19:16:39'),
+(162, 'f158-452a-801f-e6b00aad1141142118', 'ws_CO_22072026222027706745959757', '1032', 'Request Cancelled by user.', 0, '', '', 0, '2026-07-22 19:20:45'),
+(163, 'b824-4eab-b51c-485633e35ec2133791', 'ws_CO_22072026222253945745959757', '1032', 'Request Cancelled by user.', 0, '', '', 0, '2026-07-22 19:23:02'),
+(164, 'b824-4eab-b51c-485633e35ec2133849', 'ws_CO_22072026222353546745959757', '1032', 'Request Cancelled by user.', 0, '', '', 0, '2026-07-22 19:24:02'),
+(165, 'f158-452a-801f-e6b00aad1141142608', 'ws_CO_22072026222529556745959757', '1032', 'Request Cancelled by user.', 0, '', '', 0, '2026-07-22 19:25:37'),
+(166, 'b824-4eab-b51c-485633e35ec2134011', 'ws_CO_22072026222640997745959757', '1032', 'Request Cancelled by user.', 0, '', '', 0, '2026-07-22 19:26:51'),
+(167, 'f158-452a-801f-e6b00aad1141143200', 'ws_CO_22072026222944291745959757', '1032', 'Request Cancelled by user.', 0, '', '', 0, '2026-07-22 19:29:49'),
+(168, 'f158-452a-801f-e6b00aad1141143287', 'ws_CO_22072026223016661745959757', '0', 'The service request is processed successfully.', 1, 'UGMN80ES0M', '254745959757', 0, '2026-07-22 19:30:24'),
+(169, 'b824-4eab-b51c-485633e35ec2134478', 'ws_CO_22072026223423293745959757', '1032', 'Request Cancelled by user.', 0, '', '', 0, '2026-07-22 19:34:30'),
+(170, 'f158-452a-801f-e6b00aad1141143843', 'ws_CO_22072026223457757745959757', '0', 'The service request is processed successfully.', 1, 'UGMN80ES2Y', '254745959757', 0, '2026-07-22 19:35:07'),
+(171, 'f158-452a-801f-e6b00aad1141144177', 'ws_CO_22072026223739757745959757', '1037', 'No response from user.', 0, '', '', 0, '2026-07-22 19:38:06'),
+(172, 'b824-4eab-b51c-485633e35ec2134749', 'ws_CO_22072026223818462745959757', '1032', 'Request Cancelled by user.', 0, '', '', 0, '2026-07-22 19:38:28'),
+(173, 'b824-4eab-b51c-485633e35ec2135680', 'ws_CO_22072026225413524745959757', '1032', 'Request Cancelled by user.', 0, '', '', 0, '2026-07-22 19:54:18'),
+(174, 'f158-452a-801f-e6b00aad1141146234', 'ws_CO_22072026225433145745959757', '0', 'The service request is processed successfully.', 1, 'UGMN80EP8R', '254745959757', 0, '2026-07-22 19:54:42'),
+(175, 'f158-452a-801f-e6b00aad1141147184', 'ws_CO_22072026230315885745959757', '1032', 'Request Cancelled by user.', 0, '', '', 0, '2026-07-22 20:03:25'),
+(176, 'f158-452a-801f-e6b00aad1141153694', 'ws_CO_23072026001309411745959757', '1032', 'Request Cancelled by user.', 0, '', '', 0, '2026-07-22 21:13:17'),
+(177, 'f158-452a-801f-e6b00aad1141251317', 'ws_CO_23072026192425141745959757', '1032', 'Request Cancelled by user.', 0, '', '', 0, '2026-07-23 16:24:32'),
+(178, 'f158-452a-801f-e6b00aad1141251324', 'ws_CO_23072026192449642745959757', '1032', 'Request Cancelled by user.', 0, '', '', 0, '2026-07-23 16:24:56'),
+(179, 'b824-4eab-b51c-485633e35ec2201693', 'ws_CO_23072026192534871745959757', '0', 'The service request is processed successfully.', 1, 'UGNN80HUQC', '254745959757', 0, '2026-07-23 16:25:44'),
+(180, '081a-46f3-bf79-f6857fb872e710000', 'ws_CO_24072026013646597745959757', '1032', 'Request Cancelled by user.', 0, '', '', 0, '2026-07-23 22:36:53'),
+(181, '6e47-4967-bcb9-74445bede7d227056', 'ws_CO_24072026013708206745959757', '1032', 'Request Cancelled by user.', 0, '', '', 0, '2026-07-23 22:37:13'),
+(182, '6e47-4967-bcb9-74445bede7d227072', 'ws_CO_24072026013732159745959757', '0', 'The service request is processed successfully.', 1, 'UGON80IRKH', '254745959757', 0, '2026-07-23 22:37:42'),
+(183, '081a-46f3-bf79-f6857fb872e710101', 'ws_CO_24072026014008491745959757', '0', 'The service request is processed successfully.', 1, 'UGON80IRKO', '254745959757', 0, '2026-07-23 22:40:18'),
+(184, '17b4-4bbb-a2b0-7a04972eda64210', 'ws_CO_24072026162432414745959757', '1037', 'No response from user.', 0, '', '', 0, '2026-07-24 13:24:59'),
+(185, '6e47-4967-bcb9-74445bede7d2104612', 'ws_CO_24072026162513694745959757', '1032', 'Request Cancelled by user.', 0, '', '', 0, '2026-07-24 13:25:16'),
+(186, '081a-46f3-bf79-f6857fb872e753393', 'ws_CO_24072026162537306745959757', '1037', 'No response from user.', 0, '', '', 0, '2026-07-24 13:26:04'),
+(187, '081a-46f3-bf79-f6857fb872e753435', 'ws_CO_24072026162654570745959757', '1037', 'No response from user.', 0, '', '', 0, '2026-07-24 13:27:22'),
+(188, '081a-46f3-bf79-f6857fb872e753462', 'ws_CO_24072026162751942745959757', '0', 'The service request is processed successfully.', 1, 'UGON80L1VF', '254745959757', 0, '2026-07-24 13:28:04'),
+(189, 'b13d-4e1d-8fb5-0f0d66c4323014612', 'ws_CO_25072026024826291745959757', '1032', 'Request Cancelled by user.', 0, '', '', 0, '2026-07-24 23:48:34'),
+(190, '6e47-4967-bcb9-74445bede7d2149207', 'ws_CO_25072026024934806745959757', '1032', 'Request Cancelled by user.', 0, '', '', 0, '2026-07-24 23:49:41'),
+(191, 'b13d-4e1d-8fb5-0f0d66c4323014685', 'ws_CO_25072026025002278745959757', '2001', 'The initiator information is invalid.', 0, '', '', 0, '2026-07-24 23:50:11'),
+(192, 'b13d-4e1d-8fb5-0f0d66c4323014736', 'ws_CO_25072026025028152745959757', '0', 'The service request is processed successfully.', 1, 'UGPN80MX5K', '254745959757', 0, '2026-07-24 23:50:40'),
+(193, '6e47-4967-bcb9-74445bede7d2149995', 'ws_CO_25072026030404591745959757', '1032', 'Request Cancelled by user.', 0, '', '', 0, '2026-07-25 00:04:10'),
+(194, 'b13d-4e1d-8fb5-0f0d66c4323016711', 'ws_CO_25072026033934439745959757', '1032', 'Request Cancelled by user.', 0, '', '', 0, '2026-07-25 00:39:40'),
+(195, 'b13d-4e1d-8fb5-0f0d66c4323016767', 'ws_CO_25072026034015366745959757', '1032', 'Request Cancelled by user.', 0, '', '', 0, '2026-07-25 00:40:21');
 
 -- --------------------------------------------------------
 
@@ -1641,7 +2387,15 @@ INSERT INTO `users` (`id`, `name`, `email`, `password`, `role`, `verification_co
 ALTER TABLE `academic_performance`
   ADD PRIMARY KEY (`id`),
   ADD KEY `idx_student_id` (`student_id`),
-  ADD KEY `idx_term_year` (`term`,`year`);
+  ADD KEY `idx_term_year` (`term`,`year`),
+  ADD KEY `exam_type_id` (`exam_type_id`);
+
+--
+-- Indexes for table `academic_years`
+--
+ALTER TABLE `academic_years`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `unique_school_year` (`school_id`,`year`);
 
 --
 -- Indexes for table `assignments`
@@ -1690,7 +2444,9 @@ ALTER TABLE `books`
   ADD KEY `idx_school_id` (`school_id`),
   ADD KEY `idx_isbn` (`isbn`),
   ADD KEY `idx_category` (`category`),
-  ADD KEY `idx_status` (`status`);
+  ADD KEY `idx_status` (`status`),
+  ADD KEY `idx_books_category` (`category`),
+  ADD KEY `idx_books_status` (`status`);
 
 --
 -- Indexes for table `book_borrowings`
@@ -1702,6 +2458,30 @@ ALTER TABLE `book_borrowings`
   ADD KEY `idx_borrower_id` (`borrower_id`),
   ADD KEY `idx_status` (`status`),
   ADD KEY `idx_due_date` (`due_date`);
+
+--
+-- Indexes for table `book_categories`
+--
+ALTER TABLE `book_categories`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `unique_category` (`school_id`,`category_name`);
+
+--
+-- Indexes for table `book_history`
+--
+ALTER TABLE `book_history`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_book_history_book_id` (`book_id`),
+  ADD KEY `idx_book_history_school_id` (`school_id`);
+
+--
+-- Indexes for table `book_reservations`
+--
+ALTER TABLE `book_reservations`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `school_id` (`school_id`),
+  ADD KEY `idx_book_reservations_book_id` (`book_id`),
+  ADD KEY `idx_book_reservations_status` (`status`);
 
 --
 -- Indexes for table `classes`
@@ -1751,6 +2531,34 @@ ALTER TABLE `duty_assignments`
   ADD KEY `school_id` (`school_id`),
   ADD KEY `teacher_id` (`teacher_id`),
   ADD KEY `assigned_by` (`assigned_by`);
+
+--
+-- Indexes for table `exams`
+--
+ALTER TABLE `exams`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `school_id` (`school_id`),
+  ADD KEY `exam_type_id` (`exam_type_id`),
+  ADD KEY `term_year` (`term`,`year`),
+  ADD KEY `status` (`status`);
+
+--
+-- Indexes for table `exam_results`
+--
+ALTER TABLE `exam_results`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `unique_exam_student` (`exam_id`,`student_id`),
+  ADD KEY `exam_id` (`exam_id`),
+  ADD KEY `student_id` (`student_id`);
+
+--
+-- Indexes for table `exam_types`
+--
+ALTER TABLE `exam_types`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `unique_exam_type` (`school_id`,`exam_type_code`),
+  ADD KEY `school_id` (`school_id`),
+  ADD KEY `is_active` (`is_active`);
 
 --
 -- Indexes for table `fee_payments`
@@ -1804,6 +2612,14 @@ ALTER TABLE `grading_scales`
   ADD PRIMARY KEY (`id`),
   ADD KEY `idx_school_id` (`school_id`),
   ADD KEY `idx_subject_id` (`subject_id`);
+
+--
+-- Indexes for table `holidays`
+--
+ALTER TABLE `holidays`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_holidays_school` (`school_id`),
+  ADD KEY `idx_holidays_dates` (`start_date`,`end_date`);
 
 --
 -- Indexes for table `incident_reports`
@@ -1876,6 +2692,18 @@ ALTER TABLE `librarian_sessions`
   ADD UNIQUE KEY `session_token` (`session_token`),
   ADD KEY `idx_librarian_id` (`librarian_id`),
   ADD KEY `idx_expires` (`expires_at`);
+
+--
+-- Indexes for table `library_fines`
+--
+ALTER TABLE `library_fines`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `book_id` (`book_id`),
+  ADD KEY `idx_school_id` (`school_id`),
+  ADD KEY `idx_user_id` (`user_id`),
+  ADD KEY `idx_status` (`status`),
+  ADD KEY `idx_fines_school_user` (`school_id`,`user_id`),
+  ADD KEY `idx_transaction_reference` (`transaction_reference`);
 
 --
 -- Indexes for table `parents`
@@ -1955,6 +2783,22 @@ ALTER TABLE `school_b2c_responses`
 ALTER TABLE `school_balances`
   ADD PRIMARY KEY (`school_id`),
   ADD KEY `idx_balance` (`balance`);
+
+--
+-- Indexes for table `school_breaks`
+--
+ALTER TABLE `school_breaks`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `unique_break` (`school_id`,`break_name`,`start_time`),
+  ADD KEY `idx_school_id` (`school_id`);
+
+--
+-- Indexes for table `school_events`
+--
+ALTER TABLE `school_events`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_school_events_school` (`school_id`),
+  ADD KEY `idx_school_events_date` (`event_date`);
 
 --
 -- Indexes for table `school_sessions`
@@ -2054,6 +2898,43 @@ ALTER TABLE `teacher_subjects`
   ADD KEY `idx_subject_id` (`subject_id`);
 
 --
+-- Indexes for table `terms`
+--
+ALTER TABLE `terms`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `unique_school_year_term` (`school_id`,`year`,`term_name`);
+
+--
+-- Indexes for table `timetables`
+--
+ALTER TABLE `timetables`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_school_id` (`school_id`),
+  ADD KEY `idx_class_id` (`class_id`),
+  ADD KEY `idx_status` (`status`);
+
+--
+-- Indexes for table `timetable_assignments`
+--
+ALTER TABLE `timetable_assignments`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `slot_id` (`slot_id`),
+  ADD KEY `idx_timetable_id` (`timetable_id`),
+  ADD KEY `idx_school_id` (`school_id`),
+  ADD KEY `idx_class_id` (`class_id`),
+  ADD KEY `idx_teacher_id` (`teacher_id`),
+  ADD KEY `idx_subject_id` (`subject_id`);
+
+--
+-- Indexes for table `timetable_slots`
+--
+ALTER TABLE `timetable_slots`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `unique_slot` (`school_id`,`day_of_week`,`start_time`,`end_time`),
+  ADD KEY `idx_school_id` (`school_id`),
+  ADD KEY `idx_day_of_week` (`day_of_week`);
+
+--
 -- Indexes for table `transactions`
 --
 ALTER TABLE `transactions`
@@ -2077,7 +2958,13 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `academic_performance`
 --
 ALTER TABLE `academic_performance`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+
+--
+-- AUTO_INCREMENT for table `academic_years`
+--
+ALTER TABLE `academic_years`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `assignments`
@@ -2107,13 +2994,31 @@ ALTER TABLE `attendance`
 -- AUTO_INCREMENT for table `books`
 --
 ALTER TABLE `books`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `book_borrowings`
 --
 ALTER TABLE `book_borrowings`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+
+--
+-- AUTO_INCREMENT for table `book_categories`
+--
+ALTER TABLE `book_categories`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
+-- AUTO_INCREMENT for table `book_history`
+--
+ALTER TABLE `book_history`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=143;
+
+--
+-- AUTO_INCREMENT for table `book_reservations`
+--
+ALTER TABLE `book_reservations`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `classes`
@@ -2152,16 +3057,34 @@ ALTER TABLE `duty_assignments`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
+-- AUTO_INCREMENT for table `exams`
+--
+ALTER TABLE `exams`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `exam_results`
+--
+ALTER TABLE `exam_results`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `exam_types`
+--
+ALTER TABLE `exam_types`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
 -- AUTO_INCREMENT for table `fee_payments`
 --
 ALTER TABLE `fee_payments`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=65;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=77;
 
 --
 -- AUTO_INCREMENT for table `fee_structure`
 --
 ALTER TABLE `fee_structure`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `finance_managers`
@@ -2179,13 +3102,19 @@ ALTER TABLE `finance_manager_logins`
 -- AUTO_INCREMENT for table `finance_manager_sessions`
 --
 ALTER TABLE `finance_manager_sessions`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
 -- AUTO_INCREMENT for table `grading_scales`
 --
 ALTER TABLE `grading_scales`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=52;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=160;
+
+--
+-- AUTO_INCREMENT for table `holidays`
+--
+ALTER TABLE `holidays`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `incident_reports`
@@ -2233,7 +3162,13 @@ ALTER TABLE `librarian_logins`
 -- AUTO_INCREMENT for table `librarian_sessions`
 --
 ALTER TABLE `librarian_sessions`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+
+--
+-- AUTO_INCREMENT for table `library_fines`
+--
+ALTER TABLE `library_fines`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
 
 --
 -- AUTO_INCREMENT for table `parents`
@@ -2251,7 +3186,7 @@ ALTER TABLE `parent_logins`
 -- AUTO_INCREMENT for table `parent_sessions`
 --
 ALTER TABLE `parent_sessions`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
 
 --
 -- AUTO_INCREMENT for table `password_resets`
@@ -2263,7 +3198,7 @@ ALTER TABLE `password_resets`
 -- AUTO_INCREMENT for table `reminder_history`
 --
 ALTER TABLE `reminder_history`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
 -- AUTO_INCREMENT for table `resources`
@@ -2275,25 +3210,37 @@ ALTER TABLE `resources`
 -- AUTO_INCREMENT for table `schools`
 --
 ALTER TABLE `schools`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `school_b2c_responses`
 --
 ALTER TABLE `school_b2c_responses`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=58;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=67;
+
+--
+-- AUTO_INCREMENT for table `school_breaks`
+--
+ALTER TABLE `school_breaks`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+--
+-- AUTO_INCREMENT for table `school_events`
+--
+ALTER TABLE `school_events`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `school_sessions`
 --
 ALTER TABLE `school_sessions`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 
 --
 -- AUTO_INCREMENT for table `school_withdrawals`
 --
 ALTER TABLE `school_withdrawals`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=65;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=85;
 
 --
 -- AUTO_INCREMENT for table `smtp_settings`
@@ -2341,7 +3288,7 @@ ALTER TABLE `teacher_logins`
 -- AUTO_INCREMENT for table `teacher_sessions`
 --
 ALTER TABLE `teacher_sessions`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=30;
 
 --
 -- AUTO_INCREMENT for table `teacher_subjects`
@@ -2350,10 +3297,34 @@ ALTER TABLE `teacher_subjects`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT for table `terms`
+--
+ALTER TABLE `terms`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+--
+-- AUTO_INCREMENT for table `timetables`
+--
+ALTER TABLE `timetables`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+--
+-- AUTO_INCREMENT for table `timetable_assignments`
+--
+ALTER TABLE `timetable_assignments`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
+-- AUTO_INCREMENT for table `timetable_slots`
+--
+ALTER TABLE `timetable_slots`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+
+--
 -- AUTO_INCREMENT for table `transactions`
 --
 ALTER TABLE `transactions`
-  MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=141;
+  MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=196;
 
 --
 -- AUTO_INCREMENT for table `users`
@@ -2369,7 +3340,14 @@ ALTER TABLE `users`
 -- Constraints for table `academic_performance`
 --
 ALTER TABLE `academic_performance`
+  ADD CONSTRAINT `fk_academic_performance_exam_type` FOREIGN KEY (`exam_type_id`) REFERENCES `exam_types` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
   ADD CONSTRAINT `fk_performance_student` FOREIGN KEY (`student_id`) REFERENCES `students` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `academic_years`
+--
+ALTER TABLE `academic_years`
+  ADD CONSTRAINT `academic_years_ibfk_1` FOREIGN KEY (`school_id`) REFERENCES `schools` (`id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `assignments`
@@ -2409,6 +3387,26 @@ ALTER TABLE `books`
 --
 ALTER TABLE `book_borrowings`
   ADD CONSTRAINT `fk_borrowing_book` FOREIGN KEY (`book_id`) REFERENCES `books` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `book_categories`
+--
+ALTER TABLE `book_categories`
+  ADD CONSTRAINT `book_categories_ibfk_1` FOREIGN KEY (`school_id`) REFERENCES `schools` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `book_history`
+--
+ALTER TABLE `book_history`
+  ADD CONSTRAINT `book_history_ibfk_1` FOREIGN KEY (`book_id`) REFERENCES `books` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `book_history_ibfk_2` FOREIGN KEY (`school_id`) REFERENCES `schools` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `book_reservations`
+--
+ALTER TABLE `book_reservations`
+  ADD CONSTRAINT `book_reservations_ibfk_1` FOREIGN KEY (`book_id`) REFERENCES `books` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `book_reservations_ibfk_2` FOREIGN KEY (`school_id`) REFERENCES `schools` (`id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `classes`
@@ -2451,6 +3449,20 @@ ALTER TABLE `duty_assignments`
   ADD CONSTRAINT `duty_assignments_ibfk_3` FOREIGN KEY (`assigned_by`) REFERENCES `schools` (`id`);
 
 --
+-- Constraints for table `exams`
+--
+ALTER TABLE `exams`
+  ADD CONSTRAINT `exams_ibfk_1` FOREIGN KEY (`exam_type_id`) REFERENCES `exam_types` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `exams_ibfk_2` FOREIGN KEY (`school_id`) REFERENCES `schools` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `exam_results`
+--
+ALTER TABLE `exam_results`
+  ADD CONSTRAINT `exam_results_ibfk_1` FOREIGN KEY (`exam_id`) REFERENCES `exams` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `exam_results_ibfk_2` FOREIGN KEY (`student_id`) REFERENCES `students` (`id`) ON DELETE CASCADE;
+
+--
 -- Constraints for table `fee_payments`
 --
 ALTER TABLE `fee_payments`
@@ -2487,6 +3499,12 @@ ALTER TABLE `finance_manager_sessions`
 ALTER TABLE `grading_scales`
   ADD CONSTRAINT `fk_grading_scales_school` FOREIGN KEY (`school_id`) REFERENCES `schools` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `fk_grading_scales_subject` FOREIGN KEY (`subject_id`) REFERENCES `subjects` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `holidays`
+--
+ALTER TABLE `holidays`
+  ADD CONSTRAINT `holidays_ibfk_1` FOREIGN KEY (`school_id`) REFERENCES `schools` (`id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `incident_reports`
@@ -2544,6 +3562,13 @@ ALTER TABLE `librarian_sessions`
   ADD CONSTRAINT `fk_librarian_session_librarian` FOREIGN KEY (`librarian_id`) REFERENCES `librarians` (`id`) ON DELETE CASCADE;
 
 --
+-- Constraints for table `library_fines`
+--
+ALTER TABLE `library_fines`
+  ADD CONSTRAINT `library_fines_ibfk_1` FOREIGN KEY (`school_id`) REFERENCES `schools` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `library_fines_ibfk_2` FOREIGN KEY (`book_id`) REFERENCES `books` (`id`) ON DELETE CASCADE;
+
+--
 -- Constraints for table `parents`
 --
 ALTER TABLE `parents`
@@ -2573,6 +3598,18 @@ ALTER TABLE `reminder_history`
 --
 ALTER TABLE `school_balances`
   ADD CONSTRAINT `fk_school_balances_school` FOREIGN KEY (`school_id`) REFERENCES `schools` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `school_breaks`
+--
+ALTER TABLE `school_breaks`
+  ADD CONSTRAINT `school_breaks_ibfk_1` FOREIGN KEY (`school_id`) REFERENCES `schools` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `school_events`
+--
+ALTER TABLE `school_events`
+  ADD CONSTRAINT `school_events_ibfk_1` FOREIGN KEY (`school_id`) REFERENCES `schools` (`id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `school_sessions`
@@ -2640,6 +3677,36 @@ ALTER TABLE `teacher_subjects`
   ADD CONSTRAINT `fk_teacher_subjects_class` FOREIGN KEY (`class_id`) REFERENCES `classes` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `fk_teacher_subjects_subject` FOREIGN KEY (`subject_id`) REFERENCES `subjects` (`id`) ON DELETE SET NULL,
   ADD CONSTRAINT `fk_teacher_subjects_teacher` FOREIGN KEY (`teacher_id`) REFERENCES `teachers` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `terms`
+--
+ALTER TABLE `terms`
+  ADD CONSTRAINT `terms_ibfk_1` FOREIGN KEY (`school_id`) REFERENCES `schools` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `timetables`
+--
+ALTER TABLE `timetables`
+  ADD CONSTRAINT `timetables_ibfk_1` FOREIGN KEY (`school_id`) REFERENCES `schools` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `timetables_ibfk_2` FOREIGN KEY (`class_id`) REFERENCES `classes` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `timetable_assignments`
+--
+ALTER TABLE `timetable_assignments`
+  ADD CONSTRAINT `timetable_assignments_ibfk_1` FOREIGN KEY (`timetable_id`) REFERENCES `timetables` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `timetable_assignments_ibfk_2` FOREIGN KEY (`school_id`) REFERENCES `schools` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `timetable_assignments_ibfk_3` FOREIGN KEY (`slot_id`) REFERENCES `timetable_slots` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `timetable_assignments_ibfk_4` FOREIGN KEY (`class_id`) REFERENCES `classes` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `timetable_assignments_ibfk_5` FOREIGN KEY (`subject_id`) REFERENCES `subjects` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `timetable_assignments_ibfk_6` FOREIGN KEY (`teacher_id`) REFERENCES `teachers` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `timetable_slots`
+--
+ALTER TABLE `timetable_slots`
+  ADD CONSTRAINT `timetable_slots_ibfk_1` FOREIGN KEY (`school_id`) REFERENCES `schools` (`id`) ON DELETE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

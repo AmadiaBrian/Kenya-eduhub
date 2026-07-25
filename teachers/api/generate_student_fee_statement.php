@@ -18,6 +18,37 @@ $school_id = $_SESSION['school_id'];
 $class_id = $_SESSION['class_id'] ?? null;
 $stream_id = $_SESSION['stream_id'] ?? null;
 
+// Load calendar helpers
+require_once __DIR__ . '/../../includes/calendar_helpers.php';
+
+// Get calendar status
+$calendar_status = getSchoolCalendarStatus($pdo, $school_id);
+
+// Get active term from calendar status
+$active_term = $calendar_status['current_term']['term_name'] ?? null;
+
+// Get terms from database for current year
+$terms = [];
+try {
+    $current_year = date('Y');
+    $stmt = $pdo->prepare("SELECT term_name FROM terms WHERE school_id = ? AND year = ? ORDER BY term_number");
+    $stmt->execute([$school_id, $current_year]);
+    $term_records = $stmt->fetchAll();
+    foreach ($term_records as $term) {
+        $terms[] = $term['term_name'];
+    }
+} catch (PDOException $e) {
+    error_log("Failed to fetch terms: " . $e->getMessage());
+    $terms = ['Term 1', 'Term 2', 'Term 3'];
+}
+
+if (empty($terms)) {
+    $terms = ['Term 1', 'Term 2', 'Term 3'];
+}
+
+// Use active term if available, otherwise use first term
+$current_term = $active_term ?? ($terms[0] ?? 'Term 1');
+
 // Only allow POST requests
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     echo json_encode(['success' => false, 'error' => 'Invalid request method']);
@@ -72,7 +103,6 @@ try {
     
     // Get current year fee structure
     $current_year = date('Y');
-    $terms = ['Term 1', 'Term 2', 'Term 3'];
     
     $stmt = $pdo->prepare("
         SELECT * FROM fee_structure 

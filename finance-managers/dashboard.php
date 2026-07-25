@@ -1,10 +1,91 @@
 <?php
 // Finance Manager Dashboard
-// Authentication is handled by index.php router
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+require_once __DIR__ . '/../config.php';
+
+// Authentication check
+if (!isset($_SESSION['finance_manager_id'])) {
+    header('Location: login');
+    exit;
+}
+
 $finance_manager_id = $_SESSION['finance_manager_id'];
 $finance_manager_name = $_SESSION['finance_manager_name'] ?? 'Finance Manager';
 $school_id = $_SESSION['school_id'];
 $school_name = $_SESSION['school_name'] ?? 'School';
+
+// Load calendar helpers
+require_once __DIR__ . '/../includes/calendar_helpers.php';
+
+// Get calendar status
+$calendar_status = getSchoolCalendarStatus($pdo, $school_id);
+
+// Get active term from calendar status
+$active_term = $calendar_status['current_term']['term_name'] ?? null;
+
+// Get terms from database for current year
+$terms = [];
+try {
+    $current_year = date('Y');
+    $stmt = $pdo->prepare("SELECT term_name FROM terms WHERE school_id = ? AND year = ? ORDER BY term_number");
+    $stmt->execute([$school_id, $current_year]);
+    $term_records = $stmt->fetchAll();
+    foreach ($term_records as $term) {
+        $terms[] = $term['term_name'];
+    }
+} catch (PDOException $e) {
+    error_log("Failed to fetch terms: " . $e->getMessage());
+    $terms = ['Term 1', 'Term 2', 'Term 3'];
+}
+
+if (empty($terms)) {
+    $terms = ['Term 1', 'Term 2', 'Term 3'];
+}
+
+// Build FIELD clause for ORDER BY based on actual terms
+$field_clause = '';
+if (!empty($terms)) {
+    $quoted_terms = array_map([$pdo, 'quote'], $terms);
+    $field_clause = "FIELD(term, " . implode(', ', $quoted_terms) . ")";
+}
+
+// Get filter parameters
+$filter_year = $_GET['year'] ?? '2026';
+$filter_term = $_GET['term'] ?? '';
+
+// Get available years from database
+$available_years = [];
+try {
+    $stmt = $pdo->prepare("SELECT DISTINCT year FROM fee_structure WHERE school_id = ? ORDER BY year DESC");
+    $stmt->execute([$school_id]);
+    $year_records = $stmt->fetchAll();
+    foreach ($year_records as $record) {
+        $available_years[] = $record['year'];
+    }
+    
+    // Also check fee_payments for years that might not have fee structures
+    $stmt = $pdo->prepare("SELECT DISTINCT year FROM fee_payments fp JOIN students s ON fp.student_id = s.id WHERE s.school_id = ? ORDER BY year DESC");
+    $stmt->execute([$school_id]);
+    $payment_years = $stmt->fetchAll();
+    foreach ($payment_years as $record) {
+        if (!in_array($record['year'], $available_years)) {
+            $available_years[] = $record['year'];
+        }
+    }
+    
+    // Sort years descending
+    rsort($available_years);
+    
+    // If no years found, default to current year
+    if (empty($available_years)) {
+        $available_years = [date('Y')];
+    }
+} catch (PDOException $e) {
+    error_log("Failed to fetch years: " . $e->getMessage());
+    $available_years = [date('Y')];
+}
 
 // Get statistics
 $stats = [];
@@ -14,67 +95,128 @@ try {
     $stmt->execute([$school_id]);
     $stats['total_students'] = $stmt->fetch()['total'];
     
-    // Total fee collections this year (only completed payments)
-    $current_year = date('Y');
-    $stmt = $pdo->prepare("SELECT SUM(amount) as total FROM fee_payments fp JOIN students s ON fp.student_id = s.id WHERE s.school_id = ? AND fp.year = ? AND fp.status = 'completed'");
-    $stmt->execute([$school_id, $current_year]);
+    // Total fee collections for selected year and term (only completed payments)
+    $fee_collections_query = "SELECT SUM(amount) as total FROM fee_payments fp JOIN students s ON fp.student_id = s.id WHERE s.school_id = ? AND fp.year = ? AND fp.status = 'completed'";
+    $fee_collections_params = [$school_id, $filter_year];
+
+    if (!empty($filter_term)) {
+        $fee_collections_query .= " AND fp.term = ?";
+        $fee_collections_params[] = $filter_term;
+    }
+
+    $stmt = $pdo->prepare($fee_collections_query);
+    $stmt->execute($fee_collections_params);
     $stats['fee_collections'] = $stmt->fetch()['total'] ?? 0;
     
-    // Outstanding fee balance (only Tuition fees, only completed payments)
-    $stmt = $pdo->prepare("SELECT COALESCE(SUM(fs.amount), 0) as total_fees
+    // Outstanding fee balance for selected year and term (only Tuition fees, only completed payments)
+    $total_fees_query = "SELECT COALESCE(SUM(fs.amount), 0) as total_fees
                           FROM fee_structure fs
-                          WHERE fs.school_id = ? AND fs.year = ? AND fs.fee_type = 'Tuition'");
-    $stmt->execute([$school_id, $current_year]);
+                          WHERE fs.school_id = ? AND fs.year = ? AND fs.fee_type = 'Tuition'";
+    $total_fees_params = [$school_id, $filter_year];
+
+    if (!empty($filter_term)) {
+        $total_fees_query .= " AND fs.term = ?";
+        $total_fees_params[] = $filter_term;
+    }
+
+    $stmt = $pdo->prepare($total_fees_query);
+    $stmt->execute($total_fees_params);
     $total_fees = $stmt->fetch()['total_fees'] ?? 0;
     
-    $stmt = $pdo->prepare("SELECT COALESCE(SUM(fp.amount), 0) as total_paid
+    $total_paid_query = "SELECT COALESCE(SUM(fp.amount), 0) as total_paid
                           FROM fee_payments fp
                           JOIN students s ON fp.student_id = s.id
-                          WHERE s.school_id = ? AND fp.year = ? AND fp.status = 'completed' AND (fp.fee_type = 'Tuition' OR fp.fee_type IS NULL)");
-    $stmt->execute([$school_id, $current_year]);
+                          WHERE s.school_id = ? AND fp.year = ? AND fp.status = 'completed' AND (fp.fee_type = 'Tuition' OR fp.fee_type IS NULL)";
+    $total_paid_params = [$school_id, $filter_year];
+
+    if (!empty($filter_term)) {
+        $total_paid_query .= " AND fp.term = ?";
+        $total_paid_params[] = $filter_term;
+    }
+
+    $stmt = $pdo->prepare($total_paid_query);
+    $stmt->execute($total_paid_params);
     $total_paid = $stmt->fetch()['total_paid'] ?? 0;
     
     $stats['outstanding_balance'] = $total_fees - $total_paid;
     
-    // Payment method breakdown
-    $stmt = $pdo->prepare("SELECT payment_method, COUNT(*) as count, SUM(amount) as total
+    // Payment method breakdown for selected year and term
+    $payment_method_query = "SELECT payment_method, COUNT(*) as count, SUM(amount) as total
                           FROM fee_payments fp
                           JOIN students s ON fp.student_id = s.id
-                          WHERE s.school_id = ? AND fp.year = ? AND fp.status = 'completed'
-                          GROUP BY payment_method");
-    $stmt->execute([$school_id, $current_year]);
+                          WHERE s.school_id = ? AND fp.year = ? AND fp.status = 'completed'";
+    $payment_method_params = [$school_id, $filter_year];
+
+    if (!empty($filter_term)) {
+        $payment_method_query .= " AND fp.term = ?";
+        $payment_method_params[] = $filter_term;
+    }
+
+    $payment_method_query .= " GROUP BY payment_method";
+    $stmt = $pdo->prepare($payment_method_query);
+    $stmt->execute($payment_method_params);
     $payment_methods = $stmt->fetchAll();
     
-    // Monthly revenue data
-    $stmt = $pdo->prepare("SELECT MONTH(payment_date) as month, SUM(amount) as total
+    // Monthly revenue data for selected year and term
+    $monthly_query = "SELECT MONTH(payment_date) as month, SUM(amount) as total
                           FROM fee_payments fp
                           JOIN students s ON fp.student_id = s.id
-                          WHERE s.school_id = ? AND fp.year = ? AND fp.status = 'completed'
-                          GROUP BY MONTH(payment_date)
-                          ORDER BY month");
-    $stmt->execute([$school_id, $current_year]);
+                          WHERE s.school_id = ? AND fp.year = ? AND fp.status = 'completed'";
+    $monthly_params = [$school_id, $filter_year];
+
+    if (!empty($filter_term)) {
+        $monthly_query .= " AND fp.term = ?";
+        $monthly_params[] = $filter_term;
+    }
+
+    $monthly_query .= " GROUP BY MONTH(payment_date) ORDER BY month";
+    $stmt = $pdo->prepare($monthly_query);
+    $stmt->execute($monthly_params);
     $monthly_revenue = $stmt->fetchAll();
     
-    // Term-wise collection data
-    $stmt = $pdo->prepare("SELECT term, SUM(amount) as total
+    // Term-wise collection data for selected year
+    $order_clause = !empty($field_clause) ? $field_clause : "term";
+    $term_query = "SELECT term, SUM(amount) as total
                           FROM fee_payments fp
                           JOIN students s ON fp.student_id = s.id
-                          WHERE s.school_id = ? AND fp.year = ? AND fp.status = 'completed'
-                          GROUP BY term
-                          ORDER BY FIELD(term, 'Term 1', 'Term 2', 'Term 3')");
-    $stmt->execute([$school_id, $current_year]);
+                          WHERE s.school_id = ? AND fp.year = ? AND fp.status = 'completed'";
+    $term_params = [$school_id, $filter_year];
+    
+    if (!empty($filter_term)) {
+        $term_query .= " AND fp.term = ?";
+        $term_params[] = $filter_term;
+    }
+    
+    $term_query .= " GROUP BY term ORDER BY $order_clause";
+    $stmt = $pdo->prepare($term_query);
+    $stmt->execute($term_params);
     $term_collections = $stmt->fetchAll();
     
-    // Recent payments (only successful/completed)
-    $stmt = $pdo->prepare("SELECT fp.id, fp.receipt_number, fp.amount, fp.payment_date, fp.payment_method, fp.term, fp.year, fp.fee_type, s.first_name, s.last_name, s.admission_number 
-                          FROM fee_payments fp 
-                          JOIN students s ON fp.student_id = s.id 
-                          WHERE s.school_id = ? AND fp.status = 'completed'
-                          ORDER BY fp.payment_date DESC LIMIT 10");
-    $stmt->execute([$school_id]);
+    // Recent payments (only successful/completed) - respect year and term filters
+    $recent_query = "SELECT fp.id, fp.receipt_number, fp.amount, fp.payment_date, fp.payment_method, fp.term, fp.year, fp.fee_type, s.first_name, s.last_name, s.admission_number
+                          FROM fee_payments fp
+                          JOIN students s ON fp.student_id = s.id
+                          WHERE s.school_id = ? AND fp.status = 'completed'";
+    $recent_params = [$school_id];
+
+    // Apply year filter if selected
+    if (!empty($filter_year)) {
+        $recent_query .= " AND fp.year = ?";
+        $recent_params[] = $filter_year;
+    }
+
+    // Apply term filter if selected
+    if (!empty($filter_term)) {
+        $recent_query .= " AND fp.term = ?";
+        $recent_params[] = $filter_term;
+    }
+
+    $recent_query .= " ORDER BY fp.payment_date DESC LIMIT 10";
+    $stmt = $pdo->prepare($recent_query);
+    $stmt->execute($recent_params);
     $recent_payments = $stmt->fetchAll();
     
-    // Get non-tuition fee structures and their collection status (only completed payments)
+    // Get non-tuition fee structures and their collection status for selected year (only completed payments)
     $non_tuition_fees = [];
     try {
         $query = "SELECT fs.id, fs.fee_type, fs.term, fs.year, fs.amount, fs.description, c.class_name,
@@ -85,7 +227,12 @@ try {
                   LEFT JOIN students s ON s.class_id = c.id AND s.school_id = fs.school_id AND s.status = 'active'
                   LEFT JOIN fee_payments fp ON fp.student_id = s.id AND fp.year = fs.year AND fp.term = fs.term AND (fp.fee_type = fs.fee_type OR fp.fee_type IS NULL) AND fp.status = 'completed'
                   WHERE fs.school_id = ? AND fs.year = ? AND fs.fee_type != 'Tuition'";
-        $params = [$school_id, $current_year];
+        $params = [$school_id, $filter_year];
+        
+        if (!empty($filter_term)) {
+            $query .= " AND fs.term = ?";
+            $params[] = $filter_term;
+        }
         
         $query .= " GROUP BY fs.id, fs.fee_type, fs.term, fs.year, fs.amount, fs.description, c.class_name
                   ORDER BY fs.fee_type, fs.term, c.class_name";
@@ -655,6 +802,42 @@ try {
         <h1 class="page-title">Finance Dashboard</h1>
         <p class="page-subtitle">Real-time financial overview and analytics</p>
         
+        <!-- Filter Card -->
+        <div class="card">
+            <h2 class="card-title">Filter Dashboard</h2>
+            <form method="GET" action="" class="row g-3">
+                <div class="col-md-3">
+                    <label class="form-label">Year</label>
+                    <select class="form-control" name="year">
+                        <?php foreach($available_years as $year): ?>
+                            <option value="<?php echo $year; ?>" <?php echo $filter_year == $year ? 'selected' : ''; ?>><?php echo $year; ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Term</label>
+                    <select class="form-control" name="term">
+                        <option value="">All Terms</option>
+                        <?php foreach($terms as $term): ?>
+                            <option value="<?php echo htmlspecialchars($term); ?>" <?php echo $filter_term === $term ? 'selected' : ''; ?>><?php echo htmlspecialchars($term); ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">&nbsp;</label>
+                    <button type="submit" class="btn" style="background-color: #FF6B35; color: white; border: none; padding: 8px 16px;">
+                        <i class="fas fa-filter me-2"></i> Apply Filter
+                    </button>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">&nbsp;</label>
+                    <a href="dashboard" class="btn" style="background-color: #5f6368; color: white; border: none; padding: 8px 16px; display: inline-block; text-decoration: none;">
+                        <i class="fas fa-times me-2"></i> Clear
+                    </a>
+                </div>
+            </form>
+        </div>
+        
         <!-- Stats Grid -->
         <div class="stats-grid">
             <div class="stat-card">
@@ -670,7 +853,7 @@ try {
                     <i class="fas fa-money-bill-wave"></i>
                 </div>
                 <div class="stat-value">KES <?php echo number_format($stats['fee_collections'], 2); ?></div>
-                <div class="stat-label">Fee Collections (<?php echo date('Y'); ?>)</div>
+                <div class="stat-label">Fee Collections (<?php echo $filter_year; ?>)</div>
             </div>
             
             <div class="stat-card">
@@ -685,7 +868,7 @@ try {
         <!-- Financial Charts -->
         <div class="chart-grid">
             <div class="chart-container">
-                <h3 class="chart-title">Monthly Revenue Trend (<?php echo $current_year; ?>)</h3>
+                <h3 class="chart-title">Monthly Revenue Trend (<?php echo $filter_year; ?>)</h3>
                 <canvas id="monthlyRevenueChart"></canvas>
             </div>
             <div class="chart-container">

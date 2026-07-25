@@ -7,6 +7,37 @@ $school_id = $_SESSION['school_id'];
 $class_id = $_SESSION['class_id'] ?? null;
 $class_name = $_SESSION['class_name'] ?? '';
 
+// Load calendar helpers
+require_once __DIR__ . '/../includes/calendar_helpers.php';
+
+// Get calendar status
+$calendar_status = getSchoolCalendarStatus($pdo, $school_id);
+
+// Get active term from calendar status
+$active_term = $calendar_status['current_term']['term_name'] ?? null;
+
+// Get terms from database for current year
+$terms = [];
+try {
+    $current_year = date('Y');
+    $stmt = $pdo->prepare("SELECT term_name FROM terms WHERE school_id = ? AND year = ? ORDER BY term_number");
+    $stmt->execute([$school_id, $current_year]);
+    $term_records = $stmt->fetchAll();
+    foreach ($term_records as $term) {
+        $terms[] = $term['term_name'];
+    }
+} catch (PDOException $e) {
+    error_log("Failed to fetch terms: " . $e->getMessage());
+    $terms = ['Term 1', 'Term 2', 'Term 3'];
+}
+
+if (empty($terms)) {
+    $terms = ['Term 1', 'Term 2', 'Term 3'];
+}
+
+// Use active term if available, otherwise use first term
+$current_term = $active_term ?? ($terms[0] ?? 'Term 1');
+
 // Get teacher details and subject assignments
 try {
     $stmt = $pdo->prepare("SELECT t.*, s.school_name FROM teachers t JOIN schools s ON t.school_id = s.id WHERE t.id = ?");
@@ -96,6 +127,7 @@ if (isset($_GET['download_template']) && $_GET['download_template'] === 'true') 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['performance_file']) && isset($_POST['bulk_upload'])) {
     $term = $_POST['term'] ?? '';
     $year = $_POST['year'] ?? '';
+    $exam_type_id = intval($_POST['exam_type_id'] ?? 0);
     $subject = strtoupper(trim($_POST['subject'] ?? '')); // Normalize subject to uppercase
     $streamId = $_POST['streamId'] ?? '';
     
@@ -113,7 +145,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['performance_file']) 
         error_log("Failed to fetch grading scales for bulk upload: " . $e->getMessage());
     }
     
-    if (!$term || !$year || !$subject || !$streamId) {
+    if (!$term || !$year || !$exam_type_id || !$subject || !$streamId) {
         $error = 'Please fill all required fields';
     } else {
         $file = $_FILES['performance_file'];
@@ -172,8 +204,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['performance_file']) 
                                         $finalRemarks = $gradeDescription;
                                         
                                         // Check if performance record already exists
-                                        $stmt = $pdo->prepare("SELECT id FROM academic_performance WHERE student_id = ? AND term = ? AND year = ? AND subject = ?");
-                                        $stmt->execute([$student['id'], $term, $year, $subject]);
+                                        $stmt = $pdo->prepare("SELECT id FROM academic_performance WHERE student_id = ? AND term = ? AND year = ? AND subject = ? AND exam_type_id = ?");
+                                        $stmt->execute([$student['id'], $term, $year, $subject, $exam_type_id]);
                                         $existing = $stmt->fetch();
                                         
                                         if ($existing) {
@@ -182,8 +214,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['performance_file']) 
                                             $stmt->execute([$marks, $grade, $finalRemarks, $existing['id']]);
                                         } else {
                                             // Insert new record
-                                            $stmt = $pdo->prepare("INSERT INTO academic_performance (student_id, term, year, subject, marks, grade, remarks) VALUES (?, ?, ?, ?, ?, ?, ?)");
-                                            $stmt->execute([$student['id'], $term, $year, $subject, $marks, $grade, $finalRemarks]);
+                                            $stmt = $pdo->prepare("INSERT INTO academic_performance (student_id, term, year, subject, exam_type_id, marks, grade, remarks) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+                                            $stmt->execute([$student['id'], $term, $year, $subject, $exam_type_id, $marks, $grade, $finalRemarks]);
                                         }
                                         
                                         $row_count++;
@@ -226,12 +258,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['performance_file']) 
 // Get grading scales for the teacher's school with subject information
 $grading_scales = [];
 $all_subjects = [];
+$exam_types = [];
 if ($teacher) {
     try {
         // Fetch all subjects for the school
         $stmt = $pdo->prepare("SELECT * FROM subjects WHERE school_id = ? AND status = 'active' ORDER BY subject_name");
         $stmt->execute([$teacher['school_id']]);
         $all_subjects = $stmt->fetchAll();
+
+        // Fetch exam types for the school
+        $stmt = $pdo->prepare("SELECT * FROM exam_types WHERE school_id = ? AND is_active = 1 ORDER BY exam_type_name");
+        $stmt->execute([$teacher['school_id']]);
+        $exam_types = $stmt->fetchAll();
         
         error_log("=== GRADING SYSTEM DEBUG (PHP) ===");
         error_log("Teacher ID: " . $teacher_id);
@@ -266,6 +304,26 @@ if ($teacher) {
         error_log("Found " . count($grading_scales) . " grading scales for subjects in school_id=" . $teacher['school_id']);
     } catch (PDOException $e) {
         error_log("Failed to fetch grading scales: " . $e->getMessage());
+    }
+}
+
+// Get subjects without performance records
+$subjects_without_performance = [];
+if ($teacher) {
+    try {
+        $stmt = $pdo->prepare("SELECT DISTINCT s.* FROM subjects s
+                             WHERE s.school_id = ? AND s.status = 'active'
+                             AND s.id NOT IN (
+                                 SELECT DISTINCT ap.subject_id
+                                 FROM academic_performance ap
+                                 JOIN students st ON ap.student_id = st.id
+                                 WHERE st.school_id = ?
+                             )
+                             ORDER BY s.subject_name");
+        $stmt->execute([$teacher['school_id'], $teacher['school_id']]);
+        $subjects_without_performance = $stmt->fetchAll();
+    } catch (PDOException $e) {
+        error_log("Failed to fetch subjects without performance: " . $e->getMessage());
     }
 }
 ?>
@@ -326,15 +384,18 @@ if ($teacher) {
             background: none;
             border: none;
             cursor: pointer;
-            padding: 12px;
+            padding: 8px;
             border-radius: 50%;
-            color: #5f6368;
-            transition: background 0.2s;
-            display: none;
+            transition: all 0.2s;
         }
-        
+
         .menu-btn:hover {
             background: #f1f3f4;
+        }
+
+        .menu-btn i {
+            font-size: 20px;
+            color: #000;
         }
         
         .logo {
@@ -453,7 +514,7 @@ if ($teacher) {
         /* Cards */
         .card {
             background: var(--bg-color);
-            border: none;
+            border: 1px solid #e8eaed;
             border-radius: 8px;
             padding: 24px;
             margin-bottom: 24px;
@@ -636,8 +697,14 @@ if ($teacher) {
             <a class="nav-link" href="dashboard">
                 <i class="fas fa-home"></i> Dashboard
             </a>
+            <a class="nav-link" href="timetable">
+                <i class="fas fa-calendar-alt"></i> Timetable
+            </a>
             <a class="nav-link" href="attendance">
                 <i class="fas fa-calendar-check"></i> Attendance
+            </a>
+            <a class="nav-link" href="calendar">
+                <i class="fas fa-calendar"></i> Calendar
             </a>
             <a class="nav-link active" href="performance">
                 <i class="fas fa-chart-line"></i> Performance
@@ -691,19 +758,30 @@ if ($teacher) {
             <div class="card-body">
                 <form method="POST" enctype="multipart/form-data" id="bulkUploadForm">
                     <div class="row mb-3">
-                        <div class="col-md-3">
+                        <div class="col-md-2">
                             <label class="form-label">Term</label>
                             <select class="form-control" name="term" required style="border-radius: 25px;">
-                                <option value="Term 1">Term 1</option>
-                                <option value="Term 2">Term 2</option>
-                                <option value="Term 3">Term 3</option>
+                                <?php foreach($terms as $term): ?>
+                                    <option value="<?php echo htmlspecialchars($term); ?>" <?php echo $current_term === $term ? 'selected' : ''; ?>><?php echo htmlspecialchars($term); ?></option>
+                                <?php endforeach; ?>
                             </select>
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-2">
                             <label class="form-label">Year</label>
                             <input type="number" class="form-control" name="year" value="2026" required style="border-radius: 25px;">
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-2">
+                            <label class="form-label">Exam Type</label>
+                            <select class="form-control" name="exam_type_id" required style="border-radius: 25px;">
+                                <option value="">Select Exam Type</option>
+                                <?php foreach ($exam_types as $exam_type): ?>
+                                    <option value="<?php echo $exam_type['id']; ?>">
+                                        <?php echo htmlspecialchars($exam_type['exam_type_name']); ?> (<?php echo htmlspecialchars($exam_type['exam_type_code']); ?>)
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
                             <label class="form-label">Subject</label>
                             <?php if ($teacher && $teacher['teacher_type'] === 'class_teacher'): ?>
                                 <select class="form-control" name="subject" id="bulkSubject" style="border-radius: 25px;">
@@ -718,7 +796,7 @@ if ($teacher) {
                                 <input type="text" class="form-control" name="subject" id="bulkSubject" required readonly style="border-radius: 25px;">
                             <?php endif; ?>
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-2">
                             <label class="form-label">Stream</label>
                             <select class="form-control" name="streamId" id="bulkStreamId" required style="border-radius: 25px;">
                                 <option value="">Select Stream</option>
@@ -764,19 +842,30 @@ if ($teacher) {
             </div>
             <div class="card-body">
                 <div class="row mb-3">
-                    <div class="col-md-3">
+                    <div class="col-md-2">
                         <label class="form-label">Term</label>
                         <select class="form-control" id="term">
-                            <option value="Term 1">Term 1</option>
-                            <option value="Term 2">Term 2</option>
-                            <option value="Term 3">Term 3</option>
+                            <?php foreach($terms as $term): ?>
+                                <option value="<?php echo htmlspecialchars($term); ?>" <?php echo $current_term === $term ? 'selected' : ''; ?>><?php echo htmlspecialchars($term); ?></option>
+                            <?php endforeach; ?>
                         </select>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-2">
                         <label class="form-label">Year</label>
                         <input type="number" class="form-control" id="year" value="2026">
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-2">
+                        <label class="form-label">Exam Type</label>
+                        <select class="form-control" id="examTypeId" required>
+                            <option value="">Select Exam Type</option>
+                            <?php foreach ($exam_types as $exam_type): ?>
+                                <option value="<?php echo $exam_type['id']; ?>">
+                                    <?php echo htmlspecialchars($exam_type['exam_type_name']); ?> (<?php echo htmlspecialchars($exam_type['exam_type_code']); ?>)
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
                         <label class="form-label">Class</label>
                         <?php if ($teacher && $teacher['teacher_type'] === 'class_teacher'): ?>
                             <input type="text" class="form-control" id="classDisplay" value="<?php echo htmlspecialchars($class_name); ?>" readonly>
@@ -861,6 +950,7 @@ if ($teacher) {
                                 <tr>
                                     <th>Admission No</th>
                                     <th>Student Name</th>
+                                    <th>Exam Type</th>
                                     <th>Marks</th>
                                     <th>Grade</th>
                                     <th>Points</th>
@@ -868,7 +958,7 @@ if ($teacher) {
                                 </tr>
                             </thead>
                             <tbody id="performanceTable">
-                                <tr><td colspan="6" class="text-center">Loading...</td></tr>
+                                <tr><td colspan="7" class="text-center">Loading...</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -930,9 +1020,9 @@ if ($teacher) {
                     <div class="col-md-2">
                         <select class="form-control" id="filterTerm">
                             <option value="">All Terms</option>
-                            <option value="Term 1">Term 1</option>
-                            <option value="Term 2">Term 2</option>
-                            <option value="Term 3">Term 3</option>
+                            <?php foreach($terms as $term): ?>
+                                <option value="<?php echo htmlspecialchars($term); ?>" <?php echo $current_term === $term ? 'selected' : ''; ?>><?php echo htmlspecialchars($term); ?></option>
+                            <?php endforeach; ?>
                         </select>
                     </div>
                     <div class="col-md-2">
@@ -948,6 +1038,16 @@ if ($teacher) {
                             <option value="">All Subjects</option>
                         </select>
                     </div>
+                    <div class="col-md-2">
+                        <select class="form-control" id="filterExamType">
+                            <option value="">All Exam Types</option>
+                            <?php foreach ($exam_types as $exam_type): ?>
+                                <option value="<?php echo $exam_type['id']; ?>">
+                                    <?php echo htmlspecialchars($exam_type['exam_type_name']); ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
                 </div>
                 <div class="row mb-3">
                     <div class="col-md-12">
@@ -959,43 +1059,61 @@ if ($teacher) {
                         </button>
                     </div>
                 </div>
-                <div id="recordsContainer" style="display: flex; flex-direction: column; gap: 20px;">
-                    <div class="table-responsive" style="overflow-x: auto;">
-                        <table class="table" style="min-width: 800px;">
-                            <thead>
-                                <tr>
-                                    <th>Admission No</th>
-                                    <th>Student Name</th>
-                                    <th>Class</th>
-                                    <th>Stream</th>
-                                    <th>Term</th>
-                                    <th>Year</th>
-                                    <th>Subject</th>
-                                    <th>Marks</th>
-                                    <th>Grade</th>
-                                    <th>Points</th>
-                                    <th>Remarks</th>
-                                </tr>
-                            </thead>
-                            <tbody id="recordsTable">
-                                <tr><td colspan="11" class="text-center">No performance records found</td></tr>
-                            </tbody>
-                        </table>
+
+                <?php if (!empty($subjects_without_performance)): ?>
+                <div class="card mb-4" style="background: #fff3e0; border: 2px solid #FF6B35;">
+                    <div class="card-header" style="background: #FF6B35; color: white; border: none;">
+                        <h5 style="margin: 0; font-size: 16px; font-weight: 500;">
+                            <i class="fas fa-exclamation-triangle me-2"></i> Subjects Without Performance Records
+                        </h5>
                     </div>
+                    <div class="card-body">
+                        <p style="margin-bottom: 12px; color: #5f6368; font-size: 13px;">The following subjects have no performance records recorded yet:</p>
+                        <div class="table-responsive">
+                            <table class="table" style="margin-bottom: 0;">
+                                <thead>
+                                    <tr>
+                                        <th style="background: #fff3e0; border: 1px solid #FF6B35; color: #000;">Subject Name</th>
+                                        <th style="background: #fff3e0; border: 1px solid #FF6B35; color: #000;">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php foreach ($subjects_without_performance as $subject): ?>
+                                        <tr>
+                                            <td style="border: 1px solid #FF6B35; font-weight: 500;">
+                                                <i class="fas fa-book me-2" style="color: #FF6B35;"></i>
+                                                <?php echo htmlspecialchars($subject['subject_name']); ?>
+                                            </td>
+                                            <td style="border: 1px solid #FF6B35;">
+                                                <span style="background: #fce8e6; color: #c5221f; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 500;">
+                                                    No Records
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <?php endif; ?>
+
+                <div id="performanceTableContainer">
+                    <p class="text-center">Loading performance records...</p>
                 </div>
             </div>
         </div>
     </div>
     
-    <!-- Performance Details Modal -->
-    <div class="modal fade" id="performanceDetailsModal" tabindex="-1">
+    <!-- Performance Details Modal - Google Material Design Style -->
+    <div class="modal fade" id="performanceDetailsModal" tabindex="-1" style="backdrop-filter: blur(2px);">
         <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Performance Details</h5>
+            <div class="modal-content" style="border: none; border-radius: 24px; box-shadow: 0 24px 38px 3px rgba(0,0,0,0.14), 0 9px 46px 8px rgba(0,0,0,0.12);">
+                <div class="modal-header" style="border: none; padding: 24px 32px 0 32px;">
+                    <h5 class="modal-title" style="font-size: 22px; font-weight: 400; color: #202124;">Performance Details</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="modal-body">
+                <div class="modal-body" style="padding: 24px 32px;">
                     <div id="performanceDetailsContent">
                         <p>Loading...</p>
                     </div>
@@ -1108,6 +1226,10 @@ if ($teacher) {
                     const performanceRecords = perfData.success ? perfData.data : [];
                     
                     const tbody = document.getElementById('performanceTable');
+                    const examTypeId = document.getElementById('examTypeId').value;
+                    const examTypeSelect = document.getElementById('examTypeId');
+                    const examTypeName = examTypeSelect.options[examTypeSelect.selectedIndex]?.text || '';
+                    
                     tbody.innerHTML = data.data.map(student => {
                         // Find existing performance record for this student
                         const existingRecord = performanceRecords.find(r => r.student_id === student.id);
@@ -1116,9 +1238,10 @@ if ($teacher) {
                         <tr data-student-id="${student.id}">
                             <td>${student.admission_number}</td>
                             <td>${student.first_name} ${student.last_name}</td>
+                            <td>${examTypeName}</td>
                             <td>
-                                <input type="number" class="form-control form-control-sm marks-input" 
-                                       min="0" max="100" placeholder="0-100" 
+                                <input type="number" class="form-control form-control-sm marks-input"
+                                       min="0" max="100" placeholder="0-100"
                                        value="${existingRecord ? existingRecord.marks : ''}"
                                        onchange="calculateGrade(this)">
                             </td>
@@ -1234,12 +1357,18 @@ if ($teacher) {
         async function savePerformance() {
             const term = document.getElementById('term').value;
             const year = document.getElementById('year').value;
+            const examTypeId = document.getElementById('examTypeId').value;
             const subject = document.getElementById('subject').value;
             const rows = document.querySelectorAll('#performanceTable tr[data-student-id]');
             const performanceData = [];
             
             if (!subject) {
                 alert('Please enter subject name');
+                return;
+            }
+            
+            if (!examTypeId) {
+                alert('Please select an exam type');
                 return;
             }
             
@@ -1254,6 +1383,7 @@ if ($teacher) {
                         student_id: studentId,
                         term: term,
                         year: year,
+                        exam_type_id: examTypeId,
                         subject: subject,
                         marks: marks,
                         grade: grade,
@@ -1298,7 +1428,7 @@ if ($teacher) {
                 const response = await fetch('../schools/api/performance.php');
                 const data = await response.json();
                 console.log('Performance records response:', data);
-                
+
                 if (data.success && data.data.length > 0) {
                     allPerformanceRecords = data.data;
                     populateClassFilter(data.data);
@@ -1306,10 +1436,11 @@ if ($teacher) {
                     populateSubjectFilter(data.data);
                     filterPerformanceRecords();
                 } else {
-                    document.getElementById('recordsTable').innerHTML = '<tr><td colspan="10" class="text-center">No performance records found</td></tr>';
+                    document.getElementById('performanceTableContainer').innerHTML = '<p class="text-center">No performance records found</p>';
                 }
             } catch (error) {
                 console.error('Error loading performance records:', error);
+                document.getElementById('performanceTableContainer').innerHTML = '<p class="text-center">Error loading performance records</p>';
             }
         }
         
@@ -1347,25 +1478,28 @@ if ($teacher) {
             const termFilter = document.getElementById('filterTerm').value;
             const yearFilter = document.getElementById('filterYear').value;
             const subjectFilter = document.getElementById('filterSubject').value;
-            
+            const examTypeFilter = document.getElementById('filterExamType').value;
+
             const filtered = allPerformanceRecords.filter(record => {
-                const matchesSearch = !searchTerm || 
+                const matchesSearch = !searchTerm ||
                     record.admission_number.toLowerCase().includes(searchTerm) ||
                     `${record.first_name} ${record.last_name}`.toLowerCase().includes(searchTerm);
-                
+
                 const matchesClass = !classFilter || record.class_name === classFilter;
                 const matchesStream = !streamFilter || record.stream_name === streamFilter;
                 const matchesTerm = !termFilter || record.term === termFilter;
                 const matchesYear = !yearFilter || record.year == yearFilter;
                 const matchesSubject = !subjectFilter || record.subject === subjectFilter;
-                
-                return matchesSearch && matchesClass && matchesStream && matchesTerm && matchesYear && matchesSubject;
+                const matchesExamType = !examTypeFilter || record.exam_type_id == examTypeFilter;
+
+                return matchesSearch && matchesClass && matchesStream && matchesTerm && matchesYear && matchesSubject && matchesExamType;
             });
             
             // Update statistics
             updatePerformanceStats(filtered);
-            
-            const container = document.getElementById('recordsContainer');
+
+            const container = document.getElementById('performanceTableContainer');
+
             if (filtered.length > 0) {
                 // Group by subject if no subject filter is applied
                 if (!subjectFilter) {
@@ -1377,46 +1511,52 @@ if ($teacher) {
                         }
                         groupedBySubject[subjectName].push(record);
                     });
-                    
+
                     // Sort subjects alphabetically
                     const sortedSubjects = Object.keys(groupedBySubject).sort();
-                    
+
                     let html = '';
                     sortedSubjects.forEach(subjectName => {
                         html += `
-                            <div class="card">
-                                <div class="card-header" style="background-color: #e8f0fe; font-weight: bold;">
-                                    <i class="fas fa-book"></i> ${subjectName} (${groupedBySubject[subjectName].length} records)
-                                </div>
-                                <div class="card-body">
-                                    <div class="table-responsive" style="overflow-x: auto;">
-                                        <table class="table" style="min-width: 800px;">
-                                            <thead>
-                                                <tr>
-                                                    <th>Admission No</th>
-                                                    <th>Student Name</th>
-                                                    <th>Class</th>
-                                                    <th>Stream</th>
-                                                    <th>Term</th>
-                                                    <th>Year</th>
-                                                    <th>Marks</th>
-                                                    <th>Grade</th>
-                                                    <th>Points</th>
-                                                    <th>Remarks</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
+                            <div style="margin-bottom: 30px;">
+                                <h4 style="color: #FF6B35; margin-bottom: 15px; font-weight: 600;">
+                                    <i class="fas fa-book"></i> ${subjectName}
+                                </h4>
+                                <div class="table-responsive" style="overflow-x: auto;">
+                                    <table class="table" style="min-width: 800px;">
+                                        <thead>
+                                            <tr>
+                                                <th>Rank</th>
+                                                <th>Admission No</th>
+                                                <th>Student Name</th>
+                                                <th>Class</th>
+                                                <th>Stream</th>
+                                                <th>Term</th>
+                                                <th>Year</th>
+                                                <th>Exam Type</th>
+                                                <th>Marks</th>
+                                                <th>Grade</th>
+                                                <th>Points</th>
+                                                <th>Remarks</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
                         `;
-                        
-                        groupedBySubject[subjectName].forEach(record => {
+
+                        // Sort records by marks descending for ranking
+                        const sortedRecords = [...groupedBySubject[subjectName]].sort((a, b) => b.marks - a.marks);
+
+                        sortedRecords.forEach((record, index) => {
                             html += `
                                 <tr>
+                                    <td><strong>#${index + 1}</strong></td>
                                     <td>${record.admission_number}</td>
                                     <td>${record.first_name} ${record.last_name}</td>
                                     <td>${record.class_name || '-'}</td>
                                     <td>${record.stream_name || '-'}</td>
                                     <td>${record.term}</td>
                                     <td>${record.year}</td>
+                                    <td>${record.exam_type_name || '-'}</td>
                                     <td>${record.marks}</td>
                                     <td>${record.grade || '-'}</td>
                                     <td><strong>${record.grade_points || '-'}</strong></td>
@@ -1424,23 +1564,26 @@ if ($teacher) {
                                 </tr>
                             `;
                         });
-                        
+
                         html += `
                                             </tbody>
                                         </table>
                                     </div>
                                 </div>
-                            </div>
                         `;
                     });
                     container.innerHTML = html;
                 } else {
                     // Show single table when specific subject is selected
+                    // Sort by marks descending for ranking
+                    const sortedRecords = [...filtered].sort((a, b) => b.marks - a.marks);
+
                     container.innerHTML = `
                         <div class="table-responsive" style="overflow-x: auto;">
                             <table class="table" style="min-width: 800px;">
                                 <thead>
                                     <tr>
+                                        <th>Rank</th>
                                         <th>Admission No</th>
                                         <th>Student Name</th>
                                         <th>Class</th>
@@ -1448,6 +1591,7 @@ if ($teacher) {
                                         <th>Term</th>
                                         <th>Year</th>
                                         <th>Subject</th>
+                                        <th>Exam Type</th>
                                         <th>Marks</th>
                                         <th>Grade</th>
                                         <th>Points</th>
@@ -1455,8 +1599,9 @@ if ($teacher) {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    ${filtered.map(record => `
+                                    ${sortedRecords.map((record, index) => `
                                         <tr>
+                                            <td><strong>#${index + 1}</strong></td>
                                             <td>${record.admission_number}</td>
                                             <td>${record.first_name} ${record.last_name}</td>
                                             <td>${record.class_name || '-'}</td>
@@ -1464,6 +1609,7 @@ if ($teacher) {
                                             <td>${record.term}</td>
                                             <td>${record.year}</td>
                                             <td>${record.subject}</td>
+                                            <td>${record.exam_type_name || '-'}</td>
                                             <td>${record.marks}</td>
                                             <td>${record.grade || '-'}</td>
                                             <td><strong>${record.grade_points || '-'}</strong></td>

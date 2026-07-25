@@ -1,5 +1,4 @@
 RewriteEngine On
-RewriteBase /Kenyaeduhub/teachers/
 
 # Disable caching
 <IfModule mod_headers.c>
@@ -10,6 +9,9 @@ RewriteBase /Kenyaeduhub/teachers/
 
 # Allow direct access to api directory
 RewriteRule ^api/ - [L]
+
+# Allow direct access to receipts directory
+RewriteRule ^receipts/ - [L]
 
 # Allow direct access to assets if any
 RewriteRule ^assets/ - [L]

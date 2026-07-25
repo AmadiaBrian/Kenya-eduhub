@@ -6,20 +6,10 @@
 
 header('Content-Type: application/json');
 require_once __DIR__ . '/../../config.php';
+require_once __DIR__ . '/../../config/mpesa_config.php';
 
-// Load M-Pesa configuration for callback authentication
-$mpesa_config = require __DIR__ . '/../config/mpesa_config.php';
-
-// Optional: Validate callback API key for additional security
-$callback_api_key = $mpesa_config['callback_api_key'] ?? '';
-if ($callback_api_key !== '' && $callback_api_key !== 'your_secure_api_key_here') {
-    $provided_key = $_SERVER['HTTP_X_API_KEY'] ?? $_GET['api_key'] ?? '';
-    if ($provided_key !== $callback_api_key) {
-        http_response_code(401);
-        echo json_encode(['ResponseCode' => '1', 'ResponseDescription' => 'Unauthorized']);
-        exit;
-    }
-}
+// Note: Safaricom doesn't send API keys, so callback authentication is not implemented
+// If needed, implement IP whitelisting or other security measures
 
 function storeSafaricomB2CResponse(PDO $pdo, array $response): void
 {

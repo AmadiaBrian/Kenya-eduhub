@@ -9,10 +9,10 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 require_once __DIR__ . '/../../config.php';
+require_once __DIR__ . '/../../config/mpesa_config.php';
 
-// Load M-Pesa configuration
-$mpesa_config = require __DIR__ . '/../config/mpesa_config.php';
-$base_url = $mpesa_config['callback_base_url'];
+// Use centralized M-Pesa configuration
+$base_url = MPESA_CALLBACK_BASE_URL;
 
 function normalizeMpesaPhone(string $phone): string
 {
@@ -235,7 +235,7 @@ try {
         // For sandbox testing, override with valid test number if needed
         // M-Pesa sandbox only accepts registered test numbers
         $sandboxTestNumbers = ['254708374149', '254724540000', '254700000000'];
-        if (strpos($mpesa_config['b2c_url'], 'sandbox') !== false) {
+        if (strpos(MPESA_B2C_URL, 'sandbox') !== false) {
             // In sandbox, use a valid test number instead of the actual phone
             $phone = '254708374149'; // Valid M-Pesa sandbox test number
             error_log("Sandbox mode: Using test number $phone instead of actual phone");
@@ -307,13 +307,13 @@ try {
     }
 
     date_default_timezone_set('Africa/Nairobi');
-    $businessShortCode = $mpesa_config['b2c']['shortcode'];
-    $initiatorName = $mpesa_config['b2c']['initiator_name'];
-    $initiatorPassword = $mpesa_config['b2c']['initiator_password'];
-    $commandId = $mpesa_config['b2c']['command_id'];
+    $businessShortCode = MPESA_B2C_SHORTCODE;
+    $initiatorName = MPESA_B2C_INITIATOR_NAME;
+    $initiatorPassword = MPESA_B2C_INITIATOR_PASSWORD;
+    $commandId = MPESA_B2C_COMMAND_ID;
     
     // Generate security credential dynamically
-    $securityCredential = generateSecurityCredential($initiatorPassword, $mpesa_config['b2c_url']);
+    $securityCredential = generateSecurityCredential($initiatorPassword, MPESA_B2C_URL);
 
     error_log("=== B2C Configuration ===");
     error_log("Business Shortcode (PartyA): $businessShortCode");
@@ -334,8 +334,8 @@ try {
     error_log("Access Token obtained (first 20 chars): " . substr($access_token, 0, 20) . "...");
 
     $baseUrl = getPublicBaseUrl();
-    $queueTimeoutUrl = $baseUrl . $mpesa_config['b2c_timeout_url'];
-    $resultUrl = $baseUrl . $mpesa_config['b2c_result_url'];
+    $queueTimeoutUrl = $baseUrl . '/Kenyaeduhub/finance-managers/b2c/b2c_timeout.php';
+    $resultUrl = $baseUrl . '/Kenyaeduhub/finance-managers/b2c/b2c_result.php';
     
     error_log("=== Callback URLs ===");
     error_log("Base URL: $baseUrl");
@@ -398,7 +398,7 @@ try {
         
         // Provide specific guidance for Initiator errors
         if (strpos($message, 'Initiator') !== false || strpos($message, 'initiator') !== false) {
-            $message = 'The M-Pesa initiator credentials are invalid. Please check the Initiator Name and Security Credential in the configuration file (finance-managers/config/mpesa_config.php). These must be obtained from the Safaricom Developer Portal.';
+            $message = 'The M-Pesa initiator credentials are invalid. Please check the Initiator Name and Security Credential in the configuration file (config/mpesa_config.php). These must be obtained from the Safaricom Developer Portal.';
         }
         
         $stmt = $pdo->prepare("UPDATE school_withdrawals SET status = 'failed', result_code = ?, result_desc = ?, callback_payload = ? WHERE id = ?");

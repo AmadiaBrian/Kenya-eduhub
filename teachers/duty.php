@@ -670,7 +670,13 @@ try {
                     <a class="nav-link" href="dashboard"><i class="fas fa-home me-2"></i>Dashboard</a>
                 </li>
                 <li class="nav-item mb-2">
+                    <a class="nav-link" href="timetable"><i class="fas fa-calendar-alt me-2"></i>Timetable</a>
+                </li>
+                <li class="nav-item mb-2">
                     <a class="nav-link" href="attendance"><i class="fas fa-calendar-check me-2"></i>Attendance</a>
+                </li>
+                <li class="nav-item mb-2">
+                    <a class="nav-link" href="calendar"><i class="fas fa-calendar me-2"></i>Calendar</a>
                 </li>
                 <li class="nav-item mb-2">
                     <a class="nav-link" href="fees"><i class="fas fa-money-bill-wave me-2"></i>Fee Payments</a>

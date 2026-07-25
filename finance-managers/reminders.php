@@ -6,6 +6,71 @@ $finance_manager_name = $_SESSION['finance_manager_name'] ?? 'Finance Manager';
 $school_id = $_SESSION['school_id'];
 $school_name = $_SESSION['school_name'] ?? 'School';
 
+// Load calendar helpers
+require_once __DIR__ . '/../includes/calendar_helpers.php';
+
+// Get calendar status
+$calendar_status = getSchoolCalendarStatus($pdo, $school_id);
+
+// Get active term from calendar status
+$active_term = $calendar_status['current_term']['term_name'] ?? null;
+
+// Get terms from database for current year
+$terms = [];
+try {
+    $current_year = date('Y');
+    $stmt = $pdo->prepare("SELECT term_name FROM terms WHERE school_id = ? AND year = ? ORDER BY term_number");
+    $stmt->execute([$school_id, $current_year]);
+    $term_records = $stmt->fetchAll();
+    foreach ($term_records as $term) {
+        $terms[] = $term['term_name'];
+    }
+} catch (PDOException $e) {
+    error_log("Failed to fetch terms: " . $e->getMessage());
+    $terms = ['Term 1', 'Term 2', 'Term 3'];
+}
+
+if (empty($terms)) {
+    $terms = ['Term 1', 'Term 2', 'Term 3'];
+}
+
+// Get available years from database
+$available_years = [];
+try {
+    $stmt = $pdo->prepare("SELECT DISTINCT year FROM fee_structure WHERE school_id = ? ORDER BY year DESC");
+    $stmt->execute([$school_id]);
+    $year_records = $stmt->fetchAll();
+    foreach ($year_records as $record) {
+        $available_years[] = $record['year'];
+    }
+    
+    // Also check fee_payments for years that might not have fee structures
+    $stmt = $pdo->prepare("SELECT DISTINCT year FROM fee_payments fp JOIN students s ON fp.student_id = s.id WHERE s.school_id = ? ORDER BY year DESC");
+    $stmt->execute([$school_id]);
+    $payment_years = $stmt->fetchAll();
+    foreach ($payment_years as $record) {
+        if (!in_array($record['year'], $available_years)) {
+            $available_years[] = $record['year'];
+        }
+    }
+    
+    // Sort years descending
+    rsort($available_years);
+    
+    // If no years found, default to current year
+    if (empty($available_years)) {
+        $available_years = [date('Y')];
+    }
+} catch (PDOException $e) {
+    error_log("Failed to fetch years: " . $e->getMessage());
+    $available_years = [date('Y')];
+}
+
+// Get filter parameters
+$filter_year = $_GET['year'] ?? ($available_years[0] ?? date('Y'));
+$filter_term = $_GET['term'] ?? '';
+$filter_class = $_GET['class'] ?? '';
+
 // Include PHPMailer
 require_once __DIR__ . '/../PHPMailer/src/PHPMailer.php';
 require_once __DIR__ . '/../PHPMailer/src/SMTP.php';
@@ -304,6 +369,11 @@ try {
         .nav-link i {
             width: 20px;
             text-align: center;
+        }
+
+        /* Make all icons orange */
+        i {
+            color: #FF6B35 !important;
         }
         
         .main-content {
@@ -631,18 +701,18 @@ try {
                     <div class="col-md-3 mb-3">
                         <label class="form-label">Year</label>
                         <select class="form-control" name="year">
-                            <?php for ($y = date('Y'); $y >= date('Y') - 5; $y--): ?>
-                                <option value="<?php echo $y; ?>" <?php echo $filter_year == $y ? 'selected' : ''; ?>><?php echo $y; ?></option>
-                            <?php endfor; ?>
+                            <?php foreach($available_years as $year): ?>
+                                <option value="<?php echo $year; ?>" <?php echo $filter_year == $year ? 'selected' : ''; ?>><?php echo $year; ?></option>
+                            <?php endforeach; ?>
                         </select>
                     </div>
                     <div class="col-md-3 mb-3">
                         <label class="form-label">Term</label>
                         <select class="form-control" name="term">
                             <option value="">All Terms</option>
-                            <option value="Term 1" <?php echo $filter_term === 'Term 1' ? 'selected' : ''; ?>>Term 1</option>
-                            <option value="Term 2" <?php echo $filter_term === 'Term 2' ? 'selected' : ''; ?>>Term 2</option>
-                            <option value="Term 3" <?php echo $filter_term === 'Term 3' ? 'selected' : ''; ?>>Term 3</option>
+                            <?php foreach($terms as $term): ?>
+                                <option value="<?php echo htmlspecialchars($term); ?>" <?php echo $filter_term === $term ? 'selected' : ''; ?>><?php echo htmlspecialchars($term); ?></option>
+                            <?php endforeach; ?>
                         </select>
                     </div>
                     <div class="col-md-3 mb-3">

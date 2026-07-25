@@ -16,8 +16,37 @@ if (!isset($_SESSION['parent_id'])) {
 $parent_id = $_SESSION['parent_id'];
 $school_id = $_SESSION['school_id'];
 
+// Load calendar helpers
+require_once __DIR__ . '/../../includes/calendar_helpers.php';
+
+// Get calendar status to find active term
+$calendar_status = getSchoolCalendarStatus($pdo, $school_id);
+$active_term = $calendar_status['current_term']['term_name'] ?? null;
+
+// Get terms from database for current year
+$terms = [];
+try {
+    $current_year = date('Y');
+    $stmt = $pdo->prepare("SELECT term_name FROM terms WHERE school_id = ? AND year = ? ORDER BY term_number");
+    $stmt->execute([$school_id, $current_year]);
+    $term_records = $stmt->fetchAll();
+    foreach ($term_records as $term) {
+        $terms[] = $term['term_name'];
+    }
+} catch (PDOException $e) {
+    error_log("Failed to fetch terms: " . $e->getMessage());
+    $terms = ['Term 1', 'Term 2', 'Term 3'];
+}
+
+if (empty($terms)) {
+    $terms = ['Term 1', 'Term 2', 'Term 3'];
+}
+
+// Use active term if available, otherwise use first term
+$default_term = $active_term ?? ($terms[0] ?? 'Term 1');
+
 // Configure your actual callback URL here
-$base_url = 'https://3440-129-222-187-200.ngrok-free.app'; // Update this to your actual domain
+$base_url = 'https://9382-129-222-187-139.ngrok-free.app'; // Update this to your actual domain
 
 // Database connection is already handled by config.php ($pdo)
 
@@ -33,7 +62,7 @@ try {
     $amount = $_POST['amount'] ?? null;
     // For sandbox testing, use registered test number if provided, otherwise use parent's phone
     $phone = $_POST['phone'] ?? $_SESSION['parent_phone'] ?? null; // Allow override with POST parameter
-    $term = $_POST['term'] ?? 'Term 1';
+    $term = $_POST['term'] ?? $default_term;
     $year = $_POST['year'] ?? date('Y');
     $fee_type = $_POST['fee_type'] ?? 'Tuition';
     

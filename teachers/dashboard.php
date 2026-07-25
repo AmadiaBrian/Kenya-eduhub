@@ -9,6 +9,37 @@ $stream_id = $_SESSION['stream_id'] ?? null;
 $class_name = $_SESSION['class_name'] ?? '';
 $stream_name = $_SESSION['stream_name'] ?? '';
 
+// Load calendar helpers
+require_once __DIR__ . '/../includes/calendar_helpers.php';
+
+// Get calendar status
+$calendar_status = getSchoolCalendarStatus($pdo, $school_id);
+
+// Get active term from calendar status
+$active_term = $calendar_status['current_term']['term_name'] ?? null;
+
+// Get terms from database for current year
+$terms = [];
+try {
+    $current_year = date('Y');
+    $stmt = $pdo->prepare("SELECT term_name FROM terms WHERE school_id = ? AND year = ? ORDER BY term_number");
+    $stmt->execute([$school_id, $current_year]);
+    $term_records = $stmt->fetchAll();
+    foreach ($term_records as $term) {
+        $terms[] = $term['term_name'];
+    }
+} catch (PDOException $e) {
+    error_log("Failed to fetch terms: " . $e->getMessage());
+    $terms = ['Term 1', 'Term 2', 'Term 3'];
+}
+
+if (empty($terms)) {
+    $terms = ['Term 1', 'Term 2', 'Term 3'];
+}
+
+// Use active term if available, otherwise use first term
+$current_term = $active_term ?? ($terms[0] ?? 'Term 1');
+
 // Get teacher details
 try {
     $stmt = $pdo->prepare("SELECT t.*, s.school_name FROM teachers t JOIN schools s ON t.school_id = s.id WHERE t.id = ?");
@@ -51,8 +82,8 @@ try {
         $stmt->execute([$class_id]);
         $stats['present_today'] = $stmt->fetch()['total'];
         
-        $stmt = $pdo->prepare("SELECT COUNT(*) as total FROM academic_performance ap JOIN students s ON ap.student_id = s.id WHERE s.class_id = ? AND ap.term = 'Term 1' AND ap.year = YEAR(CURDATE())");
-        $stmt->execute([$class_id]);
+        $stmt = $pdo->prepare("SELECT COUNT(*) as total FROM academic_performance ap JOIN students s ON ap.student_id = s.id WHERE s.class_id = ? AND ap.term = ? AND ap.year = YEAR(CURDATE())");
+        $stmt->execute([$class_id, $current_term]);
         $stats['performance_records'] = $stmt->fetch()['total'];
     } elseif ($teacher['teacher_type'] === 'subject_teacher' && !empty($subject_assignments)) {
         // Subject teacher - statistics for all assigned classes
@@ -71,8 +102,8 @@ try {
         $stmt->execute($class_ids);
         $stats['present_today'] = $stmt->fetch()['total'];
         
-        $stmt = $pdo->prepare("SELECT COUNT(*) as total FROM academic_performance ap JOIN students s ON ap.student_id = s.id WHERE s.class_id IN ($placeholders) AND ap.term = 'Term 1' AND ap.year = YEAR(CURDATE())");
-        $stmt->execute($class_ids);
+        $stmt = $pdo->prepare("SELECT COUNT(*) as total FROM academic_performance ap JOIN students s ON ap.student_id = s.id WHERE s.class_id IN ($placeholders) AND ap.term = ? AND ap.year = YEAR(CURDATE())");
+        $stmt->execute(array_merge($class_ids, [$current_term]));
         $stats['performance_records'] = $stmt->fetch()['total'];
     } else {
         $stats['total_students'] = 0;
@@ -515,8 +546,14 @@ try {
             <a class="nav-link active" href="dashboard">
                 <i class="fas fa-home"></i> Dashboard
             </a>
+            <a class="nav-link" href="timetable">
+                <i class="fas fa-calendar-alt"></i> Timetable
+            </a>
             <a class="nav-link" href="attendance">
                 <i class="fas fa-calendar-check"></i> Attendance
+            </a>
+            <a class="nav-link" href="calendar">
+                <i class="fas fa-calendar"></i> Calendar
             </a>
             <a class="nav-link" href="performance">
                 <i class="fas fa-chart-line"></i> Performance
@@ -564,6 +601,53 @@ try {
             <?php endif; ?>
         </p>
         
+        <!-- Calendar Status -->
+        <div style="margin-bottom: 24px;">
+            <?php if ($calendar_status['is_holiday']): ?>
+                <div style="background: #fce8e6; border: 1px solid #c5221f; padding: 16px; border-radius: 8px;">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <i class="fas fa-exclamation-triangle" style="color: #c5221f; font-size: 20px;"></i>
+                        <div>
+                            <strong style="color: #c5221f;">School is on Holiday</strong>
+                            <p style="margin: 4px 0 0 0; color: #5f6368; font-size: 14px;">
+                                <?php echo htmlspecialchars($calendar_status['current_holiday']['holiday_name']); ?> 
+                                (<?php echo date('M j, Y', strtotime($calendar_status['current_holiday']['start_date'])); ?> - 
+                                <?php echo date('M j, Y', strtotime($calendar_status['current_holiday']['end_date'])); ?>)
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            <?php elseif ($calendar_status['school_status'] === 'break'): ?>
+                <div style="background: #fef7e0; border: 1px solid #f9ab00; padding: 16px; border-radius: 8px;">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <i class="fas fa-info-circle" style="color: #f9ab00; font-size: 20px;"></i>
+                        <div>
+                            <strong style="color: #b06000;">School is on Break</strong>
+                            <p style="margin: 4px 0 0 0; color: #5f6368; font-size: 14px;">No active term is currently set.</p>
+                        </div>
+                    </div>
+                </div>
+            <?php else: ?>
+                <div style="background: #e6f4ea; border: 1px solid #137333; padding: 16px; border-radius: 8px;">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <i class="fas fa-check-circle" style="color: #137333; font-size: 20px;"></i>
+                        <div>
+                            <strong style="color: #137333;">School is In Session</strong>
+                            <p style="margin: 4px 0 0 0; color: #5f6368; font-size: 14px;">
+                                <?php if ($calendar_status['current_term']): ?>
+                                    Active Term: <?php echo htmlspecialchars($calendar_status['current_term']['term_name']); ?> 
+                                    (<?php echo date('M j, Y', strtotime($calendar_status['current_term']['start_date'])); ?> - 
+                                    <?php echo date('M j, Y', strtotime($calendar_status['current_term']['end_date'])); ?>)
+                                <?php else: ?>
+                                    Year: <?php echo $calendar_status['current_year']; ?>
+                                <?php endif; ?>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            <?php endif; ?>
+        </div>
+        
         <!-- Statistics Grid -->
         <div class="stats-grid">
             <div class="stat-card">
@@ -601,28 +685,28 @@ try {
             <div class="card">
                 <h2 class="card-title">Quick Actions</h2>
                 <div class="quick-actions">
-                    <a href="attendance.php" class="action-card primary">
+                    <a href="attendance" class="action-card primary">
                         <div class="action-icon">
                             <i class="fas fa-calendar-check"></i>
                         </div>
                         <div class="action-title">Take Attendance</div>
                         <div class="action-description">Mark daily attendance</div>
                     </a>
-                    <a href="performance.php" class="action-card">
+                    <a href="performance" class="action-card">
                         <div class="action-icon">
                             <i class="fas fa-chart-line"></i>
                         </div>
                         <div class="action-title">Record Performance</div>
                         <div class="action-description">Update student grades</div>
                     </a>
-                    <a href="students.php" class="action-card">
+                    <a href="students" class="action-card">
                         <div class="action-icon">
                             <i class="fas fa-user-graduate"></i>
                         </div>
                         <div class="action-title">View Students</div>
                         <div class="action-description">Manage student records</div>
                     </a>
-                    <a href="parents.php" class="action-card">
+                    <a href="parents" class="action-card">
                         <div class="action-icon">
                             <i class="fas fa-users"></i>
                         </div>

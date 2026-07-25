@@ -1,8 +1,29 @@
 <?php
 // Attendance Management Page
-// Authentication is handled by index.php router
+// Ensure session is started and config is loaded
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+// Load config if not already loaded
+if (!isset($pdo)) {
+    require_once __DIR__ . '/../config.php';
+}
+
+// Load calendar helpers
+require_once __DIR__ . '/../includes/calendar_helpers.php';
+
+// Authentication check
+if (!isset($_SESSION['school_id']) || !isset($_SESSION['school_token'])) {
+    header('Location: index.php?route=login');
+    exit;
+}
+
 $school_name = $_SESSION['school_name'] ?? 'School';
 $school_id = $_SESSION['school_id'];
+
+// Get calendar status
+$calendar_status = getSchoolCalendarStatus($pdo, $school_id);
 
 // Fetch classes for this school
 try {
@@ -672,6 +693,12 @@ try {
             <a class="nav-link" href="subjects">
                 <i class="fas fa-book"></i> Subjects
             </a>
+            <a class="nav-link" href="exam-types">
+                <i class="fas fa-clipboard-list"></i> Exam Types
+            </a>
+            <a class="nav-link" href="timetable">
+                <i class="fas fa-calendar-alt"></i> Timetable
+            </a>
             <a class="nav-link" href="parents">
                 <i class="fas fa-users"></i> Parents
             </a>
@@ -680,6 +707,9 @@ try {
             </a>
             <a class="nav-link active" href="attendance">
                 <i class="fas fa-calendar-check"></i> Attendance
+            </a>
+            <a class="nav-link" href="calendar">
+                <i class="fas fa-calendar"></i> Calendar
             </a>
             <a class="nav-link" href="fees">
                 <i class="fas fa-money-bill-wave"></i> Fees
@@ -702,6 +732,33 @@ try {
     <!-- Main Content -->
     <main class="main-content" id="mainContent">
         <h1 class="page-title">Attendance Management</h1>
+        
+        <!-- Calendar Status Alert -->
+        <?php if ($calendar_status['is_holiday']): ?>
+            <div style="background: #fce8e6; border: 1px solid #c5221f; padding: 16px; border-radius: 8px; margin-bottom: 24px;">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <i class="fas fa-exclamation-triangle" style="color: #c5221f; font-size: 20px;"></i>
+                    <div>
+                        <strong style="color: #c5221f;">School is on Holiday</strong>
+                        <p style="margin: 4px 0 0 0; color: #5f6368; font-size: 14px;">
+                            <?php echo htmlspecialchars($calendar_status['current_holiday']['holiday_name']); ?> 
+                            (<?php echo date('M j, Y', strtotime($calendar_status['current_holiday']['start_date'])); ?> - 
+                            <?php echo date('M j, Y', strtotime($calendar_status['current_holiday']['end_date'])); ?>)
+                        </p>
+                    </div>
+                </div>
+            </div>
+        <?php elseif ($calendar_status['school_status'] === 'break'): ?>
+            <div style="background: #fef7e0; border: 1px solid #f9ab00; padding: 16px; border-radius: 8px; margin-bottom: 24px;">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <i class="fas fa-info-circle" style="color: #f9ab00; font-size: 20px;"></i>
+                    <div>
+                        <strong style="color: #b06000;">School is on Break</strong>
+                        <p style="margin: 4px 0 0 0; color: #5f6368; font-size: 14px;">No active term is currently set. Please activate a term in the Calendar.</p>
+                    </div>
+                </div>
+            </div>
+        <?php endif; ?>
         
         <!-- Attendance Statistics -->
         <div id="attendanceStats" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 24px;">

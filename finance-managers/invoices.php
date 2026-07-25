@@ -4,9 +4,69 @@
 $school_id = $_SESSION['school_id'];
 $school_name = $_SESSION['school_name'] ?? 'School';
 
-// Get current term and year (default to current)
-$current_term = $_GET['term'] ?? 'Term 1';
-$current_year = $_GET['year'] ?? date('Y');
+// Load calendar helpers
+require_once __DIR__ . '/../includes/calendar_helpers.php';
+
+// Get calendar status
+$calendar_status = getSchoolCalendarStatus($pdo, $school_id);
+
+// Get active term from calendar status
+$active_term = $calendar_status['current_term']['term_name'] ?? null;
+
+// Get terms from database for current year
+$terms = [];
+try {
+    $current_year = date('Y');
+    $stmt = $pdo->prepare("SELECT term_name FROM terms WHERE school_id = ? AND year = ? ORDER BY term_number");
+    $stmt->execute([$school_id, $current_year]);
+    $term_records = $stmt->fetchAll();
+    foreach ($term_records as $term) {
+        $terms[] = $term['term_name'];
+    }
+} catch (PDOException $e) {
+    error_log("Failed to fetch terms: " . $e->getMessage());
+    $terms = ['Term 1', 'Term 2', 'Term 3'];
+}
+
+if (empty($terms)) {
+    $terms = ['Term 1', 'Term 2', 'Term 3'];
+}
+
+// Get available years from database
+$available_years = [];
+try {
+    $stmt = $pdo->prepare("SELECT DISTINCT year FROM fee_structure WHERE school_id = ? ORDER BY year DESC");
+    $stmt->execute([$school_id]);
+    $year_records = $stmt->fetchAll();
+    foreach ($year_records as $record) {
+        $available_years[] = $record['year'];
+    }
+    
+    // Also check fee_payments for years that might not have fee structures
+    $stmt = $pdo->prepare("SELECT DISTINCT year FROM fee_payments fp JOIN students s ON fp.student_id = s.id WHERE s.school_id = ? ORDER BY year DESC");
+    $stmt->execute([$school_id]);
+    $payment_years = $stmt->fetchAll();
+    foreach ($payment_years as $record) {
+        if (!in_array($record['year'], $available_years)) {
+            $available_years[] = $record['year'];
+        }
+    }
+    
+    // Sort years descending
+    rsort($available_years);
+    
+    // If no years found, default to current year
+    if (empty($available_years)) {
+        $available_years = [date('Y')];
+    }
+} catch (PDOException $e) {
+    error_log("Failed to fetch years: " . $e->getMessage());
+    $available_years = [date('Y')];
+}
+
+// Get current term and year (default to active term)
+$current_term = $_GET['term'] ?? ($active_term ?? ($terms[0] ?? 'Term 1'));
+$current_year = $_GET['year'] ?? ($available_years[0] ?? date('Y'));
 
 // Get classes for this school
 try {
@@ -661,14 +721,18 @@ try {
                     <div class="col-md-3">
                         <label class="form-label">Term</label>
                         <select class="form-select" id="termSelect" required>
-                            <option value="Term 1" <?php echo $current_term === 'Term 1' ? 'selected' : ''; ?>>Term 1</option>
-                            <option value="Term 2" <?php echo $current_term === 'Term 2' ? 'selected' : ''; ?>>Term 2</option>
-                            <option value="Term 3" <?php echo $current_term === 'Term 3' ? 'selected' : ''; ?>>Term 3</option>
+                            <?php foreach($terms as $term): ?>
+                                <option value="<?php echo htmlspecialchars($term); ?>" <?php echo $current_term === $term ? 'selected' : ''; ?>><?php echo htmlspecialchars($term); ?></option>
+                            <?php endforeach; ?>
                         </select>
                     </div>
                     <div class="col-md-3">
                         <label class="form-label">Year</label>
-                        <input type="number" class="form-control" id="yearSelect" value="<?php echo $current_year; ?>" required>
+                        <select class="form-control" id="yearSelect" required>
+                            <?php foreach($available_years as $year): ?>
+                                <option value="<?php echo $year; ?>" <?php echo $current_year == $year ? 'selected' : ''; ?>><?php echo $year; ?></option>
+                            <?php endforeach; ?>
+                        </select>
                     </div>
                     <div class="col-md-2">
                         <label class="form-label">&nbsp;</label>
@@ -691,14 +755,18 @@ try {
                         <label class="form-label">Term</label>
                         <select class="form-select" id="filterTerm" onchange="filterInvoices()">
                             <option value="">All Terms</option>
-                            <option value="Term 1" <?php echo ($_GET['term'] ?? '') === 'Term 1' ? 'selected' : ''; ?>>Term 1</option>
-                            <option value="Term 2" <?php echo ($_GET['term'] ?? '') === 'Term 2' ? 'selected' : ''; ?>>Term 2</option>
-                            <option value="Term 3" <?php echo ($_GET['term'] ?? '') === 'Term 3' ? 'selected' : ''; ?>>Term 3</option>
+                            <?php foreach($terms as $term): ?>
+                                <option value="<?php echo htmlspecialchars($term); ?>" <?php echo ($_GET['term'] ?? '') === $term ? 'selected' : ''; ?>><?php echo htmlspecialchars($term); ?></option>
+                            <?php endforeach; ?>
                         </select>
                     </div>
                     <div class="col-md-2">
                         <label class="form-label">Year</label>
-                        <input type="number" class="form-control" id="filterYear" value="<?php echo $current_year; ?>" onchange="filterInvoices()">
+                        <select class="form-control" id="filterYear" onchange="filterInvoices()">
+                            <?php foreach($available_years as $year): ?>
+                                <option value="<?php echo $year; ?>" <?php echo $current_year == $year ? 'selected' : ''; ?>><?php echo $year; ?></option>
+                            <?php endforeach; ?>
+                        </select>
                     </div>
                     <div class="col-md-2">
                         <label class="form-label">Status</label>

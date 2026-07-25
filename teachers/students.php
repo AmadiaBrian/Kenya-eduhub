@@ -367,8 +367,14 @@ if ($teacher && $teacher['teacher_type'] === 'subject_teacher') {
             <a class="nav-link" href="dashboard">
                 <i class="fas fa-home"></i> Dashboard
             </a>
+            <a class="nav-link" href="timetable">
+                <i class="fas fa-calendar-alt"></i> Timetable
+            </a>
             <a class="nav-link" href="attendance">
                 <i class="fas fa-calendar-check"></i> Attendance
+            </a>
+            <a class="nav-link" href="calendar">
+                <i class="fas fa-calendar"></i> Calendar
             </a>
             <a class="nav-link" href="performance">
                 <i class="fas fa-chart-line"></i> Performance
@@ -530,15 +536,15 @@ if ($teacher && $teacher['teacher_type'] === 'subject_teacher') {
         </div>
     </div>
     
-    <!-- Student Details Modal -->
-    <div class="modal fade" id="studentDetailsModal" tabindex="-1">
+    <!-- Student Details Modal - Google Material Design Style -->
+    <div class="modal fade" id="studentDetailsModal" tabindex="-1" style="backdrop-filter: blur(2px);">
         <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Student Details</h5>
+            <div class="modal-content" style="border: none; border-radius: 24px; box-shadow: 0 24px 38px 3px rgba(0,0,0,0.14), 0 9px 46px 8px rgba(0,0,0,0.12);">
+                <div class="modal-header" style="border: none; padding: 24px 32px 0 32px;">
+                    <h5 class="modal-title" style="font-size: 22px; font-weight: 400; color: #202124;">Student Details</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="modal-body">
+                <div class="modal-body" style="padding: 24px 32px;">
                     <div id="studentDetailsContent">
                         <!-- Student details will be loaded here -->
                     </div>

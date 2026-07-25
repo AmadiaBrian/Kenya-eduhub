@@ -16,6 +16,12 @@ $stream_id = $_SESSION['stream_id'] ?? null;
 $class_name = $_SESSION['class_name'] ?? '';
 $stream_name = $_SESSION['stream_name'] ?? '';
 
+// Load calendar helpers
+require_once __DIR__ . '/../includes/calendar_helpers.php';
+
+// Get calendar status
+$calendar_status = getSchoolCalendarStatus($pdo, $school_id);
+
 // Get teacher details
 try {
     $stmt = $pdo->prepare("SELECT t.*, s.school_name FROM teachers t JOIN schools s ON t.school_id = s.id WHERE t.id = ?");
@@ -772,8 +778,14 @@ try {
             <a class="nav-link" href="dashboard">
                 <i class="fas fa-home"></i> Dashboard
             </a>
+            <a class="nav-link" href="timetable">
+                <i class="fas fa-calendar-alt"></i> Timetable
+            </a>
             <a class="nav-link" href="attendance">
                 <i class="fas fa-calendar-check"></i> Attendance
+            </a>
+            <a class="nav-link" href="calendar">
+                <i class="fas fa-calendar"></i> Calendar
             </a>
             <a class="nav-link" href="performance">
                 <i class="fas fa-chart-line"></i> Performance
@@ -810,6 +822,53 @@ try {
         <p class="page-subtitle">
             Upload syllabus, sentiments, notes, and holiday assignments
         </p>
+        
+        <!-- Calendar Status -->
+        <div style="margin-bottom: 24px;">
+            <?php if ($calendar_status['is_holiday']): ?>
+                <div style="background: #fce8e6; border: 1px solid #c5221f; padding: 16px; border-radius: 8px;">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <i class="fas fa-exclamation-triangle" style="color: #c5221f; font-size: 20px;"></i>
+                        <div>
+                            <strong style="color: #c5221f;">School is on Holiday</strong>
+                            <p style="margin: 4px 0 0 0; color: #5f6368; font-size: 14px;">
+                                <?php echo htmlspecialchars($calendar_status['current_holiday']['holiday_name']); ?> 
+                                (<?php echo date('M j, Y', strtotime($calendar_status['current_holiday']['start_date'])); ?> - 
+                                <?php echo date('M j, Y', strtotime($calendar_status['current_holiday']['end_date'])); ?>)
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            <?php elseif ($calendar_status['school_status'] === 'break'): ?>
+                <div style="background: #fef7e0; border: 1px solid #f9ab00; padding: 16px; border-radius: 8px;">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <i class="fas fa-info-circle" style="color: #f9ab00; font-size: 20px;"></i>
+                        <div>
+                            <strong style="color: #b06000;">School is on Break</strong>
+                            <p style="margin: 4px 0 0 0; color: #5f6368; font-size: 14px;">No active term is currently set.</p>
+                        </div>
+                    </div>
+                </div>
+            <?php else: ?>
+                <div style="background: #e6f4ea; border: 1px solid #137333; padding: 16px; border-radius: 8px;">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <i class="fas fa-check-circle" style="color: #137333; font-size: 20px;"></i>
+                        <div>
+                            <strong style="color: #137333;">School is In Session</strong>
+                            <p style="margin: 4px 0 0 0; color: #5f6368; font-size: 14px;">
+                                <?php if ($calendar_status['current_term']): ?>
+                                    Active Term: <?php echo htmlspecialchars($calendar_status['current_term']['term_name']); ?> 
+                                    (<?php echo date('M j, Y', strtotime($calendar_status['current_term']['start_date'])); ?> - 
+                                    <?php echo date('M j, Y', strtotime($calendar_status['current_term']['end_date'])); ?>)
+                                <?php else: ?>
+                                    Year: <?php echo $calendar_status['current_year']; ?>
+                                <?php endif; ?>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            <?php endif; ?>
+        </div>
         
         <div class="card">
             <h2 class="card-title">Upload Assignment</h2>
@@ -1076,77 +1135,77 @@ try {
         </div>
     </div>
     
-    <!-- Delete Confirmation Modal -->
-    <div class="modal-overlay" id="deleteModal" style="display: none;">
-        <div class="custom-modal">
-            <div class="custom-modal-body">
+    <!-- Delete Confirmation Modal - Google Material Design Style -->
+    <div class="modal-overlay" id="deleteModal" style="display: none; backdrop-filter: blur(2px);">
+        <div class="custom-modal" style="border: none; border-radius: 24px; box-shadow: 0 24px 38px 3px rgba(0,0,0,0.14), 0 9px 46px 8px rgba(0,0,0,0.12);">
+            <div class="custom-modal-body" style="padding: 24px 32px;">
                 <div class="custom-modal-message">
-                    <p style="font-size: 16px; font-weight: 500; color: #202124; margin-bottom: 12px;">Delete Assignment</p>
-                    <p style="margin-bottom: 8px;">Are you sure you want to delete "<span id="deleteAssignmentTitle" style="font-weight: 500;"></span>"?</p>
-                    <p style="color: #9aa0a6; font-size: 13px;">This action cannot be undone.</p>
+                    <p style="font-size: 22px; font-weight: 400; color: #202124; margin-bottom: 16px;">Delete Assignment</p>
+                    <p style="font-size: 14px; color: #5f6368; margin-bottom: 8px;">Are you sure you want to delete "<span id="deleteAssignmentTitle" style="font-weight: 500;"></span>"?</p>
+                    <p style="color: #9aa0a6; font-size: 14px;">This action cannot be undone.</p>
                 </div>
             </div>
-            <div class="custom-modal-footer">
-                <button type="button" class="custom-modal-btn custom-modal-btn-secondary" onclick="closeDeleteModal()" style="border-radius: 25px;">Cancel</button>
-                <button type="button" class="custom-modal-btn custom-modal-btn-primary" style="background: #d93025; border-radius: 25px;" onclick="confirmDelete()">Delete</button>
+            <div class="custom-modal-footer" style="border: none; padding: 0 32px 32px 32px;">
+                <button type="button" class="custom-modal-btn custom-modal-btn-secondary" onclick="closeDeleteModal()" style="background: transparent; color: #5f6368; border: none; border-radius: 25px; padding: 10px 24px; font-size: 14px; font-weight: 500; letter-spacing: 0.25px; text-transform: uppercase;">Cancel</button>
+                <button type="button" class="custom-modal-btn custom-modal-btn-primary" style="background: #FF6B35; color: white; border: none; border-radius: 25px; padding: 10px 24px; font-size: 14px; font-weight: 500; letter-spacing: 0.25px; text-transform: uppercase;" onclick="confirmDelete()">Delete</button>
             </div>
         </div>
     </div>
     
-    <!-- Edit Assignment Modal -->
-    <div class="modal-overlay" id="editModal" style="display: none;">
-        <div class="custom-modal" style="max-width: 500px;">
-            <div class="custom-modal-body">
+    <!-- Edit Assignment Modal - Google Material Design Style -->
+    <div class="modal-overlay" id="editModal" style="display: none; backdrop-filter: blur(2px);">
+        <div class="custom-modal" style="max-width: 500px; border: none; border-radius: 24px; box-shadow: 0 24px 38px 3px rgba(0,0,0,0.14), 0 9px 46px 8px rgba(0,0,0,0.12);">
+            <div class="custom-modal-body" style="padding: 24px 32px;">
                 <div class="custom-modal-message">
-                    <p style="font-size: 16px; font-weight: 500; color: #202124; margin-bottom: 16px;">Edit Assignment</p>
+                    <p style="font-size: 22px; font-weight: 400; color: #202124; margin-bottom: 16px;">Edit Assignment</p>
                     <form id="editForm">
                         <input type="hidden" id="editAssignmentId">
                         <div class="form-group" style="margin-bottom: 16px;">
-                            <label style="font-size: 12px; font-weight: 500; color: #5f6368; margin-bottom: 8px; display: block;">Title *</label>
-                            <input type="text" id="editTitle" class="form-control" required>
+                            <label style="font-size: 14px; color: #5f6368; font-weight: 500; margin-bottom: 8px; display: block;">Title *</label>
+                            <input type="text" id="editTitle" class="form-control" required style="border-radius: 8px; border: 1px solid #dadce0;">
                         </div>
                         <div class="form-group" style="margin-bottom: 16px;">
-                            <label style="font-size: 12px; font-weight: 500; color: #5f6368; margin-bottom: 8px; display: block;">Description</label>
-                            <textarea id="editDescription" class="form-control" rows="3"></textarea>
+                            <label style="font-size: 14px; color: #5f6368; font-weight: 500; margin-bottom: 8px; display: block;">Description</label>
+                            <textarea id="editDescription" class="form-control" rows="3" style="border-radius: 8px; border: 1px solid #dadce0;"></textarea>
                         </div>
                         <div class="form-group" style="margin-bottom: 16px;">
-                            <label style="font-size: 12px; font-weight: 500; color: #5f6368; margin-bottom: 8px; display: block;">Due Date</label>
-                            <input type="date" id="editDueDate" class="form-control">
+                            <label style="font-size: 14px; color: #5f6368; font-weight: 500; margin-bottom: 8px; display: block;">Due Date</label>
+                            <input type="date" id="editDueDate" class="form-control" style="border-radius: 8px; border: 1px solid #dadce0;">
                         </div>
                     </form>
                 </div>
             </div>
-            <div class="custom-modal-footer">
-                <button type="button" class="custom-modal-btn custom-modal-btn-secondary" onclick="closeEditModal()" style="border-radius: 25px;">Cancel</button>
-                <button type="button" class="custom-modal-btn custom-modal-btn-primary" style="background: #1967d2; border-radius: 25px;" onclick="saveEdit()">Save Changes</button>
+            <div class="custom-modal-footer" style="border: none; padding: 0 32px 32px 32px;">
+                <button type="button" class="custom-modal-btn custom-modal-btn-secondary" onclick="closeEditModal()" style="background: transparent; color: #5f6368; border: none; border-radius: 25px; padding: 10px 24px; font-size: 14px; font-weight: 500; letter-spacing: 0.25px; text-transform: uppercase;">Cancel</button>
+                <button type="button" class="custom-modal-btn custom-modal-btn-primary" style="background: #FF6B35; color: white; border: none; border-radius: 25px; padding: 10px 24px; font-size: 14px; font-weight: 500; letter-spacing: 0.25px; text-transform: uppercase;" onclick="saveEdit()">Save Changes</button>
             </div>
         </div>
     </div>
     
-    <!-- Duplicate Assignment Modal -->
-    <div class="modal-overlay" id="duplicateModal" style="display: none;">
-        <div class="custom-modal">
-            <div class="custom-modal-body">
+    <!-- Duplicate Assignment Modal - Google Material Design Style -->
+    <div class="modal-overlay" id="duplicateModal" style="display: none; backdrop-filter: blur(2px);">
+        <div class="custom-modal" style="border: none; border-radius: 24px; box-shadow: 0 24px 38px 3px rgba(0,0,0,0.14), 0 9px 46px 8px rgba(0,0,0,0.12);">
+            <div class="custom-modal-body" style="padding: 24px 32px;">
                 <div class="custom-modal-message">
-                    <p style="font-size: 16px; font-weight: 500; color: #202124; margin-bottom: 12px;">Duplicate Assignment</p>
-                    <p style="margin-bottom: 8px;">Do you want to duplicate "<span id="duplicateAssignmentTitle" style="font-weight: 500;"></span>"?</p>
-                    <p style="color: #9aa0a6; font-size: 13px;">A copy will be created with "(Copy)" added to the title.</p>
+                    <p style="font-size: 22px; font-weight: 400; color: #202124; margin-bottom: 16px;">Duplicate Assignment</p>
+                    <p style="font-size: 14px; color: #5f6368; margin-bottom: 8px;">Do you want to duplicate "<span id="duplicateAssignmentTitle" style="font-weight: 500;"></span>"?</p>
+                    <p style="color: #9aa0a6; font-size: 14px;">A copy will be created with "(Copy)" added to the title.</p>
                 </div>
             </div>
-            <div class="custom-modal-footer">
-                <button type="button" class="custom-modal-btn custom-modal-btn-secondary" onclick="closeDuplicateModal()" style="border-radius: 25px;">Cancel</button>
-                <button type="button" class="custom-modal-btn custom-modal-btn-primary" style="background: #188038; border-radius: 25px;" onclick="confirmDuplicate()">Duplicate</button>
+            <div class="custom-modal-footer" style="border: none; padding: 0 32px 32px 32px;">
+                <button type="button" class="custom-modal-btn custom-modal-btn-secondary" onclick="closeDuplicateModal()" style="background: transparent; color: #5f6368; border: none; border-radius: 25px; padding: 10px 24px; font-size: 14px; font-weight: 500; letter-spacing: 0.25px; text-transform: uppercase;">Cancel</button>
+                <button type="button" class="custom-modal-btn custom-modal-btn-primary" style="background: #FF6B35; color: white; border: none; border-radius: 25px; padding: 10px 24px; font-size: 14px; font-weight: 500; letter-spacing: 0.25px; text-transform: uppercase;" onclick="confirmDuplicate()">Duplicate</button>
             </div>
         </div>
     </div>
     
-    <!-- Analytics Modal -->
-    <div class="modal-overlay" id="analyticsModal" style="display: none;">
-        <div class="custom-modal" style="max-width: 600px;">
-            <div class="custom-modal-body">
+    <!-- Analytics Modal - Google Material Design Style -->
+    <div class="modal-overlay" id="analyticsModal" style="display: none; backdrop-filter: blur(2px);">
+        <div class="custom-modal" style="max-width: 600px; border: none; border-radius: 24px; box-shadow: 0 24px 38px 3px rgba(0,0,0,0.14), 0 9px 46px 8px rgba(0,0,0,0.12);">
+            <div class="custom-modal-body" style="padding: 24px 32px;">
                 <div class="custom-modal-message">
-                    <p style="font-size: 16px; font-weight: 500; color: #202124; margin-bottom: 16px;">Download Analytics</p>
-                    <p style="margin-bottom: 12px;">"<span id="analyticsAssignmentTitle" style="font-weight: 500;"></span>"</p>
+                    <p style="font-size: 22px; font-weight: 400; color: #202124; margin-bottom: 16px;">Download Analytics</p>
+                    <p style="font-size: 14px; color: #5f6368; margin-bottom: 12px;">"<span id="analyticsAssignmentTitle" style="font-weight: 500;"></span>"</p>
                     
                     <div id="analyticsContent">
                         <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 20px;">
@@ -1173,23 +1232,23 @@ try {
                     </div>
                 </div>
             </div>
-            <div class="custom-modal-footer">
-                <button type="button" class="custom-modal-btn custom-modal-btn-secondary" onclick="closeAnalyticsModal()" style="border-radius: 25px;">Close</button>
+            <div class="custom-modal-footer" style="border: none; padding: 0 32px 32px 32px;">
+                <button type="button" class="custom-modal-btn custom-modal-btn-secondary" onclick="closeAnalyticsModal()" style="background: transparent; color: #5f6368; border: none; border-radius: 25px; padding: 10px 24px; font-size: 14px; font-weight: 500; letter-spacing: 0.25px; text-transform: uppercase;">Close</button>
             </div>
         </div>
     </div>
     
-    <!-- Preview Modal -->
-    <div class="modal-overlay" id="previewModal" style="display: none;">
-        <div class="custom-modal" style="max-width: 900px; max-height: 90vh;">
+    <!-- Preview Modal - Google Material Design Style -->
+    <div class="modal-overlay" id="previewModal" style="display: none; backdrop-filter: blur(2px);">
+        <div class="custom-modal" style="max-width: 900px; max-height: 90vh; border: none; border-radius: 24px; box-shadow: 0 24px 38px 3px rgba(0,0,0,0.14), 0 9px 46px 8px rgba(0,0,0,0.12);">
             <div class="custom-modal-body" style="padding: 0;">
-                <div style="display: flex; align-items: center; justify-content: space-between; padding: 16px; border-bottom: 1px solid #e8eaed;">
-                    <p style="font-size: 16px; font-weight: 500; color: #202124;">Preview: <span id="previewFileName" style="font-weight: 400;"></span></p>
+                <div style="display: flex; align-items: center; justify-content: space-between; padding: 24px 32px 0 32px; border-bottom: none;">
+                    <p style="font-size: 22px; font-weight: 400; color: #202124;">Preview: <span id="previewFileName" style="font-weight: 400; font-size: 18px;"></span></p>
                     <button onclick="closePreviewModal()" style="background: none; border: none; cursor: pointer; padding: 8px; border-radius: 50%;">
                         <i class="fas fa-times" style="color: #5f6368; font-size: 18px;"></i>
                     </button>
                 </div>
-                <div id="previewContent" style="padding: 20px; height: calc(90vh - 80px); overflow: auto;">
+                <div id="previewContent" style="padding: 24px 32px; height: calc(90vh - 80px); overflow: auto;">
                     <!-- Preview content will be loaded here -->
                 </div>
             </div>

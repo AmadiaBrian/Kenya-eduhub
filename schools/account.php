@@ -1,6 +1,21 @@
 <?php
 // School Account Balance Page
-// Authentication is handled by index.php router
+// Ensure session is started and config is loaded
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+// Load config if not already loaded
+if (!isset($pdo)) {
+    require_once __DIR__ . '/../config.php';
+}
+
+// Authentication check
+if (!isset($_SESSION['school_id']) || !isset($_SESSION['school_token'])) {
+    header('Location: index.php?route=login');
+    exit;
+}
+
 $school_id = $_SESSION['school_id'];
 $school_name = $_SESSION['school_name'] ?? 'School';
 
@@ -445,6 +460,15 @@ if (empty($_SESSION['csrf_token'])) {
             <a class="nav-link" href="classes">
                 <i class="fas fa-school"></i> Classes
             </a>
+            <a class="nav-link" href="subjects">
+                <i class="fas fa-book"></i> Subjects
+            </a>
+            <a class="nav-link" href="exam-types">
+                <i class="fas fa-clipboard-list"></i> Exam Types
+            </a>
+            <a class="nav-link" href="calendar">
+                <i class="fas fa-calendar"></i> Calendar
+            </a>
             <a class="nav-link" href="fees">
                 <i class="fas fa-file-invoice-dollar"></i> Fee Management
             </a>
@@ -588,14 +612,14 @@ if (empty($_SESSION['csrf_token'])) {
                                     </td>
                                     <td><strong>KES <?php echo number_format($withdrawal['amount'], 2); ?></strong></td>
                                     <?php
-                                        $status_badge = $withdrawal['status'] === 'success' ? 'badge-success' : ($withdrawal['status'] === 'failed' ? 'badge-danger' : 'badge-warning');
+                                        $status_badge = $withdrawal['status'] === 'completed' ? 'badge-success' : ($withdrawal['status'] === 'failed' ? 'badge-danger' : 'badge-warning');
                                     ?>
                                     <td>
                                         <span class="badge <?php echo $status_badge; ?>"><?php echo htmlspecialchars(ucfirst($withdrawal['status'])); ?></span>
                                         <?php if (!empty($withdrawal['mpesa_receipt_number'])): ?>
                                             <br><span class="text-muted"><?php echo htmlspecialchars($withdrawal['mpesa_receipt_number']); ?></span>
                                         <?php endif; ?>
-                                        <?php if (!empty($withdrawal['result_desc']) && $withdrawal['status'] !== 'success'): ?>
+                                        <?php if (!empty($withdrawal['result_desc']) && $withdrawal['status'] !== 'completed'): ?>
                                             <br><span class="text-muted"><?php echo htmlspecialchars($withdrawal['result_desc']); ?></span>
                                         <?php endif; ?>
                                     </td>
@@ -663,7 +687,7 @@ if (empty($_SESSION['csrf_token'])) {
             form.style.display = form.style.display === 'none' ? 'block' : 'none';
         }
 
-        // Withdrawal Modal Functions
+        // Withdrawal Modal Functions - Google Material Design Style
         function showWithdrawalModal(title, message, type = 'info') {
             const modal = document.createElement('div');
             modal.id = 'withdrawalModal';
@@ -674,6 +698,7 @@ if (empty($_SESSION['csrf_token'])) {
                 width: 100%;
                 height: 100%;
                 background: rgba(0,0,0,0.4);
+                backdrop-filter: blur(2px);
                 display: flex;
                 align-items: center;
                 justify-content: center;
@@ -684,48 +709,35 @@ if (empty($_SESSION['csrf_token'])) {
             const modalContent = document.createElement('div');
             modalContent.style.cssText = `
                 background: #ffffff;
-                padding: 24px;
-                border-radius: 8px;
-                max-width: 448px;
+                padding: 32px;
+                border-radius: 24px;
+                max-width: 400px;
                 width: 90%;
-                text-align: left;
-                box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+                text-align: center;
+                box-shadow: 0 24px 38px 3px rgba(0,0,0,0.14), 0 9px 46px 8px rgba(0,0,0,0.12);
                 animation: modalSlideIn 0.3s ease-out;
+                border: none;
             `;
             
             let icon = '';
-            let iconColor = '';
-            let headerColor = '';
             
             if (type === 'success') {
-                icon = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" fill="#34A853"/><path d="M8 12L11 15L16 9" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-                iconColor = '#34A853';
-                headerColor = '#202124';
+                icon = '<svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" fill="#34A853"/><path d="M8 12L11 15L16 9" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
             } else if (type === 'error') {
-                icon = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" fill="#EA4335"/><path d="M15 9L9 15M9 9L15 15" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-                iconColor = '#EA4335';
-                headerColor = '#202124';
+                icon = '<svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" fill="#EA4335"/><path d="M15 9L9 15M9 9L15 15" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
             } else if (type === 'loading') {
-                icon = '<svg class="loading-spinner" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" stroke="#1a73e8" stroke-width="2" stroke-linecap="round" stroke-dasharray="31.4 31.4"><animateTransform attributeName="transform" type="rotate" from="0 12 12" to="360 12 12" dur="1s" repeatCount="indefinite"/></circle></svg>';
-                iconColor = '#1a73e8';
-                headerColor = '#202124';
+                icon = '<svg class="loading-spinner" width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" stroke="#1a73e8" stroke-width="2" stroke-linecap="round" stroke-dasharray="31.4 31.4"><animateTransform attributeName="transform" type="rotate" from="0 12 12" to="360 12 12" dur="1s" repeatCount="indefinite"/></circle></svg>';
             } else {
-                icon = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" fill="#1a73e8"/><path d="M12 16V12M12 8H12.01" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-                iconColor = '#1a73e8';
-                headerColor = '#202124';
+                icon = '<svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" fill="#1a73e8"/><path d="M12 16V12M12 8H12.01" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
             }
             
             modalContent.innerHTML = `
-                <div style="display: flex; align-items: flex-start; margin-bottom: 16px;">
-                    <div style="margin-right: 16px; flex-shrink: 0;">${icon}</div>
-                    <div style="flex: 1;">
-                        <h2 style="margin: 0 0 8px 0; font-size: 20px; font-weight: 500; color: ${headerColor}; line-height: 28px;">${title}</h2>
-                        <p style="margin: 0; font-size: 14px; color: #5f6368; line-height: 20px;">${message}</p>
-                    </div>
-                </div>
+                <div style="margin-bottom: 20px;">${icon}</div>
+                <h2 style="margin: 0 0 12px 0; font-size: 22px; font-weight: 400; color: #202124; line-height: 28px;">${title}</h2>
+                <p style="margin: 0; font-size: 14px; color: #5f6368; line-height: 20px;">${message}</p>
                 ${type !== 'loading' ? `
-                    <div style="display: flex; justify-content: flex-end; margin-top: 16px; padding-top: 16px; border-top: 1px solid #e0e0e0;">
-                        <button onclick="closeWithdrawalModal()" style="padding: 8px 16px; background: #1a73e8; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; font-weight: 500; letter-spacing: 0.25px; text-transform: uppercase; transition: background 0.2s;">Close</button>
+                    <div style="display: flex; justify-content: flex-end; margin-top: 24px; padding-top: 24px; border-top: none;">
+                        <button onclick="closeWithdrawalModal()" style="padding: 10px 24px; background: #FF6B35; color: white; border: none; border-radius: 25px; cursor: pointer; font-size: 14px; font-weight: 500; letter-spacing: 0.25px; text-transform: uppercase; transition: background 0.2s;">Close</button>
                     </div>
                 ` : ''}
             `;
@@ -772,38 +784,24 @@ if (empty($_SESSION['csrf_token'])) {
                 const modalContent = modal.querySelector('div');
                 
                 let icon = '';
-                let iconColor = '';
-                let headerColor = '';
                 
                 if (type === 'success') {
-                    icon = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" fill="#34A853"/><path d="M8 12L11 15L16 9" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-                    iconColor = '#34A853';
-                    headerColor = '#202124';
+                    icon = '<svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" fill="#34A853"/><path d="M8 12L11 15L16 9" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
                 } else if (type === 'error') {
-                    icon = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" fill="#EA4335"/><path d="M15 9L9 15M9 9L15 15" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-                    iconColor = '#EA4335';
-                    headerColor = '#202124';
+                    icon = '<svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" fill="#EA4335"/><path d="M15 9L9 15M9 9L15 15" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
                 } else if (type === 'loading') {
-                    icon = '<svg class="loading-spinner" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" stroke="#1a73e8" stroke-width="2" stroke-linecap="round" stroke-dasharray="31.4 31.4"><animateTransform attributeName="transform" type="rotate" from="0 12 12" to="360 12 12" dur="1s" repeatCount="indefinite"/></circle></svg>';
-                    iconColor = '#1a73e8';
-                    headerColor = '#202124';
+                    icon = '<svg class="loading-spinner" width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" stroke="#1a73e8" stroke-width="2" stroke-linecap="round" stroke-dasharray="31.4 31.4"><animateTransform attributeName="transform" type="rotate" from="0 12 12" to="360 12 12" dur="1s" repeatCount="indefinite"/></circle></svg>';
                 } else {
-                    icon = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" fill="#1a73e8"/><path d="M12 16V12M12 8H12.01" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-                    iconColor = '#1a73e8';
-                    headerColor = '#202124';
+                    icon = '<svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" fill="#1a73e8"/><path d="M12 16V12M12 8H12.01" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
                 }
                 
                 modalContent.innerHTML = `
-                    <div style="display: flex; align-items: flex-start; margin-bottom: 16px;">
-                        <div style="margin-right: 16px; flex-shrink: 0;">${icon}</div>
-                        <div style="flex: 1;">
-                            <h2 style="margin: 0 0 8px 0; font-size: 20px; font-weight: 500; color: ${headerColor}; line-height: 28px;">${title}</h2>
-                            <p style="margin: 0; font-size: 14px; color: #5f6368; line-height: 20px;">${message}</p>
-                        </div>
-                    </div>
+                    <div style="margin-bottom: 20px;">${icon}</div>
+                    <h2 style="margin: 0 0 12px 0; font-size: 22px; font-weight: 400; color: #202124; line-height: 28px;">${title}</h2>
+                    <p style="margin: 0; font-size: 14px; color: #5f6368; line-height: 20px;">${message}</p>
                     ${type !== 'loading' ? `
-                        <div style="display: flex; justify-content: flex-end; margin-top: 16px; padding-top: 16px; border-top: 1px solid #e0e0e0;">
-                            <button onclick="closeWithdrawalModal()" style="padding: 8px 16px; background: #1a73e8; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; font-weight: 500; letter-spacing: 0.25px; text-transform: uppercase; transition: background 0.2s;">Close</button>
+                        <div style="display: flex; justify-content: flex-end; margin-top: 24px; padding-top: 24px; border-top: none;">
+                            <button onclick="closeWithdrawalModal()" style="padding: 10px 24px; background: #FF6B35; color: white; border: none; border-radius: 25px; cursor: pointer; font-size: 14px; font-weight: 500; letter-spacing: 0.25px; text-transform: uppercase; transition: background 0.2s;">Close</button>
                         </div>
                     ` : ''}
                 `;

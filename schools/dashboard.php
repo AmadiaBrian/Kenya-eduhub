@@ -1,8 +1,29 @@
 <?php
 // Schools Dashboard
-// Authentication is handled by index.php router
+// Ensure session is started and config is loaded
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+// Load config if not already loaded
+if (!isset($pdo)) {
+    require_once __DIR__ . '/../config.php';
+}
+
+// Load calendar helpers
+require_once __DIR__ . '/../includes/calendar_helpers.php';
+
+// Authentication check
+if (!isset($_SESSION['school_id']) || !isset($_SESSION['school_token'])) {
+    header('Location: index.php?route=login');
+    exit;
+}
+
 $school_name = $_SESSION['school_name'] ?? 'School';
 $school_code = $_SESSION['school_code'] ?? '';
+
+// Get calendar status
+$calendar_status = getSchoolCalendarStatus($pdo, $_SESSION['school_id']);
 
 // Get school logo
 try {
@@ -741,6 +762,14 @@ try {
             <button class="menu-btn" onclick="toggleSidebar()">
                 <i class="fas fa-bars"></i>
             </button>
+            <div class="logo">
+                <div style="width: 40px; height: 40px; background: #FFD700; border: 3px solid #FF6B35; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 8px;">
+                    <span style="font-weight: bold; font-size: 20px;">
+                        <span style="color: #FF6B35; font-size: 24px;">K</span><span style="color: #008000; font-size: 20px;">E</span>
+                    </span>
+                </div>
+                <span style="color: #FF6B35; font-weight: bold;">Kenya</span> <span style="color: #008000; font-weight: bold;">EduHub</span>
+            </div>
         </div>
         <div class="header-right">
             <div class="school-avatar">
@@ -751,17 +780,6 @@ try {
     
     <!-- Sidebar -->
     <aside class="sidebar" id="sidebar">
-        <div style="padding: 24px; border-bottom: 1px solid #e8eaed;">
-            <div class="logo" style="justify-content: center;">
-                <div style="width: 40px; height: 40px; background: #FFD700; border: 3px solid #FF6B35; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 8px;">
-                    <span style="font-weight: bold; font-size: 20px;">
-                        <span style="color: #FF6B35; font-size: 24px;">K</span><span style="color: #008000; font-size: 20px;">E</span>
-                    </span>
-                </div>
-                <span style="color: #FF6B35; font-weight: bold;">Kenya</span> <span style="color: #008000; font-weight: bold;">EduHub</span>
-            </div>
-        </div>
-        
         <div class="sidebar-section">
             <div class="sidebar-title" onclick="toggleSidebarSection(this)">
                 Main <i class="fas fa-chevron-down chevron"></i>
@@ -793,6 +811,12 @@ try {
                 <a class="nav-link" href="subjects">
                     <i class="fas fa-book"></i> Subjects
                 </a>
+                <a class="nav-link" href="exam-types">
+                    <i class="fas fa-clipboard-list"></i> Exam Types
+                </a>
+                <a class="nav-link" href="timetable">
+                    <i class="fas fa-calendar-alt"></i> Timetable
+                </a>
                 <a class="nav-link" href="grading">
                     <i class="fas fa-chart-bar"></i> Grading
                 </a>
@@ -809,6 +833,9 @@ try {
                 </a>
                 <a class="nav-link" href="attendance">
                     <i class="fas fa-calendar-check"></i> Attendance
+                </a>
+                <a class="nav-link" href="calendar">
+                    <i class="fas fa-calendar"></i> Calendar
                 </a>
             </div>
         </div>
@@ -872,6 +899,53 @@ try {
     <main class="main-content" id="mainContent">
         <h1 class="page-title">Welcome, <?php echo htmlspecialchars($school_name); ?></h1>
         <p style="color: #5f6368; margin-bottom: 32px;">School Code: <?php echo htmlspecialchars($school_code); ?></p>
+        
+        <!-- Calendar Status -->
+        <div style="margin-bottom: 24px;">
+            <?php if ($calendar_status['is_holiday']): ?>
+                <div style="background: #fce8e6; border: 1px solid #c5221f; padding: 16px; border-radius: 8px;">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <i class="fas fa-exclamation-triangle" style="color: #c5221f; font-size: 20px;"></i>
+                        <div>
+                            <strong style="color: #c5221f;">School is on Holiday</strong>
+                            <p style="margin: 4px 0 0 0; color: #5f6368; font-size: 14px;">
+                                <?php echo htmlspecialchars($calendar_status['current_holiday']['holiday_name']); ?> 
+                                (<?php echo date('M j, Y', strtotime($calendar_status['current_holiday']['start_date'])); ?> - 
+                                <?php echo date('M j, Y', strtotime($calendar_status['current_holiday']['end_date'])); ?>)
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            <?php elseif ($calendar_status['school_status'] === 'break'): ?>
+                <div style="background: #fef7e0; border: 1px solid #f9ab00; padding: 16px; border-radius: 8px;">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <i class="fas fa-info-circle" style="color: #f9ab00; font-size: 20px;"></i>
+                        <div>
+                            <strong style="color: #b06000;">School is on Break</strong>
+                            <p style="margin: 4px 0 0 0; color: #5f6368; font-size: 14px;">No active term is currently set. Please activate a term in the Calendar.</p>
+                        </div>
+                    </div>
+                </div>
+            <?php else: ?>
+                <div style="background: #e6f4ea; border: 1px solid #137333; padding: 16px; border-radius: 8px;">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <i class="fas fa-check-circle" style="color: #137333; font-size: 20px;"></i>
+                        <div>
+                            <strong style="color: #137333;">School is In Session</strong>
+                            <p style="margin: 4px 0 0 0; color: #5f6368; font-size: 14px;">
+                                <?php if ($calendar_status['current_term']): ?>
+                                    Active Term: <?php echo htmlspecialchars($calendar_status['current_term']['term_name']); ?> 
+                                    (<?php echo date('M j, Y', strtotime($calendar_status['current_term']['start_date'])); ?> - 
+                                    <?php echo date('M j, Y', strtotime($calendar_status['current_term']['end_date'])); ?>)
+                                <?php else: ?>
+                                    Year: <?php echo $calendar_status['current_year']; ?>
+                                <?php endif; ?>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            <?php endif; ?>
+        </div>
         
         <!-- Stats Cards -->
         <div class="stats-grid">

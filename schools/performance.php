@@ -1,8 +1,28 @@
 <?php
 // Performance Tracking Page
-// Authentication is handled by index.php router
+// Ensure session is started and config is loaded
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+// Load config if not already loaded
+if (!isset($pdo)) {
+    require_once __DIR__ . '/../config.php';
+}
+
+// Load calendar helpers
+require_once __DIR__ . '/../includes/calendar_helpers.php';
+
+// Authentication check
+if (!isset($_SESSION['school_id']) || !isset($_SESSION['school_token'])) {
+    header('Location: index.php?route=login');
+    exit;
+}
 
 $school_name = $_SESSION['school_name'] ?? 'School';
+
+// Get calendar status
+$calendar_status = getSchoolCalendarStatus($pdo, $_SESSION['school_id']);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -263,10 +283,10 @@ $school_name = $_SESSION['school_name'] ?? 'School';
         }
         
         .table {
+            width: 100%;
             border-collapse: collapse;
             background: white;
             border: 1px solid #000;
-            width: 100%;
             margin: 0;
         }
         
@@ -281,20 +301,20 @@ $school_name = $_SESSION['school_name'] ?? 'School';
         }
         
         .table th {
-            border: 1px solid #000;
-            border-bottom: 2px solid #000;
+            text-align: left;
             padding: 12px;
+            font-size: 13px;
             font-weight: 600;
             color: #000;
-            font-size: 13px;
-            text-transform: uppercase;
+            border: 1px solid #000;
+            border-bottom: 2px solid #000;
         }
         
         .table td {
             padding: 12px;
-            border: 1px solid #000;
-            color: #000;
             font-size: 13px;
+            color: #000;
+            border: 1px solid #000;
         }
         
         .table tbody tr:nth-child(even) {
@@ -305,40 +325,10 @@ $school_name = $_SESSION['school_name'] ?? 'School';
             background: #f0f0f0;
         }
         
+        /* Responsive */
         @media (max-width: 768px) {
-            html, body {
-                overflow-x: hidden;
-                position: relative;
-            }
-            
-            .header {
-                position: fixed !important;
-                top: 0 !important;
-                left: 0 !important;
-                right: 0 !important;
-                padding: 0 16px;
-                box-shadow: 0 2px 4px rgba(0,0,0,0.08);
-                transform: none !important;
-            }
-            
-            .logo span {
-                font-size: 18px;
-            }
-            
-            .menu-btn {
-                padding: 8px;
-                border-radius: 50%;
-                transition: background 0.2s;
-            }
-            
-            .menu-btn:hover {
-                background: rgba(0,0,0,0.04);
-            }
-            
             .sidebar {
-                position: fixed !important;
                 transform: translateX(-256px);
-                box-shadow: 2px 0 8px rgba(0,0,0,0.15);
             }
             
             .sidebar.show {
@@ -350,124 +340,43 @@ $school_name = $_SESSION['school_name'] ?? 'School';
                 padding: 16px;
             }
             
-            .page-title {
-                font-size: 22px;
-                font-weight: 400;
-                margin-bottom: 16px;
+            .menu-btn {
+                display: block !important;
             }
             
             .card {
                 padding: 16px;
-                margin-bottom: 16px;
-                border-radius: 12px;
-                box-shadow: 0 1px 2px rgba(0,0,0,0.05);
             }
             
             .table-responsive {
                 overflow-x: auto;
-                -webkit-overflow-scrolling: touch;
-                border-radius: 8px;
                 width: 100%;
             }
             
             .table {
-                min-width: 600px;
-                width: 100%;
+                min-width: 100%;
+                font-size: 12px;
+            }
+            
+            .table th, .table td {
+                padding: 8px 4px;
+            }
+            
+            .form-control, .form-select {
+                font-size: 14px;
             }
             
             .btn {
-                padding: 10px 20px;
                 font-size: 14px;
-                font-weight: 500;
-                border-radius: 8px;
-                height: 40px;
+                padding: 8px 12px;
             }
             
-            .form-control {
-                padding: 12px;
-                font-size: 16px;
-                border-radius: 8px;
-                border: 1px solid #dadce0;
-            }
-            
-            .form-control:focus {
-                border-color: var(--primary-color);
-                box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.2);
-            }
-            
-            .card-header {
-                flex-direction: column;
-                gap: 12px;
-                align-items: flex-start;
-                padding-bottom: 12px;
-                border-bottom: 1px solid #e8eaed;
-            }
-            
-            .card-header .btn {
-                width: 100%;
-            }
-            
-            .card {
-                text-align: center;
-            }
-            
-            .card-header {
-                justify-content: center;
-            }
-        }
-        
-        @media (max-width: 480px) {
-            .header {
-                padding: 0 12px;
-            }
-            
-            .logo span {
-                font-size: 16px;
-            }
-            
-            .main-content {
-                padding: 12px;
+            .col-md-3, .col-md-4, .col-md-2 {
+                margin-bottom: 12px;
             }
             
             .page-title {
                 font-size: 18px;
-                margin-bottom: 16px;
-            }
-            
-            .card {
-                padding: 12px;
-            }
-            
-            .menu-btn {
-                padding: 8px;
-            }
-            
-            .school-avatar {
-                width: 28px;
-                height: 28px;
-                font-size: 12px;
-            }
-            
-            /* Quick Access Mobile */
-            .quick-access-grid {
-                grid-template-columns: repeat(3, 1fr);
-                gap: 8px;
-            }
-            
-            .quick-access-item {
-                padding: 12px;
-            }
-            
-            .quick-access-icon {
-                width: 40px;
-                height: 40px;
-                font-size: 16px;
-                color: #FF6B35;
-                margin-bottom: 8px;
-            }
-            
-            .quick-access-label {
-                font-size: 11px;
             }
         }
         
@@ -560,6 +469,12 @@ $school_name = $_SESSION['school_name'] ?? 'School';
             <a class="nav-link" href="subjects">
                 <i class="fas fa-book"></i> Subjects
             </a>
+            <a class="nav-link" href="exam-types">
+                <i class="fas fa-clipboard-list"></i> Exam Types
+            </a>
+            <a class="nav-link" href="timetable">
+                <i class="fas fa-calendar-alt"></i> Timetable
+            </a>
             <a class="nav-link" href="parents">
                 <i class="fas fa-users"></i> Parents
             </a>
@@ -568,6 +483,9 @@ $school_name = $_SESSION['school_name'] ?? 'School';
             </a>
             <a class="nav-link" href="attendance">
                 <i class="fas fa-calendar-check"></i> Attendance
+            </a>
+            <a class="nav-link" href="calendar">
+                <i class="fas fa-calendar"></i> Calendar
             </a>
             <a class="nav-link" href="fees">
                 <i class="fas fa-money-bill-wave"></i> Fees
@@ -590,6 +508,33 @@ $school_name = $_SESSION['school_name'] ?? 'School';
     <!-- Main Content -->
     <main class="main-content" id="mainContent">
         <h1 class="page-title">Academic Performance</h1>
+        
+        <!-- Calendar Status Alert -->
+        <?php if ($calendar_status['is_holiday']): ?>
+            <div style="background: #fce8e6; border: 1px solid #c5221f; padding: 16px; border-radius: 8px; margin-bottom: 24px;">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <i class="fas fa-exclamation-triangle" style="color: #c5221f; font-size: 20px;"></i>
+                    <div>
+                        <strong style="color: #c5221f;">School is on Holiday</strong>
+                        <p style="margin: 4px 0 0 0; color: #5f6368; font-size: 14px;">
+                            <?php echo htmlspecialchars($calendar_status['current_holiday']['holiday_name']); ?> 
+                            (<?php echo date('M j, Y', strtotime($calendar_status['current_holiday']['start_date'])); ?> - 
+                            <?php echo date('M j, Y', strtotime($calendar_status['current_holiday']['end_date'])); ?>)
+                        </p>
+                    </div>
+                </div>
+            </div>
+        <?php elseif ($calendar_status['school_status'] === 'break'): ?>
+            <div style="background: #fef7e0; border: 1px solid #f9ab00; padding: 16px; border-radius: 8px; margin-bottom: 24px;">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <i class="fas fa-info-circle" style="color: #f9ab00; font-size: 20px;"></i>
+                    <div>
+                        <strong style="color: #b06000;">School is on Break</strong>
+                        <p style="margin: 4px 0 0 0; color: #5f6368; font-size: 14px;">No active term is currently set. Please activate a term in the Calendar.</p>
+                    </div>
+                </div>
+            </div>
+        <?php endif; ?>
         
         <!-- Performance Statistics -->
         <div id="performanceStats" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 24px;">
@@ -735,28 +680,8 @@ $school_name = $_SESSION['school_name'] ?? 'School';
                         </button>
                     </div>
                 </div>
-                <div id="recordsContainer" style="display: flex; flex-direction: column; gap: 20px;">
-                    <div class="table-responsive" style="overflow-x: auto;">
-                        <table class="table" style="min-width: 800px;">
-                            <thead>
-                                <tr>
-                                    <th>Admission No</th>
-                                    <th>Student Name</th>
-                                    <th>Class</th>
-                                    <th>Stream</th>
-                                    <th>Term</th>
-                                    <th>Year</th>
-                                    <th>Subject</th>
-                                    <th>Marks</th>
-                                    <th>Grade</th>
-                                    <th>Remarks</th>
-                                </tr>
-                            </thead>
-                            <tbody id="recordsTable">
-                                <tr><td colspan="10" class="text-center">Loading performance records...</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
+                <div id="performanceTableContainer">
+                    <p class="text-center">Loading performance records...</p>
                 </div>
             </div>
         </div>
@@ -787,11 +712,11 @@ $school_name = $_SESSION['school_name'] ?? 'School';
                     populateSubjectFilter(data.data);
                     filterPerformanceRecords();
                 } else {
-                    document.getElementById('recordsTable').innerHTML = '<tr><td colspan="10" class="text-center">No performance records found</td></tr>';
+                    document.getElementById('performanceTableContainer').innerHTML = '<p class="text-center">No performance records found</p>';
                 }
             } catch (error) {
                 console.error('Error loading performance records:', error);
-                document.getElementById('recordsTable').innerHTML = '<tr><td colspan="8" class="text-center">Error loading performance records</td></tr>';
+                document.getElementById('performanceTableContainer').innerHTML = '<p class="text-center">Error loading performance records</p>';
             }
         }
         
@@ -844,7 +769,8 @@ $school_name = $_SESSION['school_name'] ?? 'School';
                 return matchesSearch && matchesClass && matchesStream && matchesTerm && matchesYear && matchesSubject;
             });
             
-            const container = document.getElementById('recordsContainer');
+            const container = document.getElementById('performanceTableContainer');
+
             if (filtered.length > 0) {
                 // Group by subject if no subject filter is applied
                 if (!subjectFilter) {
@@ -856,39 +782,43 @@ $school_name = $_SESSION['school_name'] ?? 'School';
                         }
                         groupedBySubject[subjectName].push(record);
                     });
-                    
+
                     // Sort subjects alphabetically
                     const sortedSubjects = Object.keys(groupedBySubject).sort();
-                    
+
                     let html = '';
                     sortedSubjects.forEach(subjectName => {
                         html += `
-                            <div class="card">
-                                <div class="card-header" style="background-color: #e8f0fe; font-weight: bold;">
-                                    <i class="fas fa-book"></i> ${subjectName} (${groupedBySubject[subjectName].length} records)
-                                </div>
-                                <div class="card-body">
-                                    <div class="table-responsive" style="overflow-x: auto;">
-                                        <table class="table" style="min-width: 800px;">
-                                            <thead>
-                                                <tr>
-                                                    <th>Admission No</th>
-                                                    <th>Student Name</th>
-                                                    <th>Class</th>
-                                                    <th>Stream</th>
-                                                    <th>Term</th>
-                                                    <th>Year</th>
-                                                    <th>Marks</th>
-                                                    <th>Grade</th>
-                                                    <th>Remarks</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
+                            <div style="margin-bottom: 30px;">
+                                <h4 style="color: #FF6B35; margin-bottom: 15px; font-weight: 600;">
+                                    <i class="fas fa-book"></i> ${subjectName}
+                                </h4>
+                                <div class="table-responsive" style="overflow-x: auto;">
+                                    <table class="table" style="min-width: 800px;">
+                                        <thead>
+                                            <tr>
+                                                <th>Rank</th>
+                                                <th>Admission No</th>
+                                                <th>Student Name</th>
+                                                <th>Class</th>
+                                                <th>Stream</th>
+                                                <th>Term</th>
+                                                <th>Year</th>
+                                                <th>Marks</th>
+                                                <th>Grade</th>
+                                                <th>Remarks</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
                         `;
-                        
-                        groupedBySubject[subjectName].forEach(record => {
+
+                        // Sort records by marks descending for ranking
+                        const sortedRecords = [...groupedBySubject[subjectName]].sort((a, b) => b.marks - a.marks);
+
+                        sortedRecords.forEach((record, index) => {
                             html += `
                                 <tr>
+                                    <td><strong>#${index + 1}</strong></td>
                                     <td>${record.admission_number}</td>
                                     <td>${record.first_name} ${record.last_name}</td>
                                     <td>${record.class_name || '-'}</td>
@@ -901,23 +831,26 @@ $school_name = $_SESSION['school_name'] ?? 'School';
                                 </tr>
                             `;
                         });
-                        
+
                         html += `
                                             </tbody>
                                         </table>
                                     </div>
                                 </div>
-                            </div>
                         `;
                     });
                     container.innerHTML = html;
                 } else {
                     // Show single table when specific subject is selected
+                    // Sort by marks descending for ranking
+                    const sortedRecords = [...filtered].sort((a, b) => b.marks - a.marks);
+
                     container.innerHTML = `
                         <div class="table-responsive" style="overflow-x: auto;">
                             <table class="table" style="min-width: 800px;">
                                 <thead>
                                     <tr>
+                                        <th>Rank</th>
                                         <th>Admission No</th>
                                         <th>Student Name</th>
                                         <th>Class</th>
@@ -931,8 +864,9 @@ $school_name = $_SESSION['school_name'] ?? 'School';
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    ${filtered.map(record => `
+                                    ${sortedRecords.map((record, index) => `
                                         <tr>
+                                            <td><strong>#${index + 1}</strong></td>
                                             <td>${record.admission_number}</td>
                                             <td>${record.first_name} ${record.last_name}</td>
                                             <td>${record.class_name || '-'}</td>

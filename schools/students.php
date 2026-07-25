@@ -1,6 +1,21 @@
 <?php
 // Students Management Page
-// Authentication is handled by index.php router
+// Ensure session is started and config is loaded
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+// Load config if not already loaded
+if (!isset($pdo)) {
+    require_once __DIR__ . '/../config.php';
+}
+
+// Authentication check
+if (!isset($_SESSION['school_id']) || !isset($_SESSION['school_token'])) {
+    header('Location: index.php?route=login');
+    exit;
+}
+
 $school_id = $_SESSION['school_id'];
 $school_name = $_SESSION['school_name'] ?? 'School';
 
@@ -616,6 +631,12 @@ try {
             <a class="nav-link" href="subjects">
                 <i class="fas fa-book"></i> Subjects
             </a>
+            <a class="nav-link" href="exam-types">
+                <i class="fas fa-clipboard-list"></i> Exam Types
+            </a>
+            <a class="nav-link" href="timetable">
+                <i class="fas fa-calendar-alt"></i> Timetable
+            </a>
             <a class="nav-link" href="parents">
                 <i class="fas fa-users"></i> Parents
             </a>
@@ -624,6 +645,9 @@ try {
             </a>
             <a class="nav-link" href="attendance">
                 <i class="fas fa-calendar-check"></i> Attendance
+            </a>
+            <a class="nav-link" href="calendar">
+                <i class="fas fa-calendar"></i> Calendar
             </a>
             <a class="nav-link" href="fees">
                 <i class="fas fa-money-bill-wave"></i> Fees
@@ -805,15 +829,15 @@ try {
         </div>
     </div>
     
-    <!-- Add Student Modal -->
-    <div class="modal fade" id="addStudentModal" tabindex="-1">
+    <!-- Add Student Modal - Google Material Design Style -->
+    <div class="modal fade" id="addStudentModal" tabindex="-1" style="backdrop-filter: blur(2px);">
         <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Add New Student</h5>
+            <div class="modal-content" style="border: none; border-radius: 24px; box-shadow: 0 24px 38px 3px rgba(0,0,0,0.14), 0 9px 46px 8px rgba(0,0,0,0.12);">
+                <div class="modal-header" style="border: none; padding: 24px 32px 0 32px;">
+                    <h5 class="modal-title" style="font-size: 22px; font-weight: 400; color: #202124;">Add New Student</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="modal-body">
+                <div class="modal-body" style="padding: 24px 32px;">
                     <form id="addStudentForm">
                         <div class="row">
                             <div class="col-md-6 mb-3">
@@ -873,23 +897,23 @@ try {
                         </div>
                     </form>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary" onclick="addStudent()">Add Student</button>
+                <div class="modal-footer" style="border: none; padding: 0 32px 32px 32px;">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="background: transparent; color: #5f6368; border: none; border-radius: 25px; padding: 10px 24px; font-size: 14px; font-weight: 500; letter-spacing: 0.25px; text-transform: uppercase;">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="addStudent()" style="background: #FF6B35; color: white; border: none; border-radius: 25px; padding: 10px 24px; font-size: 14px; font-weight: 500; letter-spacing: 0.25px; text-transform: uppercase;">Add Student</button>
                 </div>
             </div>
         </div>
     </div>
     
-    <!-- Edit Student Modal -->
-    <div class="modal fade" id="editStudentModal" tabindex="-1">
+    <!-- Edit Student Modal - Google Material Design Style -->
+    <div class="modal fade" id="editStudentModal" tabindex="-1" style="backdrop-filter: blur(2px);">
         <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Edit Student</h5>
+            <div class="modal-content" style="border: none; border-radius: 24px; box-shadow: 0 24px 38px 3px rgba(0,0,0,0.14), 0 9px 46px 8px rgba(0,0,0,0.12);">
+                <div class="modal-header" style="border: none; padding: 24px 32px 0 32px;">
+                    <h5 class="modal-title" style="font-size: 22px; font-weight: 400; color: #202124;">Edit Student</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="modal-body">
+                <div class="modal-body" style="padding: 24px 32px;">
                     <form id="editStudentForm">
                         <input type="hidden" id="editStudentId">
                         <div class="row">
@@ -942,9 +966,9 @@ try {
                         </div>
                     </form>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary" onclick="updateStudent()">Update Student</button>
+                <div class="modal-footer" style="border: none; padding: 0 32px 32px 32px;">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="background: transparent; color: #5f6368; border: none; border-radius: 25px; padding: 10px 24px; font-size: 14px; font-weight: 500; letter-spacing: 0.25px; text-transform: uppercase;">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="updateStudent()" style="background: #FF6B35; color: white; border: none; border-radius: 25px; padding: 10px 24px; font-size: 14px; font-weight: 500; letter-spacing: 0.25px; text-transform: uppercase;">Update Student</button>
                 </div>
             </div>
         </div>

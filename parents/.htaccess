@@ -1,11 +1,10 @@
 RewriteEngine On
-RewriteBase /Kenyaeduhub/parents/
 
 # Allow direct access to api directory
 RewriteRule ^api/ - [L]
 
-# Allow direct access to payments directory
-RewriteRule ^payments/ - [L]
+# Allow direct access to receipts directory
+RewriteRule ^receipts/ - [L]
 
 # Allow direct access to assets if any
 RewriteRule ^assets/ - [L]
