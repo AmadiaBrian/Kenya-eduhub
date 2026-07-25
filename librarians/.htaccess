@@ -1,5 +1,10 @@
 RewriteEngine On
-RewriteBase /Kenyaeduhub/librarians/
+
+# Allow direct access to api directory
+RewriteRule ^api/ - [L]
+
+# Allow direct access to book_details.php
+RewriteRule ^book_details\.php$ - [L]
 
 # Redirect requests with .php extension to clean URLs
 RewriteCond %{THE_REQUEST} /([^.]+)\.php [NC]

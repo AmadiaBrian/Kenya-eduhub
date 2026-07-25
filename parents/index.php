@@ -13,6 +13,7 @@ $allowed_routes = [
     'profile',
     'attendance',
     'fees',
+    'fines',
     'performance',
     'children',
     'assignments'

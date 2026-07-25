@@ -6,6 +6,35 @@ $parent_name = $_SESSION['parent_name'] ?? 'Parent';
 $school_id = $_SESSION['school_id'];
 $school_name = $_SESSION['school_name'] ?? '';
 
+// Load calendar helpers
+require_once __DIR__ . '/../includes/calendar_helpers.php';
+
+// Get calendar status to find active term
+$calendar_status = getSchoolCalendarStatus($pdo, $school_id);
+$active_term = $calendar_status['current_term']['term_name'] ?? null;
+
+// Get terms from database for current year
+$terms = [];
+try {
+    $current_year = date('Y');
+    $stmt = $pdo->prepare("SELECT term_name FROM terms WHERE school_id = ? AND year = ? ORDER BY term_number");
+    $stmt->execute([$school_id, $current_year]);
+    $term_records = $stmt->fetchAll();
+    foreach ($term_records as $term) {
+        $terms[] = $term['term_name'];
+    }
+} catch (PDOException $e) {
+    error_log("Failed to fetch terms: " . $e->getMessage());
+    $terms = ['Term 1', 'Term 2', 'Term 3'];
+}
+
+if (empty($terms)) {
+    $terms = ['Term 1', 'Term 2', 'Term 3'];
+}
+
+// Use active term if available, otherwise use first term
+$current_term = $active_term ?? ($terms[0] ?? 'Term 1');
+
 // Initialize variables
 $display_children = [];
 $child_borrowings = [];
@@ -68,7 +97,6 @@ try {
         $child_id = $child['id'];
         $class_id = $child['class_id'];
         
-        $current_term = 'Term 1';
         $current_year = date('Y');
         
         $total_fees = 0;
@@ -724,6 +752,9 @@ try {
             <a class="nav-link" href="assignments">
                 <i class="fas fa-tasks"></i> Assignments
             </a>
+            <a class="nav-link" href="fines">
+                <i class="fas fa-book"></i> Library Fines
+            </a>
             <a class="nav-link" href="fees">
                 <i class="fas fa-money-bill-wave"></i> Fee Payments
             </a>
@@ -851,8 +882,8 @@ try {
                                 <div class="child-stat">
                                     <div class="child-stat-value">
                                         <?php 
-                                        $stmt = $pdo->prepare("SELECT COUNT(*) as total FROM academic_performance WHERE student_id = ? AND term = 'Term 1' AND year = YEAR(CURDATE())");
-                                        $stmt->execute([$child['id']]);
+                                        $stmt = $pdo->prepare("SELECT COUNT(*) as total FROM academic_performance WHERE student_id = ? AND term = ? AND year = YEAR(CURDATE())");
+                                        $stmt->execute([$child['id'], $current_term]);
                                         echo $stmt->fetch()['total'];
                                         ?>
                                     </div>

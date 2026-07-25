@@ -6,6 +6,34 @@ $finance_manager_name = $_SESSION['finance_manager_name'] ?? 'Finance Manager';
 $school_id = $_SESSION['school_id'];
 $school_name = $_SESSION['school_name'] ?? 'School';
 
+// Load calendar helpers
+require_once __DIR__ . '/../includes/calendar_helpers.php';
+
+// Get calendar status
+$calendar_status = getSchoolCalendarStatus($pdo, $school_id);
+
+// Get active term from calendar status
+$active_term = $calendar_status['current_term']['term_name'] ?? null;
+
+// Get terms from database for current year
+$terms = [];
+try {
+    $current_year = date('Y');
+    $stmt = $pdo->prepare("SELECT term_name FROM terms WHERE school_id = ? AND year = ? ORDER BY term_number");
+    $stmt->execute([$school_id, $current_year]);
+    $term_records = $stmt->fetchAll();
+    foreach ($term_records as $term) {
+        $terms[] = $term['term_name'];
+    }
+} catch (PDOException $e) {
+    error_log("Failed to fetch terms: " . $e->getMessage());
+    $terms = ['Term 1', 'Term 2', 'Term 3'];
+}
+
+if (empty($terms)) {
+    $terms = ['Term 1', 'Term 2', 'Term 3'];
+}
+
 // Get classes
 $classes = [];
 try {
@@ -80,7 +108,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['record_payment'])) {
             $receipt_number = 'REC' . date('YmdHis') . rand(1000, 9999);
             
             // Record payment
-            $stmt = $pdo->prepare("INSERT INTO fee_payments (student_id, amount, payment_date, payment_method, transaction_id, term, year, fee_type, receipt_number) VALUES (?, ?, CURDATE(), ?, ?, ?, ?, ?, ?)");
+            $stmt = $pdo->prepare("INSERT INTO fee_payments (student_id, amount, payment_date, payment_method, transaction_id, term, year, fee_type, receipt_number, status) VALUES (?, ?, CURDATE(), ?, ?, ?, ?, ?, ?, 'completed')");
             $stmt->execute([$student_id, $amount, $payment_method, $transaction_id, $term, $year, $fee_type, $receipt_number]);
             
             $pdo->commit();
@@ -549,9 +577,9 @@ try {
                     <div class="col-md-2 mb-3">
                         <label class="form-label">Term</label>
                         <select class="form-control" name="term" required>
-                            <option value="Term 1">Term 1</option>
-                            <option value="Term 2">Term 2</option>
-                            <option value="Term 3">Term 3</option>
+                            <?php foreach($terms as $term): ?>
+                                <option value="<?php echo htmlspecialchars($term); ?>" <?php echo $active_term === $term ? 'selected' : ''; ?>><?php echo htmlspecialchars($term); ?></option>
+                            <?php endforeach; ?>
                         </select>
                     </div>
                     <div class="col-md-2 mb-3">
@@ -641,9 +669,9 @@ try {
                     <div class="col-md-2 mb-3">
                         <label class="form-label">Term</label>
                         <select class="form-control" name="term" required>
-                            <option value="Term 1">Term 1</option>
-                            <option value="Term 2">Term 2</option>
-                            <option value="Term 3">Term 3</option>
+                            <?php foreach($terms as $term): ?>
+                                <option value="<?php echo htmlspecialchars($term); ?>" <?php echo $active_term === $term ? 'selected' : ''; ?>><?php echo htmlspecialchars($term); ?></option>
+                            <?php endforeach; ?>
                         </select>
                     </div>
                     <div class="col-md-2 mb-3">

@@ -16,6 +16,25 @@ if (!isset($_SESSION['parent_id'])) {
 $parent_id = $_SESSION['parent_id'];
 $school_id = $_SESSION['school_id'];
 
+// Get terms from database for current year
+$terms = [];
+try {
+    $current_year = date('Y');
+    $stmt = $pdo->prepare("SELECT term_name FROM terms WHERE school_id = ? AND year = ? ORDER BY term_number");
+    $stmt->execute([$school_id, $current_year]);
+    $term_records = $stmt->fetchAll();
+    foreach ($term_records as $term) {
+        $terms[] = $term['term_name'];
+    }
+} catch (PDOException $e) {
+    error_log("Failed to fetch terms: " . $e->getMessage());
+    $terms = ['Term 1', 'Term 2', 'Term 3'];
+}
+
+if (empty($terms)) {
+    $terms = ['Term 1', 'Term 2', 'Term 3'];
+}
+
 // Only allow POST requests
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     echo json_encode(['success' => false, 'error' => 'Invalid request method']);
@@ -63,7 +82,6 @@ try {
     
     // Get current year fee structure
     $current_year = date('Y');
-    $terms = ['Term 1', 'Term 2', 'Term 3'];
     
     $stmt = $pdo->prepare("
         SELECT * FROM fee_structure 

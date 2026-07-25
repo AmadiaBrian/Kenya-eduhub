@@ -1,6 +1,21 @@
 <?php
 // School Disciplinary Management Page
-// Authentication is handled by index.php router
+// Ensure session is started and config is loaded
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+// Load config if not already loaded
+if (!isset($pdo)) {
+    require_once __DIR__ . '/../config.php';
+}
+
+// Authentication check
+if (!isset($_SESSION['school_id']) || !isset($_SESSION['school_token'])) {
+    header('Location: index.php?route=login');
+    exit;
+}
+
 $school_id = $_SESSION['school_id'];
 $school_name = $_SESSION['school_name'] ?? 'School';
 $admission_prefix = $_SESSION['admission_prefix'] ?? '';
@@ -743,6 +758,12 @@ try {
                 <a class="nav-link" href="subjects">
                     <i class="fas fa-book"></i> Subjects
                 </a>
+                <a class="nav-link" href="exam-types">
+                    <i class="fas fa-clipboard-list"></i> Exam Types
+                </a>
+                <a class="nav-link" href="timetable">
+                    <i class="fas fa-calendar-alt"></i> Timetable
+                </a>
                 <a class="nav-link" href="grading">
                     <i class="fas fa-chart-bar"></i> Grading
                 </a>
@@ -1295,20 +1316,20 @@ try {
         }
     </script>
     
-    <!-- Add Record Modal -->
-    <div class="modal fade" id="addRecordModal" tabindex="-1">
+    <!-- Add Record Modal - Google Material Design Style -->
+    <div class="modal fade" id="addRecordModal" tabindex="-1" style="backdrop-filter: blur(2px);">
         <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Add Disciplinary Record</h5>
+            <div class="modal-content" style="border: none; border-radius: 24px; box-shadow: 0 24px 38px 3px rgba(0,0,0,0.14), 0 9px 46px 8px rgba(0,0,0,0.12);">
+                <div class="modal-header" style="border: none; padding: 24px 32px 0 32px;">
+                    <h5 class="modal-title" style="font-size: 22px; font-weight: 400; color: #202124;">Add Disciplinary Record</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="modal-body">
+                <div class="modal-body" style="padding: 24px 32px;">
                     <form id="addRecordForm">
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">Student</label>
-                                <select class="form-select" id="recordStudent" required>
+                                <label class="form-label" style="font-size: 14px; color: #5f6368; font-weight: 500;">Student</label>
+                                <select class="form-select" id="recordStudent" required style="border-radius: 8px; border: 1px solid #dadce0;">
                                     <option value="">Select Student</option>
                                     <?php foreach ($students as $student): ?>
                                         <option value="<?php echo $student['id']; ?>">
@@ -1318,8 +1339,8 @@ try {
                                 </select>
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">Action Type</label>
-                                <select class="form-select" id="recordActionType" required>
+                                <label class="form-label" style="font-size: 14px; color: #5f6368; font-weight: 500;">Action Type</label>
+                                <select class="form-select" id="recordActionType" required style="border-radius: 8px; border: 1px solid #dadce0;">
                                     <option value="">Select Action</option>
                                     <?php foreach ($action_types as $type): ?>
                                         <option value="<?php echo htmlspecialchars($type['action_type']); ?>"><?php echo htmlspecialchars($type['action_name']); ?></option>
@@ -1329,8 +1350,8 @@ try {
                         </div>
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">Severity</label>
-                                <select class="form-select" id="recordSeverity" required>
+                                <label class="form-label" style="font-size: 14px; color: #5f6368; font-weight: 500;">Severity</label>
+                                <select class="form-select" id="recordSeverity" required style="border-radius: 8px; border: 1px solid #dadce0;">
                                     <option value="minor">Minor</option>
                                     <option value="moderate">Moderate</option>
                                     <option value="severe">Severe</option>
@@ -1338,61 +1359,61 @@ try {
                                 </select>
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">Incident Date</label>
-                                <input type="date" class="form-control" id="recordIncidentDate" required>
+                                <label class="form-label" style="font-size: 14px; color: #5f6368; font-weight: 500;">Incident Date</label>
+                                <input type="date" class="form-control" id="recordIncidentDate" required style="border-radius: 8px; border: 1px solid #dadce0;">
                             </div>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Title</label>
-                            <input type="text" class="form-control" id="recordTitle" required>
+                            <label class="form-label" style="font-size: 14px; color: #5f6368; font-weight: 500;">Title</label>
+                            <input type="text" class="form-control" id="recordTitle" required style="border-radius: 8px; border: 1px solid #dadce0;">
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Description</label>
-                            <textarea class="form-control" id="recordDescription" rows="3"></textarea>
+                            <label class="form-label" style="font-size: 14px; color: #5f6368; font-weight: 500;">Description</label>
+                            <textarea class="form-control" id="recordDescription" rows="3" style="border-radius: 8px; border: 1px solid #dadce0;"></textarea>
                         </div>
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">Action Date</label>
-                                <input type="date" class="form-control" id="recordActionDate" required>
+                                <label class="form-label" style="font-size: 14px; color: #5f6368; font-weight: 500;">Action Date</label>
+                                <input type="date" class="form-control" id="recordActionDate" required style="border-radius: 8px; border: 1px solid #dadce0;">
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">End Date (for suspensions)</label>
-                                <input type="date" class="form-control" id="recordEndDate">
+                                <label class="form-label" style="font-size: 14px; color: #5f6368; font-weight: 500;">End Date (for suspensions)</label>
+                                <input type="date" class="form-control" id="recordEndDate" style="border-radius: 8px; border: 1px solid #dadce0;">
                             </div>
                         </div>
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">Reported By</label>
-                                <input type="text" class="form-control" id="recordReportedBy" required>
+                                <label class="form-label" style="font-size: 14px; color: #5f6368; font-weight: 500;">Reported By</label>
+                                <input type="text" class="form-control" id="recordReportedBy" required style="border-radius: 8px; border: 1px solid #dadce0;">
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">Handled By</label>
-                                <input type="text" class="form-control" id="recordHandledBy" required>
+                                <label class="form-label" style="font-size: 14px; color: #5f6368; font-weight: 500;">Handled By</label>
+                                <input type="text" class="form-control" id="recordHandledBy" required style="border-radius: 8px; border: 1px solid #dadce0;">
                             </div>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Notes</label>
-                            <textarea class="form-control" id="recordNotes" rows="2"></textarea>
+                            <label class="form-label" style="font-size: 14px; color: #5f6368; font-weight: 500;">Notes</label>
+                            <textarea class="form-control" id="recordNotes" rows="2" style="border-radius: 8px; border: 1px solid #dadce0;"></textarea>
                         </div>
                     </form>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary" onclick="addRecord()">Add Record</button>
+                <div class="modal-footer" style="border: none; padding: 0 32px 32px 32px;">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="background: transparent; color: #5f6368; border: none; border-radius: 25px; padding: 10px 24px; font-size: 14px; font-weight: 500; letter-spacing: 0.25px; text-transform: uppercase;">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="addRecord()" style="background: #FF6B35; color: white; border: none; border-radius: 25px; padding: 10px 24px; font-size: 14px; font-weight: 500; letter-spacing: 0.25px; text-transform: uppercase;">Add Record</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- View Record Modal -->
-    <div class="modal fade" id="viewRecordModal" tabindex="-1">
+    <!-- View Record Modal - Google Material Design Style -->
+    <div class="modal fade" id="viewRecordModal" tabindex="-1" style="backdrop-filter: blur(2px);">
         <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">View Disciplinary Record</h5>
+            <div class="modal-content" style="border: none; border-radius: 24px; box-shadow: 0 24px 38px 3px rgba(0,0,0,0.14), 0 9px 46px 8px rgba(0,0,0,0.12);">
+                <div class="modal-header" style="border: none; padding: 24px 32px 0 32px;">
+                    <h5 class="modal-title" style="font-size: 22px; font-weight: 400; color: #202124;">View Disciplinary Record</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="modal-body">
+                <div class="modal-body" style="padding: 24px 32px;">
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Student Name</label>
@@ -1466,22 +1487,22 @@ try {
                         <div id="viewNotes" class="form-control-plaintext"></div>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <div class="modal-footer" style="border: none; padding: 0 32px 32px 32px;">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="background: transparent; color: #5f6368; border: none; border-radius: 25px; padding: 10px 24px; font-size: 14px; font-weight: 500; letter-spacing: 0.25px; text-transform: uppercase;">Close</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Edit Record Modal -->
-    <div class="modal fade" id="editRecordModal" tabindex="-1">
+    <!-- Edit Record Modal - Google Material Design Style -->
+    <div class="modal fade" id="editRecordModal" tabindex="-1" style="backdrop-filter: blur(2px);">
         <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Edit Disciplinary Record</h5>
+            <div class="modal-content" style="border: none; border-radius: 24px; box-shadow: 0 24px 38px 3px rgba(0,0,0,0.14), 0 9px 46px 8px rgba(0,0,0,0.12);">
+                <div class="modal-header" style="border: none; padding: 24px 32px 0 32px;">
+                    <h5 class="modal-title" style="font-size: 22px; font-weight: 400; color: #202124;">Edit Disciplinary Record</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="modal-body">
+                <div class="modal-body" style="padding: 24px 32px;">
                     <form id="editRecordForm">
                         <input type="hidden" id="editRecordId">
                         <div class="row">
@@ -1566,9 +1587,9 @@ try {
                         </div>
                     </form>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary" onclick="updateRecord()">Update Record</button>
+                <div class="modal-footer" style="border: none; padding: 0 32px 32px 32px;">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="background: transparent; color: #5f6368; border: none; border-radius: 25px; padding: 10px 24px; font-size: 14px; font-weight: 500; letter-spacing: 0.25px; text-transform: uppercase;">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="updateRecord()" style="background: #FF6B35; color: white; border: none; border-radius: 25px; padding: 10px 24px; font-size: 14px; font-weight: 500; letter-spacing: 0.25px; text-transform: uppercase;">Update Record</button>
                 </div>
             </div>
         </div>

@@ -6,24 +6,14 @@
 
 header('Content-Type: application/json');
 require_once __DIR__ . '/../../config.php';
+require_once __DIR__ . '/../../config/mpesa_config.php';
 
 // Debug logging
 error_log("B2C callback called at " . date('Y-m-d H:i:s'));
 error_log("POST data: " . file_get_contents('php://input'));
 
-// Load M-Pesa configuration for callback authentication
-$mpesa_config = require __DIR__ . '/../config/mpesa_config.php';
-
-// Optional: Validate callback API key for additional security
-$callback_api_key = $mpesa_config['callback_api_key'] ?? '';
-if ($callback_api_key !== '' && $callback_api_key !== 'your_secure_api_key_here') {
-    $provided_key = $_SERVER['HTTP_X_API_KEY'] ?? $_GET['api_key'] ?? '';
-    if ($provided_key !== $callback_api_key) {
-        http_response_code(401);
-        echo json_encode(['ResponseCode' => '1', 'ResponseDescription' => 'Unauthorized']);
-        exit;
-    }
-}
+// Note: Safaricom doesn't send API keys, so callback authentication is not implemented
+// If needed, implement IP whitelisting or other security measures
 
 function getB2CResultParameter(array $result, string $key): ?string
 {
@@ -111,12 +101,12 @@ try {
         $pdo->commit();
         file_put_contents('b2c_callback.log', date('Y-m-d H:i:s') . " - B2C Result withdrawal not found. ConversationID: $conversationId, OriginatorConversationID: $originatorConversationId\n", FILE_APPEND);
     } elseif ((string) $resultCode === '0') {
-        if ($withdrawal['status'] !== 'success' && empty($withdrawal['balance_deducted_at'])) {
+        if ($withdrawal['status'] !== 'completed' && empty($withdrawal['balance_deducted_at'])) {
             $stmt = $pdo->prepare("UPDATE school_balances SET balance = balance - ?, updated_at = CURRENT_TIMESTAMP WHERE school_id = ?");
             $stmt->execute([(float) $withdrawal['amount'], $withdrawal['school_id']]);
         }
 
-        $stmt = $pdo->prepare("UPDATE school_withdrawals SET status = 'success', result_code = ?, result_desc = ?, mpesa_receipt_number = ?, success_at = COALESCE(success_at, NOW()), balance_deducted_at = COALESCE(balance_deducted_at, NOW()), callback_payload = ? WHERE id = ?");
+        $stmt = $pdo->prepare("UPDATE school_withdrawals SET status = 'completed', result_code = ?, result_desc = ?, mpesa_receipt_number = ?, success_at = COALESCE(success_at, NOW()), balance_deducted_at = COALESCE(balance_deducted_at, NOW()), callback_payload = ? WHERE id = ?");
         $stmt->execute([
             (string) $resultCode,
             $resultDesc ?: 'B2C payment completed successfully.',

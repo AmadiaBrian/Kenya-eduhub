@@ -111,6 +111,37 @@ try {
 } catch (PDOException $e) {
     error_log("Failed to fetch popular books: " . $e->getMessage());
 }
+
+// Get inventory statistics
+$inventory_stats = [];
+try {
+    // Books by category
+    $stmt = $pdo->prepare("SELECT category, COUNT(*) as count FROM books WHERE school_id = ? GROUP BY category ORDER BY count DESC");
+    $stmt->execute([$school_id]);
+    $inventory_stats['by_category'] = $stmt->fetchAll();
+    
+    // Books by condition
+    $stmt = $pdo->prepare("SELECT `condition`, COUNT(*) as count FROM books WHERE school_id = ? GROUP BY `condition` ORDER BY count DESC");
+    $stmt->execute([$school_id]);
+    $inventory_stats['by_condition'] = $stmt->fetchAll();
+    
+    // Books by status
+    $stmt = $pdo->prepare("SELECT status, COUNT(*) as count FROM books WHERE school_id = ? GROUP BY status ORDER BY count DESC");
+    $stmt->execute([$school_id]);
+    $inventory_stats['by_status'] = $stmt->fetchAll();
+} catch (PDOException $e) {
+    error_log("Failed to fetch inventory statistics: " . $e->getMessage());
+}
+
+// Get categories for filtering
+$categories = [];
+try {
+    $stmt = $pdo->prepare("SELECT * FROM book_categories WHERE status = 'active' ORDER BY category_name ASC");
+    $stmt->execute();
+    $categories = $stmt->fetchAll();
+} catch (PDOException $e) {
+    error_log("Failed to fetch categories: " . $e->getMessage());
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -120,6 +151,7 @@ try {
     <title>Reports - <?php echo htmlspecialchars($librarian_name); ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
             --primary-color: #FF6B35;
@@ -169,7 +201,7 @@ try {
             border: none;
             cursor: pointer;
             padding: 12px;
-            border-radius: 50%;
+            border-radius: 25px;
             color: #5f6368;
             transition: background 0.2s;
         }
@@ -215,7 +247,7 @@ try {
             border: none;
             cursor: pointer;
             padding: 8px;
-            border-radius: 50%;
+            border-radius: 25px;
             color: #5f6368;
             transition: background 0.2s;
         }
@@ -398,7 +430,7 @@ try {
         .btn {
             padding: 8px 16px;
             border: none;
-            border-radius: 4px;
+            border-radius: 25px;
             cursor: pointer;
             font-size: 14px;
             font-weight: 500;
@@ -424,7 +456,7 @@ try {
             width: 100%;
             padding: 8px 12px;
             border: 1px solid #e8eaed;
-            border-radius: 8px;
+            border-radius: 25px;
             font-size: 14px;
         }
         
@@ -661,6 +693,37 @@ try {
             </div>
         </div>
         
+        <!-- Charts Section -->
+        <div class="row" style="margin-bottom: 24px;">
+            <div class="col-md-6">
+                <div class="card">
+                    <h2 class="card-title">Circulation Statistics</h2>
+                    <canvas id="circulationChart" style="max-height: 300px;"></canvas>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <h2 class="card-title">Borrower Distribution</h2>
+                    <canvas id="borrowerChart" style="max-height: 300px;"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row" style="margin-bottom: 24px;">
+            <div class="col-md-6">
+                <div class="card">
+                    <h2 class="card-title">Books by Category</h2>
+                    <canvas id="categoryChart" style="max-height: 300px;"></canvas>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <h2 class="card-title">Books by Condition</h2>
+                    <canvas id="conditionChart" style="max-height: 300px;"></canvas>
+                </div>
+            </div>
+        </div>
+        
         <!-- Popular Books -->
         <div class="card">
             <h2 class="card-title">Popular Books</h2>
@@ -689,6 +752,97 @@ try {
                         <?php endif; ?>
                     </tbody>
                 </table>
+            </div>
+        </div>
+        
+        <!-- Inventory Reports -->
+        <div class="card">
+            <h2 class="card-title">Inventory Reports</h2>
+            
+            <div class="row">
+                <div class="col-md-4">
+                    <h3 style="font-size: 16px; margin-bottom: 12px;">Books by Category</h3>
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Category</th>
+                                    <th>Count</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php if (empty($inventory_stats['by_category'])): ?>
+                                    <tr>
+                                        <td colspan="2" class="text-center">No data</td>
+                                    </tr>
+                                <?php else: ?>
+                                    <?php foreach ($inventory_stats['by_category'] as $stat): ?>
+                                        <tr>
+                                            <td><?php echo htmlspecialchars($stat['category'] ?? 'Uncategorized'); ?></td>
+                                            <td><?php echo $stat['count']; ?></td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <h3 style="font-size: 16px; margin-bottom: 12px;">Books by Condition</h3>
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Condition</th>
+                                    <th>Count</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php if (empty($inventory_stats['by_condition'])): ?>
+                                    <tr>
+                                        <td colspan="2" class="text-center">No data</td>
+                                    </tr>
+                                <?php else: ?>
+                                    <?php foreach ($inventory_stats['by_condition'] as $stat): ?>
+                                        <tr>
+                                            <td><?php echo ucfirst($stat['condition']); ?></td>
+                                            <td><?php echo $stat['count']; ?></td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <h3 style="font-size: 16px; margin-bottom: 12px;">Books by Status</h3>
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Status</th>
+                                    <th>Count</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php if (empty($inventory_stats['by_status'])): ?>
+                                    <tr>
+                                        <td colspan="2" class="text-center">No data</td>
+                                    </tr>
+                                <?php else: ?>
+                                    <?php foreach ($inventory_stats['by_status'] as $stat): ?>
+                                        <tr>
+                                            <td><?php echo ucfirst($stat['status']); ?></td>
+                                            <td><?php echo $stat['count']; ?></td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
         
@@ -731,7 +885,12 @@ try {
                     </div>
                     <div class="col-md-2 mb-3">
                         <label class="form-label">&nbsp;</label>
-                        <button type="submit" class="btn btn-primary">Filter</button>
+                        <div style="display: flex; gap: 8px;">
+                            <button type="submit" class="btn btn-primary">Filter</button>
+                            <button type="button" class="btn btn-secondary" onclick="exportToCSV()">
+                                <i class="fas fa-download"></i> Export
+                            </button>
+                        </div>
                     </div>
                 </div>
             </form>
@@ -824,7 +983,7 @@ try {
         document.addEventListener('DOMContentLoaded', function() {
             const searchInput = document.getElementById('searchInput');
             if (searchInput) {
-                const table = document.querySelectorAll('.table')[1]; // Second table is borrowing history
+                const table = document.querySelectorAll('.table')[2]; // Third table is borrowing history
                 if (table) {
                     const tbody = table.querySelector('tbody');
                     const rows = tbody.querySelectorAll('tr');
@@ -849,6 +1008,194 @@ try {
                         });
                     });
                 }
+            }
+        });
+        
+        // Export to CSV Functionality
+        function exportToCSV() {
+            const table = document.querySelectorAll('.table')[2]; // Third table is borrowing history
+            if (!table) return;
+            
+            const rows = table.querySelectorAll('tr');
+            let csvContent = [];
+            
+            // Add headers
+            const headers = [];
+            table.querySelectorAll('th').forEach(th => {
+                headers.push(th.textContent.trim());
+            });
+            csvContent.push(headers.join(','));
+            
+            // Add data rows
+            table.querySelectorAll('tbody tr').forEach(row => {
+                const rowData = [];
+                row.querySelectorAll('td').forEach(td => {
+                    rowData.push(td.textContent.trim().replace(/,/g, ' '));
+                });
+                csvContent.push(rowData.join(','));
+            });
+            
+            // Create and download CSV
+            const csvString = csvContent.join('\n');
+            const blob = new Blob([csvString], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'library_reports_' + new Date().toISOString().split('T')[0] + '.csv';
+            a.click();
+            window.URL.revokeObjectURL(url);
+        }
+        
+        // Initialize Charts
+        document.addEventListener('DOMContentLoaded', function() {
+            // Circulation Statistics Chart
+            const circulationCtx = document.getElementById('circulationChart');
+            if (circulationCtx) {
+                new Chart(circulationCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Total Borrowings', 'Currently Borrowed', 'Returned', 'Overdue'],
+                        datasets: [{
+                            label: 'Count',
+                            data: [
+                                <?php echo $stats['total_borrowings']; ?>,
+                                <?php echo $stats['currently_borrowed']; ?>,
+                                <?php echo $stats['returned']; ?>,
+                                <?php echo $stats['overdue']; ?>
+                            ],
+                            backgroundColor: [
+                                '#FF6B35',
+                                '#008000',
+                                '#137333',
+                                '#c5221f'
+                            ],
+                            borderColor: [
+                                '#FF6B35',
+                                '#008000',
+                                '#137333',
+                                '#c5221f'
+                            ],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // Borrower Distribution Chart
+            const borrowerCtx = document.getElementById('borrowerChart');
+            if (borrowerCtx) {
+                new Chart(borrowerCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Student Borrowings', 'Teacher Borrowings'],
+                        datasets: [{
+                            data: [
+                                <?php echo $stats['student_borrowings']; ?>,
+                                <?php echo $stats['teacher_borrowings']; ?>
+                            ],
+                            backgroundColor: ['#FF6B35', '#008000'],
+                            borderColor: ['#FF6B35', '#008000'],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom'
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // Books by Category Chart
+            const categoryCtx = document.getElementById('categoryChart');
+            if (categoryCtx && <?php echo count($inventory_stats['by_category']); ?> > 0) {
+                const categoryLabels = <?php echo json_encode(array_column($inventory_stats['by_category'], 'category') ?? ['Uncategorized']); ?>;
+                const categoryData = <?php echo json_encode(array_column($inventory_stats['by_category'], 'count')); ?>;
+                
+                new Chart(categoryCtx, {
+                    type: 'pie',
+                    data: {
+                        labels: categoryLabels,
+                        datasets: [{
+                            data: categoryData,
+                            backgroundColor: [
+                                '#FF6B35', '#008000', '#137333', '#c5221f', '#FFD700',
+                                '#4285F4', '#EA4335', '#FBBC05', '#34A853', '#FF6D01'
+                            ],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom'
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // Books by Condition Chart
+            const conditionCtx = document.getElementById('conditionChart');
+            if (conditionCtx && <?php echo count($inventory_stats['by_condition']); ?> > 0) {
+                const conditionLabels = <?php echo json_encode(array_map('ucfirst', array_column($inventory_stats['by_condition'], 'condition'))); ?>;
+                const conditionData = <?php echo json_encode(array_column($inventory_stats['by_condition'], 'count')); ?>;
+                
+                new Chart(conditionCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: conditionLabels,
+                        datasets: [{
+                            label: 'Count',
+                            data: conditionData,
+                            backgroundColor: [
+                                '#137333', // new
+                                '#008000', // good
+                                '#FFD700', // fair
+                                '#FF6B35', // poor
+                                '#c5221f'  // damaged
+                            ],
+                            borderColor: [
+                                '#137333', '#008000', '#FFD700', '#FF6B35', '#c5221f'
+                            ],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
             }
         });
     </script>

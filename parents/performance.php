@@ -6,6 +6,35 @@ $parent_name = $_SESSION['parent_name'] ?? 'Parent';
 $school_id = $_SESSION['school_id'];
 $school_name = $_SESSION['school_name'] ?? '';
 
+// Load calendar helpers
+require_once __DIR__ . '/../includes/calendar_helpers.php';
+
+// Get calendar status to find active term
+$calendar_status = getSchoolCalendarStatus($pdo, $school_id);
+$active_term = $calendar_status['current_term']['term_name'] ?? null;
+
+// Get terms from database for current year
+$terms = [];
+try {
+    $current_year = date('Y');
+    $stmt = $pdo->prepare("SELECT term_name FROM terms WHERE school_id = ? AND year = ? ORDER BY term_number");
+    $stmt->execute([$school_id, $current_year]);
+    $term_records = $stmt->fetchAll();
+    foreach ($term_records as $term) {
+        $terms[] = $term['term_name'];
+    }
+} catch (PDOException $e) {
+    error_log("Failed to fetch terms: " . $e->getMessage());
+    $terms = ['Term 1', 'Term 2', 'Term 3'];
+}
+
+if (empty($terms)) {
+    $terms = ['Term 1', 'Term 2', 'Term 3'];
+}
+
+// Use active term if available, otherwise use first term
+$current_term = $active_term ?? ($terms[0] ?? 'Term 1');
+
 $selected_child_id = $_GET['child_id'] ?? null;
 $view_mode = $_GET['view'] ?? 'children'; // 'children' or 'class'
 
@@ -28,17 +57,18 @@ try {
     
     // Get performance data for all children (same logic as dashboard)
     $performance_data = [];
-    $current_term = 'Term 1';
     $current_year = date('Y');
     
     foreach ($children as $child) {
         error_log("Checking performance for child ID: " . $child['id']);
-        $stmt = $pdo->prepare("SELECT ap.*, (SELECT gs.points FROM grading_scales gs 
-                                            WHERE gs.school_id = ? 
+        $stmt = $pdo->prepare("SELECT ap.*, et.exam_type_name, et.exam_type_code,
+                                            (SELECT gs.points FROM grading_scales gs
+                                            WHERE gs.school_id = ?
                                             AND ap.marks BETWEEN gs.min_score AND gs.max_score
                                             AND UPPER(ap.grade) = UPPER(gs.grade_name)
                                             LIMIT 1) as grade_points
                                FROM academic_performance ap
+                               LEFT JOIN exam_types et ON ap.exam_type_id = et.id
                                WHERE ap.student_id = ? AND ap.term = ? AND ap.year = ?
                                ORDER BY ap.created_at DESC");
         $stmt->execute([$school_id, $child['id'], $current_term, $current_year]);
@@ -61,13 +91,15 @@ try {
     if ($view_mode === 'class' && !empty($children)) {
         $class_id = $children[0]['class_id'];
         if ($class_id) {
-            $stmt = $pdo->prepare("SELECT ap.*, s.first_name, s.last_name, (SELECT gs.points FROM grading_scales gs 
-                                            WHERE gs.school_id = ? 
+            $stmt = $pdo->prepare("SELECT ap.*, s.first_name, s.last_name, et.exam_type_name, et.exam_type_code,
+                                            (SELECT gs.points FROM grading_scales gs
+                                            WHERE gs.school_id = ?
                                             AND ap.marks BETWEEN gs.min_score AND gs.max_score
                                             AND UPPER(ap.grade) = UPPER(gs.grade_name)
                                             LIMIT 1) as grade_points
                                    FROM academic_performance ap
                                    JOIN students s ON ap.student_id = s.id
+                                   LEFT JOIN exam_types et ON ap.exam_type_id = et.id
                                    WHERE ap.student_id IN (SELECT id FROM students WHERE class_id = ?)
                                    ORDER BY ap.created_at DESC");
             $stmt->execute([$school_id, $class_id]);
@@ -325,58 +357,57 @@ try {
             width: 100%;
             border-collapse: collapse;
             background: white;
-            border: 1px solid #333;
-            margin: 0;
-            font-family: 'Georgia', 'Times New Roman', serif;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
         }
-        
+
+        .table th,
+        .table td {
+            padding: 12px 16px;
+            text-align: left;
+            border: 1px solid #000;
+            border-bottom: 1px solid #000;
+            border-right: 1px solid #000;
+        }
+
+        .table th {
+            background: #f0f0f0;
+            font-weight: 600;
+            color: #000;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-top: 2px solid #000;
+        }
+
+        .table th:last-child {
+            border-right: 2px solid #000;
+        }
+
+        .table td:last-child {
+            border-right: 2px solid #000;
+        }
+
+        .table tbody tr:last-child td {
+            border-bottom: 2px solid #000;
+        }
+
+        .table tbody tr:hover {
+            background: #f9f9f9;
+        }
+
         .table-responsive {
             width: 100%;
             overflow-x: auto;
         }
         
-        .table thead {
-            background: linear-gradient(to bottom, #f8f9fa, #e9ecef);
-            border-bottom: 2px solid #333;
-        }
-        
-        .table th {
-            text-align: center;
-            padding: 12px 10px;
-            font-size: 13px;
-            font-weight: 600;
-            color: #1a1a1a;
-            border: 1px solid #333;
-            text-transform: uppercase;
-            letter-spacing: 0.8px;
-            font-family: 'Georgia', 'Times New Roman', serif;
-        }
-        
-        .table td {
-            padding: 10px 8px;
-            font-size: 12px;
-            color: #2c2c2c;
-            border: 1px solid #ddd;
-            text-align: center;
-            font-family: 'Georgia', 'Times New Roman', serif;
-        }
-        
-        .table tbody tr:nth-child(even) {
-            background: #f8f9fa;
-        }
-        
-        .table tbody tr:hover {
-            background: #e9ecef;
-        }
-        
         /* PDF Document Container */
         .pdf-document {
-            background: white;
-            border: 1px solid #333;
+            background: var(--bg-color);
+            border: none;
             padding: 30px;
             margin-bottom: 25px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
-            border-radius: 4px;
+            box-shadow: none;
+            border-radius: 0;
         }
         
         .pdf-header {
@@ -614,6 +645,12 @@ try {
             <a class="nav-link" href="attendance">
                 <i class="fas fa-calendar-check"></i> Attendance
             </a>
+            <a class="nav-link" href="assignments">
+                <i class="fas fa-tasks"></i> Assignments
+            </a>
+            <a class="nav-link" href="fines">
+                <i class="fas fa-book"></i> Library Fines
+            </a>
             <a class="nav-link" href="fees">
                 <i class="fas fa-money-bill-wave"></i> Fee Payments
             </a>
@@ -742,6 +779,7 @@ try {
                                                     <thead>
                                                         <tr>
                                                             <th>Subject</th>
+                                                            <th>Exam Type</th>
                                                             <th>Marks</th>
                                                             <th>Grade</th>
                                                             <th>Points</th>
@@ -753,11 +791,12 @@ try {
                                                         <?php foreach ($records as $record): ?>
                                                             <tr>
                                                                 <td><?php echo htmlspecialchars($record['subject']); ?></td>
+                                                                <td><?php echo htmlspecialchars($record['exam_type_name'] ?? '-'); ?></td>
                                                                 <td><?php echo number_format($record['marks'], 2); ?></td>
                                                                 <td>
-                                                                    <span class="grade-badge <?php 
+                                                                    <span class="grade-badge <?php
                                                                         $grade = strtoupper($record['grade']);
-                                                                        echo 'grade-' . strtolower($grade); 
+                                                                        echo 'grade-' . strtolower($grade);
                                                                     ?>">
                                                                         <?php echo htmlspecialchars($grade); ?>
                                                                     </span>
@@ -780,6 +819,7 @@ try {
                                     <thead>
                                         <tr>
                                             <th>Subject</th>
+                                            <th>Exam Type</th>
                                             <th>Marks</th>
                                             <th>Grade</th>
                                             <th>Points</th>
@@ -791,11 +831,12 @@ try {
                                         <?php foreach ($data['performance'] as $record): ?>
                                             <tr>
                                                 <td><?php echo htmlspecialchars($record['subject']); ?></td>
+                                                <td><?php echo htmlspecialchars($record['exam_type_name'] ?? '-'); ?></td>
                                                 <td><?php echo number_format($record['marks'], 2); ?></td>
                                                 <td>
-                                                    <span class="grade-badge <?php 
+                                                    <span class="grade-badge <?php
                                                         $grade = strtoupper($record['grade']);
-                                                        echo 'grade-' . strtolower($grade); 
+                                                        echo 'grade-' . strtolower($grade);
                                                     ?>">
                                                         <?php echo htmlspecialchars($grade); ?>
                                                     </span>
@@ -866,6 +907,7 @@ try {
                                                     <tr>
                                                         <th>Student</th>
                                                         <th>Subject</th>
+                                                        <th>Exam Type</th>
                                                         <th>Marks</th>
                                                         <th>Grade</th>
                                                         <th>Points</th>
@@ -878,11 +920,12 @@ try {
                                                         <tr>
                                                             <td><?php echo htmlspecialchars($record['first_name'] . ' ' . $record['last_name']); ?></td>
                                                             <td><?php echo htmlspecialchars($record['subject']); ?></td>
+                                                            <td><?php echo htmlspecialchars($record['exam_type_name'] ?? '-'); ?></td>
                                                             <td><?php echo number_format($record['marks'], 2); ?></td>
                                                             <td>
-                                                                <span class="grade-badge <?php 
+                                                                <span class="grade-badge <?php
                                                                     $grade = strtoupper($record['grade']);
-                                                                    echo 'grade-' . strtolower($grade); 
+                                                                    echo 'grade-' . strtolower($grade);
                                                                 ?>">
                                                                     <?php echo htmlspecialchars($grade); ?>
                                                                 </span>
@@ -906,6 +949,7 @@ try {
                                     <tr>
                                         <th>Student</th>
                                         <th>Subject</th>
+                                        <th>Exam Type</th>
                                         <th>Marks</th>
                                         <th>Grade</th>
                                         <th>Points</th>
@@ -918,11 +962,12 @@ try {
                                         <tr>
                                             <td><?php echo htmlspecialchars($record['first_name'] . ' ' . $record['last_name']); ?></td>
                                             <td><?php echo htmlspecialchars($record['subject']); ?></td>
+                                            <td><?php echo htmlspecialchars($record['exam_type_name'] ?? '-'); ?></td>
                                             <td><?php echo number_format($record['marks'], 2); ?></td>
                                             <td>
-                                                <span class="grade-badge <?php 
+                                                <span class="grade-badge <?php
                                                     $grade = strtoupper($record['grade']);
-                                                    echo 'grade-' . strtolower($grade); 
+                                                    echo 'grade-' . strtolower($grade);
                                                 ?>">
                                                     <?php echo htmlspecialchars($grade); ?>
                                                 </span>

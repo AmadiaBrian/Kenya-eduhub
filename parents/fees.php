@@ -6,6 +6,15 @@ $parent_name = $_SESSION['parent_name'] ?? 'Parent';
 $school_id = $_SESSION['school_id'];
 $school_name = $_SESSION['school_name'] ?? '';
 
+// Load calendar helpers
+require_once __DIR__ . '/../includes/calendar_helpers.php';
+
+// Get calendar status
+$calendar_status = getSchoolCalendarStatus($pdo, $school_id);
+
+// Get active term from calendar status
+$active_term = $calendar_status['current_term']['term_name'] ?? null;
+
 $selected_child_id = $_GET['child_id'] ?? null;
 
 // Get children of this parent
@@ -36,7 +45,25 @@ try {
         if ($selected_child) {
             $class_id = $selected_child['class_id'];
             $current_year = date('Y');
-            $terms = ['Term 1', 'Term 2', 'Term 3'];
+            
+            // Get terms from database for current year
+            $terms = [];
+            try {
+                $stmt = $pdo->prepare("SELECT term_name FROM terms WHERE school_id = ? AND year = ? ORDER BY term_number");
+                $stmt->execute([$school_id, $current_year]);
+                $term_records = $stmt->fetchAll();
+                foreach ($term_records as $term) {
+                    $terms[] = $term['term_name'];
+                }
+            } catch (PDOException $e) {
+                error_log("Failed to fetch terms: " . $e->getMessage());
+                // Fallback to default terms if query fails
+                $terms = ['Term 1', 'Term 2', 'Term 3'];
+            }
+            
+            if (empty($terms)) {
+                $terms = ['Term 1', 'Term 2', 'Term 3'];
+            }
             
             // Get fee structure for all terms in current year (all fee types)
             $fee_structures = [];
@@ -586,8 +613,14 @@ try {
             <a class="nav-link" href="attendance">
                 <i class="fas fa-calendar-check"></i> Attendance
             </a>
+            <a class="nav-link" href="calendar">
+                <i class="fas fa-calendar"></i> Calendar
+            </a>
             <a class="nav-link" href="assignments">
                 <i class="fas fa-tasks"></i> Assignments
+            </a>
+            <a class="nav-link" href="fines">
+                <i class="fas fa-book"></i> Library Fines
             </a>
             <a class="nav-link active" href="fees">
                 <i class="fas fa-money-bill-wave"></i> Fee Payments
@@ -610,6 +643,53 @@ try {
         <p class="page-subtitle">
             View fee payment history and balance
         </p>
+        
+        <!-- Calendar Status -->
+        <div style="margin-bottom: 24px;">
+            <?php if ($calendar_status['is_holiday']): ?>
+                <div style="background: #fce8e6; border: 1px solid #c5221f; padding: 16px; border-radius: 8px;">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <i class="fas fa-exclamation-triangle" style="color: #c5221f; font-size: 20px;"></i>
+                        <div>
+                            <strong style="color: #c5221f;">School is on Holiday</strong>
+                            <p style="margin: 4px 0 0 0; color: #5f6368; font-size: 14px;">
+                                <?php echo htmlspecialchars($calendar_status['current_holiday']['holiday_name']); ?> 
+                                (<?php echo date('M j, Y', strtotime($calendar_status['current_holiday']['start_date'])); ?> - 
+                                <?php echo date('M j, Y', strtotime($calendar_status['current_holiday']['end_date'])); ?>)
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            <?php elseif ($calendar_status['school_status'] === 'break'): ?>
+                <div style="background: #fef7e0; border: 1px solid #f9ab00; padding: 16px; border-radius: 8px;">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <i class="fas fa-info-circle" style="color: #f9ab00; font-size: 20px;"></i>
+                        <div>
+                            <strong style="color: #b06000;">School is on Break</strong>
+                            <p style="margin: 4px 0 0 0; color: #5f6368; font-size: 14px;">No active term is currently set.</p>
+                        </div>
+                    </div>
+                </div>
+            <?php else: ?>
+                <div style="background: #e6f4ea; border: 1px solid #137333; padding: 16px; border-radius: 8px;">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <i class="fas fa-check-circle" style="color: #137333; font-size: 20px;"></i>
+                        <div>
+                            <strong style="color: #137333;">School is In Session</strong>
+                            <p style="margin: 4px 0 0 0; color: #5f6368; font-size: 14px;">
+                                <?php if ($calendar_status['current_term']): ?>
+                                    Active Term: <?php echo htmlspecialchars($calendar_status['current_term']['term_name']); ?> 
+                                    (<?php echo date('M j, Y', strtotime($calendar_status['current_term']['start_date'])); ?> - 
+                                    <?php echo date('M j, Y', strtotime($calendar_status['current_term']['end_date'])); ?>)
+                                <?php else: ?>
+                                    Year: <?php echo $calendar_status['current_year']; ?>
+                                <?php endif; ?>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            <?php endif; ?>
+        </div>
         
         <div class="card">
             <h2 class="card-title">Select Child</h2>
@@ -698,9 +778,9 @@ try {
                     <div class="filter-group">
                         <label for="payment_term">Term</label>
                         <select class="form-control" id="payment_term" name="term" onchange="updatePaymentAmount()">
-                            <option value="Term 1">Term 1</option>
-                            <option value="Term 2">Term 2</option>
-                            <option value="Term 3">Term 3</option>
+                            <?php foreach($terms as $term): ?>
+                                <option value="<?php echo htmlspecialchars($term); ?>" <?php echo $active_term === $term ? 'selected' : ''; ?>><?php echo htmlspecialchars($term); ?></option>
+                            <?php endforeach; ?>
                         </select>
                     </div>
                     <div class="filter-group">
@@ -1038,7 +1118,7 @@ try {
             }
         }
 
-        // Payment Modal Functions - Google Console Dashboard Style
+        // Payment Modal Functions - Google Material Design Style
         function showPaymentModal(title, message, type = 'info') {
             const modal = document.createElement('div');
             modal.id = 'paymentModal';
@@ -1049,6 +1129,7 @@ try {
                 width: 100%;
                 height: 100%;
                 background: rgba(0,0,0,0.4);
+                backdrop-filter: blur(2px);
                 display: flex;
                 align-items: center;
                 justify-content: center;
@@ -1059,48 +1140,35 @@ try {
             const modalContent = document.createElement('div');
             modalContent.style.cssText = `
                 background: #ffffff;
-                padding: 24px;
-                border-radius: 8px;
-                max-width: 448px;
+                padding: 32px;
+                border-radius: 24px;
+                max-width: 400px;
                 width: 90%;
-                text-align: left;
-                box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+                text-align: center;
+                box-shadow: 0 24px 38px 3px rgba(0,0,0,0.14), 0 9px 46px 8px rgba(0,0,0,0.12);
                 animation: modalSlideIn 0.3s ease-out;
+                border: none;
             `;
             
             let icon = '';
-            let iconColor = '';
-            let headerColor = '';
             
             if (type === 'success') {
-                icon = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" fill="#34A853"/><path d="M8 12L11 15L16 9" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-                iconColor = '#34A853';
-                headerColor = '#202124';
+                icon = '<svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" fill="#34A853"/><path d="M8 12L11 15L16 9" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
             } else if (type === 'error') {
-                icon = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" fill="#EA4335"/><path d="M15 9L9 15M9 9L15 15" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-                iconColor = '#EA4335';
-                headerColor = '#202124';
+                icon = '<svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" fill="#EA4335"/><path d="M15 9L9 15M9 9L15 15" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
             } else if (type === 'loading') {
-                icon = '<svg class="loading-spinner" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" stroke="#1a73e8" stroke-width="2" stroke-linecap="round" stroke-dasharray="31.4 31.4"><animateTransform attributeName="transform" type="rotate" from="0 12 12" to="360 12 12" dur="1s" repeatCount="indefinite"/></circle></svg>';
-                iconColor = '#1a73e8';
-                headerColor = '#202124';
+                icon = '<svg class="loading-spinner" width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" stroke="#1a73e8" stroke-width="2" stroke-linecap="round" stroke-dasharray="31.4 31.4"><animateTransform attributeName="transform" type="rotate" from="0 12 12" to="360 12 12" dur="1s" repeatCount="indefinite"/></circle></svg>';
             } else {
-                icon = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" fill="#1a73e8"/><path d="M12 16V12M12 8H12.01" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-                iconColor = '#1a73e8';
-                headerColor = '#202124';
+                icon = '<svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" fill="#1a73e8"/><path d="M12 16V12M12 8H12.01" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
             }
             
             modalContent.innerHTML = `
-                <div style="display: flex; align-items: flex-start; margin-bottom: 16px;">
-                    <div style="margin-right: 16px; flex-shrink: 0;">${icon}</div>
-                    <div style="flex: 1;">
-                        <h2 style="margin: 0 0 8px 0; font-size: 20px; font-weight: 500; color: ${headerColor}; line-height: 28px;">${title}</h2>
-                        <p style="margin: 0; font-size: 14px; color: #5f6368; line-height: 20px;">${message}</p>
-                    </div>
-                </div>
+                <div style="margin-bottom: 20px;">${icon}</div>
+                <h2 style="margin: 0 0 12px 0; font-size: 22px; font-weight: 400; color: #202124; line-height: 28px;">${title}</h2>
+                <p style="margin: 0; font-size: 14px; color: #5f6368; line-height: 20px;">${message}</p>
                 ${type !== 'loading' ? `
-                    <div style="display: flex; justify-content: flex-end; margin-top: 16px; padding-top: 16px; border-top: 1px solid #e0e0e0;">
-                        <button onclick="closePaymentModal()" style="padding: 8px 16px; background: #1a73e8; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; font-weight: 500; letter-spacing: 0.25px; text-transform: uppercase; transition: background 0.2s;">Close</button>
+                    <div style="display: flex; justify-content: flex-end; margin-top: 24px; padding-top: 24px; border-top: none;">
+                        <button onclick="closePaymentModal()" style="padding: 10px 24px; background: #1a73e8; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; font-weight: 500; letter-spacing: 0.25px; text-transform: uppercase; transition: background 0.2s;">Close</button>
                     </div>
                 ` : ''}
             `;
@@ -1147,38 +1215,24 @@ try {
                 const modalContent = modal.querySelector('div');
                 
                 let icon = '';
-                let iconColor = '';
-                let headerColor = '';
                 
                 if (type === 'success') {
-                    icon = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" fill="#34A853"/><path d="M8 12L11 15L16 9" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-                    iconColor = '#34A853';
-                    headerColor = '#202124';
+                    icon = '<svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" fill="#34A853"/><path d="M8 12L11 15L16 9" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
                 } else if (type === 'error') {
-                    icon = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" fill="#EA4335"/><path d="M15 9L9 15M9 9L15 15" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-                    iconColor = '#EA4335';
-                    headerColor = '#202124';
+                    icon = '<svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" fill="#EA4335"/><path d="M15 9L9 15M9 9L15 15" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
                 } else if (type === 'loading') {
-                    icon = '<svg class="loading-spinner" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" stroke="#1a73e8" stroke-width="2" stroke-linecap="round" stroke-dasharray="31.4 31.4"><animateTransform attributeName="transform" type="rotate" from="0 12 12" to="360 12 12" dur="1s" repeatCount="indefinite"/></circle></svg>';
-                    iconColor = '#1a73e8';
-                    headerColor = '#202124';
+                    icon = '<svg class="loading-spinner" width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" stroke="#1a73e8" stroke-width="2" stroke-linecap="round" stroke-dasharray="31.4 31.4"><animateTransform attributeName="transform" type="rotate" from="0 12 12" to="360 12 12" dur="1s" repeatCount="indefinite"/></circle></svg>';
                 } else {
-                    icon = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" fill="#1a73e8"/><path d="M12 16V12M12 8H12.01" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-                    iconColor = '#1a73e8';
-                    headerColor = '#202124';
+                    icon = '<svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" fill="#1a73e8"/><path d="M12 16V12M12 8H12.01" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
                 }
                 
                 modalContent.innerHTML = `
-                    <div style="display: flex; align-items: flex-start; margin-bottom: 16px;">
-                        <div style="margin-right: 16px; flex-shrink: 0;">${icon}</div>
-                        <div style="flex: 1;">
-                            <h2 style="margin: 0 0 8px 0; font-size: 20px; font-weight: 500; color: ${headerColor}; line-height: 28px;">${title}</h2>
-                            <p style="margin: 0; font-size: 14px; color: #5f6368; line-height: 20px;">${message}</p>
-                        </div>
-                    </div>
+                    <div style="margin-bottom: 20px;">${icon}</div>
+                    <h2 style="margin: 0 0 12px 0; font-size: 22px; font-weight: 400; color: #202124; line-height: 28px;">${title}</h2>
+                    <p style="margin: 0; font-size: 14px; color: #5f6368; line-height: 20px;">${message}</p>
                     ${type !== 'loading' ? `
-                        <div style="display: flex; justify-content: flex-end; margin-top: 16px; padding-top: 16px; border-top: 1px solid #e0e0e0;">
-                            <button onclick="closePaymentModal()" style="padding: 8px 16px; background: #1a73e8; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; font-weight: 500; letter-spacing: 0.25px; text-transform: uppercase; transition: background 0.2s;">Close</button>
+                        <div style="display: flex; justify-content: flex-end; margin-top: 24px; padding-top: 24px; border-top: none;">
+                            <button onclick="closePaymentModal()" style="padding: 10px 24px; background: #1a73e8; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; font-weight: 500; letter-spacing: 0.25px; text-transform: uppercase; transition: background 0.2s;">Close</button>
                         </div>
                     ` : ''}
                 `;

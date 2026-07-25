@@ -9,6 +9,37 @@ $stream_id = $_SESSION['stream_id'] ?? null;
 $class_name = $_SESSION['class_name'] ?? '';
 $stream_name = $_SESSION['stream_name'] ?? '';
 
+// Load calendar helpers
+require_once __DIR__ . '/../includes/calendar_helpers.php';
+
+// Get calendar status
+$calendar_status = getSchoolCalendarStatus($pdo, $school_id);
+
+// Get active term from calendar status
+$active_term = $calendar_status['current_term']['term_name'] ?? null;
+
+// Get terms from database for current year
+$terms = [];
+try {
+    $current_year = date('Y');
+    $stmt = $pdo->prepare("SELECT term_name FROM terms WHERE school_id = ? AND year = ? ORDER BY term_number");
+    $stmt->execute([$school_id, $current_year]);
+    $term_records = $stmt->fetchAll();
+    foreach ($term_records as $term) {
+        $terms[] = $term['term_name'];
+    }
+} catch (PDOException $e) {
+    error_log("Failed to fetch terms: " . $e->getMessage());
+    $terms = ['Term 1', 'Term 2', 'Term 3'];
+}
+
+if (empty($terms)) {
+    $terms = ['Term 1', 'Term 2', 'Term 3'];
+}
+
+// Use active term if available, otherwise use first term
+$current_term = $active_term ?? ($terms[0] ?? 'Term 1');
+
 $selected_student_id = $_GET['student_id'] ?? null;
 
 // Get teacher details
@@ -52,7 +83,6 @@ $stream_fee_summary = [];
 if ($class_id) {
     try {
         $current_year = date('Y');
-        $terms = ['Term 1', 'Term 2', 'Term 3'];
         
         // Get all students with their fee structures and payments
         $query = "SELECT s.id, s.admission_number, s.first_name, s.last_name, s.stream_id, st.stream_name,
@@ -141,7 +171,6 @@ if ($selected_student_id) {
         if ($selected_student) {
             $student_class_id = $selected_student['class_id'];
             $current_year = date('Y');
-            $terms = ['Term 1', 'Term 2', 'Term 3'];
             
             // Get fee structure for all terms in current year (all fee types)
             $fee_structures = [];
@@ -675,14 +704,20 @@ if ($selected_student_id) {
             <a class="nav-link" href="dashboard">
                 <i class="fas fa-home"></i> Dashboard
             </a>
-            <a class="nav-link" href="students">
-                <i class="fas fa-user-graduate"></i> Students
+            <a class="nav-link" href="timetable">
+                <i class="fas fa-calendar-alt"></i> Timetable
             </a>
             <a class="nav-link" href="attendance">
                 <i class="fas fa-calendar-check"></i> Attendance
             </a>
+            <a class="nav-link" href="calendar">
+                <i class="fas fa-calendar"></i> Calendar
+            </a>
             <a class="nav-link" href="performance">
                 <i class="fas fa-chart-line"></i> Performance
+            </a>
+            <a class="nav-link" href="students">
+                <i class="fas fa-user-graduate"></i> Students
             </a>
             <a class="nav-link" href="assignments">
                 <i class="fas fa-tasks"></i> Assignments

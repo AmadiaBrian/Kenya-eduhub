@@ -11,6 +11,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['return_book'])) {
     $borrowing_id = $_POST['borrowing_id'] ?? '';
     $return_date = $_POST['return_date'] ?? date('Y-m-d');
     $notes = trim($_POST['notes'] ?? '');
+    $book_condition = $_POST['book_condition'] ?? 'good'; // good, damaged, lost
     
     $errors = [];
     if (empty($borrowing_id)) $errors[] = 'Borrowing record is required';
@@ -21,7 +22,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['return_book'])) {
             $pdo->beginTransaction();
             
             // Get borrowing details
-            $stmt = $pdo->prepare("SELECT bb.*, b.available_copies FROM book_borrowings bb JOIN books b ON bb.book_id = b.id WHERE bb.id = ? AND bb.status = 'borrowed'");
+            $stmt = $pdo->prepare("SELECT bb.*, b.available_copies, b.total_copies, b.book_price FROM book_borrowings bb JOIN books b ON bb.book_id = b.id WHERE bb.id = ? AND bb.status = 'borrowed'");
             $stmt->execute([$borrowing_id]);
             $borrowing = $stmt->fetch();
             
@@ -29,14 +30,69 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['return_book'])) {
                 $errors[] = 'Borrowing record not found or already returned';
                 $pdo->rollBack();
             } else {
-                // Update borrowing record
-                $status = $borrowing['due_date'] < $return_date ? 'overdue' : 'returned';
-                $stmt = $pdo->prepare("UPDATE book_borrowings SET return_date = ?, status = ?, notes = ? WHERE id = ?");
-                $stmt->execute([$return_date, $status, $notes, $borrowing_id]);
+                // Check if book is overdue
+                $is_overdue = $borrowing['due_date'] < $return_date;
                 
-                // Update available copies
-                $stmt = $pdo->prepare("UPDATE books SET available_copies = available_copies + 1 WHERE id = ?");
-                $stmt->execute([$borrowing['book_id']]);
+                // Update borrowing record based on condition and overdue status
+                if (!$is_overdue && $book_condition === 'good') {
+                    // Not overdue and in good condition - simple return
+                    $status = 'returned';
+                    $stmt = $pdo->prepare("UPDATE book_borrowings SET return_date = ?, status = ?, notes = ?, book_condition = ? WHERE id = ?");
+                    $stmt->execute([$return_date, $status, $notes, $book_condition, $borrowing_id]);
+                    
+                    // Update available copies
+                    $stmt = $pdo->prepare("UPDATE books SET available_copies = available_copies + 1 WHERE id = ?");
+                    $stmt->execute([$borrowing['book_id']]);
+                } else if ($is_overdue && $book_condition === 'good') {
+                    // Overdue but in good condition - returned late, no fine
+                    $status = 'returned late';
+                    $stmt = $pdo->prepare("UPDATE book_borrowings SET return_date = ?, status = ?, notes = ?, book_condition = ? WHERE id = ?");
+                    $stmt->execute([$return_date, $status, $notes, $book_condition, $borrowing_id]);
+                    
+                    // Update available copies
+                    $stmt = $pdo->prepare("UPDATE books SET available_copies = available_copies + 1 WHERE id = ?");
+                    $stmt->execute([$borrowing['book_id']]);
+                } else {
+                    // Not in good condition (damaged or lost) - handle with fines
+                    $status = $is_overdue ? 'returned late' : 'returned';
+                    $stmt = $pdo->prepare("UPDATE book_borrowings SET return_date = ?, status = ?, notes = ?, book_condition = ? WHERE id = ?");
+                    $stmt->execute([$return_date, $status, $notes, $book_condition, $borrowing_id]);
+                    
+                    // Calculate fine based on condition and overdue status
+                    if ($book_condition === 'lost') {
+                        // Lost book: fine equals book price
+                        $fine_amount = $borrowing['book_price'] > 0 ? $borrowing['book_price'] : 2000;
+                    } else if ($book_condition === 'damaged') {
+                        // Damaged book: 25% of book price (quarter price)
+                        $fine_amount = $borrowing['book_price'] > 0 ? ($borrowing['book_price'] * 0.25) : 500;
+                    }
+                    
+                    // Check if fine already exists for this borrowing
+                    $stmt = $pdo->prepare("SELECT id FROM library_fines WHERE borrowing_id = ?");
+                    $stmt->execute([$borrowing_id]);
+                    $existing_fine = $stmt->fetch();
+                    
+                    if (!$existing_fine) {
+                        $stmt = $pdo->prepare("INSERT INTO library_fines (school_id, book_id, borrowing_id, user_id, user_type, amount, amount_paid, status, issue_date, due_date, fine_type) VALUES (?, ?, ?, ?, ?, ?, 0, 'unpaid', NOW(), DATE_ADD(NOW(), INTERVAL 30 DAY), ?)");
+                        $stmt->execute([$school_id, $borrowing['book_id'], $borrowing['id'], $borrowing['borrower_id'], $borrowing['borrower_type'], $fine_amount, $book_condition]);
+                        
+                        // Log the fine creation
+                        $stmt = $pdo->prepare("INSERT INTO book_history (book_id, school_id, action, user_id, user_type, details) VALUES (?, ?, 'fine_issued', ?, 'librarian', ?)");
+                        $stmt->execute([$borrowing['book_id'], $school_id, $librarian_id, "Fine issued: $fine_amount for $book_condition book: {$borrowing['title']}"]);
+                    }
+                    
+                    // Update available copies only if book is not lost
+                    if ($book_condition !== 'lost') {
+                        $stmt = $pdo->prepare("UPDATE books SET available_copies = available_copies + 1 WHERE id = ?");
+                        $stmt->execute([$borrowing['book_id']]);
+                    }
+                    
+                    // Update total copies if book is lost
+                    if ($book_condition === 'lost') {
+                        $stmt = $pdo->prepare("UPDATE books SET total_copies = total_copies - 1 WHERE id = ? AND total_copies > 0");
+                        $stmt->execute([$borrowing['book_id']]);
+                    }
+                }
                 
                 $pdo->commit();
                 $success = 'Book returned successfully!';
@@ -52,7 +108,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['return_book'])) {
 // Get current borrowings
 $current_borrowings = [];
 try {
-    $stmt = $pdo->prepare("SELECT bb.*, b.title, b.author, b.id as book_id,
+    $stmt = $pdo->prepare("SELECT bb.*, b.title, b.author, b.id as book_id, b.book_price,
                             CASE 
                                 WHEN bb.borrower_type = 'student' THEN CONCAT(s.first_name, ' ', s.last_name)
                                 WHEN bb.borrower_type = 'teacher' THEN CONCAT(t.first_name, ' ', t.last_name)
@@ -628,7 +684,7 @@ try {
                                         <?php endif; ?>
                                     </td>
                                     <td>
-                                        <button class="btn btn-sm btn-primary" onclick="showReturnModal(<?php echo $borrowing['id']; ?>, '<?php echo htmlspecialchars($borrowing['title']); ?>')">
+                                        <button class="btn btn-sm btn-primary" onclick="showReturnModal(<?php echo $borrowing['id']; ?>, '<?php echo htmlspecialchars($borrowing['title']); ?>', <?php echo $borrowing['book_price'] ?: 0; ?>)">
                                             Return
                                         </button>
                                     </td>
@@ -682,30 +738,43 @@ try {
         </div>
     </div>
     
-    <!-- Return Modal -->
-    <div class="modal fade" id="returnModal" tabindex="-1">
+    <!-- Return Modal - Google Material Design Style -->
+    <div class="modal fade" id="returnModal" tabindex="-1" style="backdrop-filter: blur(2px);">
         <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Return Book</h5>
+            <div class="modal-content" style="border: none; border-radius: 24px; box-shadow: 0 24px 38px 3px rgba(0,0,0,0.14), 0 9px 46px 8px rgba(0,0,0,0.12);">
+                <div class="modal-header" style="border: none; padding: 24px 32px 0 32px;">
+                    <h5 class="modal-title" style="font-size: 22px; font-weight: 400; color: #202124;">Return Book</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="modal-body">
+                <div class="modal-body" style="padding: 24px 32px;">
                     <form method="POST">
                         <input type="hidden" name="borrowing_id" id="borrowingId">
+                        <input type="hidden" id="bookPrice" value="0">
                         <div class="mb-3">
-                            <label class="form-label">Book</label>
-                            <input type="text" class="form-control" id="bookTitle" readonly>
+                            <label class="form-label" style="font-size: 14px; color: #5f6368; font-weight: 500;">Book</label>
+                            <input type="text" class="form-control" id="bookTitle" readonly style="border-radius: 8px; border: 1px solid #dadce0;">
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Return Date</label>
-                            <input type="date" class="form-control" name="return_date" value="<?php echo date('Y-m-d'); ?>">
+                            <label class="form-label" style="font-size: 14px; color: #5f6368; font-weight: 500;">Return Date</label>
+                            <input type="date" class="form-control" name="return_date" value="<?php echo date('Y-m-d'); ?>" style="border-radius: 8px; border: 1px solid #dadce0;">
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Notes</label>
-                            <textarea class="form-control" name="notes" rows="2"></textarea>
+                            <label class="form-label" style="font-size: 14px; color: #5f6368; font-weight: 500;">Book Condition *</label>
+                            <select class="form-control" name="book_condition" id="bookCondition" required style="border-radius: 8px; border: 1px solid #dadce0;" onchange="calculateFine()">
+                                <option value="good">Good - Book is in good condition</option>
+                                <option value="damaged">Damaged - Book needs repair (Fine: 25% of book price)</option>
+                                <option value="lost">Lost - Book is missing (Fine: Full book price)</option>
+                            </select>
                         </div>
-                        <button type="submit" name="return_book" class="btn btn-primary">
+                        <div class="mb-3">
+                            <label class="form-label" style="font-size: 14px; color: #5f6368; font-weight: 500;">Calculated Fine</label>
+                            <input type="text" class="form-control" id="calculatedFine" readonly style="border-radius: 8px; border: 1px solid #dadce0; background: #f5f5f5; font-weight: 500;">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label" style="font-size: 14px; color: #5f6368; font-weight: 500;">Notes</label>
+                            <textarea class="form-control" name="notes" rows="2" style="border-radius: 8px; border: 1px solid #dadce0;"></textarea>
+                        </div>
+                        <button type="submit" name="return_book" class="btn btn-primary" style="background: #FF6B35; color: white; border: none; border-radius: 25px; padding: 10px 24px; font-size: 14px; font-weight: 500; letter-spacing: 0.25px; text-transform: uppercase; width: 100%;">
                             <i class="fas fa-undo me-2"></i> Return Book
                         </button>
                     </form>
@@ -716,11 +785,32 @@ try {
     
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        function showReturnModal(borrowingId, bookTitle) {
+        function showReturnModal(borrowingId, bookTitle, bookPrice) {
             document.getElementById('borrowingId').value = borrowingId;
             document.getElementById('bookTitle').value = bookTitle;
+            document.getElementById('bookPrice').value = bookPrice || 0;
+            // Reset to good condition and calculate initial fine
+            document.getElementById('bookCondition').value = 'good';
+            calculateFine();
             const modal = new bootstrap.Modal(document.getElementById('returnModal'));
             modal.show();
+        }
+        
+        function calculateFine() {
+            const bookCondition = document.getElementById('bookCondition').value;
+            const bookPrice = parseFloat(document.getElementById('bookPrice').value) || 0;
+            let fineAmount = 0;
+            
+            if (bookCondition === 'good') {
+                fineAmount = 0;
+            } else if (bookCondition === 'damaged') {
+                fineAmount = bookPrice > 0 ? (bookPrice * 0.25) : 500;
+            } else if (bookCondition === 'lost') {
+                fineAmount = bookPrice > 0 ? bookPrice : 2000;
+            }
+            
+            // Display the calculated fine
+            document.getElementById('calculatedFine').value = fineAmount.toFixed(2);
         }
         
         function toggleSidebar() {

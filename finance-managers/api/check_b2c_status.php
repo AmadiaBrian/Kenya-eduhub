@@ -50,7 +50,7 @@ try {
     $responseStatus = 'pending';
     $errorMessage = '';
 
-    if ($status === 'success') {
+    if ($status === 'completed') {
         $responseStatus = 'success';
     } elseif ($status === 'failed') {
         $responseStatus = 'failed';

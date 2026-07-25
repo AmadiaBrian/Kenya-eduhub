@@ -1,14 +1,22 @@
 RewriteEngine On
-RewriteBase /Kenyaeduhub/finance-managers/
 
 # Disable directory listing
 Options -Indexes
 
-# Exclude api and b2c directories from routing (for direct API access)
-RewriteCond %{REQUEST_URI} ^/Kenyaeduhub/finance-managers/api/
-RewriteRule ^ - [L]
-RewriteCond %{REQUEST_URI} ^/Kenyaeduhub/finance-managers/b2c/
-RewriteRule ^ - [L]
+# Allow direct access to api directory
+RewriteRule ^api/ - [L]
+
+# Allow direct access to b2c directory
+RewriteRule ^b2c/ - [L]
+
+# Allow direct access to config directory
+RewriteRule ^config/ - [L]
+
+# Allow direct access to receipts directory
+RewriteRule ^receipts/ - [L]
+
+# Allow direct access to report_files directory
+RewriteRule ^report_files/ - [L]
 
 # Remove trailing slash from URLs
 RewriteCond %{REQUEST_FILENAME} !-d

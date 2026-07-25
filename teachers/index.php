@@ -17,7 +17,8 @@ $allowed_routes = [
     'parents',
     'performance',
     'students',
-    'assignments'
+    'assignments',
+    'timetable'
 ];
 
 // Validate route
@@ -29,10 +30,21 @@ if (!in_array($route, $allowed_routes)) {
 
 // Handle login route separately (no auth required)
 if ($route === 'login') {
-    // If already logged in, redirect to dashboard
-    if (isset($_SESSION['teacher_id'])) {
-        header('Location: dashboard');
-        exit;
+    // If already logged in with valid teacher session, redirect to dashboard
+    if (isset($_SESSION['teacher_id']) && isset($_SESSION['teacher_session_token'])) {
+        try {
+            $session_token = $_SESSION['teacher_session_token'];
+            $stmt = $pdo->prepare("SELECT * FROM teacher_sessions WHERE session_token = ? AND expires_at > NOW()");
+            $stmt->execute([$session_token]);
+            $session = $stmt->fetch();
+            
+            if ($session) {
+                header('Location: dashboard');
+                exit;
+            }
+        } catch (PDOException $e) {
+            // Invalid session, continue to login page
+        }
     }
 
     $error = '';
@@ -74,6 +86,7 @@ if ($route === 'login') {
                     $_SESSION['class_name'] = $teacher_login['class_name'];
                     $_SESSION['stream_name'] = $teacher_login['stream_name'];
                     $_SESSION['teacher_session_token'] = $session_token;
+                    $_SESSION['user_type'] = 'teacher';
 
                     header('Location: dashboard');
                     exit;
@@ -441,7 +454,27 @@ if ($route === 'logout') {
 }
 
 // Authentication check for all other routes
-if (!isset($_SESSION['teacher_id'])) {
+if (!isset($_SESSION['teacher_id']) || !isset($_SESSION['teacher_session_token'])) {
+    header('Location: login');
+    exit;
+}
+
+// Verify teacher session token is valid
+try {
+    $session_token = $_SESSION['teacher_session_token'];
+    $stmt = $pdo->prepare("SELECT * FROM teacher_sessions WHERE session_token = ? AND expires_at > NOW()");
+    $stmt->execute([$session_token]);
+    $session = $stmt->fetch();
+    
+    if (!$session) {
+        // Invalid or expired session
+        session_unset();
+        session_destroy();
+        header('Location: login');
+        exit;
+    }
+} catch (PDOException $e) {
+    error_log("Session verification failed: " . $e->getMessage());
     header('Location: login');
     exit;
 }

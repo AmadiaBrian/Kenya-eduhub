@@ -353,6 +353,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <a class="nav-link" href="dashboard">
                 <i class="fas fa-home"></i> Dashboard
             </a>
+            <a class="nav-link" href="timetable">
+                <i class="fas fa-calendar-alt"></i> Timetable
+            </a>
             <a class="nav-link" href="attendance">
                 <i class="fas fa-calendar-check"></i> Attendance
             </a>
@@ -361,6 +364,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </a>
             <a class="nav-link" href="students">
                 <i class="fas fa-user-graduate"></i> Students
+            </a>
+            <a class="nav-link" href="assignments">
+                <i class="fas fa-tasks"></i> Assignments
             </a>
             <a class="nav-link" href="parents">
                 <i class="fas fa-users"></i> Parents

@@ -14,8 +14,13 @@ $allowed_routes = [
     'logout',
     'dashboard',
     'books',
+    'book_details',
+    'categories',
+    'import_export',
     'borrow',
     'return',
+    'reservations',
+    'fines',
     'reports',
     'profile'
 ];

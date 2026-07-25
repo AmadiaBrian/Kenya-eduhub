@@ -20,6 +20,37 @@ $stream_id = $_SESSION['stream_id'] ?? null;
 $class_name = $_SESSION['class_name'] ?? '';
 $stream_name = $_SESSION['stream_name'] ?? '';
 
+// Load calendar helpers
+require_once __DIR__ . '/../../includes/calendar_helpers.php';
+
+// Get calendar status
+$calendar_status = getSchoolCalendarStatus($pdo, $school_id);
+
+// Get active term from calendar status
+$active_term = $calendar_status['current_term']['term_name'] ?? null;
+
+// Get terms from database for current year
+$terms = [];
+try {
+    $current_year = date('Y');
+    $stmt = $pdo->prepare("SELECT term_name FROM terms WHERE school_id = ? AND year = ? ORDER BY term_number");
+    $stmt->execute([$school_id, $current_year]);
+    $term_records = $stmt->fetchAll();
+    foreach ($term_records as $term) {
+        $terms[] = $term['term_name'];
+    }
+} catch (PDOException $e) {
+    error_log("Failed to fetch terms: " . $e->getMessage());
+    $terms = ['Term 1', 'Term 2', 'Term 3'];
+}
+
+if (empty($terms)) {
+    $terms = ['Term 1', 'Term 2', 'Term 3'];
+}
+
+// Use active term if available, otherwise use first term
+$current_term = $active_term ?? ($terms[0] ?? 'Term 1');
+
 // Only allow POST requests
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     echo json_encode(['success' => false, 'error' => 'Invalid request method']);
@@ -68,7 +99,6 @@ try {
     
     // Get current year fee data for all students
     $current_year = date('Y');
-    $terms = ['Term 1', 'Term 2', 'Term 3'];
     
     $class_fee_data = [];
     $total_class_fees = 0;
@@ -304,9 +334,9 @@ try {
     $pdf->SetTextColor(255, 255, 255);
     $pdf->SetFont('helvetica', 'B', 9);
     $pdf->Cell(60, 8, 'Student', 1, 0, 'C', true);
-    $pdf->Cell(35, 8, 'Term 1', 1, 0, 'C', true);
-    $pdf->Cell(35, 8, 'Term 2', 1, 0, 'C', true);
-    $pdf->Cell(35, 8, 'Term 3', 1, 0, 'C', true);
+    foreach ($terms as $term) {
+        $pdf->Cell(35, 8, $term, 1, 0, 'C', true);
+    }
     $pdf->Cell(30, 8, 'Total', 1, 1, 'C', true);
     $pdf->SetTextColor(0, 0, 0);
     
@@ -318,9 +348,9 @@ try {
         $admission = $student['admission_number'];
         
         $pdf->Cell(60, 7, $admission . ' - ' . substr($student_name, 0, 20), 1, 0, 'L');
-        $pdf->Cell(35, 7, number_format($student_data['term_data']['Term 1']['balance'], 2), 1, 0, 'R');
-        $pdf->Cell(35, 7, number_format($student_data['term_data']['Term 2']['balance'], 2), 1, 0, 'R');
-        $pdf->Cell(35, 7, number_format($student_data['term_data']['Term 3']['balance'], 2), 1, 0, 'R');
+        foreach ($terms as $term) {
+            $pdf->Cell(35, 7, number_format($student_data['term_data'][$term]['balance'] ?? 0, 2), 1, 0, 'R');
+        }
         $pdf->Cell(30, 7, number_format($student_data['total_balance'], 2), 1, 1, 'R');
     }
     

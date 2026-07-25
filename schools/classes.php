@@ -1,6 +1,21 @@
 <?php
 // Classes Management Page
-// Authentication is handled by index.php router
+// Ensure session is started and config is loaded
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+// Load config if not already loaded
+if (!isset($pdo)) {
+    require_once __DIR__ . '/../config.php';
+}
+
+// Authentication check
+if (!isset($_SESSION['school_id']) || !isset($_SESSION['school_token'])) {
+    header('Location: index.php?route=login');
+    exit;
+}
+
 $school_id = $_SESSION['school_id'];
 $school_name = $_SESSION['school_name'] ?? 'School';
 ?>
@@ -495,6 +510,12 @@ $school_name = $_SESSION['school_name'] ?? 'School';
             <a class="nav-link" href="subjects">
                 <i class="fas fa-book"></i> Subjects
             </a>
+            <a class="nav-link" href="exam-types">
+                <i class="fas fa-clipboard-list"></i> Exam Types
+            </a>
+            <a class="nav-link" href="timetable">
+                <i class="fas fa-calendar-alt"></i> Timetable
+            </a>
             <a class="nav-link" href="parents">
                 <i class="fas fa-users"></i> Parents
             </a>
@@ -503,6 +524,9 @@ $school_name = $_SESSION['school_name'] ?? 'School';
             </a>
             <a class="nav-link" href="attendance">
                 <i class="fas fa-calendar-check"></i> Attendance
+            </a>
+            <a class="nav-link" href="calendar">
+                <i class="fas fa-calendar"></i> Calendar
             </a>
             <a class="nav-link" href="fees">
                 <i class="fas fa-money-bill-wave"></i> Fees
@@ -632,56 +656,56 @@ $school_name = $_SESSION['school_name'] ?? 'School';
         </div>
     </div>
     
-    <div class="modal fade" id="addClassModal" tabindex="-1">
+    <div class="modal fade" id="addClassModal" tabindex="-1" style="backdrop-filter: blur(2px);">
         <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Add New Class</h5>
+            <div class="modal-content" style="border: none; border-radius: 24px; box-shadow: 0 24px 38px 3px rgba(0,0,0,0.14), 0 9px 46px 8px rgba(0,0,0,0.12);">
+                <div class="modal-header" style="border: none; padding: 24px 32px 0 32px;">
+                    <h5 class="modal-title" style="font-size: 22px; font-weight: 400; color: #202124;">Add New Class</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="modal-body">
+                <div class="modal-body" style="padding: 24px 32px;">
                     <form id="addClassForm">
                         <div class="mb-3">
-                            <label class="form-label">Class Name</label>
-                            <input type="text" class="form-control" id="className" placeholder="e.g., Grade 1" required>
+                            <label class="form-label" style="font-size: 14px; color: #5f6368; font-weight: 500;">Class Name</label>
+                            <input type="text" class="form-control" id="className" placeholder="e.g., Grade 1" required style="border-radius: 8px; border: 1px solid #dadce0;">
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Capacity</label>
-                            <input type="number" class="form-control" id="classCapacity" value="40">
+                            <label class="form-label" style="font-size: 14px; color: #5f6368; font-weight: 500;">Capacity</label>
+                            <input type="number" class="form-control" id="classCapacity" value="40" style="border-radius: 8px; border: 1px solid #dadce0;">
                         </div>
                     </form>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary" onclick="addClass()">Add Class</button>
+                <div class="modal-footer" style="border: none; padding: 0 32px 32px 32px;">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="background: transparent; color: #5f6368; border: none; border-radius: 25px; padding: 10px 24px; font-size: 14px; font-weight: 500; letter-spacing: 0.25px; text-transform: uppercase;">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="addClass()" style="background: #FF6B35; color: white; border: none; border-radius: 25px; padding: 10px 24px; font-size: 14px; font-weight: 500; letter-spacing: 0.25px; text-transform: uppercase;">Add Class</button>
                 </div>
             </div>
         </div>
     </div>
     
-    <div class="modal fade" id="editClassModal" tabindex="-1">
+    <div class="modal fade" id="editClassModal" tabindex="-1" style="backdrop-filter: blur(2px);">
         <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Edit Class</h5>
+            <div class="modal-content" style="border: none; border-radius: 24px; box-shadow: 0 24px 38px 3px rgba(0,0,0,0.14), 0 9px 46px 8px rgba(0,0,0,0.12);">
+                <div class="modal-header" style="border: none; padding: 24px 32px 0 32px;">
+                    <h5 class="modal-title" style="font-size: 22px; font-weight: 400; color: #202124;">Edit Class</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="modal-body">
+                <div class="modal-body" style="padding: 24px 32px;">
                     <form id="editClassForm">
                         <input type="hidden" id="editClassId">
                         <div class="mb-3">
-                            <label class="form-label">Class Name</label>
-                            <input type="text" class="form-control" id="editClassName" required>
+                            <label class="form-label" style="font-size: 14px; color: #5f6368; font-weight: 500;">Class Name</label>
+                            <input type="text" class="form-control" id="editClassName" required style="border-radius: 8px; border: 1px solid #dadce0;">
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Capacity</label>
-                            <input type="number" class="form-control" id="editClassCapacity">
+                            <label class="form-label" style="font-size: 14px; color: #5f6368; font-weight: 500;">Capacity</label>
+                            <input type="number" class="form-control" id="editClassCapacity" style="border-radius: 8px; border: 1px solid #dadce0;">
                         </div>
                     </form>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary" onclick="updateClass()">Update Class</button>
+                <div class="modal-footer" style="border: none; padding: 0 32px 32px 32px;">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="background: transparent; color: #5f6368; border: none; border-radius: 25px; padding: 10px 24px; font-size: 14px; font-weight: 500; letter-spacing: 0.25px; text-transform: uppercase;">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="updateClass()" style="background: #FF6B35; color: white; border: none; border-radius: 25px; padding: 10px 24px; font-size: 14px; font-weight: 500; letter-spacing: 0.25px; text-transform: uppercase;">Update Class</button>
                 </div>
             </div>
         </div>

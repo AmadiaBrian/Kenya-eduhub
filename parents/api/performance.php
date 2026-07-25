@@ -14,11 +14,41 @@ if (!isset($_SESSION['parent_id'])) {
 }
 
 $parent_id = $_SESSION['parent_id'];
+$school_id = $_SESSION['school_id'];
+
+// Load calendar helpers
+require_once __DIR__ . '/../../includes/calendar_helpers.php';
+
+// Get calendar status to find active term
+$calendar_status = getSchoolCalendarStatus($pdo, $school_id);
+$active_term = $calendar_status['current_term']['term_name'] ?? null;
+
+// Get terms from database for current year
+$terms = [];
+try {
+    $current_year = date('Y');
+    $stmt = $pdo->prepare("SELECT term_name FROM terms WHERE school_id = ? AND year = ? ORDER BY term_number");
+    $stmt->execute([$school_id, $current_year]);
+    $term_records = $stmt->fetchAll();
+    foreach ($term_records as $term) {
+        $terms[] = $term['term_name'];
+    }
+} catch (PDOException $e) {
+    error_log("Failed to fetch terms: " . $e->getMessage());
+    $terms = ['Term 1', 'Term 2', 'Term 3'];
+}
+
+if (empty($terms)) {
+    $terms = ['Term 1', 'Term 2', 'Term 3'];
+}
+
+// Use active term if available, otherwise use first term
+$default_term = $active_term ?? ($terms[0] ?? 'Term 1');
 
 try {
     if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         $child_id = $_GET['child_id'] ?? null;
-        $term = $_GET['term'] ?? 'Term 1';
+        $term = $_GET['term'] ?? $default_term;
         $year = $_GET['year'] ?? date('Y');
         
         if (!$child_id) {

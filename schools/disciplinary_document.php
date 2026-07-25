@@ -1,7 +1,17 @@
 <?php
 // Authentication is handled by index.php router
+// Ensure session is started and config is loaded
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
-if (!isset($_SESSION['school_id'])) {
+// Load config if not already loaded
+if (!isset($pdo)) {
+    require_once __DIR__ . '/../config.php';
+}
+
+// Authentication check
+if (!isset($_SESSION['school_id']) || !isset($_SESSION['school_token'])) {
     die('Unauthorized');
 }
 
@@ -422,6 +432,12 @@ if (!$record_id) {
                 </a>
                 <a class="nav-link" href="subjects.php">
                     <i class="fas fa-book"></i> Subjects
+                </a>
+                <a class="nav-link" href="exam-types.php">
+                    <i class="fas fa-clipboard-list"></i> Exam Types
+                </a>
+                <a class="nav-link" href="timetable.php">
+                    <i class="fas fa-calendar-alt"></i> Timetable
                 </a>
                 <a class="nav-link" href="grading.php">
                     <i class="fas fa-chart-bar"></i> Grading

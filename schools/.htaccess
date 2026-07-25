@@ -1,5 +1,4 @@
 RewriteEngine On
-RewriteBase /Kenyaeduhub/schools/
 
 # Allow direct access to api directory
 RewriteRule ^api/ - [L]
@@ -16,7 +15,25 @@ RewriteRule ^includes/ - [L]
 # Allow direct access to assets if any
 RewriteRule ^assets/ - [L]
 
-# Handle clean URLs - route everything to index.php
+# Allow direct access to receipts directory
+RewriteRule ^receipts/ - [L]
+
+# Route all PHP files through index.php (except excluded directories and index.php itself)
+RewriteCond %{REQUEST_FILENAME} -f
+RewriteCond %{REQUEST_FILENAME} \.php$
+RewriteCond %{REQUEST_URI} !^/api/
+RewriteCond %{REQUEST_URI} !^/payments/
+RewriteCond %{REQUEST_URI} !^/config/
+RewriteCond %{REQUEST_URI} !^/includes/
+RewriteCond %{REQUEST_URI} !^/index\.php
+RewriteRule ^(.*)\.php$ index.php?route=$1 [L,QSA]
+
+# Handle clean URLs with parameters (e.g., timetable/3)
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^([^/]+)/([^/]+)/?$ index.php?route=$1&view_id=$2 [L,QSA]
+
+# Handle clean URLs without parameters (e.g., timetable)
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^([^\.]+)$ index.php?route=$1 [L,QSA]

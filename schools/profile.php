@@ -1,6 +1,21 @@
 <?php
 // School Profile Page
-// Authentication is handled by index.php router
+// Ensure session is started and config is loaded
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+// Load config if not already loaded
+if (!isset($pdo)) {
+    require_once __DIR__ . '/../config.php';
+}
+
+// Authentication check
+if (!isset($_SESSION['school_id']) || !isset($_SESSION['school_token'])) {
+    header('Location: index.php?route=login');
+    exit;
+}
+
 $school_id = $_SESSION['school_id'];
 $school_name = $_SESSION['school_name'] ?? 'School';
 
@@ -497,6 +512,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['upload_logo'])) {
             </a>
             <a class="nav-link" href="classes">
                 <i class="fas fa-school"></i> Classes
+            </a>
+            <a class="nav-link" href="subjects">
+                <i class="fas fa-book"></i> Subjects
+            </a>
+            <a class="nav-link" href="exam-types">
+                <i class="fas fa-clipboard-list"></i> Exam Types
             </a>
             <a class="nav-link" href="fees">
                 <i class="fas fa-file-invoice-dollar"></i> Fee Management

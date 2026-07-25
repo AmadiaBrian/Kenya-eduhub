@@ -419,7 +419,7 @@ $businessQuery->close();
                         $statusClass = 'status-pending';
                         
                         if ($transaction['ResultCode'] === '0' || $transaction['ResultCode'] === 0) {
-                            $status = 'success';
+                            $status = 'completed';
                             $statusClass = 'status-success';
                         } elseif ($transaction['ResultCode'] !== '' && $transaction['ResultCode'] !== 'pending') {
                             $status = 'failed';

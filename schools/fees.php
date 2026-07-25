@@ -1,8 +1,29 @@
 <?php
 // Fees Management Page
-// Authentication is handled by index.php router
+// Ensure session is started and config is loaded
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+// Load config if not already loaded
+if (!isset($pdo)) {
+    require_once __DIR__ . '/../config.php';
+}
+
+// Load calendar helpers
+require_once __DIR__ . '/../includes/calendar_helpers.php';
+
+// Authentication check
+if (!isset($_SESSION['school_id']) || !isset($_SESSION['school_token'])) {
+    header('Location: index.php?route=login');
+    exit;
+}
+
 $school_id = $_SESSION['school_id'];
 $school_name = $_SESSION['school_name'] ?? 'School';
+
+// Get calendar status
+$calendar_status = getSchoolCalendarStatus($pdo, $school_id);
 
 // Get school admission prefix
 try {
@@ -571,6 +592,12 @@ try {
             <a class="nav-link" href="subjects">
                 <i class="fas fa-book"></i> Subjects
             </a>
+            <a class="nav-link" href="exam-types">
+                <i class="fas fa-clipboard-list"></i> Exam Types
+            </a>
+            <a class="nav-link" href="timetable">
+                <i class="fas fa-calendar-alt"></i> Timetable
+            </a>
             <a class="nav-link" href="parents">
                 <i class="fas fa-users"></i> Parents
             </a>
@@ -579,6 +606,9 @@ try {
             </a>
             <a class="nav-link" href="attendance">
                 <i class="fas fa-calendar-check"></i> Attendance
+            </a>
+            <a class="nav-link" href="calendar">
+                <i class="fas fa-calendar"></i> Calendar
             </a>
             <a class="nav-link active" href="fees">
                 <i class="fas fa-money-bill-wave"></i> Fees
@@ -604,6 +634,33 @@ try {
     <!-- Main Content -->
     <main class="main-content" id="mainContent">
         <h1 class="page-title">Fees Management</h1>
+        
+        <!-- Calendar Status Alert -->
+        <?php if ($calendar_status['is_holiday']): ?>
+            <div style="background: #fce8e6; border: 1px solid #c5221f; padding: 16px; border-radius: 8px; margin-bottom: 24px;">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <i class="fas fa-exclamation-triangle" style="color: #c5221f; font-size: 20px;"></i>
+                    <div>
+                        <strong style="color: #c5221f;">School is on Holiday</strong>
+                        <p style="margin: 4px 0 0 0; color: #5f6368; font-size: 14px;">
+                            <?php echo htmlspecialchars($calendar_status['current_holiday']['holiday_name']); ?> 
+                            (<?php echo date('M j, Y', strtotime($calendar_status['current_holiday']['start_date'])); ?> - 
+                            <?php echo date('M j, Y', strtotime($calendar_status['current_holiday']['end_date'])); ?>)
+                        </p>
+                    </div>
+                </div>
+            </div>
+        <?php elseif ($calendar_status['school_status'] === 'break'): ?>
+            <div style="background: #fef7e0; border: 1px solid #f9ab00; padding: 16px; border-radius: 8px; margin-bottom: 24px;">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <i class="fas fa-info-circle" style="color: #f9ab00; font-size: 20px;"></i>
+                    <div>
+                        <strong style="color: #b06000;">School is on Break</strong>
+                        <p style="margin: 4px 0 0 0; color: #5f6368; font-size: 14px;">No active term is currently set. Please activate a term in the Calendar.</p>
+                    </div>
+                </div>
+            </div>
+        <?php endif; ?>
         
         <!-- Fee Statistics -->
         <div id="feeStats" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 24px;">
@@ -901,27 +958,27 @@ try {
         </div>
     </div>
     
-    <!-- Add Fee Structure Modal -->
-    <div class="modal fade" id="addFeeStructureModal" tabindex="-1">
+    <!-- Add Fee Structure Modal - Google Material Design Style -->
+    <div class="modal fade" id="addFeeStructureModal" tabindex="-1" style="backdrop-filter: blur(2px);">
         <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="feeStructureModalTitle">Add Fee Structure</h5>
+            <div class="modal-content" style="border: none; border-radius: 24px; box-shadow: 0 24px 38px 3px rgba(0,0,0,0.14), 0 9px 46px 8px rgba(0,0,0,0.12);">
+                <div class="modal-header" style="border: none; padding: 24px 32px 0 32px;">
+                    <h5 class="modal-title" id="feeStructureModalTitle" style="font-size: 22px; font-weight: 400; color: #202124;">Add Fee Structure</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="modal-body">
+                <div class="modal-body" style="padding: 24px 32px;">
                     <form id="addFeeStructureForm">
                         <input type="hidden" id="feeStructureId">
                         <div class="row">
                             <div class="col-md-4 mb-3">
-                                <label class="form-label">Class</label>
-                                <select class="form-control" id="feeClassId" required>
+                                <label class="form-label" style="font-size: 14px; color: #5f6368; font-weight: 500;">Class</label>
+                                <select class="form-control" id="feeClassId" required style="border-radius: 8px; border: 1px solid #dadce0;">
                                     <option value="">Select Class</option>
                                 </select>
                             </div>
                             <div class="col-md-4 mb-3">
-                                <label class="form-label">Term</label>
-                                <select class="form-control" id="feeTerm" required>
+                                <label class="form-label" style="font-size: 14px; color: #5f6368; font-weight: 500;">Term</label>
+                                <select class="form-control" id="feeTerm" required style="border-radius: 8px; border: 1px solid #dadce0;">
                                     <option value="">Select Term</option>
                                     <option value="Term 1">Term 1</option>
                                     <option value="Term 2">Term 2</option>
@@ -929,43 +986,43 @@ try {
                                 </select>
                             </div>
                             <div class="col-md-4 mb-3">
-                                <label class="form-label">Fee Type</label>
-                                <input type="text" class="form-control" id="feeType" value="Tuition" required placeholder="e.g., Tuition, Remedial, Exam Fees">
+                                <label class="form-label" style="font-size: 14px; color: #5f6368; font-weight: 500;">Fee Type</label>
+                                <input type="text" class="form-control" id="feeType" value="Tuition" required placeholder="e.g., Tuition, Remedial, Exam Fees" style="border-radius: 8px; border: 1px solid #dadce0;">
                             </div>
                         </div>
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">Year</label>
-                                <input type="number" class="form-control" id="feeYear" value="2026" required>
+                                <label class="form-label" style="font-size: 14px; color: #5f6368; font-weight: 500;">Year</label>
+                                <input type="number" class="form-control" id="feeYear" value="2026" required style="border-radius: 8px; border: 1px solid #dadce0;">
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">Amount (KES)</label>
-                                <input type="number" class="form-control" id="feeAmount" required>
+                                <label class="form-label" style="font-size: 14px; color: #5f6368; font-weight: 500;">Amount (KES)</label>
+                                <input type="number" class="form-control" id="feeAmount" required style="border-radius: 8px; border: 1px solid #dadce0;">
                             </div>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Description</label>
-                            <textarea class="form-control" id="feeDescription" rows="2"></textarea>
+                            <label class="form-label" style="font-size: 14px; color: #5f6368; font-weight: 500;">Description</label>
+                            <textarea class="form-control" id="feeDescription" rows="2" style="border-radius: 8px; border: 1px solid #dadce0;"></textarea>
                         </div>
                     </form>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary" id="saveFeeStructureBtn" onclick="saveFeeStructure()">Add Fee Structure</button>
+                <div class="modal-footer" style="border: none; padding: 0 32px 32px 32px;">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="background: transparent; color: #5f6368; border: none; border-radius: 25px; padding: 10px 24px; font-size: 14px; font-weight: 500; letter-spacing: 0.25px; text-transform: uppercase;">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="saveFeeStructureBtn" onclick="saveFeeStructure()" style="background: #FF6B35; color: white; border: none; border-radius: 25px; padding: 10px 24px; font-size: 14px; font-weight: 500; letter-spacing: 0.25px; text-transform: uppercase;">Add Fee Structure</button>
                 </div>
             </div>
         </div>
     </div>
     
-    <!-- Add Payment Modal -->
-    <div class="modal fade" id="addPaymentModal" tabindex="-1">
+    <!-- Add Payment Modal - Google Material Design Style -->
+    <div class="modal fade" id="addPaymentModal" tabindex="-1" style="backdrop-filter: blur(2px);">
         <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Record Fee Payment</h5>
+            <div class="modal-content" style="border: none; border-radius: 24px; box-shadow: 0 24px 38px 3px rgba(0,0,0,0.14), 0 9px 46px 8px rgba(0,0,0,0.12);">
+                <div class="modal-header" style="border: none; padding: 24px 32px 0 32px;">
+                    <h5 class="modal-title" style="font-size: 22px; font-weight: 400; color: #202124;">Record Fee Payment</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="modal-body">
+                <div class="modal-body" style="padding: 24px 32px;">
                     <form id="addPaymentForm">
                         <div class="row">
                             <div class="col-md-6 mb-3">
@@ -1029,9 +1086,9 @@ try {
                         </div>
                     </form>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-success" onclick="addPayment()">Record Payment</button>
+                <div class="modal-footer" style="border: none; padding: 0 32px 32px 32px;">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="background: transparent; color: #5f6368; border: none; border-radius: 25px; padding: 10px 24px; font-size: 14px; font-weight: 500; letter-spacing: 0.25px; text-transform: uppercase;">Cancel</button>
+                    <button type="button" class="btn btn-success" onclick="addPayment()" style="background: #FF6B35; color: white; border: none; border-radius: 25px; padding: 10px 24px; font-size: 14px; font-weight: 500; letter-spacing: 0.25px; text-transform: uppercase;">Record Payment</button>
                 </div>
             </div>
         </div>

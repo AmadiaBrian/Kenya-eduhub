@@ -3,16 +3,29 @@
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
-require_once __DIR__ . '/../config/database.php';
+
+// Load config if not already loaded
+if (!isset($pdo)) {
+    require_once __DIR__ . '/../config.php';
+}
+
+// Authentication check
+if (!isset($_SESSION['school_id']) || !isset($_SESSION['school_token'])) {
+    header('Location: index.php?route=login');
+    exit;
+}
 
 $school_id = $_SESSION['school_id'];
 $school_name = $_SESSION['school_name'] ?? 'School';
 
-// Get school subjects
+// Get school subjects (excluding those with existing grading scales)
 $subjects = [];
 try {
-    $stmt = $pdo->prepare("SELECT * FROM subjects WHERE school_id = ? AND status = 'active' ORDER BY subject_name");
-    $stmt->execute([$school_id]);
+    $stmt = $pdo->prepare("SELECT s.* FROM subjects s
+                          WHERE s.school_id = ? AND s.status = 'active'
+                          AND s.id NOT IN (SELECT DISTINCT subject_id FROM grading_scales WHERE school_id = ?)
+                          ORDER BY s.subject_name");
+    $stmt->execute([$school_id, $school_id]);
     $subjects = $stmt->fetchAll();
 } catch (PDOException $e) {
     error_log("Failed to fetch subjects: " . $e->getMessage());
@@ -324,71 +337,80 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['grading_file'])) {
         }
         
         .btn-primary {
-            background: linear-gradient(135deg, #FF6B35 0%, #e55a2b 100%);
+            background: #FF6B35;
             color: white;
             border: none;
-            box-shadow: 0 4px 6px rgba(255, 107, 53, 0.3);
-            transition: all 0.3s ease;
+            border-radius: 4px;
+            box-shadow: 0 1px 2px rgba(60,64,67,0.3), 0 1px 3px 1px rgba(60,64,67,0.15);
+            transition: all 0.2s ease;
+            font-family: 'Google Sans', 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-weight: 500;
         }
-        
+
         .btn-primary:hover {
-            background: linear-gradient(135deg, #e55a2b 0%, #d9480f 100%);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(255, 107, 53, 0.4);
+            background: #e55a2b;
+            box-shadow: 0 1px 3px rgba(60,64,67,0.3), 0 4px 8px 3px rgba(60,64,67,0.15);
         }
-        
+
         .btn-primary:active {
-            transform: translateY(0);
-            box-shadow: 0 2px 4px rgba(255, 107, 53, 0.3);
+            background: #d9480f;
+            box-shadow: 0 1px 2px rgba(60,64,67,0.3), 0 2px 6px 2px rgba(60,64,67,0.15);
         }
-        
+
         .btn-outline-primary {
             background: white;
             color: #FF6B35;
-            border: 2px solid #FF6B35;
-            box-shadow: 0 2px 4px rgba(255, 107, 53, 0.1);
-            transition: all 0.3s ease;
+            border: 1px solid #FF6B35;
+            border-radius: 4px;
+            box-shadow: 0 1px 2px rgba(60,64,67,0.1);
+            transition: all 0.2s ease;
+            font-family: 'Google Sans', 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-weight: 500;
         }
-        
+
         .btn-outline-primary:hover {
-            background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+            background: #fff3e0;
             border-color: #e55a2b;
             color: #e55a2b;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(255, 107, 53, 0.2);
+            box-shadow: 0 1px 3px rgba(60,64,67,0.15);
         }
-        
+
         .btn-danger {
-            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
-            color: white;
-            border: none;
-            box-shadow: 0 4px 6px rgba(220, 53, 69, 0.3);
-            transition: all 0.3s ease;
+            background: whitesmoke !important;
+            color: #000 !important;
+            border: 2px solid #000 !important;
+            border-radius: 4px;
+            box-shadow: none;
+            transition: all 0.2s ease;
+            font-family: 'Google Sans', 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-weight: 500;
         }
-        
+
         .btn-danger:hover {
-            background: linear-gradient(135deg, #c82333 0%, #bd2130 100%);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(220, 53, 69, 0.4);
+            background: #e8eaed !important;
+            border-color: #000 !important;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
         }
-        
+
         .btn-danger:active {
-            transform: translateY(0);
-            box-shadow: 0 2px 4px rgba(220, 53, 69, 0.3);
+            background: #dadce0 !important;
         }
-        
+
         .btn-warning {
-            background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%);
-            color: #212529;
-            border: none;
-            box-shadow: 0 4px 6px rgba(255, 193, 7, 0.3);
-            transition: all 0.3s ease;
+            background: whitesmoke !important;
+            color: #000 !important;
+            border: 2px solid #000 !important;
+            border-radius: 4px;
+            box-shadow: none;
+            transition: all 0.2s ease;
+            font-family: 'Google Sans', 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-weight: 500;
         }
-        
+
         .btn-warning:hover {
-            background: linear-gradient(135deg, #e0a800 0%, #d39e00 100%);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(255, 193, 7, 0.4);
+            background: #e8eaed !important;
+            border-color: #000 !important;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
         }
         
         .btn-sm {
@@ -473,21 +495,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['grading_file'])) {
         }
         
         .menu-btn {
-            background: none;
-            border: none;
+            background: #000;
+            border: 2px solid #000;
             cursor: pointer;
             padding: 8px;
             border-radius: 50%;
-            transition: background 0.2s;
+            transition: all 0.2s;
         }
-        
+
         .menu-btn:hover {
-            background: rgba(95, 99, 104, 0.1);
+            background: #333;
+            border-color: #333;
         }
-        
+
         .menu-btn i {
             font-size: 20px;
-            color: var(--primary-color);
+            color: #fff;
         }
         
         .logo {
@@ -569,13 +592,66 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['grading_file'])) {
             margin-bottom: 16px;
         }
         
+        /* PDF Document Container */
+        .pdf-document {
+            background: white;
+            border: 1px solid #000;
+            padding: 30px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+            border-radius: 4px;
+        }
+
+        .pdf-header {
+            text-align: center;
+            border-bottom: 2px solid #000;
+            padding-bottom: 20px;
+            margin-bottom: 25px;
+        }
+
+        .pdf-title {
+            font-family: 'Georgia', 'Times New Roman', serif;
+            font-size: 22px;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            color: #1a1a1a;
+            letter-spacing: 1px;
+        }
+
+        .pdf-subtitle {
+            font-family: 'Georgia', 'Times New Roman', serif;
+            font-size: 16px;
+            color: #444;
+            margin-bottom: 12px;
+            font-weight: 500;
+        }
+
+        .pdf-info {
+            font-family: 'Georgia', 'Times New Roman', serif;
+            font-size: 13px;
+            color: #666;
+            font-style: italic;
+        }
+
+        .pdf-footer {
+            text-align: center;
+            border-top: 1px solid #ddd;
+            padding-top: 15px;
+            margin-top: 25px;
+            font-family: 'Georgia', 'Times New Roman', serif;
+            font-size: 11px;
+            color: #888;
+            font-style: italic;
+        }
+
         .table {
             width: 100%;
             border-collapse: collapse;
             background: white;
             box-shadow: 0 1px 3px rgba(0,0,0,0.1);
         }
-        
+
         .table th,
         .table td {
             padding: 12px 16px;
@@ -583,30 +659,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['grading_file'])) {
             border: 1px solid #000;
             border-bottom: 1px solid #000;
             border-right: 1px solid #000;
+            font-size: 14px;
         }
-        
+
         .table th {
             background: #f0f0f0;
             font-weight: 600;
             color: #000;
-            font-size: 12px;
+            font-size: 15px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
             border-top: 2px solid #000;
         }
-        
+
         .table th:last-child {
             border-right: 2px solid #000;
         }
-        
+
         .table td:last-child {
             border-right: 2px solid #000;
         }
-        
+
         .table tbody tr:last-child td {
             border-bottom: 2px solid #000;
         }
-        
+
         .table tbody tr:hover {
             background: #f9f9f9;
         }
@@ -716,6 +793,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['grading_file'])) {
             <a class="nav-link" href="subjects">
                 <i class="fas fa-book"></i> Subjects
             </a>
+            <a class="nav-link" href="exam-types">
+                <i class="fas fa-clipboard-list"></i> Exam Types
+            </a>
+            <a class="nav-link" href="timetable">
+                <i class="fas fa-calendar-alt"></i> Timetable
+            </a>
             <a class="nav-link active" href="grading">
                 <i class="fas fa-chart-bar"></i> Grading System
             </a>
@@ -804,38 +887,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['grading_file'])) {
         
         <div class="card">
             <h2 class="card-title">Current Grading Scales</h2>
-            <div class="table-responsive">
-                <?php if (empty($grading_scales)): ?>
-                    <p class="text-center text-muted">No grading scales defined yet</p>
-                <?php else: ?>
-                    <?php
-                    // Group grading scales by subject
-                    $grouped_scales = [];
-                    foreach ($grading_scales as $scale) {
-                        $subject_name = $scale['subject_name'] ?? 'General';
-                        $subject_id = $scale['subject_id'] ?? null;
-                        if (!isset($grouped_scales[$subject_name])) {
-                            $grouped_scales[$subject_name] = [
-                                'subject_id' => $subject_id,
-                                'scales' => []
-                            ];
-                        }
-                        $grouped_scales[$subject_name]['scales'][] = $scale;
+
+            <?php if (empty($grading_scales)): ?>
+                <p class="text-center text-muted">No grading scales defined yet</p>
+            <?php else: ?>
+                <?php
+                // Group grading scales by subject
+                $grouped_scales = [];
+                foreach ($grading_scales as $scale) {
+                    $subject_name = $scale['subject_name'] ?? 'General';
+                    $subject_id = $scale['subject_id'] ?? null;
+                    if (!isset($grouped_scales[$subject_name])) {
+                        $grouped_scales[$subject_name] = [
+                            'subject_id' => $subject_id,
+                            'scales' => []
+                        ];
                     }
-                    ?>
-                    
-                    <?php foreach ($grouped_scales as $subject_name => $subject_data): ?>
-                        <div style="margin-bottom: 30px;">
-                            <h4 style="color: #FF6B35; margin-bottom: 15px; font-weight: 600;">
-                                <i class="fas fa-book"></i> <?php echo htmlspecialchars($subject_name); ?>
-                                <?php if ($subject_data['subject_id']): ?>
-                                    <a href="grading.php?delete_subject_scales=1&subject_id=<?php echo $subject_data['subject_id']; ?>" 
-                                       class="btn btn-sm btn-danger float-end" 
-                                       onclick="return confirm('Are you sure you want to delete ALL grading scales for <?php echo htmlspecialchars($subject_name); ?>?')">
-                                        <i class="fas fa-trash-alt"></i> Delete All
-                                    </a>
-                                <?php endif; ?>
-                            </h4>
+                    $grouped_scales[$subject_name]['scales'][] = $scale;
+                }
+                ?>
+
+                <?php foreach ($grouped_scales as $subject_name => $subject_data): ?>
+                    <div style="margin-bottom: 30px;">
+                        <h4 style="color: #FF6B35; margin-bottom: 15px; font-weight: 600; font-family: 'Georgia', 'Times New Roman', serif;">
+                            <i class="fas fa-book"></i> <?php echo htmlspecialchars($subject_name); ?>
+                            <?php if ($subject_data['subject_id']): ?>
+                                <a href="grading.php?delete_subject_scales=1&subject_id=<?php echo $subject_data['subject_id']; ?>"
+                                   class="btn btn-sm btn-danger float-end"
+                                   onclick="return confirm('Are you sure you want to delete ALL grading scales for <?php echo htmlspecialchars($subject_name); ?>?')">
+                                    <i class="fas fa-trash-alt"></i> Delete All
+                                </a>
+                            <?php endif; ?>
+                        </h4>
+                        <div class="table-responsive" style="overflow-x: auto;">
                             <table class="table">
                                 <thead>
                                     <tr>
@@ -856,11 +940,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['grading_file'])) {
                                             <td><?php echo htmlspecialchars($scale['grade_description'] ?? '-'); ?></td>
                                             <td><strong><?php echo $scale['points'] ?? 0; ?></strong></td>
                                             <td>
-                                                <button class="btn btn-sm btn-primary" onclick="editScale(<?php echo $scale['id']; ?>, '<?php echo $scale['min_score']; ?>', '<?php echo $scale['max_score']; ?>', '<?php echo htmlspecialchars($scale['grade_name']); ?>', '<?php echo htmlspecialchars($scale['grade_description'] ?? ''); ?>', '<?php echo $scale['points'] ?? 0; ?>')">
+                                                <button class="btn btn-sm btn-warning" onclick="editScale(<?php echo $scale['id']; ?>, '<?php echo $scale['min_score']; ?>', '<?php echo $scale['max_score']; ?>', '<?php echo htmlspecialchars($scale['grade_name']); ?>', '<?php echo htmlspecialchars($scale['grade_description'] ?? ''); ?>', '<?php echo $scale['points'] ?? 0; ?>')">
                                                     <i class="fas fa-edit"></i> Edit
                                                 </button>
-                                                <a href="grading.php?delete_scale=1&scale_id=<?php echo $scale['id']; ?>" 
-                                                   class="btn btn-sm btn-danger" 
+                                                <a href="grading.php?delete_scale=1&scale_id=<?php echo $scale['id']; ?>"
+                                                   class="btn btn-sm btn-danger"
                                                    onclick="return confirm('Are you sure you want to delete this grading scale?')">
                                                     <i class="fas fa-trash"></i> Delete
                                                 </a>
