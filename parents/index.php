@@ -15,6 +15,7 @@ $allowed_routes = [
     'fees',
     'fines',
     'performance',
+    'results',
     'children',
     'assignments'
 ];

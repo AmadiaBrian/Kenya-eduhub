@@ -16,9 +16,11 @@ $allowed_routes = [
     'fees',
     'parents',
     'performance',
+    'results',
     'students',
     'assignments',
-    'timetable'
+    'timetable',
+    'student-subjects'
 ];
 
 // Validate route

@@ -34,15 +34,25 @@ try {
 // Get existing grading scales
 $grading_scales = [];
 try {
-    $stmt = $pdo->prepare("SELECT gs.*, s.subject_name 
-                          FROM grading_scales gs 
-                          LEFT JOIN subjects s ON gs.subject_id = s.id 
-                          WHERE gs.school_id = ? 
+    $stmt = $pdo->prepare("SELECT gs.*, s.subject_name
+                          FROM grading_scales gs
+                          LEFT JOIN subjects s ON gs.subject_id = s.id
+                          WHERE gs.school_id = ?
                           ORDER BY s.subject_name, gs.min_score");
     $stmt->execute([$school_id]);
     $grading_scales = $stmt->fetchAll();
 } catch (PDOException $e) {
     error_log("Failed to fetch grading scales: " . $e->getMessage());
+}
+
+// Get aggregate points distribution
+$aggregate_distribution = [];
+try {
+    $stmt = $pdo->prepare("SELECT * FROM aggregate_points_distribution WHERE school_id = ? ORDER BY min_points DESC");
+    $stmt->execute([$school_id]);
+    $aggregate_distribution = $stmt->fetchAll();
+} catch (PDOException $e) {
+    error_log("Failed to fetch aggregate points distribution: " . $e->getMessage());
 }
 
 // Handle delete grading scale
@@ -177,16 +187,16 @@ if (isset($_GET['download_template']) && isset($_GET['subject_id'])) {
 // Handle CSV upload
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['grading_file'])) {
     $subject_id = $_POST['subject_id'] ?? null;
-    
+
     error_log("=== GRADING UPLOAD DEBUG ===");
     error_log("School ID (session): " . $school_id);
     error_log("Subject ID: " . $subject_id);
-    
+
     if (!$subject_id) {
         $error = 'Please select a subject';
     } else {
         $file = $_FILES['grading_file'];
-        
+
         if ($file['error'] !== UPLOAD_ERR_OK) {
             $error = 'File upload error';
         } else {
@@ -195,19 +205,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['grading_file'])) {
                 $error = 'Please upload a CSV file. Download the template first.';
             } else {
                 $handle = fopen($file['tmp_name'], 'r');
-                
+
                 if ($handle) {
                     try {
                         $pdo->beginTransaction();
-                        
+
                         // Delete existing grading scales for this subject
                         $stmt = $pdo->prepare("DELETE FROM grading_scales WHERE school_id = ? AND subject_id = ?");
                         $stmt->execute([$school_id, $subject_id]);
                         error_log("Deleted existing grading scales for school_id=$school_id, subject_id=$subject_id");
-                        
+
                         // Skip header row
                         fgetcsv($handle);
-                        
+
                         $row_count = 0;
                         while (($data = fgetcsv($handle)) !== FALSE) {
                             if (count($data) >= 3) {
@@ -216,7 +226,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['grading_file'])) {
                                 $grade_name = trim($data[2]);
                                 $grade_description = isset($data[3]) ? trim($data[3]) : '';
                                 $points = isset($data[4]) ? intval(trim($data[4])) : 0;
-                                
+
                                 if ($min_score >= 0 && $max_score <= 100 && $min_score <= $max_score && !empty($grade_name)) {
                                     $stmt = $pdo->prepare("INSERT INTO grading_scales (school_id, subject_id, min_score, max_score, grade_name, grade_description, points) VALUES (?, ?, ?, ?, ?, ?, ?)");
                                     $stmt->execute([$school_id, $subject_id, $min_score, $max_score, $grade_name, $grade_description, $points]);
@@ -225,23 +235,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['grading_file'])) {
                                 }
                             }
                         }
-                        
+
                         fclose($handle);
                         $pdo->commit();
-                        
+
                         error_log("Total rows inserted: $row_count");
-                        
+
                         if ($row_count > 0) {
                             $success = "Successfully imported $row_count grading scales for the subject";
                         } else {
                             $error = 'No valid grading scales found in the file. Please check the format.';
                         }
-                        
+
                         // Refresh grading scales
-                        $stmt = $pdo->prepare("SELECT gs.*, s.subject_name 
-                                              FROM grading_scales gs 
-                                              LEFT JOIN subjects s ON gs.subject_id = s.id 
-                                              WHERE gs.school_id = ? 
+                        $stmt = $pdo->prepare("SELECT gs.*, s.subject_name
+                                              FROM grading_scales gs
+                                              LEFT JOIN subjects s ON gs.subject_id = s.id
+                                              WHERE gs.school_id = ?
                                               ORDER BY s.subject_name, gs.min_score");
                         $stmt->execute([$school_id]);
                         $grading_scales = $stmt->fetchAll();
@@ -256,6 +266,120 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['grading_file'])) {
                 }
             }
         }
+    }
+}
+
+// Handle aggregate points distribution template download
+if (isset($_GET['download_aggregate_template'])) {
+    header('Content-Type: text/csv');
+    header('Content-Disposition: attachment; filename="aggregate_points_distribution_template.csv"');
+
+    $output = fopen('php://output', 'w');
+    fputcsv($output, ['Grade Name', 'Min Points', 'Max Points', 'Grade Description']);
+    fputcsv($output, ['A', '78', '84', 'Excellent']);
+    fputcsv($output, ['A-', '71', '77', 'Very Good']);
+    fputcsv($output, ['B+', '64', '70', 'Good']);
+    fputcsv($output, ['B', '57', '63', 'Fairly Good']);
+    fputcsv($output, ['B-', '50', '56', 'Fair']);
+    fputcsv($output, ['C+', '43', '49', 'Average']);
+    fputcsv($output, ['C', '36', '42', 'Below Average']);
+    fputcsv($output, ['C-', '29', '35', 'Poor']);
+    fputcsv($output, ['D+', '22', '28', 'Very Poor']);
+    fputcsv($output, ['D', '15', '21', 'Extremely Poor']);
+    fputcsv($output, ['D-', '8', '14', 'Fail']);
+    fputcsv($output, ['E', '0', '7', 'Fail']);
+    fclose($output);
+
+    exit;
+}
+
+// Handle aggregate points distribution CSV upload
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['aggregate_file'])) {
+    $file = $_FILES['aggregate_file'];
+
+    if ($file['error'] !== UPLOAD_ERR_OK) {
+        $error = 'File upload error';
+    } else {
+        $file_ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+        if ($file_ext !== 'csv') {
+            $error = 'Please upload a CSV file. Download the template first.';
+        } else {
+            $handle = fopen($file['tmp_name'], 'r');
+
+            if ($handle) {
+                try {
+                    $pdo->beginTransaction();
+
+                    // Delete existing aggregate points distribution for this school
+                    $stmt = $pdo->prepare("DELETE FROM aggregate_points_distribution WHERE school_id = ?");
+                    $stmt->execute([$school_id]);
+
+                    // Skip header row
+                    fgetcsv($handle);
+
+                    $row_count = 0;
+                    while (($data = fgetcsv($handle)) !== FALSE) {
+                        if (count($data) >= 3) {
+                            $grade_name = trim($data[0]);
+                            $min_points = intval(trim($data[1]));
+                            $max_points = intval(trim($data[2]));
+                            $grade_description = isset($data[3]) ? trim($data[3]) : '';
+
+                            if (!empty($grade_name) && $min_points >= 0 && $max_points >= 0 && $min_points <= $max_points) {
+                                $stmt = $pdo->prepare("INSERT INTO aggregate_points_distribution (school_id, grade_name, min_points, max_points, grade_description) VALUES (?, ?, ?, ?, ?)");
+                                $stmt->execute([$school_id, $grade_name, $min_points, $max_points, $grade_description]);
+                                $row_count++;
+                            }
+                        }
+                    }
+
+                    fclose($handle);
+                    $pdo->commit();
+
+                    if ($row_count > 0) {
+                        $success = "Successfully imported $row_count aggregate points distribution entries";
+                    } else {
+                        $error = 'No valid aggregate points distribution found in the file. Please check the format.';
+                    }
+
+                    // Refresh aggregate distribution
+                    $stmt = $pdo->prepare("SELECT * FROM aggregate_points_distribution WHERE school_id = ? ORDER BY min_points DESC");
+                    $stmt->execute([$school_id]);
+                    $aggregate_distribution = $stmt->fetchAll();
+                } catch (Exception $e) {
+                    $pdo->rollBack();
+                    fclose($handle);
+                    error_log("Aggregate import error: " . $e->getMessage());
+                    $error = 'Failed to import aggregate points distribution: ' . $e->getMessage();
+                }
+            } else {
+                $error = 'Failed to open uploaded file';
+            }
+        }
+    }
+}
+
+// Handle delete aggregate points distribution
+if (isset($_GET['delete_aggregate']) && isset($_GET['aggregate_id'])) {
+    $aggregate_id = $_GET['aggregate_id'];
+
+    try {
+        $stmt = $pdo->prepare("DELETE FROM aggregate_points_distribution WHERE id = ? AND school_id = ?");
+        $stmt->execute([$aggregate_id, $school_id]);
+
+        if ($stmt->rowCount() > 0) {
+            $success = "Aggregate points distribution deleted successfully";
+        } else {
+            $error = "Failed to delete aggregate points distribution";
+        }
+
+        // Refresh aggregate distribution
+        $stmt = $pdo->prepare("SELECT * FROM aggregate_points_distribution WHERE school_id = ? ORDER BY min_points DESC");
+        $stmt->execute([$school_id]);
+        $aggregate_distribution = $stmt->fetchAll();
+    } catch (PDOException $e) {
+        error_log("Failed to delete aggregate points distribution: " . $e->getMessage());
+        $error = "Failed to delete aggregate points distribution";
     }
 }
 ?>
@@ -316,6 +440,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['grading_file'])) {
             z-index: 999;
             scrollbar-width: none; /* Firefox */
             -ms-overflow-style: none; /* IE and Edge */
+            transition: transform 0.3s ease;
         }
         
         .sidebar::-webkit-scrollbar {
@@ -326,6 +451,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['grading_file'])) {
             margin-left: var(--sidebar-width);
             margin-top: var(--header-height);
             padding: 24px;
+            transition: margin-left 0.3s ease;
         }
         
         .card {
@@ -470,16 +596,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['grading_file'])) {
             cursor: pointer;
             font-size: 14px;
         }
-        
+
         .nav-link:hover {
             background: #f1f3f4;
         }
-        
+
         .nav-link.active {
             background: #e8f0fe;
             color: var(--primary-color);
         }
-        
+
         .nav-link i {
             margin-right: 12px;
             font-size: 18px;
@@ -495,22 +621,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['grading_file'])) {
         }
         
         .menu-btn {
-            background: #000;
-            border: 2px solid #000;
+            background: none;
+            border: none;
             cursor: pointer;
             padding: 8px;
             border-radius: 50%;
-            transition: all 0.2s;
+            transition: background 0.2s;
         }
 
         .menu-btn:hover {
-            background: #333;
-            border-color: #333;
+            background: #f1f3f4;
         }
 
         .menu-btn i {
             font-size: 20px;
-            color: #fff;
+            color: #5f6368;
         }
         
         .logo {
@@ -778,7 +903,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['grading_file'])) {
     </header>
     
     <!-- Sidebar -->
-    <aside class="sidebar">
+    <aside class="sidebar" id="sidebar">
         <div class="sidebar-section">
             <div class="sidebar-title">Main</div>
             <a class="nav-link" href="dashboard">
@@ -817,6 +942,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['grading_file'])) {
             <a class="nav-link" href="performance">
                 <i class="fas fa-chart-line"></i> Performance
             </a>
+            <a class="nav-link" href="results">
+                <i class="fas fa-clipboard-list"></i> Results
+            </a>
             <a class="nav-link" href="fees">
                 <i class="fas fa-dollar-sign"></i> Fees
             </a>
@@ -833,7 +961,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['grading_file'])) {
     </aside>
     
     <!-- Main Content -->
-    <main class="main-content">
+    <main class="main-content" id="mainContent">
         <h1 class="page-title">Grading System Management</h1>
         
         <?php if (isset($success)): ?>
@@ -958,12 +1086,77 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['grading_file'])) {
                 <?php endif; ?>
             </div>
         </div>
+
+        <!-- Aggregate Points Distribution Section -->
+        <div class="card">
+            <h2 class="card-title">Aggregate Points Distribution</h2>
+            <p class="text-muted mb-3">Define the aggregate points distribution for overall student performance (e.g., KCSE grading). This is separate from subject-specific grading scales.</p>
+
+            <form method="POST" enctype="multipart/form-data">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Download Template</label>
+                        <a href="grading?download_aggregate_template=1" class="btn btn-outline-primary w-100">
+                            <i class="fas fa-download me-2"></i> Download CSV Template
+                        </a>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Upload Completed Template</label>
+                        <input type="file" class="form-control" name="aggregate_file" accept=".csv" required>
+                        <small class="text-muted">Upload the completed CSV file with aggregate points distribution</small>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-upload me-2"></i> Upload Aggregate Points Distribution
+                </button>
+            </form>
+        </div>
+
+        <div class="card">
+            <h2 class="card-title">Current Aggregate Points Distribution</h2>
+
+            <?php if (empty($aggregate_distribution)): ?>
+                <p class="text-center text-muted">No aggregate points distribution defined yet</p>
+            <?php else: ?>
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Grade Name</th>
+                                <th>Min Points</th>
+                                <th>Max Points</th>
+                                <th>Description</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($aggregate_distribution as $aggregate): ?>
+                                <tr>
+                                    <td><strong><?php echo htmlspecialchars($aggregate['grade_name']); ?></strong></td>
+                                    <td><?php echo $aggregate['min_points']; ?></td>
+                                    <td><?php echo $aggregate['max_points']; ?></td>
+                                    <td><?php echo htmlspecialchars($aggregate['grade_description'] ?? '-'); ?></td>
+                                    <td>
+                                        <a href="grading?delete_aggregate=1&aggregate_id=<?php echo $aggregate['id']; ?>"
+                                           class="btn btn-sm btn-danger"
+                                           onclick="return confirm('Are you sure you want to delete this aggregate points distribution entry?')">
+                                            <i class="fas fa-trash"></i> Delete
+                                        </a>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+            <?php endif; ?>
+        </div>
     </main>
     
     <script>
         function toggleSidebar() {
-            const sidebar = document.querySelector('.sidebar');
-            const mainContent = document.querySelector('.main-content');
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('mainContent');
             sidebar.classList.toggle('collapsed');
             sidebar.classList.toggle('show');
             mainContent.classList.toggle('expanded');

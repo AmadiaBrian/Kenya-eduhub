@@ -590,6 +590,10 @@ try {
                 <i class="fas fa-clipboard-check"></i>
                 <span>Attendance</span>
             </a>
+            <a href="results" class="nav-link">
+                <i class="fas fa-clipboard-list"></i>
+                <span>Results</span>
+            </a>
             <a href="fees" class="nav-link">
                 <i class="fas fa-money-bill-wave"></i>
                 <span>Fees</span>

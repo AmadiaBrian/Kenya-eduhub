@@ -37,11 +37,21 @@ $smtp_settings = $stmt->fetch();
 $input = json_decode(file_get_contents('php://input'), true);
 $send_to_all = $input['send_to_all'] ?? false;
 $students = $input['students'] ?? [];
+$term = $input['term'] ?? null;
+$year = $input['year'] ?? null;
 
-if ($send_to_all) {
+error_log("Send fee reminders: send_to_all=$send_to_all, students_count=" . count($students) . ", term=$term, year=$year");
+
+// If students are sent with fee details, use them directly (from frontend selection)
+if (!empty($students) && isset($students[0]['fee_type'])) {
+    error_log("Using student data from frontend selection");
+    // Students already have fee details from the selected rows
+    // No need to recalculate
+} elseif ($send_to_all) {
     // Get all students with outstanding balances using teachers' proven method
     try {
-        $current_year = date('Y');
+        $current_year = $year ?? date('Y');
+        $filter_term = $term ?? null;
         
         // Get all active students
         $stmt = $pdo->prepare("
@@ -63,12 +73,12 @@ if ($send_to_all) {
             $student_id = $student['student_id'];
             $class_id = $student['class_id'];
             
-            // Get fee structures for this student's class in current year
+            // Get fee structures for this student's class in selected year
             $stmt = $pdo->prepare("SELECT * FROM fee_structure WHERE school_id = ? AND class_id = ? AND year = ? ORDER BY term, fee_type");
             $stmt->execute([$school_id, $class_id, $current_year]);
             $fee_structures = $stmt->fetchAll(PDO::FETCH_ASSOC);
             
-            // Get payments for this student in current year
+            // Get payments for this student in selected year
             $stmt = $pdo->prepare("SELECT * FROM fee_payments WHERE student_id = ? AND year = ? AND status = 'completed' ORDER BY payment_date DESC");
             $stmt->execute([$student_id, $current_year]);
             $payments = $stmt->fetchAll();
@@ -79,6 +89,11 @@ if ($send_to_all) {
                 $fs_year = $fs['year'];
                 $fs_fee_type = $fs['fee_type'];
                 $fs_amount = $fs['amount'];
+                
+                // If term filter is set, only include matching terms
+                if ($filter_term && $fs_term !== $filter_term) {
+                    continue;
+                }
                 
                 // Calculate paid amount for this specific fee structure
                 $paid_amount = 0;
@@ -146,60 +161,132 @@ $sent_count = 0;
 $failed_count = 0;
 
 try {
-    // Group students by parent to avoid duplicate emails and calculate total balances
+    // Group students by parent to avoid duplicate emails
     $parents_map = [];
-    $student_totals = [];
     
-    // First, calculate total balance per student across all fee types
-    foreach ($students as $student) {
-        $student_id = $student['student_id'];
-        if (!isset($student_totals[$student_id])) {
-            $student_totals[$student_id] = [
-                'admission_number' => $student['admission_number'],
-                'student_name' => $student['student_name'],
-                'total_balance' => 0
+    // If students have fee details from frontend, use them directly
+    if (!empty($students) && isset($students[0]['fee_type'])) {
+        error_log("Using fee details from frontend selection");
+        
+        foreach ($students as $student) {
+            $student_id = $student['student_id'];
+            
+            // Get student's parents
+            $stmt = $pdo->prepare("
+                SELECT p.id, p.first_name, p.last_name, p.email, p.phone 
+                FROM parents p
+                JOIN student_parents sp ON p.id = sp.parent_id
+                WHERE sp.student_id = ? AND p.school_id = ?
+            ");
+            $stmt->execute([$student_id, $school_id]);
+            $parents = $stmt->fetchAll();
+            
+            if (empty($parents)) {
+                error_log("No parents found for student ID: $student_id");
+                $failed_count++;
+                continue;
+            }
+            
+            foreach ($parents as $parent) {
+                if (!empty($parent['email'])) {
+                    $parent_key = $parent['email'];
+                    if (!isset($parents_map[$parent_key])) {
+                        $parents_map[$parent_key] = [
+                            'parent' => $parent,
+                            'students' => []
+                        ];
+                    }
+                    
+                    // Use the fee details from the selected row
+                    $record_key = $student_id . '_' . $student['fee_type'] . '_' . $student['term'] . '_' . $student['year'];
+                    if (!isset($parents_map[$parent_key]['students'][$record_key])) {
+                        $parents_map[$parent_key]['students'][$record_key] = [
+                            'student_id' => $student_id,
+                            'admission_number' => $student['admission_number'],
+                            'student_name' => $student['student_name'],
+                            'fee_type' => $student['fee_type'],
+                            'term' => $student['term'],
+                            'year' => $student['year'],
+                            'fee_amount' => $student['fee_amount'],
+                            'paid_amount' => $student['paid_amount'],
+                            'balance' => $student['balance']
+                        ];
+                    }
+                }
+            }
+        }
+    } else {
+        // Original logic for send_to_all or when fee details not provided
+        $student_totals = [];
+        
+        foreach ($students as $student) {
+            $student_id = $student['student_id'];
+            $term = $student['term'];
+            $year = $student['year'];
+            $fee_type = $student['fee_type'];
+            
+            $student_key = $student_id . '_' . $term . '_' . $year;
+            
+            if (!isset($student_totals[$student_key])) {
+                $student_totals[$student_key] = [
+                    'student_id' => $student_id,
+                    'admission_number' => $student['admission_number'],
+                    'student_name' => $student['student_name'],
+                    'term' => $term,
+                    'year' => $year,
+                    'total_balance' => 0,
+                    'fee_details' => []
+                ];
+            }
+            
+            $student_totals[$student_key]['total_balance'] += $student['balance'];
+            $student_totals[$student_key]['fee_details'][] = [
+                'fee_type' => $fee_type,
+                'fee_amount' => $student['fee_amount'],
+                'paid_amount' => $student['paid_amount'],
+                'balance' => $student['balance']
             ];
         }
-        $student_totals[$student_id]['total_balance'] += $student['balance'];
-    }
-    
-    // Then group by parent
-    foreach ($students as $student) {
-        $student_id = $student['student_id'];
         
-        // Get student's parents
-        $stmt = $pdo->prepare("
-            SELECT p.id, p.first_name, p.last_name, p.email, p.phone 
-            FROM parents p
-            JOIN student_parents sp ON p.id = sp.parent_id
-            WHERE sp.student_id = ? AND p.school_id = ?
-        ");
-        $stmt->execute([$student_id, $school_id]);
-        $parents = $stmt->fetchAll();
-        
-        if (empty($parents)) {
-            error_log("No parents found for student ID: $student_id");
-            $failed_count++;
-            continue;
-        }
-        
-        foreach ($parents as $parent) {
-            if (!empty($parent['email'])) {
-                $parent_key = $parent['email'];
-                if (!isset($parents_map[$parent_key])) {
-                    $parents_map[$parent_key] = [
-                        'parent' => $parent,
-                        'students' => []
-                    ];
-                }
-                // Add student with total balance (avoid duplicates)
-                $student_key = $student_id;
-                if (!isset($parents_map[$parent_key]['students'][$student_key])) {
-                    $parents_map[$parent_key]['students'][$student_key] = [
-                        'admission_number' => $student['admission_number'] ?? $student['admission'] ?? 'N/A',
-                        'student_name' => $student['student_name'],
-                        'balance' => $student_totals[$student_id]['total_balance']
-                    ];
+        foreach ($student_totals as $student_key => $student_data) {
+            $student_id = $student_data['student_id'];
+            
+            $stmt = $pdo->prepare("
+                SELECT p.id, p.first_name, p.last_name, p.email, p.phone 
+                FROM parents p
+                JOIN student_parents sp ON p.id = sp.parent_id
+                WHERE sp.student_id = ? AND p.school_id = ?
+            ");
+            $stmt->execute([$student_id, $school_id]);
+            $parents = $stmt->fetchAll();
+            
+            if (empty($parents)) {
+                error_log("No parents found for student ID: $student_id");
+                $failed_count++;
+                continue;
+            }
+            
+            foreach ($parents as $parent) {
+                if (!empty($parent['email'])) {
+                    $parent_key = $parent['email'];
+                    if (!isset($parents_map[$parent_key])) {
+                        $parents_map[$parent_key] = [
+                            'parent' => $parent,
+                            'students' => []
+                        ];
+                    }
+                    
+                    if (!isset($parents_map[$parent_key]['students'][$student_key])) {
+                        $parents_map[$parent_key]['students'][$student_key] = [
+                            'student_id' => $student_id,
+                            'admission_number' => $student_data['admission_number'],
+                            'student_name' => $student_data['student_name'],
+                            'term' => $student_data['term'],
+                            'year' => $student_data['year'],
+                            'total_balance' => $student_data['total_balance'],
+                            'fee_details' => $student_data['fee_details']
+                        ];
+                    }
                 }
             }
         }
@@ -234,6 +321,13 @@ try {
             $student_data = $stmt->fetch();
             
             if ($student_data) {
+                // Add fee details from the selected record
+                $student_data['fee_type'] = $student['fee_type'] ?? null;
+                $student_data['term'] = $student['term'] ?? null;
+                $student_data['year'] = $student['year'] ?? null;
+                $student_data['fee_amount'] = $student['fee_amount'] ?? null;
+                $student_data['paid_amount'] = $student['paid_amount'] ?? null;
+                $student_data['balance'] = $student['balance'] ?? null;
                 $parent_student_data[] = $student_data;
             }
         }
@@ -752,59 +846,84 @@ function generateIndividualFeeStatement($students, $school_name, $parent) {
         $student_id = $student['student_id'];
         $class_id = $student['class_id'];
         
-        // Get fee structure for this student
-        $stmt = $pdo->prepare("
-            SELECT * FROM fee_structure 
-            WHERE school_id = ? AND class_id = ? AND year = ? 
-            ORDER BY term, fee_type
-        ");
-        $stmt->execute([$school_id, $class_id, $current_year]);
-        $fee_structures = $stmt->fetchAll();
-        
-        // Get payment history for this student
-        $stmt = $pdo->prepare("
-            SELECT * FROM fee_payments 
-            WHERE student_id = ? AND year = ? AND status = 'completed' 
-            ORDER BY payment_date DESC
-        ");
-        $stmt->execute([$student_id, $current_year]);
-        $payments = $stmt->fetchAll();
-        
-        // Calculate term-wise balances
-        $term_data = [];
-        $total_fees = 0;
-        $total_paid = 0;
-        
-        foreach ($terms as $term) {
-            $term_fees = 0;
-            $term_paid = 0;
+        // If fee details are provided from selection, use them directly
+        if (isset($student['fee_type']) && isset($student['term']) && isset($student['year'])) {
+            $fee_type = $student['fee_type'];
+            $term = $student['term'];
+            $year = $student['year'];
+            $fee_amount = $student['fee_amount'];
+            $paid_amount = $student['paid_amount'];
+            $balance = $student['balance'];
             
-            foreach ($fee_structures as $fs) {
-                if ($fs['term'] === $term) {
-                    $term_fees += $fs['amount'];
-                }
-            }
-            
-            foreach ($payments as $payment) {
-                if ($payment['term'] === $term) {
-                    $term_paid += $payment['amount'];
-                }
-            }
-            
-            $term_balance = $term_fees - $term_paid;
-            
-            $term_data[$term] = [
-                'fees' => $term_fees,
-                'paid' => $term_paid,
-                'balance' => $term_balance
+            $term_data = [
+                $term => [
+                    'fees' => $fee_amount,
+                    'paid' => $paid_amount,
+                    'balance' => $balance,
+                    'fee_type' => $fee_type
+                ]
             ];
             
-            $total_fees += $term_fees;
-            $total_paid += $term_paid;
+            $total_fees = $fee_amount;
+            $total_paid = $paid_amount;
+            $grand_total_fees += $total_fees;
+            $grand_total_paid += $total_paid;
+        } else {
+            // Original logic for when fee details not provided
+            // Get fee structure for this student
+            $stmt = $pdo->prepare("
+                SELECT * FROM fee_structure 
+                WHERE school_id = ? AND class_id = ? AND year = ? 
+                ORDER BY term, fee_type
+            ");
+            $stmt->execute([$school_id, $class_id, $current_year]);
+            $fee_structures = $stmt->fetchAll();
+            
+            // Get payment history for this student
+            $stmt = $pdo->prepare("
+                SELECT * FROM fee_payments 
+                WHERE student_id = ? AND year = ? AND status = 'completed' 
+                ORDER BY payment_date DESC
+            ");
+            $stmt->execute([$student_id, $current_year]);
+            $payments = $stmt->fetchAll();
+            
+            // Calculate term-wise balances
+            $term_data = [];
+            $total_fees = 0;
+            $total_paid = 0;
+            
+            foreach ($terms as $term) {
+                $term_fees = 0;
+                $term_paid = 0;
+                
+                foreach ($fee_structures as $fs) {
+                    if ($fs['term'] === $term) {
+                        $term_fees += $fs['amount'];
+                    }
+                }
+                
+                foreach ($payments as $payment) {
+                    if ($payment['term'] === $term) {
+                        $term_paid += $payment['amount'];
+                    }
+                }
+                
+                $term_balance = $term_fees - $term_paid;
+                
+                $term_data[$term] = [
+                    'fees' => $term_fees,
+                    'paid' => $term_paid,
+                    'balance' => $term_balance
+                ];
+                
+                $total_fees += $term_fees;
+                $total_paid += $term_paid;
+            }
+            
+            $grand_total_fees += $total_fees;
+            $grand_total_paid += $total_paid;
         }
-        
-        $grand_total_fees += $total_fees;
-        $grand_total_paid += $total_paid;
         
         // Student Information Section
         $pdf->SetFont('helvetica', 'B', 12);
@@ -843,10 +962,16 @@ function generateIndividualFeeStatement($students, $school_name, $parent) {
         $pdf->Line(15, $pdf->GetY(), 195, $pdf->GetY());
         $pdf->Ln(3);
         
+        // Check if we have specific fee details from selection
+        $has_specific_fee = isset($student['fee_type']) && isset($student['term']);
+        
         // Summary table header
         $pdf->SetFillColor(255, 102, 0);
         $pdf->SetTextColor(255, 255, 255);
         $pdf->SetFont('helvetica', 'B', 10);
+        if ($has_specific_fee) {
+            $pdf->Cell(40, 8, 'Fee Type', 1, 0, 'C', true);
+        }
         $pdf->Cell(50, 8, 'Term', 1, 0, 'C', true);
         $pdf->Cell(40, 8, 'Fees', 1, 0, 'C', true);
         $pdf->Cell(40, 8, 'Paid', 1, 0, 'C', true);
@@ -855,17 +980,32 @@ function generateIndividualFeeStatement($students, $school_name, $parent) {
         
         // Summary table data
         $pdf->SetFont('helvetica', '', 9);
-        foreach ($terms as $term) {
-            $data = $term_data[$term];
-            $pdf->Cell(50, 7, $term, 1, 0, 'C');
-            $pdf->Cell(40, 7, 'KES ' . number_format($data['fees'], 2), 1, 0, 'R');
-            $pdf->Cell(40, 7, 'KES ' . number_format($data['paid'], 2), 1, 0, 'R');
-            $pdf->Cell(50, 7, 'KES ' . number_format($data['balance'], 2), 1, 1, 'R');
+        if ($has_specific_fee) {
+            // Show only the specific fee type selected
+            foreach ($term_data as $term => $data) {
+                $pdf->Cell(40, 7, $data['fee_type'] ?? 'N/A', 1, 0, 'C');
+                $pdf->Cell(50, 7, $term, 1, 0, 'C');
+                $pdf->Cell(40, 7, 'KES ' . number_format($data['fees'], 2), 1, 0, 'R');
+                $pdf->Cell(40, 7, 'KES ' . number_format($data['paid'], 2), 1, 0, 'R');
+                $pdf->Cell(50, 7, 'KES ' . number_format($data['balance'], 2), 1, 1, 'R');
+            }
+        } else {
+            // Show all terms
+            foreach ($terms as $term) {
+                $data = $term_data[$term];
+                $pdf->Cell(50, 7, $term, 1, 0, 'C');
+                $pdf->Cell(40, 7, 'KES ' . number_format($data['fees'], 2), 1, 0, 'R');
+                $pdf->Cell(40, 7, 'KES ' . number_format($data['paid'], 2), 1, 0, 'R');
+                $pdf->Cell(50, 7, 'KES ' . number_format($data['balance'], 2), 1, 1, 'R');
+            }
         }
         
         // Total row
         $pdf->SetFillColor(240, 240, 240);
         $pdf->SetFont('helvetica', 'B', 10);
+        if ($has_specific_fee) {
+            $pdf->Cell(40, 8, 'TOTAL', 1, 0, 'C', true);
+        }
         $pdf->Cell(50, 8, 'TOTAL', 1, 0, 'C', true);
         $pdf->Cell(40, 8, 'KES ' . number_format($total_fees, 2), 1, 0, 'R', true);
         $pdf->Cell(40, 8, 'KES ' . number_format($total_paid, 2), 1, 0, 'R', true);

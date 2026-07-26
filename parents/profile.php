@@ -451,6 +451,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <a class="nav-link" href="performance">
                 <i class="fas fa-chart-line"></i> Performance
             </a>
+            <a class="nav-link" href="results">
+                <i class="fas fa-award"></i> Results
+            </a>
             <a class="nav-link" href="fees">
                 <i class="fas fa-money-bill-wave"></i> Fee Payments
             </a>

@@ -642,6 +642,9 @@ try {
                 <a class="nav-link" href="performance">
                     <i class="fas fa-chart-line"></i> Performance
                 </a>
+                <a class="nav-link" href="results">
+                    <i class="fas fa-clipboard-list"></i> Results
+                </a>
                 <a class="nav-link" href="disciplinary">
                     <i class="fas fa-shield-alt"></i> Disciplinary
                 </a>

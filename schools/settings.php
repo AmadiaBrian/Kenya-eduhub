@@ -572,6 +572,9 @@ try {
             <a class="nav-link" href="performance">
                 <i class="fas fa-chart-line"></i> Performance
             </a>
+            <a class="nav-link" href="results">
+                <i class="fas fa-clipboard-list"></i> Results
+            </a>
             <a class="nav-link" href="attendance">
                 <i class="fas fa-calendar-check"></i> Attendance
             </a>
@@ -639,6 +642,31 @@ try {
                     </div>
                     <button type="submit" class="btn btn-primary">
                         <i class="fas fa-save me-2"></i> Save Settings
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <i class="fas fa-book me-2"></i> Subject Limits
+            </div>
+            <div class="card-body">
+                <form id="subjectLimitsForm">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Minimum Subjects</label>
+                            <input type="number" class="form-control" id="minSubjects" placeholder="e.g., 7" value="<?php echo htmlspecialchars($school['min_subjects'] ?? 7); ?>" min="1" required>
+                            <small class="text-muted">Minimum number of subjects a student must take for grading</small>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Maximum Subjects</label>
+                            <input type="number" class="form-control" id="maxSubjects" placeholder="e.g., 8" value="<?php echo htmlspecialchars($school['max_subjects'] ?? 8); ?>" min="1" required>
+                            <small class="text-muted">Maximum number of subjects a student can take</small>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save me-2"></i> Save Subject Limits
                     </button>
                 </form>
             </div>
@@ -733,6 +761,121 @@ try {
                     <div id="terminal" class="terminal">
                         <div class="terminal-line info" id="terminalPath">Ready to test SMTP connection...</div>
                         <div class="terminal-line info">Enter email and app password above, then click "Test Connection"</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mb-4">
+            <div class="card-header">
+                <i class="fas fa-sms me-2"></i> SMS Settings
+            </div>
+            <div class="card-body">
+                <form id="smsSettingsForm">
+                    <div class="mb-3">
+                        <label class="form-label">SMS Provider</label>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="card p-3" style="border: 2px solid #e0e0e0; cursor: pointer;" id="mobitechCard" onclick="selectSmsProvider('mobitech')">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="sms_provider" value="mobitech" id="mobitechProvider" <?= ($school['sms_provider'] ?? 'mobitech') === 'mobitech' ? 'checked' : '' ?>>
+                                        <label class="form-check-label" for="mobitechProvider">
+                                            <strong>Mobitech</strong>
+                                            <br><small class="text-muted">Reliable SMS gateway for Kenya</small>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card p-3" style="border: 2px solid #e0e0e0; cursor: pointer;" id="textsmsCard" onclick="selectSmsProvider('textsms')">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="sms_provider" value="textsms" id="textsmsProvider" <?= ($school['sms_provider'] ?? 'mobitech') === 'textsms' ? 'checked' : '' ?>>
+                                        <label class="form-check-label" for="textsmsProvider">
+                                            <strong>Text SMS</strong>
+                                            <br><small class="text-muted">Alternative SMS provider</small>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3" id="mobitechApiKeyField">
+                        <label class="form-label">Mobitech API Key</label>
+                        <div class="input-group">
+                            <input type="password" class="form-control" id="mobitechApiKey" placeholder="Enter your Mobitech API key" value="<?= htmlspecialchars($school['mobitech_api_key'] ?? '') ?>">
+                            <button class="btn btn-outline-secondary" type="button" onclick="togglePasswordVisibility('mobitechApiKey', this)">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                        <small class="text-muted">Get your API key from <a href="https://mobitech.co.ke" target="_blank">Mobitech</a></small>
+                    </div>
+                    
+                    <div class="mb-3" id="mobitechSenderIdField">
+                        <label class="form-label">Mobitech Sender ID <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="mobitechSenderId" placeholder="Enter your Mobitech sender ID" maxlength="11" value="<?= htmlspecialchars($school['mobitech_sender_id'] ?? '') ?>">
+                        <small class="text-muted">Your unique sender ID for Mobitech (max 11 characters)</small>
+                    </div>
+                    
+                    <div class="mb-3" id="textsmsApiKeyField" style="display: <?= ($school['sms_provider'] ?? 'mobitech') === 'textsms' ? 'block' : 'none' ?>;">
+                        <label class="form-label">Text SMS API Key</label>
+                        <div class="input-group">
+                            <input type="password" class="form-control" id="textsmsApiKey" placeholder="Enter your Text SMS API key" value="<?= htmlspecialchars($school['textsms_api_key'] ?? '') ?>">
+                            <button class="btn btn-outline-secondary" type="button" onclick="togglePasswordVisibility('textsmsApiKey', this)">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                        <small class="text-muted">Get your API key from <a href="https://textsms.co.ke" target="_blank">Text SMS</a></small>
+                    </div>
+                    
+                    <div class="mb-3" id="textsmsPartnerIdField" style="display: <?= ($school['sms_provider'] ?? 'mobitech') === 'textsms' ? 'block' : 'none' ?>;">
+                        <label class="form-label">Text SMS Partner ID</label>
+                        <input type="text" class="form-control" id="textsmsPartnerId" placeholder="Enter your Partner ID" value="<?= htmlspecialchars($school['textsms_partner_id'] ?? '') ?>">
+                        <small class="text-muted">Your Partner ID from Text SMS account</small>
+                    </div>
+                    
+                    <div class="mb-3" id="textsmsSenderIdField" style="display: <?= ($school['sms_provider'] ?? 'mobitech') === 'textsms' ? 'block' : 'none' ?>;">
+                        <label class="form-label">Text SMS Sender ID <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="textsmsSenderId" placeholder="Enter your Text SMS sender ID" maxlength="11" value="<?= htmlspecialchars($school['textsms_sender_id'] ?? '') ?>">
+                        <small class="text-muted">Your unique sender ID for Text SMS (max 11 characters)</small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="smsEnabled" <?= ($school['sms_enabled'] ?? 0) ? 'checked' : '' ?>>
+                            <label class="form-check-label" for="smsEnabled">
+                                <strong>Enable SMS Notifications</strong>
+                            </label>
+                        </div>
+                        <small class="text-muted">Turn on to send SMS notifications to parents and students</small>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save me-2"></i> Save SMS Settings
+                    </button>
+                    <button type="button" class="btn btn-outline-primary" onclick="checkSmsBalance()">
+                        <i class="fas fa-wallet me-2"></i> Check Balance
+                    </button>
+                </form>
+                
+                <!-- Balance Display -->
+                <div id="smsBalanceDisplay" class="mt-4" style="display: none;">
+                    <h5 class="mb-3">SMS Balance</h5>
+                    <div class="table-responsive">
+                        <table class="table">
+                            <tr>
+                                <td><strong>Mobitech Balance:</strong></td>
+                                <td id="mobitechBalance">-</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Text SMS Balance:</strong></td>
+                                <td id="textsmsBalance">-</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Last Checked:</strong></td>
+                                <td id="balanceLastChecked">-</td>
+                            </tr>
+                        </table>
                     </div>
                 </div>
             </div>
@@ -847,10 +990,44 @@ try {
             }
         }
         
+        // Save subject limits
+        document.getElementById('subjectLimitsForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const minSubjects = document.getElementById('minSubjects').value;
+            const maxSubjects = document.getElementById('maxSubjects').value;
+
+            if (parseInt(minSubjects) > parseInt(maxSubjects)) {
+                alert('Minimum subjects cannot be greater than maximum subjects');
+                return;
+            }
+
+            try {
+                const response = await fetch('api/settings.php?type=subject_limits', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        min_subjects: minSubjects,
+                        max_subjects: maxSubjects
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    alert('Subject limits saved successfully!');
+                } else {
+                    alert(data.error || 'Failed to save subject limits');
+                }
+            } catch (error) {
+                alert('An error occurred. Please try again.');
+            }
+        });
+
         // Save settings
         document.getElementById('settingsForm').addEventListener('submit', async function(e) {
             e.preventDefault();
-            
+
             const admissionPrefix = document.getElementById('admissionPrefix').value;
             
             try {
@@ -1029,6 +1206,128 @@ try {
                 passwordElement.textContent = '••••••••••••••••';
                 iconElement.classList.remove('fa-eye-slash');
                 iconElement.classList.add('fa-eye');
+            }
+        }
+        
+        // Select SMS provider
+        function selectSmsProvider(provider) {
+            const mobitechCard = document.getElementById('mobitechCard');
+            const textsmsCard = document.getElementById('textsmsCard');
+            const mobitechProvider = document.getElementById('mobitechProvider');
+            const textsmsProvider = document.getElementById('textsmsProvider');
+            const mobitechField = document.getElementById('mobitechApiKeyField');
+            const mobitechSenderIdField = document.getElementById('mobitechSenderIdField');
+            const textsmsField = document.getElementById('textsmsApiKeyField');
+            const textsmsPartnerIdField = document.getElementById('textsmsPartnerIdField');
+            const textsmsSenderIdField = document.getElementById('textsmsSenderIdField');
+            
+            if (provider === 'mobitech') {
+                mobitechCard.style.borderColor = '#FF6B35';
+                textsmsCard.style.borderColor = '#e0e0e0';
+                mobitechProvider.checked = true;
+                mobitechField.style.display = 'block';
+                mobitechSenderIdField.style.display = 'block';
+                textsmsField.style.display = 'none';
+                textsmsPartnerIdField.style.display = 'none';
+                textsmsSenderIdField.style.display = 'none';
+            } else {
+                textsmsCard.style.borderColor = '#FF6B35';
+                mobitechCard.style.borderColor = '#e0e0e0';
+                textsmsProvider.checked = true;
+                textsmsField.style.display = 'block';
+                textsmsPartnerIdField.style.display = 'block';
+                textsmsSenderIdField.style.display = 'block';
+                mobitechField.style.display = 'none';
+                mobitechSenderIdField.style.display = 'none';
+            }
+        }
+        
+        // Save SMS settings
+        document.getElementById('smsSettingsForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const smsProvider = document.querySelector('input[name="sms_provider"]:checked').value;
+            const mobitechApiKey = document.getElementById('mobitechApiKey').value;
+            const mobitechSenderId = document.getElementById('mobitechSenderId').value;
+            const textsmsApiKey = document.getElementById('textsmsApiKey').value;
+            const textsmsPartnerId = document.getElementById('textsmsPartnerId').value;
+            const textsmsSenderId = document.getElementById('textsmsSenderId').value;
+            const smsEnabled = document.getElementById('smsEnabled').checked ? 1 : 0;
+            
+            try {
+                const response = await fetch('api/settings.php?type=sms_settings', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        sms_provider: smsProvider,
+                        mobitech_api_key: mobitechApiKey,
+                        mobitech_sender_id: mobitechSenderId,
+                        textsms_api_key: textsmsApiKey,
+                        textsms_partner_id: textsmsPartnerId,
+                        textsms_sender_id: textsmsSenderId,
+                        sms_enabled: smsEnabled
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    notificationSystem.success('SMS settings saved successfully!');
+                } else {
+                    notificationSystem.error(data.error || 'Failed to save SMS settings');
+                }
+            } catch (error) {
+                notificationSystem.error('Error', 'An error occurred. Please try again.');
+            }
+        });
+        
+        // Initialize SMS provider selection
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentProvider = document.querySelector('input[name="sms_provider"]:checked')?.value || 'mobitech';
+            selectSmsProvider(currentProvider);
+        });
+        
+        // Check SMS balance
+        async function checkSmsBalance() {
+            const balanceDisplay = document.getElementById('smsBalanceDisplay');
+            const mobitechBalance = document.getElementById('mobitechBalance');
+            const textsmsBalance = document.getElementById('textsmsBalance');
+            const balanceLastChecked = document.getElementById('balanceLastChecked');
+            
+            // Show loading state
+            mobitechBalance.textContent = 'Checking...';
+            textsmsBalance.textContent = 'Checking...';
+            balanceDisplay.style.display = 'block';
+            
+            try {
+                // Check Mobitech balance
+                const mobitechResponse = await fetch('../sms/api/check_balance.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ provider: 'mobitech' })
+                });
+                const mobitechData = await mobitechResponse.json();
+                mobitechBalance.textContent = mobitechData.success ? mobitechData.balance + ' SMS' : 'Error: ' + (mobitechData.error || 'Unknown');
+                
+                // Check Text SMS balance
+                const textsmsResponse = await fetch('../sms/api/check_balance.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ provider: 'textsms' })
+                });
+                const textsmsData = await textsmsResponse.json();
+                textsmsBalance.textContent = textsmsData.success ? textsmsData.balance + ' SMS' : 'Error: ' + (textsmsData.error || 'Unknown');
+                
+                // Update last checked time
+                balanceLastChecked.textContent = new Date().toLocaleString();
+                
+                notificationSystem.success('SMS balance checked successfully!');
+            } catch (error) {
+                mobitechBalance.textContent = 'Error';
+                textsmsBalance.textContent = 'Error';
+                notificationSystem.error('Failed to check SMS balance');
             }
         }
     </script>

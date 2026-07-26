@@ -34,19 +34,21 @@ $school_id = $_SESSION['school_id'];
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     try {
-        $query = "SELECT * FROM subjects WHERE school_id = ? ORDER BY subject_name ASC";
-        
+        $query = "SELECT s.*, sc.category_name FROM subjects s
+                  LEFT JOIN subject_categories sc ON s.category_id = sc.id
+                  WHERE s.school_id = ? ORDER BY s.subject_name ASC";
+
         $stmt = $pdo->prepare($query);
         $stmt->execute([$school_id]);
         $subjects = $stmt->fetchAll();
-        
+
         success_response($subjects, 'Subjects retrieved successfully');
-        
+
     } catch (PDOException $e) {
         error_log("Failed to fetch subjects: " . $e->getMessage());
         error_response('Failed to fetch subjects', 500);
     }
-    
+
 } elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $input = json_decode(file_get_contents('php://input'), true);
     
@@ -60,13 +62,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     
     $subject_name = sanitize_input($input['subject_name']);
     $subject_code = !empty($input['subject_code']) ? sanitize_input($input['subject_code']) : null;
+    $category_id = !empty($input['category_id']) ? intval($input['category_id']) : null;
     $status = !empty($input['status']) ? sanitize_input($input['status']) : 'active';
-    
+
     // Validate status
     if (!in_array($status, ['active', 'inactive'])) {
         error_response('Invalid status');
     }
-    
+
     // Check if subject name already exists for this school
     try {
         $stmt = $pdo->prepare("SELECT id FROM subjects WHERE subject_name = ? AND school_id = ?");
@@ -94,9 +97,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     }
     
     try {
-        $stmt = $pdo->prepare("INSERT INTO subjects (school_id, subject_name, subject_code, status) VALUES (?, ?, ?, ?)");
-        $stmt->execute([$school_id, $subject_name, $subject_code, $status]);
-        
+        $stmt = $pdo->prepare("INSERT INTO subjects (school_id, subject_name, subject_code, category_id, status) VALUES (?, ?, ?, ?, ?)");
+        $stmt->execute([$school_id, $subject_name, $subject_code, $category_id, $status]);
+
         success_response(['subject_id' => $pdo->lastInsertId()], 'Subject added successfully');
         
     } catch (PDOException $e) {
@@ -118,13 +121,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     $subject_id = (int)$input['subject_id'];
     $subject_name = sanitize_input($input['subject_name']);
     $subject_code = !empty($input['subject_code']) ? sanitize_input($input['subject_code']) : null;
+    $category_id = !empty($input['category_id']) ? intval($input['category_id']) : null;
     $status = !empty($input['status']) ? sanitize_input($input['status']) : 'active';
-    
+
     // Validate status
     if (!in_array($status, ['active', 'inactive'])) {
         error_response('Invalid status');
     }
-    
+
     // Verify subject belongs to this school
     try {
         $stmt = $pdo->prepare("SELECT id FROM subjects WHERE id = ? AND school_id = ?");
@@ -164,11 +168,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     }
     
     try {
-        $stmt = $pdo->prepare("UPDATE subjects SET subject_name = ?, subject_code = ?, status = ? WHERE id = ?");
-        $stmt->execute([$subject_name, $subject_code, $status, $subject_id]);
-        
+        $stmt = $pdo->prepare("UPDATE subjects SET subject_name = ?, subject_code = ?, category_id = ?, status = ? WHERE id = ?");
+        $stmt->execute([$subject_name, $subject_code, $category_id, $status, $subject_id]);
+
         success_response([], 'Subject updated successfully');
-        
+
     } catch (PDOException $e) {
         error_log("Failed to update subject: " . $e->getMessage());
         error_response('Failed to update subject', 500);

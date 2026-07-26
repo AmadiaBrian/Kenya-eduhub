@@ -561,6 +561,9 @@ try {
             <a class="nav-link" href="students">
                 <i class="fas fa-user-graduate"></i> Students
             </a>
+            <a class="nav-link" href="student-subjects">
+                <i class="fas fa-book"></i> Student Subjects
+            </a>
             <a class="nav-link" href="assignments">
                 <i class="fas fa-tasks"></i> Assignments
             </a>

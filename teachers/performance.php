@@ -189,14 +189,48 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['performance_file']) 
                                     $student = $stmt->fetch();
                                     
                                     if ($student) {
-                                        // Calculate grade using grading system
+                                        // Calculate grade using grading system - filter by subject first
                                         $grade = 'No match';
                                         $gradeDescription = '';
-                                        foreach ($bulk_grading_scales as $scale) {
+                                        
+                                        // Filter grading scales for the specific subject
+                                        $subjectScales = array_filter($bulk_grading_scales, function($scale) use ($subject) {
+                                            if (!$scale['subject_name']) return false;
+                                            return strtoupper($scale['subject_name']) === strtoupper($subject);
+                                        });
+                                        
+                                        // Try subject-specific scales first
+                                        foreach ($subjectScales as $scale) {
                                             if ($marks >= $scale['min_score'] && $marks <= $scale['max_score']) {
                                                 $grade = $scale['grade_name'];
                                                 $gradeDescription = $scale['grade_description'] ?? '';
                                                 break;
+                                            }
+                                        }
+                                        
+                                        // If no subject-specific match, try general scales (subject_id is null)
+                                        if ($grade === 'No match') {
+                                            $generalScales = array_filter($bulk_grading_scales, function($scale) {
+                                                return $scale['subject_id'] === null;
+                                            });
+                                            foreach ($generalScales as $scale) {
+                                                if ($marks >= $scale['min_score'] && $marks <= $scale['max_score']) {
+                                                    $grade = $scale['grade_name'];
+                                                    $gradeDescription = $scale['grade_description'] ?? '';
+                                                    break;
+                                                }
+                                            }
+                                        }
+                                        
+                                        // Fallback to any matching scale if still no match
+                                        if ($grade === 'No match') {
+                                            foreach ($bulk_grading_scales as $scale) {
+                                                if ($marks >= $scale['min_score'] && $marks <= $scale['max_score']) {
+                                                    $grade = $scale['grade_name'];
+                                                    $gradeDescription = $scale['grade_description'] ?? '';
+                                                    error_log("WARNING: Using fallback scale from subject: " . ($scale['subject_name'] ?? 'General') . " for subject: $subject");
+                                                    break;
+                                                }
                                             }
                                         }
                                         
@@ -259,6 +293,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['performance_file']) 
 $grading_scales = [];
 $all_subjects = [];
 $exam_types = [];
+$aggregate_distribution = [];
 if ($teacher) {
     try {
         // Fetch all subjects for the school
@@ -293,15 +328,23 @@ if ($teacher) {
             }
         }
         
-        // Get all grading scales
-        $stmt = $pdo->prepare("SELECT gs.*, s.subject_name, s.id as subject_db_id, s.school_id as subject_school_id 
-                              FROM grading_scales gs 
-                              LEFT JOIN subjects s ON gs.subject_id = s.id 
+        // Get all grading scales for this school
+        $stmt = $pdo->prepare("SELECT gs.*, s.subject_name, s.id as subject_db_id, s.school_id as subject_school_id
+                              FROM grading_scales gs
+                              LEFT JOIN subjects s ON gs.subject_id = s.id
+                              WHERE gs.school_id = ?
                               ORDER BY gs.subject_id, gs.min_score");
-        $stmt->execute();
+        $stmt->execute([$teacher['school_id']]);
         $grading_scales = $stmt->fetchAll();
-        
+
         error_log("Found " . count($grading_scales) . " grading scales for subjects in school_id=" . $teacher['school_id']);
+
+        // Get aggregate points distribution
+        $stmt = $pdo->prepare("SELECT * FROM aggregate_points_distribution WHERE school_id = ? ORDER BY min_points DESC");
+        $stmt->execute([$teacher['school_id']]);
+        $aggregate_distribution = $stmt->fetchAll();
+
+        error_log("Found " . count($aggregate_distribution) . " aggregate points distribution entries for school_id=" . $teacher['school_id']);
     } catch (PDOException $e) {
         error_log("Failed to fetch grading scales: " . $e->getMessage());
     }
@@ -324,6 +367,52 @@ if ($teacher) {
         $subjects_without_performance = $stmt->fetchAll();
     } catch (PDOException $e) {
         error_log("Failed to fetch subjects without performance: " . $e->getMessage());
+    }
+}
+
+// Get student subject assignments for filtering total points calculation
+$student_subject_assignments = [];
+if ($teacher) {
+    try {
+        $stmt = $pdo->prepare("SELECT ss.student_id, st.admission_number, s.subject_name, s.id as subject_id, sc.is_compulsory
+                              FROM student_subjects ss
+                              JOIN students st ON ss.student_id = st.id
+                              JOIN subjects s ON ss.subject_id = s.id
+                              LEFT JOIN subject_categories sc ON s.category_id = sc.id
+                              WHERE ss.school_id = ?");
+        $stmt->execute([$teacher['school_id']]);
+        $assignments = $stmt->fetchAll();
+
+        // Group by admission_number for easier matching
+        foreach ($assignments as $assignment) {
+            $admission_number = $assignment['admission_number'];
+            $subject_name = $assignment['subject_name'];
+            $is_compulsory = $assignment['is_compulsory'] ?? 0;
+            if (!isset($student_subject_assignments[$admission_number])) {
+                $student_subject_assignments[$admission_number] = [];
+            }
+            $student_subject_assignments[$admission_number][] = [
+                'subject_name' => $subject_name,
+                'is_compulsory' => $is_compulsory
+            ];
+        }
+    } catch (PDOException $e) {
+        error_log("Failed to fetch student subject assignments: " . $e->getMessage());
+    }
+}
+
+// Get school minimum subjects requirement
+$school_min_subjects = 7; // Default
+$school_max_subjects = 8; // Default
+if ($teacher) {
+    try {
+        $stmt = $pdo->prepare("SELECT min_subjects, max_subjects FROM schools WHERE id = ?");
+        $stmt->execute([$teacher['school_id']]);
+        $school_limits = $stmt->fetch();
+        $school_min_subjects = $school_limits['min_subjects'] ?? 7;
+        $school_max_subjects = $school_limits['max_subjects'] ?? 8;
+    } catch (PDOException $e) {
+        error_log("Failed to fetch school subject limits: " . $e->getMessage());
     }
 }
 ?>
@@ -706,11 +795,17 @@ if ($teacher) {
             <a class="nav-link" href="calendar">
                 <i class="fas fa-calendar"></i> Calendar
             </a>
-            <a class="nav-link active" href="performance">
+            <a class="nav-link" href="performance">
                 <i class="fas fa-chart-line"></i> Performance
+            </a>
+            <a class="nav-link active" href="results">
+                <i class="fas fa-award"></i> Results
             </a>
             <a class="nav-link" href="students">
                 <i class="fas fa-user-graduate"></i> Students
+            </a>
+            <a class="nav-link" href="student-subjects">
+                <i class="fas fa-book"></i> Student Subjects
             </a>
             <a class="nav-link" href="assignments">
                 <i class="fas fa-tasks"></i> Assignments
@@ -1156,6 +1251,33 @@ if ($teacher) {
             }, 500);
         <?php endif; ?>
         
+        function abbreviateSubject(subject) {
+            const abbreviations = {
+                'Mathematics': 'Math',
+                'English': 'Eng',
+                'Kiswahili': 'Kisw',
+                'Biology': 'Bio',
+                'Chemistry': 'Chem',
+                'Physics': 'Phys',
+                'History': 'Hist',
+                'Geography': 'Geo',
+                'Christian Religious Education': 'CRE',
+                'Islamic Religious Education': 'IRE',
+                'Hindu Religious Education': 'HRE',
+                'Business Studies': 'Bus',
+                'Agriculture': 'Agric',
+                'Computer Studies': 'Comp',
+                'French': 'Fr',
+                'German': 'Ger',
+                'Arabic': 'Arb',
+                'Music': 'Mus',
+                'Art and Design': 'Art',
+                'Home Science': 'Home',
+                'Physical Education': 'PE'
+            };
+            return abbreviations[subject] || subject.substring(0, 4);
+        }
+
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
             const mainContent = document.getElementById('mainContent');
@@ -1313,26 +1435,63 @@ if ($teacher) {
             // Use grading scales from database
             const gradingScales = <?php echo json_encode($grading_scales); ?>;
             
+            // Get current subject
+            const subject = document.getElementById('subject').value.toUpperCase();
+            
             let grade = '';
             let gradeDescription = '';
             let points = 0;
             
-            console.log('Calculating grade for marks:', marks);
+            console.log('Calculating grade for marks:', marks, 'subject:', subject);
             console.log('Available grading scales:', gradingScales.length);
             
-            // Find the matching grade range
-            for (const scale of gradingScales) {
+            // Filter grading scales for the specific subject
+            const subjectScales = gradingScales.filter(scale => {
+                if (!scale.subject_name) return false; // Skip if no subject name
+                return scale.subject_name.toUpperCase() === subject;
+            });
+            
+            console.log('Subject-specific scales found:', subjectScales.length);
+            
+            // Try subject-specific scales first
+            let matchedScale = null;
+            for (const scale of subjectScales) {
                 if (marks >= scale.min_score && marks <= scale.max_score) {
-                    grade = scale.grade_name;
-                    gradeDescription = scale.grade_description || '';
-                    points = scale.points || 0;
-                    console.log('Matched grade:', grade, 'for range:', scale.min_score, '-', scale.max_score, 'Description:', gradeDescription, 'Points:', points);
+                    matchedScale = scale;
                     break;
                 }
             }
             
-            // If no grading scales found or no match, show error
-            if (!grade) {
+            // If no subject-specific match, try general scales (subject_id is null)
+            if (!matchedScale) {
+                const generalScales = gradingScales.filter(scale => scale.subject_id === null);
+                console.log('General scales found:', generalScales.length);
+                
+                for (const scale of generalScales) {
+                    if (marks >= scale.min_score && marks <= scale.max_score) {
+                        matchedScale = scale;
+                        break;
+                    }
+                }
+            }
+            
+            // If still no match, use any scale that fits (fallback)
+            if (!matchedScale) {
+                for (const scale of gradingScales) {
+                    if (marks >= scale.min_score && marks <= scale.max_score) {
+                        matchedScale = scale;
+                        console.log('WARNING: Using fallback scale from subject:', scale.subject_name);
+                        break;
+                    }
+                }
+            }
+            
+            if (matchedScale) {
+                grade = matchedScale.grade_name;
+                gradeDescription = matchedScale.grade_description || '';
+                points = matchedScale.points || 0;
+                console.log('Matched grade:', grade, 'for range:', matchedScale.min_score, '-', matchedScale.max_score, 'Subject:', matchedScale.subject_name, 'Points:', points);
+            } else {
                 console.log('No grading scale match');
                 grade = 'No match';
                 points = 0;
@@ -1501,7 +1660,7 @@ if ($teacher) {
             const container = document.getElementById('performanceTableContainer');
 
             if (filtered.length > 0) {
-                // Group by subject if no subject filter is applied
+                // Subject view: group by subject if no subject filter is applied
                 if (!subjectFilter) {
                     const groupedBySubject = {};
                     filtered.forEach(record => {
