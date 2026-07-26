@@ -578,6 +578,10 @@ try {
                 <i class="fas fa-chart-line"></i>
                 <span>Performance</span>
             </a>
+            <a href="results" class="nav-link">
+                <i class="fas fa-award"></i>
+                <span>Results</span>
+            </a>
             <a href="assignments" class="nav-link">
                 <i class="fas fa-tasks"></i>
                 <span>Assignments</span>

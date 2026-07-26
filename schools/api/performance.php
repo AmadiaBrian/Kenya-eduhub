@@ -10,6 +10,8 @@ header('Content-Type: application/json');
 // Check authentication
 $school_id = null;
 $teacher_id = null;
+$parent_id = null;
+
 if (isset($_SESSION['school_id'])) {
     $school_id = $_SESSION['school_id'];
 } elseif (isset($_SESSION['teacher_id'])) {
@@ -24,6 +26,19 @@ if (isset($_SESSION['school_id'])) {
         }
     } catch (PDOException $e) {
         error_log("Failed to get teacher school: " . $e->getMessage());
+    }
+} elseif (isset($_SESSION['parent_id'])) {
+    // Get school_id from parent
+    try {
+        $stmt = $pdo->prepare("SELECT school_id, id FROM parents WHERE id = ?");
+        $stmt->execute([$_SESSION['parent_id']]);
+        $parent = $stmt->fetch();
+        if ($parent) {
+            $school_id = $parent['school_id'];
+            $parent_id = $parent['id'];
+        }
+    } catch (PDOException $e) {
+        error_log("Failed to get parent school: " . $e->getMessage());
     }
 }
 

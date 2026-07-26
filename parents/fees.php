@@ -610,6 +610,9 @@ try {
             <a class="nav-link" href="performance">
                 <i class="fas fa-chart-line"></i> Performance
             </a>
+            <a class="nav-link" href="results">
+                <i class="fas fa-award"></i> Results
+            </a>
             <a class="nav-link" href="attendance">
                 <i class="fas fa-calendar-check"></i> Attendance
             </a>

@@ -24,6 +24,8 @@ $school_name = $_SESSION['school_name'] ?? 'School';
 
 // Get calendar status
 $calendar_status = getSchoolCalendarStatus($pdo, $school_id);
+$current_term_data = $calendar_status['current_term'];
+$active_term = $current_term_data['term_name'] ?? 'Term 1';
 
 // Get school admission prefix
 try {
@@ -604,6 +606,9 @@ try {
             <a class="nav-link" href="performance">
                 <i class="fas fa-chart-line"></i> Performance
             </a>
+            <a class="nav-link" href="results">
+                <i class="fas fa-clipboard-list"></i> Results
+            </a>
             <a class="nav-link" href="attendance">
                 <i class="fas fa-calendar-check"></i> Attendance
             </a>
@@ -907,13 +912,10 @@ try {
                     <input type="text" class="form-control form-control-sm" id="searchAdmission" placeholder="Admission No" style="width: 150px;">
                     <input type="text" class="form-control form-control-sm" id="searchName" placeholder="Student Name" style="width: 150px;">
                     <select class="form-control form-control-sm" id="balanceTerm" style="width: 120px;">
-                        <option value="Term 1">Term 1</option>
-                        <option value="Term 2">Term 2</option>
-                        <option value="Term 3">Term 3</option>
+                        <option value="">Select Term</option>
                     </select>
                     <select class="form-control form-control-sm" id="balanceYear" style="width: 100px;">
-                        <option value="2026">2026</option>
-                        <option value="2025">2025</option>
+                        <option value="">Select Year</option>
                     </select>
                     <button class="btn btn-sm btn-primary" onclick="loadBalances()">
                         <i class="fas fa-search"></i> View
@@ -924,8 +926,8 @@ try {
                     <button class="btn btn-sm btn-warning" onclick="sendFeeReminders()">
                         <i class="fas fa-bell"></i> Send Reminders
                     </button>
-                    <button class="btn btn-sm btn-info" onclick="sendRemindersToAll()">
-                        <i class="fas fa-users"></i> Send to All
+                    <button class="btn btn-sm btn-success" onclick="sendFeeBalancesViaSMS()">
+                        <i class="fas fa-sms"></i> Send SMS Balances
                     </button>
                 </div>
             </div>
@@ -1514,15 +1516,34 @@ try {
             
             const students = [];
             selectedCheckboxes.forEach(cb => {
+                console.log('Checkbox data:', {
+                    studentId: cb.dataset.studentId,
+                    studentName: cb.dataset.studentName,
+                    admission: cb.dataset.admission,
+                    balance: cb.dataset.balance,
+                    feeType: cb.dataset.feeType,
+                    term: cb.dataset.term,
+                    year: cb.dataset.year,
+                    feeAmount: cb.dataset.feeAmount,
+                    paidAmount: cb.dataset.paidAmount
+                });
+                
                 students.push({
                     student_id: cb.dataset.studentId,
                     student_name: cb.dataset.studentName,
                     admission_number: cb.dataset.admission,
-                    balance: cb.dataset.balance
+                    balance: cb.dataset.balance,
+                    fee_type: cb.dataset.feeType,
+                    term: cb.dataset.term,
+                    year: cb.dataset.year,
+                    fee_amount: cb.dataset.feeAmount,
+                    paid_amount: cb.dataset.paidAmount
                 });
             });
             
-            const confirmed = await notificationSystem.confirm(`Send fee reminders to ${students.length} parent(s)?`);
+            console.log('Students data being sent:', students);
+            
+            const confirmed = await notificationSystem.confirm(`Send fee reminders for ${students.length} selected fee record(s)?`);
             if (!confirmed) {
                 return;
             }
@@ -1540,6 +1561,8 @@ try {
                     body: JSON.stringify({ students: students })
                 });
                 const data = await response.json();
+                
+                console.log('API response:', data);
                 
                 if (data.success) {
                     notificationSystem.success('Success', `Reminders sent successfully to ${data.sent_count} parent(s).`);
@@ -1806,8 +1829,12 @@ try {
         // Render balances to table
         function renderBalances(balances) {
             const tbody = document.getElementById('balancesTable');
-            tbody.innerHTML = balances.map(balance => `
+            tbody.innerHTML = balances.map(balance => {
+                const balanceVal = parseFloat(balance.balance) || 0;
+                const hasOut = balanceVal > 0;
+                return `
                 <tr>
+                    <td><input type="checkbox" class="balance-checkbox" data-student-id="${balance.student_id}" data-balance="${balanceVal}" data-student-name="${balance.student_name}" data-admission="${balance.admission_number}" data-fee-type="${balance.fee_type || 'Tuition'}" data-term="${balance.term}" data-year="${balance.year}" data-fee-amount="${balance.fee_amount}" data-paid-amount="${balance.paid_amount}" ${hasOut ? '' : 'disabled'}></td>
                     <td>${balance.admission_number}</td>
                     <td>${balance.student_name}</td>
                     <td>${balance.class_name || '-'}</td>
@@ -1817,10 +1844,10 @@ try {
                     <td>${balance.year}</td>
                     <td>KES ${balance.fee_amount.toLocaleString()}</td>
                     <td>KES ${balance.paid_amount.toLocaleString()}</td>
-                    <td>KES ${balance.balance.toLocaleString()}</td>
+                    <td>KES ${balanceVal.toLocaleString()}</td>
                     <td>
-                        <span class="badge ${balance.balance <= 0 ? 'bg-success' : 'bg-warning'}">
-                            ${balance.balance <= 0 ? 'Paid' : 'Balance Due'}
+                        <span class="badge ${balanceVal <= 0 ? 'bg-success' : 'bg-warning'}">
+                            ${balanceVal <= 0 ? 'Paid' : 'Balance Due'}
                         </span>
                     </td>
                     <td>
@@ -1829,7 +1856,7 @@ try {
                         </button>
                     </td>
                 </tr>
-            `).join('');
+            `}).join('');
         }
         
         // Generate fee statement for a student
@@ -1874,6 +1901,171 @@ try {
         loadClassesFilter();
         loadFeeStructures();
         loadPayments();
+        populateTermYearFilters();
+        
+        // Populate term and year filters from database
+        async function populateTermYearFilters() {
+            const activeTerm = "<?php echo $active_term; ?>";
+            const currentYear = "<?php echo date('Y'); ?>";
+            
+            console.log('Active term from PHP:', activeTerm);
+            
+            const termSelect = document.getElementById('balanceTerm');
+            termSelect.innerHTML = '<option value="">Select Term</option>';
+            
+            try {
+                // Get terms from terms table
+                const termsResponse = await fetch('api/fees.php?type=terms');
+                const termsData = await termsResponse.json();
+                console.log('Terms response:', termsData);
+                
+                if (termsData.success && termsData.data && termsData.data.length > 0) {
+                    let termSelected = false;
+                    termsData.data.forEach(term => {
+                        const termName = term.term_name;
+                        const selected = termName === activeTerm ? 'selected' : '';
+                        if (selected) termSelected = true;
+                        termSelect.innerHTML += `<option value="${termName}" ${selected}>${termName}</option>`;
+                        console.log('Added term:', termName, 'selected:', selected);
+                    });
+                    
+                    if (!termSelected && termsData.data.length > 0) {
+                        termSelect.value = termsData.data[0].term_name;
+                        console.log('Active term not found, selected:', termsData.data[0].term_name);
+                    }
+                } else {
+                    console.log('No terms found, using standard terms');
+                    // Use standard terms as fallback
+                    const standardTerms = ['Term 1', 'Term 2', 'Term 3'];
+                    standardTerms.forEach(term => {
+                        const selected = term === activeTerm ? 'selected' : '';
+                        termSelect.innerHTML += `<option value="${term}" ${selected}>${term}</option>`;
+                    });
+                }
+            } catch (error) {
+                console.error('Error fetching terms:', error);
+                // Use standard terms as fallback
+                const standardTerms = ['Term 1', 'Term 2', 'Term 3'];
+                standardTerms.forEach(term => {
+                    const selected = term === activeTerm ? 'selected' : '';
+                    termSelect.innerHTML += `<option value="${term}" ${selected}>${term}</option>`;
+                });
+            }
+            
+            // Get years from fee structures
+            try {
+                const structureResponse = await fetch('api/fees.php?type=structure');
+                const structureData = await structureResponse.json();
+                console.log('Fee structures response:', structureData);
+                
+                if (structureData.success && structureData.data && structureData.data.length > 0) {
+                    const years = [...new Set(structureData.data.map(fs => fs.year))].sort().reverse();
+                    console.log('Available years:', years);
+                    
+                    const yearSelect = document.getElementById('balanceYear');
+                    yearSelect.innerHTML = '<option value="">Select Year</option>';
+                    years.forEach(year => {
+                        const selected = year == currentYear ? 'selected' : '';
+                        yearSelect.innerHTML += `<option value="${year}" ${selected}>${year}</option>`;
+                    });
+                    
+                    const smsYearSelect = document.getElementById('smsYear');
+                    smsYearSelect.innerHTML = '<option value="">Select Year</option>';
+                    years.forEach(year => {
+                        const selected = year == currentYear ? 'selected' : '';
+                        smsYearSelect.innerHTML += `<option value="${year}" ${selected}>${year}</option>`;
+                    });
+                } else {
+                    const yearSelect = document.getElementById('balanceYear');
+                    yearSelect.innerHTML = `<option value="${currentYear}" selected>${currentYear}</option>`;
+                    const smsYearSelect = document.getElementById('smsYear');
+                    smsYearSelect.innerHTML = `<option value="${currentYear}" selected>${currentYear}</option>`;
+                }
+            } catch (error) {
+                console.error('Error fetching years:', error);
+                const yearSelect = document.getElementById('balanceYear');
+                yearSelect.innerHTML = `<option value="${currentYear}" selected>${currentYear}</option>`;
+                const smsYearSelect = document.getElementById('smsYear');
+                smsYearSelect.innerHTML = `<option value="${currentYear}" selected>${currentYear}</option>`;
+            }
+        }
+        
+        // Send fee balances via SMS
+        async function sendFeeBalancesViaSMS() {
+            const selectedCheckboxes = document.querySelectorAll('.balance-checkbox:checked');
+            
+            if (selectedCheckboxes.length === 0) {
+                alert('Please select at least one student with outstanding balance to send SMS.');
+                return;
+            }
+            
+            // Get the current term and year from the balance filters
+            const balanceType = 'term'; // Always use term balance
+            const year = document.getElementById('balanceYear').value;
+            const term = document.getElementById('balanceTerm').value;
+            
+            if (!year || !term) {
+                alert('Please select term and year from the balance filters first.');
+                return;
+            }
+            
+            // Get selected student data with fee details
+            const students = [];
+            selectedCheckboxes.forEach(cb => {
+                students.push({
+                    student_id: cb.dataset.studentId,
+                    admission_number: cb.dataset.admission,
+                    student_name: cb.dataset.studentName,
+                    balance: cb.dataset.balance,
+                    fee_type: cb.dataset.feeType,
+                    fee_amount: cb.dataset.feeAmount,
+                    paid_amount: cb.dataset.paidAmount
+                });
+            });
+            
+            console.log('Sending SMS with data:', { students, balanceType, year, term });
+            
+            // Show loading
+            const sendBtn = document.querySelector('button[onclick="sendFeeBalancesViaSMS()"]');
+            const originalText = sendBtn.innerHTML;
+            sendBtn.disabled = true;
+            sendBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+            
+            try {
+                const response = await fetch('api/send_fee_balance_sms.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        students: students,
+                        balance_type: balanceType,
+                        year: year,
+                        term: term
+                    })
+                });
+                
+                const data = await response.json();
+                console.log('SMS API Response:', data);
+                
+                if (data.success) {
+                    let message = `SMS sent successfully to ${data.sent_count} parent(s). ${data.failed_count || 0} failed.`;
+                    if (data.error_details && data.error_details.length > 0) {
+                        message += '\n\nError details:\n' + data.error_details.join('\n');
+                    }
+                    alert(message);
+                    // Clear selections
+                    document.getElementById('selectAllBalances').checked = false;
+                    selectedCheckboxes.forEach(cb => cb.checked = false);
+                } else {
+                    alert(data.error || 'Failed to send SMS');
+                }
+            } catch (error) {
+                console.error('Error sending SMS:', error);
+                alert('An error occurred while sending SMS');
+            } finally {
+                sendBtn.disabled = false;
+                sendBtn.innerHTML = originalText;
+            }
+        }
     </script>
     <script src="../assets/js/notifications.js"></script>
     

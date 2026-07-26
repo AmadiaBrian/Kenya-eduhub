@@ -705,6 +705,9 @@ try {
             <a class="nav-link" href="attendance">
                 <i class="fas fa-calendar-check"></i> Attendance
             </a>
+            <a class="nav-link" href="results">
+                <i class="fas fa-clipboard-list"></i> Results
+            </a>
             <a class="nav-link" href="calendar">
                 <i class="fas fa-calendar-alt"></i> Calendar
             </a>

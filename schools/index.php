@@ -28,6 +28,7 @@ $allowed_routes = [
     'parents',
     'performance',
     'profile',
+    'results',
     'settings',
     'streams',
     'students',

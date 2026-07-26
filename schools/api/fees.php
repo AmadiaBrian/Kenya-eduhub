@@ -33,11 +33,40 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             $stmt->execute([$school_id]);
             $fee_structures = $stmt->fetchAll();
             
+            error_log("Fee structures for school $school_id: " . count($fee_structures) . " records");
+            foreach ($fee_structures as $fs) {
+                error_log("Fee structure: term={$fs['term']}, year={$fs['year']}, class={$fs['class_name']}");
+            }
+            
             success_response($fee_structures, 'Fee structures retrieved successfully');
             
         } catch (PDOException $e) {
             error_log("Failed to fetch fee structures: " . $e->getMessage());
             error_response('Failed to fetch fee structures', 500);
+        }
+        
+    } elseif ($type === 'terms') {
+        // Get all terms from the terms table
+        try {
+            $query = "SELECT term_name, start_date, end_date, is_active 
+                     FROM terms 
+                     WHERE school_id = ? 
+                     ORDER BY start_date DESC";
+            
+            $stmt = $pdo->prepare($query);
+            $stmt->execute([$school_id]);
+            $terms = $stmt->fetchAll();
+            
+            error_log("Terms for school $school_id: " . count($terms) . " records");
+            foreach ($terms as $term) {
+                error_log("Term: {$term['term_name']}, active: {$term['is_active']}");
+            }
+            
+            success_response($terms, 'Terms retrieved successfully');
+            
+        } catch (PDOException $e) {
+            error_log("Failed to fetch terms: " . $e->getMessage());
+            error_response('Failed to fetch terms', 500);
         }
         
     } elseif ($type === 'payments') {
@@ -74,7 +103,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         }
         
         try {
-            $query = "SELECT s.id, s.admission_number, CONCAT(s.first_name, ' ', s.last_name) as student_name,
+            $query = "SELECT s.id as student_id, s.admission_number, CONCAT(s.first_name, ' ', s.last_name) as student_name,
                      c.class_name, st.stream_name, fs.term, fs.year, fs.fee_type, fs.amount as fee_amount,
                      COALESCE(SUM(fp.amount), 0) as paid_amount,
                      fs.amount - COALESCE(SUM(fp.amount), 0) as balance
@@ -86,6 +115,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                      WHERE s.school_id = ? AND s.status = 'active'";
             
             $params = [$term, $year, $term, $year, $school_id];
+            
+            error_log("Balances query params: term=$term, year=$year, school_id=$school_id, class_id=$class_id, stream_id=$stream_id");
             
             // Add optional filters
             if (!empty($class_id)) {
