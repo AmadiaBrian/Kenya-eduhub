@@ -277,6 +277,17 @@ $school_name = $_SESSION['school_name'] ?? 'School';
             background: #b92b20;
         }
         
+        .btn-action {
+            background: #f8f9fa;
+            color: #000;
+            border: 1px solid #000;
+            cursor: pointer;
+        }
+        
+        .btn-action:hover {
+            background: #e9ecef;
+        }
+        
         .table {
             border-collapse: collapse;
             background: white;
@@ -519,6 +530,12 @@ $school_name = $_SESSION['school_name'] ?? 'School';
             <a class="nav-link" href="parents">
                 <i class="fas fa-users"></i> Parents
             </a>
+            <a class="nav-link" href="disciplinary">
+                <i class="fas fa-shield-alt"></i> Disciplinary
+            </a>
+            <a class="nav-link" href="disciplinary-action-types">
+                <i class="fas fa-list-alt"></i> Disciplinary Types
+            </a>
             <a class="nav-link" href="performance">
                 <i class="fas fa-chart-line"></i> Performance
             </a>
@@ -737,10 +754,10 @@ $school_name = $_SESSION['school_name'] ?? 'School';
                             <td>${cls.stream_count || 0}</td>
                             <td>${cls.student_count}</td>
                             <td>
-                                <button class="btn btn-sm btn-primary" onclick="editClass(${cls.id})">
+                                <button class="btn btn-sm btn-action" onclick="editClass(${cls.id})">
                                     <i class="fas fa-edit"></i>
                                 </button>
-                                <button class="btn btn-sm btn-danger" onclick="deleteClass(${cls.id})">
+                                <button class="btn btn-sm btn-action" onclick="deleteClass(${cls.id})">
                                     <i class="fas fa-trash"></i>
                                 </button>
                             </td>

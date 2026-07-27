@@ -753,6 +753,37 @@ try {
             color: #202124;
             text-align: center;
         }
+        
+        /* Status Badges */
+        .badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: capitalize;
+            color: #000000;
+            background: #ffffff;
+            border: 1px solid #000000;
+        }
+        
+        .badge-active {
+            background: #e6f4ea;
+            color: #000000;
+            border: 1px solid #137333;
+        }
+        
+        .badge-pending {
+            background: #fef7e0;
+            color: #000000;
+            border: 1px solid #f9ab00;
+        }
+        
+        .badge-inactive {
+            background: #fce8e6;
+            color: #000000;
+            border: 1px solid #c5221f;
+        }
     </style>
 </head>
 <body>
@@ -873,6 +904,9 @@ try {
                 </a>
                 <a class="nav-link" href="disciplinary">
                     <i class="fas fa-shield-alt"></i> Disciplinary
+                </a>
+                <a class="nav-link" href="disciplinary-action-types">
+                    <i class="fas fa-list-alt"></i> Disciplinary Types
                 </a>
                 <a class="nav-link" href="duty-assignments">
                     <i class="fas fa-clipboard-list"></i> Duty Assignments

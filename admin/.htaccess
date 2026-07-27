@@ -1,15 +1,16 @@
 RewriteEngine On
 
-# Hide .php extension from URLs
-RewriteCond %{THE_REQUEST} \s/([^\.]+)\.php[\s?] [NC]
-RewriteRule ^ /%1 [R=301,L]
+# Set the directory index
+DirectoryIndex index.php
 
-# Internally rewrite to .php file
-RewriteCond %{REQUEST_FILENAME} !-d
+# Allow direct access to api directories
+RewriteRule ^api/ - [L]
+RewriteRule ^schools/api/ - [L]
+
+# Handle root directory request (redirect to dashboard)
+RewriteRule ^$ index.php?route=dashboard [L,QSA]
+
+# Route all other requests to index.php for routing
 RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME}.php -f
-RewriteRule ^([^\.]+)$ $1.php [L]
-
-# Prevent access to .php files directly
-RewriteCond %{THE_REQUEST} \.php[\s?] [NC]
-RewriteRule ^ - [F]
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ index.php?route=$1 [L,QSA]

@@ -1,14 +1,20 @@
 <?php
-session_start();
-require_once '../config.php';
-require_once '../includes/helpers.php';
+// Admin Logs
+// Session is started by index.php router
+require_once __DIR__ . '/../config.php';
+require_once __DIR__ . '/../includes/helpers.php';
+require_once __DIR__ . '/../includes/security_lite.php';
+
+// Output CSRF token variable for use in HTML
+$csrf_token = generateCSRFLite();
 
 // Check if user is logged in and is admin
 if (!isset($_SESSION['user_id'])) {
-    header("Location: login.php");
+    header("Location: /login");
     exit();
 }
 
+// Check if user is admin
 $stmt = $conn->prepare("SELECT * FROM users WHERE id = ?");
 $stmt->bind_param("i", $_SESSION['user_id']);
 $stmt->execute();
@@ -16,7 +22,7 @@ $result = $stmt->get_result();
 $user = $result->fetch_assoc();
 
 if (!isset($user['role']) || $user['role'] !== 'admin') {
-    header("Location: ../dashboard/index.php");
+    header("Location: ../dashboard");
     exit();
 }
 
@@ -26,44 +32,73 @@ $logs = [];
 $currentLog = '';
 $error = '';
 
-// Get available log files and find the most recent one
-$mostRecentFile = 'activity.log';
-$mostRecentTime = 0;
-if (is_dir($logDir)) {
-    $files = scandir($logDir);
-    foreach ($files as $file) {
-        if ($file !== '.' && $file !== '..' && preg_match('/\.log$/', $file)) {
-            $filePath = $logDir . '/' . $file;
-            $fileTime = filemtime($filePath);
-            $logs[] = [
-                'name' => $file,
-                'path' => $filePath,
-                'size' => filesize($filePath),
-                'modified' => $fileTime
+// Function to recursively get log files
+function getLogFiles($dir, $prefix = '') {
+    $files = [];
+    if (!is_dir($dir)) return $files;
+    
+    $items = scandir($dir);
+    foreach ($items as $item) {
+        if ($item === '.' || $item === '..') continue;
+        
+        $path = $dir . '/' . $item;
+        
+        if (is_dir($path)) {
+            // Recursively get files from subdirectories
+            $subFiles = getLogFiles($path, $prefix . $item . '/');
+            $files = array_merge($files, $subFiles);
+        } elseif (preg_match('/\.log$/', $item)) {
+            $files[] = [
+                'name' => $prefix . $item,
+                'path' => $path,
+                'size' => filesize($path),
+                'modified' => filemtime($path)
             ];
-            
-            // Track most recent file
-            if ($fileTime > $mostRecentTime) {
-                $mostRecentTime = $fileTime;
-                $mostRecentFile = $file;
-            }
         }
+    }
+    
+    return $files;
+}
+
+// Get all available log files including subdirectories
+$logs = getLogFiles($logDir);
+
+// Sort logs by modification time (newest first)
+usort($logs, function($a, $b) {
+    return $b['modified'] - $a['modified'];
+});
+
+// Get available log files and find the most recent one
+$mostRecentFile = !empty($logs) ? $logs[0]['name'] : 'activity.log';
+$mostRecentTime = !empty($logs) ? $logs[0]['modified'] : 0;
+
+// Handle log file selection - prioritize security.log if it exists
+$securityLogExists = false;
+foreach ($logs as $log) {
+    if ($log['name'] === 'security.log' || strpos($log['name'], 'security/') === 0) {
+        $securityLogExists = true;
+        break;
     }
 }
 
-// Handle log file selection - prioritize security.log if it exists
-$securityLogPath = $logDir . '/security.log';
-if (file_exists($securityLogPath)) {
+if ($securityLogExists) {
     $logFile = $_GET['file'] ?? 'security.log';
 } else {
     $logFile = $_GET['file'] ?? $mostRecentFile;
 }
+
+// Handle subdirectory paths
 $logPath = $logDir . '/' . $logFile;
 
 // Security: Validate log file path
-if (!file_exists($logPath) || strpos($logFile, '..') !== false || !preg_match('/^[a-zA-Z0-9_.-]+$/', $logFile)) {
-    $logPath = $logDir . '/activity.log';
-    $logFile = 'activity.log';
+if (!file_exists($logPath) || strpos($logFile, '..') !== false || !preg_match('/^[a-zA-Z0-9_\/.-]+$/', $logFile)) {
+    if (!empty($logs)) {
+        $logFile = $logs[0]['name'];
+        $logPath = $logs[0]['path'];
+    } else {
+        $logPath = $logDir . '/activity.log';
+        $logFile = 'activity.log';
+    }
 }
 
 // Read current log file
@@ -76,7 +111,7 @@ if (file_exists($logPath)) {
 // Handle log clearing
 if (($_GET['action'] ?? '') === 'clear' && ($_GET['confirm'] ?? '') === 'yes') {
     $fileToClear = $logDir . '/' . $logFile;
-    if (file_exists($fileToClear) && preg_match('/^[a-zA-Z0-9_.-]+$/', $logFile)) {
+    if (file_exists($fileToClear) && preg_match('/^[a-zA-Z0-9_\/.-]+$/', $logFile)) {
         file_put_contents($fileToClear, '');
         header("Location: logs.php?file=" . urlencode($logFile) . "&cleared=1");
         exit();
@@ -101,2380 +136,791 @@ if (($downloadFile = $_GET['download'] ?? '') && preg_match('/^[a-zA-Z0-9_.-]+$/
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>System Logs - Admin Dashboard</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <title>System Logs - Kenya EduHub</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <script>window.currentCSRFToken = "<?php echo $csrf_token; ?>";</script>
     <style>
+        :root {
+            --primary-color: #1a73e8;
+            --secondary-color: #5f6368;
+            --bg-color: #f8f9fa;
+            --card-bg: #ffffff;
+            --sidebar-width: 256px;
+            --header-height: 64px;
+        }
+        
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-
-        :root {
-            /* Microsoft Fluent Design Colors */
-            --ms-primary: #0078d4;
-            --ms-primary-dark: #106ebe;
-            --ms-primary-light: #deecf9;
-            --ms-secondary: #f3f2f1;
-            --ms-accent: #0078d4;
-            --ms-success: #107c10;
-            --ms-warning: #ff8c00;
-            --ms-danger: #d13438;
-            --ms-neutral-light: #faf9f8;
-            --ms-neutral-medium: #e1dfdd;
-            --ms-neutral-dark: #323130;
-            --ms-text-primary: #323130;
-            --ms-text-secondary: #605e5c;
-            --ms-text-tertiary: #a19f9d;
-            --ms-border: #edebe9;
-            --ms-shadow-light: rgba(0, 0, 0, 0.133);
-            --ms-shadow-medium: rgba(0, 0, 0, 0.16);
-            --ms-shadow-heavy: rgba(0, 0, 0, 0.23);
-        }
-
+        
         body {
-            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Roboto', 'Helvetica Neue', sans-serif;
-            background: #000000;
-            color: #ffffff;
-            line-height: 1.5;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
+            background: var(--bg-color);
+            font-family: 'Google Sans', 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 14px;
+            color: #202124;
         }
-
-        /* Microsoft-style Sidebar */
+        
         .sidebar {
             position: fixed;
+            top: var(--header-height);
             left: 0;
-            top: 0;
-            height: 100vh;
-            width: 220px;
-            background: #1a1a1a;
-            border-right: 1px solid #333333;
-            z-index: 1000;
-            transition: transform 0.267s cubic-bezier(0.1, 0.9, 0.2, 1);
-        }
-
-        .sidebar-header {
-            padding: 24px;
-            border-bottom: 1px solid #333333;
-        }
-
-        .sidebar-header h3 {
-            background: linear-gradient(45deg, #FFD700, #FFA500);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            color: transparent;
-            font-size: 20px;
-            font-weight: 600;
-            margin-bottom: 4px;
-        }
-
-        .sidebar-header p {
-            color: #cccccc;
-            font-size: 12px;
-        }
-
-        .sidebar-menu {
-            padding: 16px 0;
-        }
-
-        .menu-item {
-            display: flex;
-            align-items: center;
-            padding: 12px 24px;
-            color: #ffffff;
-            text-decoration: none;
-            transition: all 0.167s cubic-bezier(0.1, 0.9, 0.2, 1);
-            border: none;
-            background: none;
-            width: 100%;
-            text-align: left;
-            font-size: 14px;
-            cursor: pointer;
-            font-weight: 400;
-        }
-
-        .menu-item:hover {
-            background: #333333;
-            color: #0078D4;
-        }
-
-        .menu-item.active {
-            background: rgba(0, 120, 212, 0.1);
-            color: #0078D4;
-            border-right: 3px solid #0078D4;
-        }
-
-        .menu-item i {
-            width: 20px;
-            margin-right: 12px;
-            font-size: 16px;
-        }
-        /* Microsoft-style Sidebar */
-        .admin-sidebar {
-            position: fixed;
-            left: 0;
-            top: 0;
-            height: 100vh;
-            width: 220px;
-            background: #1a1a1a;
-            border-right: 1px solid #333333;
-            z-index: 1000;
-            transition: transform 0.267s cubic-bezier(0.1, 0.9, 0.2, 1);
+            width: var(--sidebar-width);
+            height: calc(100vh - var(--header-height));
+            background: var(--bg-color);
             overflow-y: auto;
+            transition: transform 0.3s ease;
+            z-index: 999;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
         }
-
-        .admin-sidebar-header {
-            padding: 24px;
-            border-bottom: 1px solid #333333;
+        
+        .sidebar::-webkit-scrollbar {
+            display: none;
         }
-
-        .admin-sidebar-header h2 {
-            background: linear-gradient(45deg, #FFD700, #FFA500);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            color: transparent;
-            font-size: 20px;
-            font-weight: 600;
-            margin-bottom: 4px;
+        
+        .sidebar.collapsed {
+            transform: translateX(-256px);
         }
-
-        .admin-sidebar-header p {
-            color: #cccccc;
+        
+        .sidebar-section {
+            padding: 12px 0;
+        }
+        
+        .sidebar-title {
+            padding: 8px 24px;
             font-size: 12px;
-        }
-
-        .admin-menu {
-            padding: 16px 0;
-        }
-
-        .admin-menu-item {
-            display: flex;
-            align-items: center;
-            padding: 12px 24px;
-            color: #ffffff;
-            text-decoration: none;
-            transition: all 0.167s cubic-bezier(0.1, 0.9, 0.2, 1);
-            border: none;
-            background: none;
-            width: 100%;
-            text-align: left;
-            font-size: 14px;
-            cursor: pointer;
-            font-weight: 400;
-        }
-
-        .admin-menu-item:hover {
-            background: #333333;
-            color: #0078D4;
-        }
-
-        .admin-menu-item.active {
-            background: rgba(0, 120, 212, 0.1);
-            color: #0078D4;
-            border-right: 3px solid #0078D4;
-        }
-
-        .admin-menu-item i {
-            width: 20px;
-            margin-right: 12px;
-            font-size: 16px;
-        }
-
-        /* Main Content */
-        .admin-main {
-            margin-left: 220px;
-            padding: 24px;
-            background: #000000;
-            min-height: 100vh;
-        }
-
-        /* Microsoft-style Header */
-        /* Custom Header */
-        .custom-header {
-            background: #000000;
-            padding: 15px 20px;
-            padding-left: 240px;
-            border-bottom: 3px solid #FFD700;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-        }
-
-        .custom-header-content {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .custom-logo {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            font-weight: bold;
-            font-size: 22px;
-            color: white;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
-        }
-
-        .custom-logo > span:first-child {
-            background: linear-gradient(45deg, #FFD700, #FFA500);
-            color: white;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 16px;
-            box-shadow: 0 4px 12px rgba(255, 215, 0, 0.4);
-            border: 2px solid rgba(255, 255, 255, 0.3);
-        }
-
-        .custom-nav {
-            display: flex;
-            gap: 25px;
-        }
-
-        .custom-nav a {
-            color: white;
-            text-decoration: none;
-            font-weight: 600;
-            padding: 10px 18px;
-            border-radius: 25px;
-            transition: all 0.3s ease;
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(5px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
-        }
-
-        .custom-nav a:hover {
-            background: rgba(255, 255, 255, 0.25);
-            color: #FFD700;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(255, 215, 0, 0.3);
-            border-color: rgba(255, 215, 0, 0.4);
-        }
-
-        .custom-nav a.active {
-            background: rgba(0, 120, 212, 0.1);
-            color: white;
-            border-right: 3px solid #0078D4;
-        }
-
-    /* Professional Hero Section */
-        .hero-section {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(15px) saturate(1.2);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            border-radius: 12px;
-            padding: 40px 32px;
-            margin-bottom: 32px;
-            color: #003366;
-            position: relative;
-            overflow: hidden;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
-        }
-
-        .hero-section::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: url('../assets/images/Anjeline-C0XI691E.jpg');
-            background-size: cover;
-            background-position: center;
-            opacity: 0.6;
-            animation: imageCycle 12s infinite ease-in-out;
-            transition: all 1.5s cubic-bezier(0.4, 0, 0.2, 1);
-            filter: brightness(1.1) contrast(1.2);
-        }
-
-        @keyframes imageCycle {
-            0%, 100% { 
-                background: url('../assets/images/Anjeline-C0XI691E.jpg');
-                background-position: center;
-                backdrop-filter: blur(8px);
-            }
-            33% { 
-                background: url('../assets/images/logo2-UFkwg77b.png');
-                background-position: center;
-                backdrop-filter: blur(10px);
-            }
-            66% { 
-                background: url('../assets/images/logo-DRV3mraH.png');
-                background-position: center;
-                backdrop-filter: blur(12px);
-            }
-        }
-
-        .hero-content {
-            display: flex;
-            align-items: center;
-            gap: 32px;
-            position: relative;
-            z-index: 1;
-        }
-
-        .hero-avatar {
-            width: 80px;
-            height: 80px;
-            background: linear-gradient(45deg, #FFD700, #FFA500);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            font-size: 24px;
-            color: #003366;
-            box-shadow: 0 12px 40px rgba(0,0,0,0.3);
-            flex-shrink: 0;
-            backdrop-filter: blur(12px) saturate(1.2);
-            background: rgba(255, 255, 255, 0.15);
-            border: 2px solid rgba(255, 255, 255, 0.5);
-            position: relative;
-            z-index: 3;
-        }
-
-        .hero-text {
-            flex: 1;
-            backdrop-filter: blur(8px) saturate(1.1);
-            background: rgba(255, 255, 255, 0.08);
-            border-radius: 8px;
-            padding: 16px;
-            border: 1px solid rgba(255, 255, 255, 0.4);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
-            position: relative;
-            z-index: 2;
-        }
-
-        .hero-text h1 {
-            font-size: 32px;
-            font-weight: 700;
-            margin-bottom: 8px;
-            color: #003366;
-            text-shadow: 0 1px 2px rgba(255,255,255,0.8);
-            overflow: hidden;
-            border-right: 3px solid #003366;
-            white-space: nowrap;
-            animation: typing 3.5s steps(40, end), blink-caret 0.75s step-end infinite;
-        }
-
-        .hero-text p {
-            font-size: 16px;
-            opacity: 0.9;
-            margin-bottom: 16px;
-            line-height: 1.5;
-            color: #004d99;
-        }
-
-        .hero-stats {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            backdrop-filter: blur(3px);
-        }
-
-        .hero-stat {
-            background: rgba(255,255,255,0.1);
-            backdrop-filter: blur(12px) saturate(1.3);
-            padding: 8px 16px;
-            border-radius: 20px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 14px;
-            font-weight: 600;
-            color: #003366;
-            border: 1px solid rgba(255, 255, 255, 0.4);
-            box-shadow: 0 8px 32px rgba(0,0,0,0.15);
-            position: relative;
-            z-index: 2;
-        }
-
-        /* Typewriter Effect */
-        @keyframes typing {
-            from { width: 0 }
-            to { width: 100% }
-        }
-
-        @keyframes blink-caret {
-            from, to { border-color: transparent }
-            50% { border-color: #003366; }
-        }
-
-        .admin-header-actions {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .admin-user-info {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .admin-user-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: var(--ms-primary);
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 600;
-            font-size: 16px;
-        }
-
-        /* Log Cards */
-        .admin-card {
-            background: #000000;
-            border-radius: 8px;
-            box-shadow: 0 1.6px 3.6px rgba(0, 0, 0, 0.132), 0 0.3px 0.9px rgba(0, 0, 0, 0.108);
-            border: 1px solid #333333;
-            overflow: hidden;
-            transition: all 0.267s cubic-bezier(0.1, 0.9, 0.2, 1);
-            position: relative;
-            margin-bottom: 24px;
-        }
-
-        .admin-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 1px;
-            background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.8), transparent);
-            opacity: 0;
-            transition: opacity 0.267s ease;
-        }
-
-        .admin-card:hover {
-            box-shadow: 0 2.8px 5.6px rgba(0, 0, 0, 0.132), 0 0.7px 1.8px rgba(0, 0, 0, 0.108);
-            transform: translateY(-2px);
-        }
-
-        .admin-card:hover::before {
-            opacity: 1;
-        }
-
-        .admin-card-header {
-            padding: 20px 24px;
-            border-bottom: 1px solid #333333;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: #000000;
-            position: relative;
-        }
-
-        .admin-card-header::before {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 1px;
-            background: linear-gradient(to right, transparent, #333333 20%, #333333 80%, transparent);
-        }
-
-        .admin-card-header h3 {
-            font-size: 18px;
-            font-weight: 600;
-            color: #ffffff;
-            letter-spacing: -0.02em;
-            margin: 0 0 2px 0;
-        }
-
-        .admin-card-header p {
-            font-size: 13px;
-            color: #cccccc;
-            margin: 0;
-            font-weight: 400;
-        }
-
-        .admin-card-body {
-            padding: 24px;
-        }
-
-        /* Log Filters */
-        .log-filters {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 16px;
-            margin-bottom: 24px;
-            padding: 20px;
-            background: #1a1a1a;
-            border-radius: 8px;
-            border: 1px solid #333333;
-        }
-
-        .filter-group {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .filter-group label {
-            font-size: 14px;
             font-weight: 500;
-            color: #ffffff;
-            white-space: nowrap;
-        }
-
-        .filter-group select,
-        .filter-group .admin-select {
-            padding: 10px 14px;
-            border: 1px solid #333333;
-            border-radius: 8px;
-            font-size: 14px;
-            font-family: 'Segoe UI', sans-serif;
-            background: #000000;
-            color: #ffffff;
-            transition: all 0.167s cubic-bezier(0.1, 0.9, 0.2, 1);
-            min-width: 150px;
-        }
-
-        .filter-group input {
-            padding: 10px 14px;
-            border: 1px solid #333333;
-            border-radius: 8px;
-            font-size: 14px;
-            font-family: 'Segoe UI', sans-serif;
-            background: #000000;
-            color: #ffffff;
-            transition: all 0.167s cubic-bezier(0.1, 0.9, 0.2, 1);
-            min-width: 200px;
-        }
-
-        .filter-group select:focus,
-        .filter-group input:focus {
-            outline: none;
-            border-color: #0078D4;
-            box-shadow: 0 0 0 2px rgba(0, 120, 212, 0.1);
-        }
-
-        /* Log Entries */
-        .log-entries {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            background: #000000;
-        }
-
-        .log-entry {
-            background: #000000;
-            border: 1px solid #333333;
-            border-radius: 8px;
-            padding: 16px 20px;
-            transition: all 0.267s cubic-bezier(0.1, 0.9, 0.2, 1);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .log-entry::before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 0;
-            bottom: 0;
-            width: 4px;
-            background: var(--ms-primary);
-        }
-
-        .log-entry.info::before {
-            background: var(--ms-primary);
-        }
-
-        .log-entry.success::before {
-            background: var(--ms-success);
-        }
-
-        .log-entry.warning::before {
-            background: var(--ms-warning);
-        }
-
-        .log-entry.error::before {
-            background: var(--ms-danger);
-        }
-
-        .log-entry:hover {
-            box-shadow: 0 2px 8px var(--ms-shadow-light);
-            transform: translateX(4px);
-        }
-
-        .log-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 8px;
-        }
-
-        .log-type {
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 11px;
-            font-weight: 500;
+            color: #5f6368;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-        }
-
-        .log-type.info {
-            background: rgba(0, 120, 212, 0.1);
-            color: var(--ms-primary);
-            border: 1px solid rgba(0, 120, 212, 0.3);
-        }
-
-        .log-type.success {
-            background: rgba(16, 124, 16, 0.1);
-            color: var(--ms-success);
-            border: 1px solid rgba(16, 124, 16, 0.3);
-        }
-
-        .log-type.warning {
-            background: rgba(255, 140, 0, 0.1);
-            color: var(--ms-warning);
-            border: 1px solid rgba(255, 140, 0, 0.3);
-        }
-
-        .log-type.error {
-            background: rgba(212, 52, 56, 0.1);
-            color: var(--ms-danger);
-            border: 1px solid rgba(212, 52, 56, 0.3);
-        }
-
-        .log-timestamp {
-            font-size: 12px;
-            color: var(--ms-text-tertiary);
-            font-family: 'Courier New', monospace;
-        }
-
-        .log-message {
-            font-size: 14px;
-            color: #ffffff;
-            margin-bottom: 8px;
-            font-weight: 500;
-        }
-
-        .log-details {
+            cursor: pointer;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            font-size: 12px;
-            color: var(--ms-text-secondary);
+            user-select: none;
         }
-
-        .log-user {
+        
+        .sidebar-title:hover {
+            background: #f1f3f4;
+        }
+        
+        .sidebar-title .chevron {
+            transition: transform 0.3s ease;
+        }
+        
+        .sidebar-title.collapsed .chevron {
+            transform: rotate(-90deg);
+        }
+        
+        .sidebar-links {
+            max-height: 1000px;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+        
+        .sidebar-links.collapsed {
+            max-height: 0;
+        }
+        
+        .nav-link {
             display: flex;
             align-items: center;
-            gap: 6px;
-        }
-
-        .log-user i {
-            color: var(--ms-text-tertiary);
-        }
-
-        .log-ip {
-            font-family: 'Courier New', monospace;
-        }
-
-        /* Button Styles */
-        .admin-btn {
-            padding: 8px 16px;
-            border: 1px solid #ffffff;
-            border-radius: 8px;
+            padding: 10px 24px;
+            color: #5f6368;
+            text-decoration: none;
+            transition: background 0.2s;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
             cursor: pointer;
             font-size: 14px;
-            font-weight: 500;
-            text-decoration: none;
-            color: #ffffff;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            transition: all 0.167s cubic-bezier(0.1, 0.9, 0.2, 1);
-            background: #000000;
-            font-family: 'Segoe UI', sans-serif;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
         }
-
-        .admin-btn:hover {
-            background: var(--ms-neutral-light);
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
-            transform: translateY(-1px);
+        
+        .nav-link:hover {
+            background: #f1f3f4;
         }
-
-        .admin-btn:active {
-            transform: translateY(0);
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        
+        .nav-link.active {
+            background: #e8f0fe;
+            color: var(--primary-color);
         }
-
-        .admin-btn-primary {
-            background: var(--ms-primary);
-            color: white;
-            border-color: var(--ms-primary);
-            box-shadow: 0 2px 8px rgba(0, 120, 212, 0.3);
+        
+        .nav-link i {
+            margin-right: 12px;
+            font-size: 18px;
+            width: 24px;
+            text-align: center;
+            color: #FF6B35;
         }
-
-        .admin-btn-primary:hover {
-            background: var(--ms-primary-dark);
-            border-color: var(--ms-primary-dark);
-            box-shadow: 0 4px 12px rgba(0, 120, 212, 0.4);
+        
+        .main-content {
+            margin-left: var(--sidebar-width);
+            margin-top: var(--header-height);
+            padding: 24px;
+            transition: margin-left 0.3s ease;
         }
-
-        .admin-btn-danger {
-            background: #000000;
-            color: #ffffff;
-            border: 1px solid #d13438;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        
+        .main-content.expanded {
+            margin-left: 0;
         }
-
-        .admin-btn-danger:hover {
-            background: #333333;
-            color: #ffffff;
-            border-color: #d13438;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
-        }
-
-        /* Pagination */
-        .admin-pagination {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 8px;
-            margin-top: 32px;
-            border-color: var(--ms-primary);
-        }
-
-        .admin-pagination a.active {
-            background: var(--ms-primary);
-            color: white;
-            border-color: var(--ms-primary);
-        }
-
-        /* Stats Cards */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 16px;
+        
+        .page-title {
+            font-size: 22px;
+            font-weight: 400;
+            color: #202124;
             margin-bottom: 24px;
         }
-
-        .stat-card {
-            background: #000000;
-            border: 1px solid #333333;
-            border-radius: 8px;
-            padding: 16px;
-            text-align: center;
-            transition: all 0.267s cubic-bezier(0.1, 0.9, 0.2, 1);
+        
+        .header {
+            position: fixed !important;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: var(--header-height);
+            background: var(--card-bg);
+            border-bottom: 1px solid #e8eaed;
+            display: flex;
+            align-items: center;
+            padding: 0 24px;
+            z-index: 1000;
         }
-
-        .stat-card:hover {
-            box-shadow: 0 2px 8px var(--ms-shadow-light);
-            transform: translateY(-2px);
+        
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
         }
-
-        .stat-value {
-            font-size: 24px;
-            font-weight: 600;
-            color: #ffffff;
-            margin-bottom: 4px;
+        
+        .menu-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 12px;
+            border-radius: 50%;
+            color: #5f6368;
+            transition: background 0.2s;
         }
-
-        .stat-label {
-            font-size: 12px;
-            color: #cccccc;
+        
+        .menu-btn:hover {
+            background: #f1f3f4;
         }
-
-        /* Empty State */
-        .empty-state {
-            text-align: center;
-            padding: 60px 20px;
-            color: #ffffff;
-        }
-
-        .empty-state i {
-            font-size: 48px;
-            margin-bottom: 16px;
-            opacity: 0.5;
-        }
-
-        .empty-state h3 {
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
             font-size: 18px;
-            margin-bottom: 8px;
-            color: #ffffff;
-            color: var(--ms-text-primary);
+            font-weight: 400;
+            color: #202124;
         }
-
-        .empty-state p {
+        
+        .logo i {
+            color: var(--primary-color);
+        }
+        
+        .header-right {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 500;
             font-size: 14px;
-            margin-bottom: 20px;
         }
-
-        /* Mobile Responsive */
+        
         @media (max-width: 768px) {
             .sidebar {
-                transform: translateX(-100%);
+                transform: translateX(-256px);
             }
             
-            .sidebar.active {
+            .sidebar.show {
                 transform: translateX(0);
             }
             
-            .admin-main {
+            .main-content {
                 margin-left: 0;
-            }
-            
-            .log-filters {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            
-            .filter-group {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            
-            .filter-group input,
-            .filter-group select {
-                min-width: auto;
-            }
-            
-            .stats-grid {
-                grid-template-columns: repeat(2, 1fr);
+                padding: 16px;
+                padding-top: calc(var(--header-height) + 16px);
             }
         }
-
-        .mobile-menu-toggle {
-            display: none;
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            z-index: 1001;
+        
+        .card {
             background: transparent;
-            color: white;
-            border: none;
-            padding: 10px;
-            border-radius: 5px;
-            cursor: pointer;
-            width: 40px;
-            height: 40px;
-            flex-direction: column;
-            justify-content: center;
+            border-radius: 8px;
+            border: 1px solid #e8eaed;
+            overflow: hidden;
+            margin-bottom: 24px;
+        }
+        
+        .card-header {
+            background: transparent;
+            padding: 20px 25px;
+            border-bottom: 1px solid #e8eaed;
+            display: flex;
+            justify-content: space-between;
             align-items: center;
-            gap: 4px;
         }
-
-        .mobile-menu-toggle span {
-            display: block;
-            width: 100%;
-            height: 4px;
-            background: #ffffff;
-            border-radius: 3px;
-            transition: all 0.3s ease;
-            margin: 0;
+        
+        .card-header h2 {
+            font-size: 20px;
+            font-weight: 500;
+            color: #202124;
         }
-
-        .mobile-menu-toggle:hover span:nth-child(1) {
-            transform: translateY(-1px);
+        
+        .card-body {
+            padding: 24px;
         }
-
-        .mobile-menu-toggle:hover span:nth-child(3) {
-            transform: translateY(1px);
+        
+        .btn {
+            padding: 10px 24px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background 0.2s;
         }
-
-        @media (max-width: 768px) {
-            .mobile-menu-toggle {
-                display: flex !important;
-                align-items: center;
-                justify-content: center;
-            }
+        
+        .btn-primary {
+            background: #FF6B35;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #e55a2b;
+        }
+        
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+        
+        .btn-action {
+            background: #f8f9fa;
+            color: #000;
+            border: 1px solid #000;
+            cursor: pointer;
+        }
+        
+        .btn-action:hover {
+            background: #e9ecef;
+        }
+        
+        .log-viewer {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            max-height: 500px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        
+        .log-viewer::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .log-viewer::-webkit-scrollbar-track {
+            background: #2d2d2d;
+        }
+        
+        .log-viewer::-webkit-scrollbar-thumb {
+            background: #555;
+            border-radius: 4px;
+        }
+        
+        .log-viewer::-webkit-scrollbar-thumb:hover {
+            background: #666;
+        }
+        
+        .log-entry {
+            margin-bottom: 8px;
+            padding: 4px 0;
+            border-bottom: 1px solid #333;
+        }
+        
+        .log-entry:last-child {
+            border-bottom: none;
+        }
+        
+        .log-timestamp {
+            color: #569cd6;
+        }
+        
+        .log-level-info {
+            color: #4ec9b0;
+        }
+        
+        .log-level-warning {
+            color: #dcdcaa;
+        }
+        
+        .log-level-error {
+            color: #f14c4c;
+        }
+        
+        .log-level-security {
+            color: #ce9178;
+        }
+        
+        .file-selector {
+            margin-bottom: 20px;
+        }
+        
+        .file-selector select {
+            padding: 10px 16px;
+            border: 1px solid #e8eaed;
+            border-radius: 8px;
+            font-size: 14px;
+            min-width: 200px;
+        }
+        
+        .alert {
+            padding: 16px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .alert-success {
+            background: rgba(16, 124, 16, 0.1);
+            color: #107c10;
+            border-color: rgba(16, 124, 16, 0.3);
+        }
+        
+        .alert-danger {
+            background: rgba(212, 52, 56, 0.1);
+            color: #d13438;
+            border-color: rgba(212, 52, 56, 0.3);
+        }
+        
+        .alert-warning {
+            background: rgba(255, 140, 0, 0.1);
+            color: #ff8c00;
+            border-color: rgba(255, 140, 0, 0.3);
+        }
+        
+        .alert i {
+            font-size: 20px;
         }
     </style>
 </head>
 <body>
-    <!-- Custom Header -->
-    <div class="custom-header">
-        <div class="custom-header-content">
-            <div class="custom-logo">
-                <div style="width: 50px; height: 50px; background: var(--primary-gold); border: 3px solid var(--primary-orange); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 2px;">
-                    <span style="font-weight: bold; font-size: 24px;">
-                        <span style="color: var(--primary-orange); font-size: 28px;">K</span><span style="color: #008000; font-size: 24px;">E</span>
+    <header class="header">
+        <div class="header-left">
+            <button class="menu-btn" onclick="toggleSidebar()">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="logo">
+                <div style="width: 40px; height: 40px; background: #FFD700; border: 3px solid #FF6B35; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 0;">
+                    <span style="font-weight: bold; font-size: 20px;">
+                        <span style="color: #FF6B35; font-size: 24px;">K</span><span style="color: #008000; font-size: 20px;">E</span>
                     </span>
                 </div>
-                <span class="brand-name"><span style="color: var(--primary-orange);">Kenya</span> <span style="color: #008000;">EduHub</span> <span style="color: var(--primary-gold);">Admin</span></span>
+                <span style="color: #FF6B35; font-weight: bold;">Kenya</span> <span style="color: #008000; font-weight: bold;">EduHub</span>
+            </div>
+        </div>
+        <div class="header-right">
+            <div class="user-avatar">
+                <?php echo strtoupper(substr($user['username'] ?? 'A', 0, 1)); ?>
+            </div>
+        </div>
+    </header>
+    
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-section">
+            <div class="sidebar-title" onclick="toggleSidebarSection(this)">
+                Main <i class="fas fa-chevron-down chevron"></i>
+            </div>
+            <div class="sidebar-links">
+                <a class="nav-link" href="dashboard">
+                    <i class="fas fa-tachometer-alt"></i> Dashboard
+                </a>
+                <a class="nav-link" href="schools">
+                    <i class="fas fa-school"></i> Schools
+                </a>
+                <a class="nav-link" href="resources">
+                    <i class="fas fa-book"></i> Resources
+                </a>
+            </div>
+        </div>
+        
+        <div class="sidebar-section">
+            <div class="sidebar-title" onclick="toggleSidebarSection(this)">
+                Management <i class="fas fa-chevron-down chevron"></i>
+            </div>
+            <div class="sidebar-links">
+                <a class="nav-link" href="users">
+                    <i class="fas fa-users"></i> Users
+                </a>
+                <a class="nav-link" href="resources">
+                    <i class="fas fa-book"></i> Resources
+                </a>
+            </div>
+        </div>
+        
+        <div class="sidebar-section">
+            <div class="sidebar-title" onclick="toggleSidebarSection(this)">
+                Reports <i class="fas fa-chevron-down chevron"></i>
+            </div>
+            <div class="sidebar-links">
+                <a class="nav-link" href="reports">
+                    <i class="fas fa-chart-bar"></i> Reports
+                </a>
+                <a class="nav-link active" href="logs">
+                    <i class="fas fa-file-alt"></i> Logs
+                </a>
+            </div>
+        </div>
+        
+        <div class="sidebar-section">
+            <div class="sidebar-title" onclick="toggleSidebarSection(this)">
+                Settings <i class="fas fa-chevron-down chevron"></i>
+            </div>
+            <div class="sidebar-links">
+                <a class="nav-link" href="settings">
+                    <i class="fas fa-cog"></i> Settings
+                </a>
+                <a class="nav-link" href="logout">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            </div>
+        </div>
+    </aside>
+    
+    <!-- Main Content -->
+    <div class="main-content" id="mainContent">
+        <h1 class="page-title">System Logs</h1>
+        
+        <?php if (isset($_GET['cleared'])): ?>
+            <div class="alert alert-success">
+                <i class="fas fa-check-circle"></i>
+                <span>Log file cleared successfully.</span>
+            </div>
+        <?php endif; ?>
+        
+        <?php if (isset($_GET['cleared_all'])): ?>
+            <div class="alert alert-success">
+                <i class="fas fa-check-circle"></i>
+                <span>All log files cleared successfully.</span>
+            </div>
+        <?php endif; ?>
+        
+        <?php if ($error): ?>
+            <div class="alert alert-warning">
+                <i class="fas fa-exclamation-triangle"></i>
+                <span><?php echo htmlspecialchars($error); ?></span>
+            </div>
+        <?php endif; ?>
+        
+        <!-- File Selector -->
+        <div class="card">
+            <div class="card-header">
+                <h2>Select Log File</h2>
+            </div>
+            <div class="card-body">
+                <div class="file-selector">
+                    <form method="GET">
+                        <select name="file" onchange="this.form.submit()">
+                            <?php foreach ($logs as $log): ?>
+                                <option value="<?php echo htmlspecialchars($log['name']); ?>" <?php echo $log['name'] === $logFile ? 'selected' : ''; ?>>
+                                    <?php echo htmlspecialchars($log['name']); ?> 
+                                    (<?php echo number_format($log['size'] / 1024, 2); ?> KB)
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </form>
+                </div>
+                
+                <div style="display: flex; gap: 10px; margin-top: 10px;">
+                    <?php if ($currentLog): ?>
+                        <a href="?download=<?php echo htmlspecialchars($logFile); ?>" class="btn btn-action">
+                            <i class="fas fa-download"></i> Download
+                        </a>
+                        <button type="button" class="btn btn-primary" onclick="showClearLogModal()">
+                            <i class="fas fa-trash"></i> Clear Log
+                        </button>
+                    <?php endif; ?>
+                    <?php if (!empty($logs)): ?>
+                        <button type="button" class="btn btn-primary" onclick="showClearAllLogsModal()" style="background: #d13438;">
+                            <i class="fas fa-trash-alt"></i> Clear All Logs
+                        </button>
+                    <?php endif; ?>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Log Viewer -->
+        <div class="card">
+            <div class="card-header">
+                <h2><?php echo htmlspecialchars($logFile); ?></h2>
+            </div>
+            <div class="card-body">
+                <?php if ($currentLog): ?>
+                    <div class="log-viewer">
+                        <?php
+                        // Parse and format log entries
+                        $logLines = explode("\n", $currentLog);
+                        foreach ($logLines as $line):
+                            $line = trim($line);
+                            if (empty($line)) continue;
+                            
+                            // Parse log level
+                            $levelClass = 'log-level-info';
+                            $level = 'INFO';
+                            
+                            if (preg_match('/\b(ERROR|CRITICAL|FATAL)\b/i', $line)) {
+                                $levelClass = 'log-level-error';
+                                $level = 'ERROR';
+                            } elseif (preg_match('/\b(WARN|WARNING)\b/i', $line)) {
+                                $levelClass = 'log-level-warning';
+                                $level = 'WARNING';
+                            } elseif (preg_match('/\b(SECURITY|AUTH|LOGIN|LOGOUT|UNAUTHORIZED)\b/i', $line)) {
+                                $levelClass = 'log-level-security';
+                                $level = 'SECURITY';
+                            } elseif (preg_match('/\b(DEBUG)\b/i', $line)) {
+                                $levelClass = 'log-level-info';
+                                $level = 'DEBUG';
+                            }
+                            
+                            // Parse timestamp
+                            $timestamp = '';
+                            if (preg_match('/\[\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\]/', $line, $matches)) {
+                                $timestamp = $matches[0];
+                            }
+                            
+                            // Format the line
+                            $formattedLine = htmlspecialchars($line);
+                            if ($timestamp) {
+                                $formattedLine = str_replace($timestamp, '<span class="log-timestamp">' . $timestamp . '</span>', $formattedLine);
+                            }
+                        ?>
+                        <div class="log-entry">
+                            <span class="<?php echo $levelClass; ?>">[<?php echo $level; ?>]</span>
+                            <?php echo $formattedLine; ?>
+                        </div>
+                        <?php endforeach; ?>
+                    </div>
+                <?php else: ?>
+                    <p style="color: #666;">No log content available.</p>
+                <?php endif; ?>
             </div>
         </div>
     </div>
 
-    <!-- Mobile Menu Toggle -->
-    <button class="mobile-menu-toggle" onclick="toggleSidebar()">
-        <span></span>
-        <span></span>
-        <span></span>
-    </button>
-
-    <!-- Sidebar -->
-    <aside class="sidebar" id="sidebar">
-        <div class="sidebar-header">
-            <div style="display: flex; align-items: center; gap: 8px;">
-                <div style="width: 50px; height: 50px; background: var(--primary-gold); border: 3px solid var(--primary-orange); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 2px;">
-                <span style="font-weight: bold; font-size: 24px;">
-                    <span style="color: var(--primary-orange); font-size: 28px;">K</span><span style="color: #008000; font-size: 24px;">E</span>
-                </span>
-            </div>
-            <h3 style="margin: 0;"><span style="color: var(--primary-orange);">Kenya</span> <span style="color: #008000;">EduHub</span></h3>
-            </div>
-            <p>Educational Resources Platform</p>
-        </div>
-        <nav class="sidebar-menu">
-            <a href="index.php" class="menu-item">
-                <i class="fas fa-dashboard"></i> Dashboard
-            </a>
-            <a href="users.php" class="menu-item">
-                <i class="fas fa-users"></i> Users Management
-            </a>
-            <a href="resources.php" class="menu-item">
-                <i class="fas fa-book"></i> Resources Management
-            </a>
-            <a href="reports.php" class="menu-item">
-                <i class="fas fa-chart-bar"></i> Reports
-            </a>
-            <a href="settings.php" class="menu-item">
-                <i class="fas fa-cog"></i> Settings
-            </a>
-            <a href="logs.php" class="menu-item">
-                <i class="fas fa-file-alt"></i> System Logs
-            </a>
-            <a href="../dashboard/index.php" class="menu-item">
-                <i class="fas fa-arrow-left"></i> Back to Dashboard
-            </a>
-            <a href="../auth/logout.php" class="menu-item">
-                <i class="fas fa-sign-out-alt"></i> Logout
-            </a>
-        </nav>
-    </aside>
-
-    <!-- Main Content -->
-    <main class="admin-main">
-        <!-- Professional Hero Section -->
-        <div class="hero-section fade-in">
-            <div class="hero-content">
-                <div class="hero-avatar">
-                    <i class="fas fa-file-alt" style="color: #003366; font-size: 32px;"></i>
-                </div>
-                <div class="hero-text">
-                    <h1>System Logs</h1>
-                    <p>Monitor and analyze system activity and events</p>
-                    <div class="hero-stats">
-                        <span class="hero-stat">
-                            <i class="fas fa-history"></i>
-                            <?php echo count($logs); ?> Entries
-                        </span>
-                        <span class="hero-stat">
-                            <i class="fas fa-clock"></i>
-                            Real-time
-                        </span>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Dashboard Content -->
-        <div class="admin-content">
-            <!-- Stats Cards -->
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-value"><?php echo count($logs); ?></div>
-                    <div class="stat-label">Log Files</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value">
-                        <?php 
-                        $totalSize = array_sum(array_column($logs, 'size'));
-                        echo round($totalSize / 1024, 2); 
-                        ?> KB
-                    </div>
-                    <div class="stat-label">Total Size</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value">
-                        <?php 
-                        $lines = $currentLog ? count(explode("\n", trim($currentLog))) : 0;
-                        echo $lines; 
-                        ?>
-                    </div>
-                    <div class="stat-label">Current Entries</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value">
-                        <?php 
-                        $successCount = substr_count($currentLog, 'SUCCESS');
-                        echo $successCount; 
-                        ?>
-                    </div>
-                    <div class="stat-label">Success Actions</div>
-                </div>
-            </div>
-
-            <!-- Logs Card -->
-            <div class="admin-card">
-                <div class="admin-card-header">
-                    <div>
-                        <h3>System Activity Logs</h3>
-                        <p>
-                            Recent system events and activities 
-                            <span style="background: #007bff; color: white; padding: 2px 8px; border-radius: 12px; font-size: 11px; margin-left: 8px;">
-                                📁 <?php echo htmlspecialchars($logFile); ?>
-                            </span>
-                        </p>
-                    </div>
-                    <button class="admin-btn admin-btn-danger" onclick="confirmClearLogs()">
-                        <i class="fas fa-trash"></i> Clear Logs
-                    </button>
-                </div>
-                <div class="admin-card-body">
-                    <!-- File Selector -->
-                    <div style="margin-bottom: 20px; padding: 16px; background: #1a1a1a; border-radius: 8px; border: 1px solid #333333;">
-                        <div style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap;">
-                            <div style="display: flex; align-items: center; gap: 8px;">
-                                <label for="fileSelect" style="font-weight: 500; color: #ffffff;">Select Log File:</label>
-                                <select id="fileSelect" onchange="changeLogFile()" style="padding: 8px 12px; border: 1px solid #333333; border-radius: 8px; font-size: 14px; background: #000000; color: #ffffff;">
-                                    <?php foreach ($logs as $log): ?>
-                                        <option value="<?php echo htmlspecialchars($log['name']); ?>" 
-                                                <?php echo $log['name'] === $logFile ? 'selected' : ''; ?>>
-                                            <?php echo htmlspecialchars($log['name']); ?>
-                                            (<?php echo round($log['size'] / 1024, 2); ?> KB)
-                                        </option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </div>
-                            <div style="display: flex; gap: 8px;">
-                                <?php if (file_exists($logDir . '/security.log')): ?>
-                                    <a href="?file=security.log" style="padding: 8px 16px; background: #000000; color: white; border: 1px solid #d13438; text-decoration: none; border-radius: 8px; font-size: 14px; display: inline-flex; align-items: center; gap: 6px;">
-                                        <i class="fas fa-shield-alt"></i> Security Logs
-                                    </a>
-                                <?php endif; ?>
-                                <?php if (file_exists($logDir . '/activity.log')): ?>
-                                    <a href="?file=activity.log" style="padding: 8px 16px; background: #000000; color: white; border: 1px solid #0078D4; text-decoration: none; border-radius: 8px; font-size: 14px; display: inline-flex; align-items: center; gap: 6px;">
-                                        <i class="fas fa-list"></i> Activity Logs
-                                    </a>
-                                <?php endif; ?>
-                            </div>
-                            <div style="display: flex; gap: 8px;">
-                                <a href="?download=<?php echo urlencode($logFile); ?>" style="padding: 8px 16px; background: #000000; color: white; border: 1px solid #107c10; text-decoration: none; border-radius: 8px; font-size: 14px; display: inline-flex; align-items: center; gap: 6px;">
-                                    <i class="fas fa-download"></i> Download
-                                </a>
-                                <button class="admin-btn admin-btn-danger" onclick="confirmClearLogs()">
-                                    <i class="fas fa-trash"></i> Clear
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Success Message -->
-                    <?php if (isset($_GET['cleared'])): ?>
-                        <div style="background: #d4edda; color: #155724; padding: 12px 16px; border-radius: 8px; margin-bottom: 16px; border: 1px solid #c3e6cb;">
-                            <i class="fas fa-check-circle" style="margin-right: 8px;"></i>
-                            Log file cleared successfully!
-                        </div>
-                    <?php endif; ?>
-                    
-                    <!-- Log Entries -->
-                    <div class="log-entries">
-                        <?php if (empty($currentLog)): ?>
-                            <div class="empty-state">
-                                <i class="fas fa-file-alt"></i>
-                                <h3>No Log Entries</h3>
-                                <p>No log entries found in the selected file.</p>
-                            </div>
-                        <?php else: ?>
-                            <?php
-                            // Parse and display log entries
-                            $lines = explode("\n", $currentLog);
-                            foreach ($lines as $line) {
-                                if (empty(trim($line))) continue;
-                                
-                                // Try to parse as JSON first
-                                $jsonData = json_decode($line, true);
-                                
-                                // If JSON fails, try to fix common issues
-                                if ($jsonData === null && json_last_error() !== JSON_ERROR_NONE) {
-                                    // Try to fix escaped slashes
-                                    $fixedLine = str_replace('\/', '/', $line);
-                                    $jsonData = json_decode($fixedLine, true);
-                                }
-                                
-                                if ($jsonData && is_array($jsonData)) {
-                                    // JSON format parsing
-                                    $timestamp = $jsonData['time'] ?? date('Y-m-d H:i:s');
-                                    $event = $jsonData['event'] ?? 'UNKNOWN_EVENT';
-                                    $ip = $jsonData['ip'] ?? 'Unknown';
-                                    $details = $jsonData['details'] ?? [];
-                                    
-                                    $userId = $details['user_id'] ?? 'Guest';
-                                    $userEmail = $details['email'] ?? 'guest@example.com';
-                                    $userAgent = $details['user_agent'] ?? 'Unknown';
-                                    
-                                    // Convert event to readable format
-                                    $actionReadable = str_replace('_', ' ', strtolower($event));
-                                    $actionReadable = ucwords($actionReadable);
-                                    
-                                    // Determine security level and icon
-                                    $securityLevel = 'info';
-                                    $securityIcon = 'fas fa-info-circle';
-                                    $securityColor = '#17a2b8';
-                                    $securityMessage = '';
-                                    
-                                    // Security-focused interpretation for JSON events
-                                    switch($event) {
-                                        case 'ADMIN_LOGIN_SUCCESS':
-                                            $securityLevel = 'warning';
-                                            $securityIcon = 'fas fa-shield-alt';
-                                            $securityColor = '#ffc107';
-                                            $securityMessage = 'Admin successfully logged in - monitor session';
-                                            break;
-                                        case 'ADMIN_LOGIN_FAILED':
-                                            $securityLevel = 'danger';
-                                            $securityIcon = 'fas fa-exclamation-triangle';
-                                            $securityColor = '#dc3545';
-                                            $securityMessage = 'Failed admin login attempt - potential security threat';
-                                            break;
-                                        case 'USER_LOGIN_SUCCESS':
-                                            $securityLevel = 'success';
-                                            $securityIcon = 'fas fa-sign-in-alt';
-                                            $securityColor = '#28a745';
-                                            $securityMessage = 'User successfully authenticated';
-                                            break;
-                                        case 'USER_LOGIN_FAILED':
-                                            $securityLevel = 'danger';
-                                            $securityIcon = 'fas fa-exclamation-triangle';
-                                            $securityColor = '#dc3545';
-                                            $securityMessage = 'Failed user login - potential brute force';
-                                            break;
-                                        case 'USER_LOGOUT':
-                                            $securityLevel = 'info';
-                                            $securityIcon = 'fas fa-sign-out-alt';
-                                            $securityColor = '#6c757d';
-                                            $securityMessage = 'User session ended';
-                                            break;
-                                        case 'PAGE_ACCESS':
-                                            $securityLevel = 'info';
-                                            $securityIcon = 'fas fa-eye';
-                                            $securityColor = '#17a2b8';
-                                            $securityMessage = 'Page accessed';
-                                            break;
-                                        case 'SECURITY_VIOLATION':
-                                            $securityLevel = 'danger';
-                                            $securityIcon = 'fas fa-ban';
-                                            $securityColor = '#dc3545';
-                                            $securityMessage = 'Security violation detected';
-                                            break;
-                                        case 'DATA_ACCESS':
-                                            $securityLevel = 'warning';
-                                            $securityIcon = 'fas fa-database';
-                                            $securityColor = '#ffc107';
-                                            $securityMessage = 'Data access - monitor for privacy';
-                                            break;
-                                        case 'FILE_OPERATION':
-                                            $securityLevel = 'warning';
-                                            $securityIcon = 'fas fa-file';
-                                            $securityColor = '#ffc107';
-                                            $securityMessage = 'File operation - scan for security';
-                                            break;
-                                        default:
-                                            if (strpos($event, 'FAILED') !== false || strpos($event, 'ERROR') !== false) {
-                                                $securityLevel = 'danger';
-                                                $securityIcon = 'fas fa-exclamation-triangle';
-                                                $securityColor = '#dc3545';
-                                                $securityMessage = 'Failed operation - investigate';
-                                            }
-                                            break;
-                                    }
-                                    
-                                    // Format time to be more readable
-                                    $timeFormatted = date('M j, Y - g:i A', strtotime($timestamp));
-                                    
-                                    // Get user-friendly name from email
-                                    $userName = explode('@', $userEmail)[0];
-                                    $userName = ucfirst($userName);
-                                    
-                                    // Determine if user is admin or guest
-                                    $userType = ($userId === '1' || strpos($userEmail, 'admin') !== false) ? 'Admin' : (($userId === 'Guest') ? 'Guest' : 'User');
-                                    
-                                    // Check for suspicious patterns
-                                    $isSuspicious = false;
-                                    $suspiciousReasons = [];
-                                    
-                                    if ($ip === '::1' || $ip === '127.0.0.1') {
-                                        $suspiciousReasons[] = 'Localhost access';
-                                    }
-                                    
-                                    if (strpos($userAgent, 'bot') !== false || strpos($userAgent, 'crawler') !== false) {
-                                        $suspiciousReasons[] = 'Bot detected';
-                                    }
-                                    
-                                    if ($securityLevel === 'danger') {
-                                        $suspiciousReasons[] = 'Security threat detected';
-                                    }
-                                    
-                                    $isSuspicious = !empty($suspiciousReasons);
-                                    
-                                    // Create description from event and details
-                                    $description = $actionReadable;
-                                    if (!empty($details)) {
-                                        $detailParts = [];
-                                        foreach ($details as $key => $value) {
-                                            if (!in_array($key, ['user_id', 'email', 'ip', 'user_agent'])) {
-                                                $detailParts[] = ucfirst(str_replace('_', ' ', $key)) . ': ' . $value;
-                                            }
-                                        }
-                                        if (!empty($detailParts)) {
-                                            $description .= ' - ' . implode(', ', $detailParts);
-                                        }
-                                    }
-                                    
-                                    $page = $details['page'] ?? 'Unknown';
-                                    $method = $details['method'] ?? 'Unknown';
-                                    $session = $details['session_id'] ?? 'Unknown';
-                                    $agent = $userAgent;
-                                    
-                                    // Set type for JSON parsing
-                                    $type = ($securityLevel === 'success') ? 'success' : (($securityLevel === 'danger') ? 'error' : 'info');
-                                ?>
-                                <div class="log-entry <?php echo $type; ?>" style="margin-bottom: 20px; padding: 20px; border-radius: 8px; border-left: 4px solid <?php echo $securityColor; ?>; background: <?php echo $securityLevel === 'danger' ? '#1a0000' : ($securityLevel === 'warning' ? '#1a1a00' : ($securityLevel === 'success' ? '#001a00' : '#000000')); ?>; box-shadow: 0 2px 4px rgba(0,0,0,0.1); <?php echo $isSuspicious ? 'border: 2px solid #dc3545;' : ''; ?>">
-                                    <!-- Security Alert Header -->
-                                    <?php if ($isSuspicious || $securityLevel === 'danger' || $securityLevel === 'warning'): ?>
-                                    <div style="background: <?php echo $securityLevel === 'danger' ? '#dc3545' : '#ffc107'; ?>; color: white; padding: 8px 12px; border-radius: 6px 6px 0 0; margin: -20px -20px 12px -20px; font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 8px;">
-                                        <i class="<?php echo $securityIcon; ?>"></i>
-                                        <?php echo $securityMessage; ?>
-                                        <?php if ($isSuspicious): ?>
-                                            <span style="background: rgba(255,255,255,0.3); padding: 2px 6px; border-radius: 10px; font-size: 10px;">
-                                                ⚠️ SUSPICIOUS
-                                            </span>
-                                        <?php endif; ?>
-                                    </div>
-                                    <?php endif; ?>
-                                    
-                                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
-                                        <div style="flex: 1;">
-                                            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px; flex-wrap: wrap;">
-                                                <span style="background: <?php echo $securityColor; ?>; color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; text-transform: uppercase; display: flex; align-items: center; gap: 4px;">
-                                                    <i class="<?php echo $securityIcon; ?>"></i>
-                                                    <?php echo $actionReadable; ?>
-                                                </span>
-                                                <span style="background: rgba(255,255,255,0.1); color: #ffffff; padding: 4px 8px; border-radius: 12px; font-size: 11px; font-weight: 500;">
-                                                    <?php echo $userType; ?>
-                                                </span>
-                                                <span style="color: #cccccc; font-size: 14px;">
-                                                    <i class="fas fa-clock" style="margin-right: 4px;"></i>
-                                                    <?php echo $timeFormatted; ?>
-                                                </span>
-                                            </div>
-                                            
-                                            <div style="margin-bottom: 12px;">
-                                                <div style="font-weight: 600; color: #ffffff; margin-bottom: 4px; font-size: 16px;">
-                                                    <?php echo htmlspecialchars($description); ?>
-                                                </div>
-                                                <?php if ($isSuspicious): ?>
-                                                    <div style="background: #d13438; color: white; padding: 6px 10px; border-radius: 8px; font-size: 12px; margin-top: 8px; display: flex; align-items: center; gap: 6px;">
-                                                        <i class="fas fa-exclamation-triangle"></i>
-                                                        <strong>Suspicious Activity:</strong> <?php echo implode(', ', $suspiciousReasons); ?>
-                                                    </div>
-                                                <?php endif; ?>
-                                            </div>
-                                            
-                                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; font-size: 13px; color: #cccccc;">
-                                                <div style="display: flex; align-items: center; gap: 6px;">
-                                                    <i class="fas fa-user" style="color: #0078D4;"></i>
-                                                    <span><strong>User:</strong> <?php echo htmlspecialchars($userName); ?> (<?php echo htmlspecialchars($userId); ?>)</span>
-                                                </div>
-                                                <div style="display: flex; align-items: center; gap: 6px;">
-                                                    <i class="fas fa-envelope" style="color: #107c10;"></i>
-                                                    <span><?php echo htmlspecialchars($userEmail); ?></span>
-                                                </div>
-                                                <div style="display: flex; align-items: center; gap: 6px;">
-                                                    <i class="fas fa-globe" style="color: #FFD700;"></i>
-                                                    <span><strong>IP:</strong> <?php echo htmlspecialchars($ip); ?></span>
-                                                </div>
-                                                <div style="display: flex; align-items: center; gap: 6px;">
-                                                    <i class="fas fa-file-alt" style="color: #ff8c00;"></i>
-                                                    <span><strong>Page:</strong> <?php echo htmlspecialchars($page); ?></span>
-                                                </div>
-                                            </div>
-                                            
-                                            <!-- Security Details -->
-                                            <div style="background: rgba(255,255,255,0.05); padding: 10px; border-radius: 6px; margin-top: 12px; font-size: 12px;">
-                                                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px; font-weight: 600; color: #ffffff;">
-                                                    <i class="fas fa-shield-alt" style="color: #ff8c00;"></i>
-                                                    Security Analysis
-                                                </div>
-                                                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px;">
-                                                    <div>
-                                                        <strong>Risk Level:</strong> 
-                                                        <span style="color: <?php echo $securityColor; ?>; font-weight: 600;">
-                                                            <?php echo ucfirst($securityLevel); ?>
-                                                        </span>
-                                                    </div>
-                                                    <div>
-                                                        <strong>Method:</strong> <?php echo htmlspecialchars($method); ?>
-                                                    </div>
-                                                    <div>
-                                                        <strong>Session:</strong> <?php echo substr($session, 0, 8); ?>...
-                                                    </div>
-                                                    <div>
-                                                        <strong>Agent:</strong> 
-                                                        <span style="font-family: monospace; font-size: 10px;">
-                                                            <?php echo substr($agent, 0, 30); ?>...
-                                                        </span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        
-                                        <!-- Quick Actions -->
-                                        <div style="text-align: right; margin-left: 20px;">
-                                            <div style="background: rgba(0,0,0,0.1); padding: 8px; border-radius: 6px; font-size: 11px;">
-                                                <?php if ($securityLevel === 'danger'): ?>
-                                                    <button style="background: #dc3545; color: white; border: none; padding: 4px 8px; border-radius: 8px; font-size: 10px; cursor: pointer; margin-bottom: 4px;">
-                                                        <i class="fas fa-ban"></i> Block IP
-                                                    </button>
-                                                <?php endif; ?>
-                                                <?php if ($securityLevel === 'warning'): ?>
-                                                    <button style="background: #ffc107; color: #212529; border: none; padding: 4px 8px; border-radius: 8px; font-size: 10px; cursor: pointer; margin-bottom: 4px;">
-                                                        <i class="fas fa-search"></i> Investigate
-                                                    </button>
-                                                <?php endif; ?>
-                                                <div>
-                                                    <strong>Session ID:</strong><br>
-                                                    <code style="font-size: 9px;"><?php echo substr($session, 0, 16); ?>...</code>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <?php    
-                                } elseif (preg_match('/^\[([^\]]+)\]\s+(\w+)\s+\|\s+User:\s+(\w+)\s+\(([^)]+)\)\s+\|\s+IP:\s+([^\|]+)\s+\|\s+Action:\s+([^\|]+)\s+\|\s+([^\|]+)\s+\|\s+Page:\s+([^\|]+)\s+\|\s+Method:\s+([^\|]+)\s+\|\s+Session:\s+([^\|]+)\s+\|\s+Agent:\s+(.+)$/', $line, $matches)) {
-                                    // Original text format parsing (keep existing logic)
-                                    $timestamp = $matches[1];
-                                    $status = $matches[2];
-                                    $userId = $matches[3];
-                                    $userEmail = $matches[4];
-                                    $ip = $matches[5];
-                                    $action = $matches[6];
-                                    $description = $matches[7];
-                                    $page = $matches[8];
-                                    $method = $matches[9];
-                                    $session = $matches[10];
-                                    $agent = $matches[11];
-                                    
-                                    $type = ($status === 'SUCCESS') ? 'success' : (($status === 'FAILED') ? 'error' : 'info');
-                                    
-                                    // Make action more readable and add security context
-                                    $actionReadable = ucwords(str_replace('_', ' ', strtolower($action)));
-                                    
-                                    // Determine security level and icon (reuse existing logic)
-                                    $securityLevel = 'info';
-                                    $securityIcon = 'fas fa-info-circle';
-                                    $securityColor = '#17a2b8';
-                                    $securityMessage = '';
-                                    
-                                    // Security-focused interpretation
-                                    switch($action) {
-                                        case 'ADMIN_ACCESS':
-                                            $securityLevel = 'warning';
-                                            $securityIcon = 'fas fa-shield-alt';
-                                            $securityColor = '#ffc107';
-                                            $securityMessage = 'Admin panel access - monitor for unauthorized access';
-                                            break;
-                                        case 'USER_LOGIN':
-                                            $securityLevel = 'success';
-                                            $securityIcon = 'fas fa-sign-in-alt';
-                                            $securityColor = '#28a745';
-                                            $securityMessage = 'Successful user authentication';
-                                            break;
-                                        case 'USER_LOGOUT':
-                                            $securityLevel = 'info';
-                                            $securityIcon = 'fas fa-sign-out-alt';
-                                            $securityColor = '#6c757d';
-                                            $securityMessage = 'User session ended';
-                                            break;
-                                        case 'PAGE_ACCESS':
-                                            if (strpos($page, 'admin') !== false) {
-                                                $securityLevel = 'warning';
-                                                $securityIcon = 'fas fa-lock';
-                                                $securityColor = '#ffc107';
-                                                $securityMessage = 'Admin page accessed';
-                                            } else {
-                                                $securityLevel = 'info';
-                                                $securityIcon = 'fas fa-eye';
-                                                $securityColor = '#17a2b8';
-                                                $securityMessage = 'Page visited';
-                                            }
-                                            break;
-                                        case 'FAILED_LOGIN':
-                                        case 'LOGIN_FAILED':
-                                            $securityLevel = 'danger';
-                                            $securityIcon = 'fas fa-exclamation-triangle';
-                                            $securityColor = '#dc3545';
-                                            $securityMessage = 'Failed login attempt - potential security threat';
-                                            break;
-                                        default:
-                                            if (strpos($action, 'FAILED') !== false) {
-                                                $securityLevel = 'danger';
-                                                $securityIcon = 'fas fa-exclamation-triangle';
-                                                $securityColor = '#dc3545';
-                                                $securityMessage = 'Failed action - investigate';
-                                            }
-                                            break;
-                                    }
-                                    
-                                    // Format time to be more readable
-                                    $timeFormatted = date('M j, Y - g:i A', strtotime($timestamp));
-                                    
-                                    // Get user-friendly name from email
-                                    $userName = explode('@', $userEmail)[0];
-                                    $userName = ucfirst($userName);
-                                    
-                                    // Determine if user is admin or guest
-                                    $userType = ($userId === '1' || strpos($userEmail, 'admin') !== false) ? 'Admin' : (($userId === 'Guest') ? 'Guest' : 'User');
-                                    
-                                    // Check for suspicious patterns
-                                    $isSuspicious = false;
-                                    $suspiciousReasons = [];
-                                    
-                                    if ($ip === '::1' || $ip === '127.0.0.1') {
-                                        $suspiciousReasons[] = 'Localhost access';
-                                    }
-                                    
-                                    if (strpos($agent, 'bot') !== false || strpos($agent, 'crawler') !== false) {
-                                        $suspiciousReasons[] = 'Bot detected';
-                                    }
-                                    
-                                    if (substr_count($currentLog, $userEmail) > 10) {
-                                        $suspiciousReasons[] = 'High activity user';
-                                    }
-                                    
-                                    $isSuspicious = !empty($suspiciousReasons);
-                                    
-                                ?>
-                                <div class="log-entry <?php echo $type; ?>" style="margin-bottom: 20px; padding: 20px; border-radius: 8px; border-left: 4px solid <?php echo $securityColor; ?>; background: <?php echo $securityLevel === 'danger' ? '#1a0000' : ($securityLevel === 'warning' ? '#1a1a00' : ($securityLevel === 'success' ? '#001a00' : '#000000')); ?>; box-shadow: 0 2px 4px rgba(0,0,0,0.1); <?php echo $isSuspicious ? 'border: 2px solid #dc3545;' : ''; ?>">
-                                    <!-- Security Alert Header -->
-                                    <?php if ($isSuspicious || $securityLevel === 'danger' || $securityLevel === 'warning'): ?>
-                                    <div style="background: <?php echo $securityLevel === 'danger' ? '#dc3545' : '#ffc107'; ?>; color: white; padding: 8px 12px; border-radius: 6px 6px 0 0; margin: -20px -20px 12px -20px; font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 8px;">
-                                        <i class="<?php echo $securityIcon; ?>"></i>
-                                        <?php echo $securityMessage; ?>
-                                        <?php if ($isSuspicious): ?>
-                                            <span style="background: rgba(255,255,255,0.3); padding: 2px 6px; border-radius: 10px; font-size: 10px;">
-                                                ⚠️ SUSPICIOUS
-                                            </span>
-                                        <?php endif; ?>
-                                    </div>
-                                    <?php endif; ?>
-                                    
-                                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
-                                        <div style="flex: 1;">
-                                            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px; flex-wrap: wrap;">
-                                                <span style="background: <?php echo $securityColor; ?>; color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; text-transform: uppercase; display: flex; align-items: center; gap: 4px;">
-                                                    <i class="<?php echo $securityIcon; ?>"></i>
-                                                    <?php echo $actionReadable; ?>
-                                                </span>
-                                                <span style="background: rgba(255,255,255,0.1); color: #ffffff; padding: 4px 8px; border-radius: 12px; font-size: 11px; font-weight: 500;">
-                                                    <?php echo $userType; ?>
-                                                </span>
-                                                <span style="color: #cccccc; font-size: 14px;">
-                                                    <i class="fas fa-clock" style="margin-right: 4px;"></i>
-                                                    <?php echo $timeFormatted; ?>
-                                                </span>
-                                            </div>
-                                            
-                                            <div style="margin-bottom: 12px;">
-                                                <div style="font-weight: 600; color: #ffffff; margin-bottom: 4px; font-size: 16px;">
-                                                    <?php echo htmlspecialchars($description); ?>
-                                                </div>
-                                                <?php if ($isSuspicious): ?>
-                                                    <div style="background: #d13438; color: white; padding: 6px 10px; border-radius: 8px; font-size: 12px; margin-top: 8px; display: flex; align-items: center; gap: 6px;">
-                                                        <i class="fas fa-exclamation-triangle"></i>
-                                                        <strong>Suspicious Activity:</strong> <?php echo implode(', ', $suspiciousReasons); ?>
-                                                    </div>
-                                                <?php endif; ?>
-                                            </div>
-                                            
-                                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; font-size: 13px; color: #cccccc;">
-                                                <div style="display: flex; align-items: center; gap: 6px;">
-                                                    <i class="fas fa-user" style="color: #0078D4;"></i>
-                                                    <span><strong>User:</strong> <?php echo htmlspecialchars($userName); ?> (<?php echo htmlspecialchars($userId); ?>)</span>
-                                                </div>
-                                                <div style="display: flex; align-items: center; gap: 6px;">
-                                                    <i class="fas fa-envelope" style="color: #107c10;"></i>
-                                                    <span><?php echo htmlspecialchars($userEmail); ?></span>
-                                                </div>
-                                                <div style="display: flex; align-items: center; gap: 6px;">
-                                                    <i class="fas fa-globe" style="color: #FFD700;"></i>
-                                                    <span><strong>IP:</strong> <?php echo htmlspecialchars($ip); ?></span>
-                                                </div>
-                                                <div style="display: flex; align-items: center; gap: 6px;">
-                                                    <i class="fas fa-file-alt" style="color: #ff8c00;"></i>
-                                                    <span><strong>Page:</strong> <?php echo htmlspecialchars($page); ?></span>
-                                                </div>
-                                            </div>
-                                            
-                                            <!-- Security Details -->
-                                            <div style="background: rgba(255,255,255,0.05); padding: 10px; border-radius: 6px; margin-top: 12px; font-size: 12px;">
-                                                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px; font-weight: 600; color: #ffffff;">
-                                                    <i class="fas fa-shield-alt" style="color: #ff8c00;"></i>
-                                                    Security Analysis
-                                                </div>
-                                                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px;">
-                                                    <div>
-                                                        <strong>Risk Level:</strong> 
-                                                        <span style="color: <?php echo $securityColor; ?>; font-weight: 600;">
-                                                            <?php echo ucfirst($securityLevel); ?>
-                                                        </span>
-                                                    </div>
-                                                    <div>
-                                                        <strong>Method:</strong> <?php echo htmlspecialchars($method); ?>
-                                                    </div>
-                                                    <div>
-                                                        <strong>Session:</strong> <?php echo substr($session, 0, 8); ?>...
-                                                    </div>
-                                                    <div>
-                                                        <strong>Agent:</strong> 
-                                                        <span style="font-family: monospace; font-size: 10px;">
-                                                            <?php echo substr($agent, 0, 30); ?>...
-                                                        </span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        
-                                        <!-- Quick Actions -->
-                                        <div style="text-align: right; margin-left: 20px;">
-                                            <div style="background: rgba(0,0,0,0.1); padding: 8px; border-radius: 6px; font-size: 11px;">
-                                                <?php if ($securityLevel === 'danger'): ?>
-                                                    <button style="background: #dc3545; color: white; border: none; padding: 4px 8px; border-radius: 8px; font-size: 10px; cursor: pointer; margin-bottom: 4px;">
-                                                        <i class="fas fa-ban"></i> Block IP
-                                                    </button>
-                                                <?php endif; ?>
-                                                <?php if ($securityLevel === 'warning'): ?>
-                                                    <button style="background: #ffc107; color: #212529; border: none; padding: 4px 8px; border-radius: 8px; font-size: 10px; cursor: pointer; margin-bottom: 4px;">
-                                                        <i class="fas fa-search"></i> Investigate
-                                                    </button>
-                                                <?php endif; ?>
-                                                <div>
-                                                    <strong>Session ID:</strong><br>
-                                                    <code style="font-size: 9px;"><?php echo substr($session, 0, 16); ?>...</code>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <?php
-                                } else {
-                                    // Display unparsed lines as-is
-                                ?>
-                                <div class="log-entry info" style="margin-bottom: 20px; padding: 20px; border-radius: 8px; border-left: 4px solid #17a2b8; background: #f8f9fa; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                                    <div style="color: #666; font-family: monospace; font-size: 13px;">
-                                        <?php echo htmlspecialchars($line); ?>
-                                    </div>
-                                </div>
-                                <?php
-                                }
-                            }
-                            ?>
-                        <?php endif; ?>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </main>
-    <!-- Professional Footer -->
-    <footer>
-        <div class="footer-content">
-            <div class="footer-grid">
-                <!-- Brand Column -->
-                <div class="footer-brand">
-                    <a href="index.php" class="footer-logo">
-                        <div style="width: 50px; height: 50px; background: var(--primary-gold); border: 3px solid var(--primary-orange); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 2px;">
-                            <span style="font-weight: bold; font-size: 24px;">
-                                <span style="color: var(--primary-orange); font-size: 28px;">K</span><span style="color: #008000; font-size: 24px;">E</span>
-                            </span>
-                        </div>
-                        <span style="color: var(--primary-orange);">Kenya</span> <span style="color: #008000;">EduHub</span>
-                    </a>
-                    <div class="footer-description">
-                        <span class="text-white">East Africa's</span> <span class="text-orange">premier</span> <span class="text-white">educational platform, providing quality</span> <span class="text-golden">learning resources</span> <span class="text-white">and collaborative tools for students and educators across</span> <span class="text-orange">Kenya</span> <span class="text-white">and beyond.</span>
-                    </div>
-                    <div class="footer-contact">
-                        <div class="footer-contact-item">
-                            <i class="fas fa-phone"></i>
-                            <span>+254 717 016 902</span>
-                        </div>
-                        <div class="footer-contact-item">
-                            <i class="fas fa-envelope"></i>
-                            <span>otienobrian029@gmail.com</span>
-                        </div>
-                        <div class="footer-contact-item">
-                            <i class="fas fa-map-marker-alt"></i>
-                            <span>Nairobi, Kenya</span>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Services Column -->
-                <div class="footer-column">
-                    <h3><span class="text-golden">Services</span></h3>
-                    <div class="footer-links">
-                        <a href="../auth/login.php"><span class="text-white">Resource</span> <span class="text-orange">Library</span></a>
-                        <a href="../auth/login.php"><span class="text-white">Study</span> <span class="text-golden">Materials</span></a>
-                        <a href="../auth/login.php"><span class="text-orange">Past</span> <span class="text-white">Papers</span></a>
-                        <a href="../auth/login.php"><span class="text-white">Research</span> <span class="text-golden">Papers</span></a>
-                        <a href="../auth/login.php"><span class="text-white">Teaching</span> <span class="text-orange">Guides</span></a>
-                    </div>
-                </div>
-                
-                <!-- Company Column -->
-                <div class="footer-column">
-                    <h3><span class="text-orange">Platform</span></h3>
-                    <div class="footer-links">
-                        <a href="../#features"><span class="text-golden">Features</span></a>
-                        <a href="../#resources"><span class="text-white">Resources</span></a>
-                        <a href="#"><span class="text-white">About</span> <span class="text-orange">Us</span></a>
-                        <a href="#"><span class="text-white">Our</span> <span class="text-golden">Team</span></a>
-                        <a href="#"><span class="text-orange">Contact</span></a>
-                        <p><span class="text-golden">Empowering</span> <span class="text-white">education across</span> <span class="text-orange">Kenya</span></p>
-                    </div>
-                </div>
-                
-                <!-- Legal Column -->
-                <div class="footer-column">
-                    <h3><span class="text-white">Legal</span></h3>
-                    <div class="footer-links">
-                        <a href="#"><span class="text-white">Privacy</span> <span class="text-golden">Policy</span></a>
-                        <a href="#"><span class="text-white">Terms of</span> <span class="text-orange">Service</span></a>
-                        <a href="#"><span class="text-white">Usage</span> <span class="text-golden">Guidelines</span></a>
-                        <a href="#"><span class="text-white">Copyright</span> <span class="text-orange">Policy</span></a>
-                        <a href="#"><span class="text-white">Cookie</span> <span class="text-golden">Policy</span></a>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="footer-bottom">
-                <div>
-                    <p><span class="text-white">&copy; 2026</span> <span class="text-orange">Kenya</span> <span class="text-golden">EduHub</span><span class="text-white">. All rights reserved.</span></p>
-                </div>
-            </div>
-        </div>
-    </footer>
-
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        function changeLogFile() {
-            const selectedFile = document.getElementById('fileSelect').value;
-            window.location.href = '?file=' + encodeURIComponent(selectedFile);
-        }
-
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
-            sidebar.classList.toggle('active');
+            const mainContent = document.getElementById('mainContent');
+            sidebar.classList.toggle('collapsed');
+            mainContent.classList.toggle('expanded');
         }
-
-        // Close sidebar when clicking outside on mobile
-        document.addEventListener('click', function(event) {
-            const sidebar = document.getElementById('sidebar');
-            const toggle = document.querySelector('.mobile-menu-toggle');
+        
+        function toggleSidebarSection(element) {
+            element.classList.toggle('collapsed');
+            const links = element.nextElementSibling;
+            links.classList.toggle('collapsed');
+        }
+        
+        function showClearLogModal() {
+            try {
+                document.getElementById('clearLogMessage').textContent = 'Are you sure you want to clear this log file? This action cannot be undone.';
+                
+                if (typeof bootstrap !== 'undefined') {
+                    const modal = new bootstrap.Modal(document.getElementById('clearLogModal'));
+                    modal.show();
+                } else {
+                    if (confirm('Are you sure you want to clear this log file?')) {
+                        clearLogViaAJAX();
+                    }
+                }
+            } catch (error) {
+                console.error('Error showing modal:', error);
+                if (confirm('Are you sure you want to clear this log file?')) {
+                    clearLogViaAJAX();
+                }
+            }
+        }
+        
+        function confirmClearLog() {
+            clearLogViaAJAX();
+        }
+        
+        function clearLogViaAJAX() {
+            const logFile = '<?php echo htmlspecialchars($logFile); ?>';
             
-            if (window.innerWidth <= 768 && 
-                !sidebar.contains(event.target) && 
-                !toggle.contains(event.target)) {
-                sidebar.classList.remove('active');
-            }
-        });
-
-        function confirmClearLogs() {
-            if (confirm('Are you sure you want to clear all system logs? This action cannot be undone.')) {
-                // Submit form to actually clear logs
-                window.location.href = '?action=clear&confirm=yes';
+            fetch('../api/clear_log.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    file: logFile,
+                    csrf_token: window.currentCSRFToken
+                })
+            })
+            .then(response => {
+                if (response.status === 401) {
+                    // Unauthorized - redirect to login
+                    window.location.href = '/login';
+                    throw new Error('Unauthorized');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    // Close modal
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('clearLogModal'));
+                    if (modal) {
+                        modal.hide();
+                    }
+                    
+                    // Show success message and reload
+                    window.location.href = 'logs.php?file=' + encodeURIComponent(logFile) + '&cleared=1';
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            })
+            .catch(error => {
+                if (error.message !== 'Unauthorized') {
+                    console.error('Error clearing log:', error);
+                    alert('Failed to clear log file. Please try again.');
+                }
+            });
+        }
+        
+        function showClearAllLogsModal() {
+            try {
+                if (typeof bootstrap !== 'undefined') {
+                    const modal = new bootstrap.Modal(document.getElementById('clearAllLogsModal'));
+                    modal.show();
+                } else {
+                    if (confirm('Are you sure you want to clear ALL log files? This action cannot be undone.')) {
+                        clearAllLogsViaAJAX();
+                    }
+                }
+            } catch (error) {
+                console.error('Error showing modal:', error);
+                if (confirm('Are you sure you want to clear ALL log files? This action cannot be undone.')) {
+                    clearAllLogsViaAJAX();
+                }
             }
         }
-
-        // Auto-refresh logs every 30 seconds
-        setInterval(function() {
-            const currentUrl = new URL(window.location);
-            if (!currentUrl.searchParams.has('search') && !currentUrl.searchParams.has('type')) {
-                // Only auto-refresh if no filters are applied
-                // window.location.reload();
-            }
-        }, 30000);
+        
+        function confirmClearAllLogs() {
+            clearAllLogsViaAJAX();
+        }
+        
+        function clearAllLogsViaAJAX() {
+            fetch('../api/clear_all_logs.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    csrf_token: window.currentCSRFToken
+                })
+            })
+            .then(response => {
+                if (response.status === 401) {
+                    // Unauthorized - redirect to login
+                    window.location.href = '/login';
+                    throw new Error('Unauthorized');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    // Close modal
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('clearAllLogsModal'));
+                    if (modal) {
+                        modal.hide();
+                    }
+                    
+                    // Show success message and reload
+                    window.location.href = 'logs.php?cleared_all=1';
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            })
+            .catch(error => {
+                if (error.message !== 'Unauthorized') {
+                    console.error('Error clearing all logs:', error);
+                    alert('Failed to clear all log files. Please try again.');
+                }
+            });
+        }
     </script>
-    <!-- Footer Styles -->
-    <style>
-        /* Footer */
-        footer {
-            background: #000000;
-            color: white;
-            padding: 4rem 2rem 2rem 242px;
-            margin-top: 4rem;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        footer::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(74, 105, 189, 0.4), transparent);
-        }
-        
-        .footer-content {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-        
-        .footer-grid {
-            display: grid;
-            grid-template-columns: 2fr 1fr 1fr 1fr;
-            gap: 3rem;
-            margin-bottom: 2rem;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            padding-bottom: 2rem;
-        }
-        
-        .footer-brand {
-            grid-column: 1;
-        }
-        
-        .footer-logo {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            color: white;
-            text-decoration: none;
-            font-size: 1.5rem;
-            font-weight: bold;
-            transition: all 0.3s ease;
-            background: linear-gradient(45deg, #FFD700, #FFA500);
-            padding: 8px 16px;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(255, 215, 0, 0.4);
-            border: 2px solid rgba(255, 255, 255, 0.3);
-        }
-        
-        .footer-logo:hover {
-            color: #667eea;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(255, 215, 0, 0.3);
-        }
-        
-        .footer-description {
-            color: #b0b0b0;
-            line-height: 1.7;
-            margin-bottom: 1.5rem;
-            font-size: 0.95rem;
-        }
-        
-        .footer-contact {
-            display: flex;
-            flex-direction: column;
-            gap: 0.75rem;
-        }
-        
-        .footer-contact-item {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            color: #b0b0b0;
-            text-decoration: none;
-            transition: color 0.3s ease;
-        }
-        
-        .footer-contact-item:hover {
-            color: #667eea;
-        }
-        
-        .footer-contact-item i {
-            width: 20px;
-            text-align: center;
-        }
-        
-        .footer-column h3 {
-            font-size: 1.1rem;
-            font-weight: 600;
-            margin-bottom: 1.5rem;
-            color: white;
-            position: relative;
-        }
-        
-        .footer-column h3::after {
-            content: '';
-            position: absolute;
-            bottom: -8px;
-            left: 0;
-            width: 50px;
-            height: 2px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        }
-        
-        .footer-links {
-            display: flex;
-            flex-direction: column;
-            gap: 0.75rem;
-        }
 
-        .footer-links a {
-            color: #b0b0b0;
-            text-decoration: none;
-            transition: all 0.3s ease;
-            position: relative;
-            padding-left: 0;
-        }
-        
-        .footer-links a::before {
-            content: '';
-            position: absolute;
-            left: -15px;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 0;
-            height: 1px;
-            background: #667eea;
-            opacity: 0;
-            transition: all 0.3s ease;
-        }
-        
-        .footer-links a:hover {
-            color: #667eea;
-            padding-left: 10px;
-        }
-        
-        .footer-links a:hover::before {
-            opacity: 1;
-        }
-        
-        .footer-social {
-            display: flex;
-            gap: 1rem;
-            margin-top: 1.5rem;
-        }
-        
-        .footer-social a {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.1);
-            color: #b0b0b0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-decoration: none;
-            transition: all 0.3s ease;
-        }
-        
-        .footer-social a:hover {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            transform: translateY(-3px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
-        }
-        
-        .footer-bottom {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding-top: 2rem;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            font-size: 0.85rem;
-        }
-        
-        .footer-bottom-links {
-            display: flex;
-            gap: 2rem;
-        }
-        
-        .footer-bottom-links a {
-            color: #808080;
-            text-decoration: none;
-            transition: color 0.3s ease;
-            font-size: 0.85rem;
-        }
-        
-        .footer-bottom-links a:hover {
-            color: #667eea;
-        }
+    <!-- Confirmation Modal -->
+    <div class="modal fade" id="clearLogModal" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="border: none; border-radius: 24px; box-shadow: 0 24px 38px 3px rgba(0,0,0,0.14), 0 9px 46px 8px rgba(0,0,0,0.12);">
+                <div class="modal-header" style="border: none; padding: 24px 32px 0 32px;">
+                    <h5 class="modal-title" style="font-size: 22px; font-weight: 400; color: #202124;">Clear Log File</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" style="padding: 24px 32px;">
+                    <p id="clearLogMessage" style="font-size: 14px; color: #5f6368;"></p>
+                </div>
+                <div class="modal-footer" style="border: none; padding: 0 32px 32px 32px;">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="background: transparent; color: #5f6368; border: none; border-radius: 25px; padding: 10px 24px; font-size: 14px; font-weight: 500; letter-spacing: 0.25px; text-transform: uppercase;">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="confirmClearLog()" style="background: #FF6B35; color: white; border: none; border-radius: 25px; padding: 10px 24px; font-size: 14px; font-weight: 500; letter-spacing: 0.25px; text-transform: uppercase;">Confirm</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
-        @media (max-width: 768px) {
-            footer {
-                padding: 4rem 2rem 2rem;
-            }
-            
-            .footer-grid {
-                grid-template-columns: 1fr;
-                gap: 2rem;
-                text-align: center;
-            }
-            
-            .footer-brand {
-                text-align: center;
-            }
-            
-            .footer-logo {
-                justify-content: center;
-            }
-            
-            .footer-contact {
-                align-items: center;
-            }
-            
-            .footer-bottom {
-                flex-direction: column;
-                gap: 1rem;
-                text-align: center;
-            }
-            
-            .footer-bottom-links {
-                justify-content: center;
-                flex-wrap: wrap;
-            }
-        }
-    </style>
+    <!-- Clear All Logs Modal -->
+    <div class="modal fade" id="clearAllLogsModal" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="border: none; border-radius: 24px; box-shadow: 0 24px 38px 3px rgba(0,0,0,0.14), 0 9px 46px 8px rgba(0,0,0,0.12);">
+                <div class="modal-header" style="border: none; padding: 24px 32px 0 32px;">
+                    <h5 class="modal-title" style="font-size: 22px; font-weight: 400; color: #202124;">Clear All Logs</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" style="padding: 24px 32px;">
+                    <p style="font-size: 14px; color: #5f6368;">Are you sure you want to clear ALL log files? This action cannot be undone and will empty all log files in the logs directory including subdirectories.</p>
+                </div>
+                <div class="modal-footer" style="border: none; padding: 0 32px 32px 32px;">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="background: transparent; color: #5f6368; border: none; border-radius: 25px; padding: 10px 24px; font-size: 14px; font-weight: 500; letter-spacing: 0.25px; text-transform: uppercase;">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="confirmClearAllLogs()" style="background: #d13438; color: white; border: none; border-radius: 25px; padding: 10px 24px; font-size: 14px; font-weight: 500; letter-spacing: 0.25px; text-transform: uppercase;">Clear All</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
-    <style>
-        /* Dashboard-matched admin branding and responsive footer */
-        :root {
-            --primary-orange: #FF6B35;
-            --primary-gold: #FFD700;
-        }
-
-        .text-orange { color: var(--primary-orange) !important; }
-        .text-golden { color: var(--primary-gold) !important; }
-        .text-white { color: #ffffff !important; }
-
-        .custom-header {
-            background: #000000;
-            border-bottom-color: var(--primary-gold);
-        }
-
-        .custom-logo .brand-name,
-        .custom-logo .brand-name span {
-            background: transparent;
-            width: auto;
-            height: auto;
-            border: 0;
-            border-radius: 0;
-            box-shadow: none;
-            display: inline;
-            font-size: inherit;
-            margin: 0;
-            padding: 0;
-            text-shadow: none;
-        }
-
-        .sidebar-header h3 {
-            background: transparent !important;
-            -webkit-background-clip: border-box !important;
-            background-clip: border-box !important;
-            -webkit-text-fill-color: currentColor !important;
-            color: #ffffff !important;
-        }
-
-        .header h1,
-        .card-title,
-        .section-title,
-        .stat-value {
-            color: var(--primary-gold) !important;
-        }
-
-        .header h1::first-letter,
-        .card-title::first-letter,
-        .section-title::first-letter {
-            color: var(--primary-orange);
-        }
-
-        .menu-item i,
-        .footer-contact-item i {
-            color: var(--primary-orange);
-        }
-
-        .menu-item:hover,
-        .menu-item.active {
-            color: var(--primary-gold) !important;
-        }
-
-        footer {
-            --primary-orange: #FF6B35;
-            --primary-gold: #FFD700;
-            background: #000000;
-            color: white;
-            padding: 4rem 2rem 2rem;
-            margin-top: 4rem;
-            margin-left: 220px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        footer::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: auto;
-            height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-        }
-
-        .footer-grid {
-            grid-template-columns: 2fr 1fr 1fr 1fr;
-            gap: 2rem;
-            margin-bottom: 3rem;
-            padding-bottom: 3rem;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            text-align: left;
-        }
-
-        .footer-logo {
-            color: white;
-            background: transparent;
-            padding: 0;
-            border: 0;
-            border-radius: 0;
-            box-shadow: none;
-            margin-bottom: 0;
-        }
-
-        .footer-logo:hover {
-            color: var(--primary-orange);
-            transform: translateY(-2px);
-            box-shadow: none;
-        }
-
-        .footer-description {
-            max-width: 400px;
-        }
-
-        .footer-contact-item {
-            font-size: 0.9rem;
-        }
-
-        .footer-contact-item:hover,
-        .footer-links a:hover,
-        .footer-bottom-links a:hover {
-            color: #667eea;
-        }
-
-        .footer-column h3 {
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .footer-column h3::after {
-            width: 30px;
-            height: 2px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        }
-
-        .footer-links a {
-            font-weight: 400;
-            font-size: 0.9rem;
-        }
-
-        .footer-links a::before {
-            width: 6px;
-            height: 6px;
-            background: #667eea;
-            border-radius: 50%;
-        }
-
-        .footer-bottom {
-            border-top: 1px solid rgba(255, 255, 255, 0.05);
-            color: #808080;
-        }
-
-        @media (max-width: 768px) {
-            .custom-header {
-                padding-left: 20px;
-            }
-
-            footer {
-                margin-left: 0;
-                padding: 4rem 2rem 2rem;
-            }
-
-            .footer-grid {
-                grid-template-columns: 1fr 1fr;
-                gap: 2rem;
-                text-align: left;
-            }
-
-            .footer-brand {
-                grid-column: 1 / -1;
-                text-align: left;
-                padding-left: 0;
-            }
-
-            .footer-logo {
-                justify-content: flex-start;
-            }
-
-            .footer-description {
-                display: none;
-            }
-
-            .footer-contact {
-                align-items: stretch;
-                justify-content: flex-start;
-            }
-
-            .footer-bottom {
-                flex-direction: column;
-                text-align: center;
-                gap: 1rem;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .footer-grid {
-                grid-template-columns: 1fr;
-                gap: 1.5rem;
-            }
-        }
-    </style>
-
-    <style>
-        /* Dashboard footer parity */
-        :root {
-            --primary-orange: #FF6B35;
-            --primary-gold: #FFD700;
-        }
-
-        .text-orange { color: var(--primary-orange) !important; }
-        .text-golden { color: var(--primary-gold) !important; }
-        .text-white { color: #ffffff !important; }
-
-        footer {
-            background: #000000 !important;
-            color: white !important;
-            padding: 4rem 2rem 2rem !important;
-            margin-top: 4rem !important;
-            margin-left: 220px !important;
-            position: relative !important;
-            overflow: hidden !important;
-        }
-
-        footer::before {
-            content: '' !important;
-            position: absolute !important;
-            top: 0 !important;
-            left: 0 !important;
-            right: 0 !important;
-            bottom: auto !important;
-            height: 1px !important;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent) !important;
-        }
-
-        .footer-content {
-            max-width: 1200px !important;
-            margin: 0 auto !important;
-            position: relative !important;
-            z-index: 1 !important;
-        }
-
-        .footer-grid {
-            display: grid !important;
-            grid-template-columns: 2fr 1fr 1fr 1fr !important;
-            gap: 2rem !important;
-            margin-bottom: 3rem !important;
-            padding-bottom: 3rem !important;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
-            text-align: left !important;
-        }
-
-        .footer-logo {
-            display: flex !important;
-            align-items: center !important;
-            gap: 0.75rem !important;
-            color: white !important;
-            text-decoration: none !important;
-            font-size: 1.5rem !important;
-            font-weight: bold !important;
-            background: transparent !important;
-            padding: 0 !important;
-            border: 0 !important;
-            border-radius: 0 !important;
-            box-shadow: none !important;
-            margin-bottom: 0 !important;
-        }
-
-        .footer-logo:hover {
-            color: var(--primary-orange) !important;
-            transform: translateY(-2px) !important;
-            box-shadow: none !important;
-        }
-
-        .footer-description {
-            color: #b0b0b0 !important;
-            line-height: 1.7 !important;
-            margin-bottom: 1.5rem !important;
-            font-size: 0.95rem !important;
-            max-width: 400px !important;
-        }
-
-        .footer-contact {
-            display: flex !important;
-            flex-direction: column !important;
-            gap: 0.75rem !important;
-        }
-
-        .footer-contact-item {
-            display: flex !important;
-            align-items: center !important;
-            gap: 0.75rem !important;
-            color: #b0b0b0 !important;
-            text-decoration: none !important;
-            font-size: 0.9rem !important;
-        }
-
-        .footer-contact-item i {
-            width: 20px !important;
-            text-align: center !important;
-            color: var(--primary-orange) !important;
-        }
-
-        .footer-contact-item:hover,
-        .footer-links a:hover {
-            color: #667eea !important;
-        }
-
-        .footer-column h3 {
-            font-size: 1.1rem !important;
-            font-weight: 600 !important;
-            margin-bottom: 1.5rem !important;
-            color: white !important;
-            position: relative !important;
-            text-transform: uppercase !important;
-            letter-spacing: 1px !important;
-        }
-
-        .footer-column h3::after {
-            content: '' !important;
-            position: absolute !important;
-            bottom: -8px !important;
-            left: 0 !important;
-            width: 30px !important;
-            height: 2px !important;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
-        }
-
-        .footer-links {
-            display: flex !important;
-            flex-direction: column !important;
-            gap: 0.75rem !important;
-        }
-
-        .footer-links a,
-        .footer-links p {
-            color: #b0b0b0 !important;
-            text-decoration: none !important;
-            font-weight: 400 !important;
-            font-size: 0.9rem !important;
-            margin: 0 !important;
-            position: relative !important;
-            padding-left: 0 !important;
-        }
-
-        .footer-links a::before {
-            content: '' !important;
-            position: absolute !important;
-            left: -15px !important;
-            top: 50% !important;
-            transform: translateY(-50%) !important;
-            width: 6px !important;
-            height: 6px !important;
-            background: #667eea !important;
-            border-radius: 50% !important;
-            opacity: 0 !important;
-            transition: all 0.3s ease !important;
-        }
-
-        .footer-links a:hover {
-            padding-left: 10px !important;
-        }
-
-        .footer-links a:hover::before {
-            opacity: 1 !important;
-        }
-
-        .footer-bottom {
-            display: flex !important;
-            justify-content: space-between !important;
-            align-items: center !important;
-            padding-top: 2rem !important;
-            border-top: 1px solid rgba(255, 255, 255, 0.05) !important;
-            color: #808080 !important;
-            font-size: 0.85rem !important;
-        }
-
-        .footer-bottom p {
-            margin: 0 !important;
-        }
-
-        @media (max-width: 768px) {
-            footer {
-                margin-left: 0 !important;
-                padding: 4rem 2rem 2rem !important;
-            }
-
-            .footer-grid {
-                grid-template-columns: 1fr 1fr !important;
-                gap: 2rem !important;
-                text-align: left !important;
-            }
-
-            .footer-brand {
-                grid-column: 1 / -1 !important;
-                text-align: left !important;
-                padding-left: 0 !important;
-            }
-
-            .footer-logo {
-                justify-content: flex-start !important;
-            }
-
-            .footer-description {
-                display: none !important;
-            }
-
-            .footer-contact {
-                align-items: stretch !important;
-                justify-content: flex-start !important;
-            }
-
-            .footer-bottom {
-                flex-direction: column !important;
-                text-align: center !important;
-                gap: 1rem !important;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .footer-grid {
-                grid-template-columns: 1fr !important;
-                gap: 1.5rem !important;
-            }
-        }
-    </style>
+    <!-- Footer -->
+    <footer style="background: transparent; color: #5f6368; padding: 2rem; text-align: center; border-top: 1px solid #e8eaed; margin-top: 40px;">
+        <p style="margin: 0;">
+            <span style="color: #FF6B35;">&copy; 2026</span>
+            <span style="color: #FF6B35;">Kenya</span>
+            <span style="color: #008000;">EduHub</span>
+            <span style="color: #5f6368;">. All rights reserved.</span>
+        </p>
+    </footer>
 </body>
 </html>
-

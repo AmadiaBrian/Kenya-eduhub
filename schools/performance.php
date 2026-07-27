@@ -478,6 +478,12 @@ $calendar_status = getSchoolCalendarStatus($pdo, $_SESSION['school_id']);
             <a class="nav-link" href="parents">
                 <i class="fas fa-users"></i> Parents
             </a>
+            <a class="nav-link" href="disciplinary">
+                <i class="fas fa-shield-alt"></i> Disciplinary
+            </a>
+            <a class="nav-link" href="disciplinary-action-types">
+                <i class="fas fa-list-alt"></i> Disciplinary Types
+            </a>
             <a class="nav-link active" href="performance">
                 <i class="fas fa-chart-line"></i> Performance
             </a>

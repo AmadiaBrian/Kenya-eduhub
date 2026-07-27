@@ -114,7 +114,61 @@ if ($feePayment) {
                         // Create new balance entry
                         $insertBalance = $pdo->prepare("INSERT INTO school_balances (school_id, balance) VALUES (?, ?)");
                         $insertBalance->execute([$school_id, $payment_amount]);
+                        $new_balance = $payment_amount;
                         error_log("Created school balance: SchoolID=$school_id, Balance=$payment_amount");
+                    }
+                    
+                    // Send SMS notification to school about fee payment
+                    try {
+                        require_once __DIR__ . '/../../sms/sms_config.php';
+                        require_once __DIR__ . '/../../sms/MobitechSMS.php';
+                        require_once __DIR__ . '/../../sms/TextSMS.php';
+                        
+                        // Get school phone and name
+                        $getSchool = $pdo->prepare("SELECT phone, school_name FROM schools WHERE id = ?");
+                        $getSchool->execute([$school_id]);
+                        $school = $getSchool->fetch();
+                        
+                        // Get parent information
+                        $getParent = $pdo->prepare("SELECT p.first_name, p.last_name, p.phone FROM parents p JOIN student_parents sp ON p.id = sp.parent_id JOIN students s ON s.id = sp.student_id WHERE s.id = ?");
+                        $getParent->execute([$student_id]);
+                        $parent = $getParent->fetch();
+                        
+                        // Get fee payment details (fee type, term, year)
+                        $getFeeDetails = $pdo->prepare("SELECT fee_type, term, year FROM fee_payments WHERE transaction_id = ?");
+                        $getFeeDetails->execute([$CheckoutRequestID]);
+                        $feeDetails = $getFeeDetails->fetch();
+                        
+                        if ($school && !empty($school['phone'])) {
+                            // Get admin SMS settings
+                            $getSmsSettings = $pdo->prepare("SELECT * FROM admin_sms_settings LIMIT 1");
+                            $getSmsSettings->execute();
+                            $admin_sms = $getSmsSettings->fetch();
+                            
+                            if ($admin_sms && !empty($admin_sms['sms_enabled'])) {
+                                $parent_name = $parent ? ($parent['first_name'] . ' ' . $parent['last_name']) : 'Parent';
+                                $fee_type = $feeDetails['fee_type'] ?? 'School Fees';
+                                $term = $feeDetails['term'] ?? 'Current Term';
+                                $year = $feeDetails['year'] ?? date('Y');
+                                
+                                // Create SMS message in M-Pesa format
+                                $sms_message = $MpesaReceiptNumber . " Confirmed. KES " . number_format($payment_amount, 2) . " received from $parent_name for $fee_type ($term $year) on " . date('d/m/y') . " at " . date('h:i A') . ". New school balance is KES " . number_format($new_balance, 2) . ".";
+                                
+                                // Send SMS using configured provider
+                                if ($admin_sms['sms_provider'] === 'mobitech') {
+                                    $mobitech = new MobitechSMS($admin_sms['mobitech_api_key'], $admin_sms['mobitech_sender_id']);
+                                    $result = $mobitech->sendSMS($school['phone'], $sms_message);
+                                    error_log("SMS sent via Mobitech: " . print_r($result, true));
+                                } elseif ($admin_sms['sms_provider'] === 'textsms') {
+                                    $textsms = new TextSMS($admin_sms['textsms_api_key'], $admin_sms['textsms_partner_id'], $admin_sms['textsms_sender_id']);
+                                    $result = $textsms->sendSMS($school['phone'], $sms_message);
+                                    error_log("SMS sent via Text SMS: " . print_r($result, true));
+                                }
+                            }
+                        }
+                    } catch (Exception $sms_error) {
+                        error_log("Failed to send fee payment SMS: " . $sms_error->getMessage());
+                        // Don't fail the callback if SMS fails
                     }
                 }
             }

@@ -269,6 +269,20 @@ if ($teacher && $teacher['teacher_type'] === 'subject_teacher') {
             background: #01579b;
         }
         
+        .btn-action {
+            background: #f8f9fa;
+            color: #000;
+            border: 1px solid #000;
+        }
+        
+        .btn-action:hover {
+            background: #e9ecef;
+        }
+        
+        .btn-action i {
+            color: #000;
+        }
+        
         .table {
             width: 100%;
             border-collapse: collapse;
@@ -705,7 +719,7 @@ if ($teacher && $teacher['teacher_type'] === 'subject_teacher') {
                                                         <strong>${balanceText}</strong>
                                                     </td>
                                                     <td>
-                                                        <button class="btn btn-sm btn-info" onclick="viewStudentDetails(${student.id})" style="border-radius: 25px;">
+                                                        <button class="btn btn-sm btn-action" onclick="viewStudentDetails(${student.id})" style="border-radius: 25px;">
                                                             <i class="fas fa-eye"></i> View
                                                         </button>
                                                     </td>

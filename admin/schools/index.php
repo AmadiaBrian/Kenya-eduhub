@@ -1,19 +1,20 @@
 <?php
-// Admin Users Management
+// Admin Schools Management
 // Session is started by index.php router
-require_once __DIR__ . '/../config.php';
-require_once __DIR__ . '/../includes/helpers.php';
-require_once __DIR__ . '/../includes/security_lite.php';
+require_once __DIR__ . '/../../config.php';
+require_once __DIR__ . '/../../includes/helpers.php';
+require_once __DIR__ . '/../../includes/security_lite.php';
 
 // Output CSRF token variable for use in HTML
 $csrf_token = generateCSRFLite();
 
 // Check if user is logged in and is admin
 if (!isset($_SESSION['user_id'])) {
-    header("Location: login.php");
+    header("Location: ../login");
     exit();
 }
 
+// Check if user is admin
 $stmt = $conn->prepare("SELECT * FROM users WHERE id = ?");
 $stmt->bind_param("i", $_SESSION['user_id']);
 $stmt->execute();
@@ -21,101 +22,42 @@ $result = $stmt->get_result();
 $user = $result->fetch_assoc();
 
 if (!isset($user['role']) || $user['role'] !== 'admin') {
-    header("Location: ../dashboard/index.php");
+    header("Location: ../dashboard");
     exit();
 }
 
-// Handle user actions
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $action = $_POST['action'] ?? '';
-    
-    if ($action === 'delete_user') {
-        $user_id = $_POST['user_id'] ?? '';
-        if ($user_id && $user_id != $_SESSION['user_id']) {
-            $stmt = $conn->prepare("DELETE FROM users WHERE id = ?");
-            $stmt->bind_param("i", $user_id);
-            $stmt->execute();
-            $success = "User deleted successfully";
-        }
-    } elseif ($action === 'toggle_status') {
-        $user_id = $_POST['user_id'] ?? '';
-        $current_status = $_POST['current_status'] ?? '';
-        $new_status = $current_status === 'active' ? 'inactive' : 'active';
-        
-        if ($user_id && $user_id != $_SESSION['user_id']) {
-            $stmt = $conn->prepare("UPDATE users SET is_verified = ? WHERE id = ?");
-            $verified_status = $new_status === 'active' ? 1 : 0;
-            $stmt->bind_param("ii", $verified_status, $user_id);
-            $stmt->execute();
-            $success = "User status updated successfully";
-        }
-    }
+// Get all schools with statistics
+$schools = [];
+try {
+    $stmt = $conn->prepare("
+        SELECT s.*, 
+               (SELECT COUNT(*) FROM students WHERE school_id = s.id) as student_count,
+               (SELECT COUNT(*) FROM teachers WHERE school_id = s.id) as teacher_count,
+               (SELECT COUNT(*) FROM classes WHERE school_id = s.id) as class_count,
+               (SELECT COUNT(*) FROM fee_payments WHERE school_id = s.id AND status = 'completed') as payment_count,
+               (SELECT COALESCE(sb.balance, 0) FROM school_balances sb WHERE sb.school_id = s.id) as account_balance
+        FROM schools s 
+        ORDER BY s.created_at DESC
+    ");
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $schools = $result->fetch_all(MYSQLI_ASSOC);
+} catch (Exception $e) {
+    error_log("Failed to fetch schools: " . $e->getMessage());
 }
 
-// Get all users with pagination
-$page = (int)($_GET['page'] ?? 1);
-$per_page = 10;
-$offset = ($page - 1) * $per_page;
-
-// Ensure pagination variables are properly set
-if ($page < 1) $page = 1;
-if ($per_page < 1) $per_page = 10;
-if ($offset < 0) $offset = 0;
-
-$search = $_GET['search'] ?? '';
-$where_clause = '';
-$params = [];
-$types = '';
-
-if (!empty($search)) {
-    $where_clause = "WHERE name LIKE ? OR email LIKE ?";
-    $search_param = "%$search%";
-    $params = [$search_param, $search_param];
-    $types = "ss";
-}
-
-// Get total count
-$count_sql = "SELECT COUNT(*) as total FROM users $where_clause";
-$stmt = $conn->prepare($count_sql);
-if (!empty($params)) {
-    $stmt->bind_param($types, ...$params);
-}
-$stmt->execute();
-$total_users = $stmt->get_result()->fetch_assoc()['total'];
-$total_pages = ceil($total_users / $per_page);
-
-// Get users
-$sql = "SELECT * FROM users $where_clause ORDER BY id DESC LIMIT ? OFFSET ?";
-$stmt = $conn->prepare($sql);
-if (!empty($params)) {
-    $all_params = array_merge($params, [$per_page, $offset]);
-    $all_types = $types . "ii";
-    $stmt->bind_param($all_types, ...$all_params);
-} else {
-    $stmt->bind_param("ii", $per_page, $offset);
-}
-$stmt->execute();
-$users = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
-
-// Recent users (ordered by id since created_at doesn't exist)
-$stmt = $conn->prepare("SELECT * FROM users ORDER BY id DESC LIMIT 5");
-$stmt->execute();
-$recent_users = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
-
-// Get total users count for statistics
-$stmt = $conn->prepare("SELECT COUNT(*) as total, SUM(CASE WHEN is_verified = 1 THEN 1 ELSE 0 END) as active FROM users");
-$stmt->execute();
-$stats = $stmt->get_result()->fetch_assoc();
-$total_users_count = $stats['total'];
-$total_active_users = $stats['active'];
+// Calculate overall statistics
+$total_schools = count($schools);
+$total_students = array_sum(array_column($schools, 'student_count'));
+$total_teachers = array_sum(array_column($schools, 'teacher_count'));
+$active_schools = count(array_filter($schools, fn($s) => $s['status'] === 'active'));
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Users Management - Kenya EduHub</title>
+    <title>Schools Management - Kenya EduHub</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <script>window.currentCSRFToken = "<?php echo $csrf_token; ?>";</script>
@@ -520,13 +462,10 @@ $total_active_users = $stats['active'];
                 Main <i class="fas fa-chevron-down chevron"></i>
             </div>
             <div class="sidebar-links">
-                <a class="nav-link" href="dashboard">
+                <a class="nav-link" href="../dashboard">
                     <i class="fas fa-tachometer-alt"></i> Dashboard
                 </a>
-                <a class="nav-link active" href="users">
-                    <i class="fas fa-users"></i> Users
-                </a>
-                <a class="nav-link" href="schools">
+                <a class="nav-link active" href="../schools">
                     <i class="fas fa-school"></i> Schools
                 </a>
             </div>
@@ -537,7 +476,10 @@ $total_active_users = $stats['active'];
                 Management <i class="fas fa-chevron-down chevron"></i>
             </div>
             <div class="sidebar-links">
-                <a class="nav-link" href="resources">
+                <a class="nav-link" href="../users">
+                    <i class="fas fa-users"></i> Users
+                </a>
+                <a class="nav-link" href="../resources">
                     <i class="fas fa-book"></i> Resources
                 </a>
             </div>
@@ -548,10 +490,10 @@ $total_active_users = $stats['active'];
                 Reports <i class="fas fa-chevron-down chevron"></i>
             </div>
             <div class="sidebar-links">
-                <a class="nav-link" href="reports">
+                <a class="nav-link" href="../reports">
                     <i class="fas fa-chart-bar"></i> Reports
                 </a>
-                <a class="nav-link" href="logs">
+                <a class="nav-link" href="../logs">
                     <i class="fas fa-file-alt"></i> Logs
                 </a>
             </div>
@@ -562,10 +504,10 @@ $total_active_users = $stats['active'];
                 Settings <i class="fas fa-chevron-down chevron"></i>
             </div>
             <div class="sidebar-links">
-                <a class="nav-link" href="settings">
+                <a class="nav-link" href="../settings">
                     <i class="fas fa-cog"></i> Settings
                 </a>
-                <a class="nav-link" href="logout">
+                <a class="nav-link" href="../logout">
                     <i class="fas fa-sign-out-alt"></i> Logout
                 </a>
             </div>
@@ -574,83 +516,93 @@ $total_active_users = $stats['active'];
     
     <!-- Main Content -->
     <main class="main-content" id="mainContent">
-        <h1 class="page-title">Users Management</h1>
+        <h1 class="page-title">Schools Management</h1>
         
         <!-- Statistics -->
         <div class="stats-grid">
             <div class="stat-card">
-                <h3><?php echo $total_users_count; ?></h3>
-                <p>Total Users</p>
+                <h3><?php echo $total_schools; ?></h3>
+                <p>Total Schools</p>
             </div>
             <div class="stat-card">
-                <h3><?php echo $total_active_users; ?></h3>
-                <p>Active Users</p>
+                <h3><?php echo $active_schools; ?></h3>
+                <p>Active Schools</p>
             </div>
             <div class="stat-card">
-                <h3><?php echo $total_users_count - $total_active_users; ?></h3>
-                <p>Inactive Users</p>
+                <h3><?php echo $total_students; ?></h3>
+                <p>Total Students</p>
+            </div>
+            <div class="stat-card">
+                <h3><?php echo $total_teachers; ?></h3>
+                <p>Total Teachers</p>
             </div>
         </div>
         
-        <!-- Users Table -->
+        <!-- Schools Table -->
         <div class="card">
             <div class="card-header">
-                <h2>All Users</h2>
-                <form method="GET" style="display: flex; gap: 10px;">
-                    <input type="text" name="search" placeholder="Search users..." 
-                           value="<?php echo htmlspecialchars($search); ?>"
-                           style="padding: 8px 12px; border: 1px solid #e8eaed; border-radius: 4px;">
-                    <button type="submit" class="btn btn-primary btn-sm">
-                        <i class="fas fa-search"></i> Search
-                    </button>
-                    <?php if (!empty($search)): ?>
-                        <a href="users" class="btn btn-sm btn-action">
-                            <i class="fas fa-times"></i> Clear
-                        </a>
-                    <?php endif; ?>
-                </form>
+                <h2>All Schools</h2>
+                <button class="btn btn-primary" onclick="window.location.href='../schools-add'">
+                    <i class="fas fa-plus"></i> Add New School
+                </button>
             </div>
             <div class="table-responsive">
                 <table>
                     <thead>
                         <tr>
-                            <th>ID</th>
-                            <th>Name</th>
-                            <th>Email</th>
-                            <th>Role</th>
+                            <th>School Code</th>
+                            <th>School Name</th>
+                            <th>Type</th>
+                            <th>County</th>
+                            <th>Students</th>
+                            <th>Teachers</th>
+                            <th>Classes</th>
+                            <th>Account Balance</th>
                             <th>Status</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <?php if (empty($users)): ?>
+                        <?php if (empty($schools)): ?>
                             <tr>
-                                <td colspan="6" style="text-align: center; padding: 40px;">
-                                    No users found.
+                                <td colspan="10" style="text-align: center; padding: 40px;">
+                                    No schools found. <a href="../schools-add" style="color: var(--primary-color);">Add your first school</a>
                                 </td>
                             </tr>
                         <?php else: ?>
-                            <?php foreach ($users as $user_item): ?>
-                                <tr data-user-id="<?php echo $user_item['id']; ?>">
-                                    <td><?php echo $user_item['id']; ?></td>
-                                    <td><?php echo htmlspecialchars($user_item['name']); ?></td>
-                                    <td><?php echo htmlspecialchars($user_item['email']); ?></td>
-                                    <td><?php echo ucfirst($user_item['role'] ?? 'user'); ?></td>
+                            <?php foreach ($schools as $school): ?>
+                                <tr>
+                                    <td><?php echo htmlspecialchars($school['school_code']); ?></td>
+                                    <td><?php echo htmlspecialchars($school['school_name']); ?></td>
+                                    <td><?php echo htmlspecialchars($school['school_type']); ?></td>
+                                    <td><?php echo htmlspecialchars($school['county']); ?></td>
+                                    <td><?php echo $school['student_count']; ?></td>
+                                    <td><?php echo $school['teacher_count']; ?></td>
+                                    <td><?php echo $school['class_count']; ?></td>
+                                    <td><strong>KES <?php echo number_format($school['account_balance'], 2); ?></strong></td>
                                     <td>
-                                        <span class="status-badge <?php echo ($user_item['is_verified'] ?? 0) == 1 ? 'status-active' : 'status-inactive'; ?>">
-                                            <?php echo ($user_item['is_verified'] ?? 0) == 1 ? 'Verified' : 'Not Verified'; ?>
+                                        <span class="status-badge status-<?php echo $school['status']; ?>">
+                                            <?php echo ucfirst($school['status']); ?>
                                         </span>
                                     </td>
                                     <td>
-                                        <?php if ($user_item['id'] != $_SESSION['user_id']): ?>
-                                            <button class="btn btn-sm btn-action" onclick="toggleUserStatus(<?php echo $user_item['id']; ?>, <?php echo ($user_item['is_verified'] ?? 0) == 1 ? '0' : '1'; ?>)">
-                                                <i class="fas fa-<?php echo ($user_item['is_verified'] ?? 0) == 1 ? 'ban' : 'check'; ?>"></i>
-                                            </button>
-                                            <button class="btn btn-sm btn-action" onclick="deleteUser(<?php echo $user_item['id']; ?>)">
-                                                <i class="fas fa-trash"></i>
+                                        <button class="btn btn-sm btn-action" onclick="viewSchool(<?php echo $school['id']; ?>)">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-action" onclick="editSchool(<?php echo $school['id']; ?>)">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-action" onclick="managePin(<?php echo $school['id']; ?>, '<?php echo htmlspecialchars($school['school_name']); ?>')" title="Manage PIN">
+                                            <i class="fas fa-key"></i>
+                                        </button>
+                                        <?php if ($school['status'] === 'active'): ?>
+                                            <button class="btn btn-sm btn-action" onclick="toggleStatus(<?php echo $school['id']; ?>, 'inactive')" title="Deactivate">
+                                                <i class="fas fa-pause"></i>
                                             </button>
                                         <?php else: ?>
-                                            <span style="color: #5f6368; font-size: 12px;">Current User</span>
+                                            <button class="btn btn-sm btn-action" onclick="toggleStatus(<?php echo $school['id']; ?>, 'active')" title="Activate">
+                                                <i class="fas fa-play"></i>
+                                            </button>
                                         <?php endif; ?>
                                     </td>
                                 </tr>
@@ -659,36 +611,6 @@ $total_active_users = $stats['active'];
                     </tbody>
                 </table>
             </div>
-            
-            <!-- Pagination -->
-            <?php if ($total_pages > 1): ?>
-                <div style="display: flex; justify-content: center; gap: 8px; margin-top: 24px; padding: 0 24px 24px;">
-                    <?php if ($page > 1): ?>
-                        <a href="?page=<?php echo $page - 1; ?>&search=<?php echo urlencode($search); ?>" 
-                           style="padding: 8px 12px; border: 1px solid #e8eaed; border-radius: 4px; text-decoration: none; color: #202124;">
-                            <i class="fas fa-chevron-left"></i> Previous
-                        </a>
-                    <?php endif; ?>
-                    
-                    <?php for ($i = 1; $i <= $total_pages; $i++): ?>
-                        <?php if ($i == $page): ?>
-                            <a href="#" style="padding: 8px 12px; background: var(--primary-color); color: white; border-radius: 4px; text-decoration: none;"><?php echo $i; ?></a>
-                        <?php else: ?>
-                            <a href="?page=<?php echo $i; ?>&search=<?php echo urlencode($search); ?>" 
-                               style="padding: 8px 12px; border: 1px solid #e8eaed; border-radius: 4px; text-decoration: none; color: #202124;">
-                                <?php echo $i; ?>
-                            </a>
-                        <?php endif; ?>
-                    <?php endfor; ?>
-                    
-                    <?php if ($page < $total_pages): ?>
-                        <a href="?page=<?php echo $page + 1; ?>&search=<?php echo urlencode($search); ?>" 
-                           style="padding: 8px 12px; border: 1px solid #e8eaed; border-radius: 4px; text-decoration: none; color: #202124;">
-                            Next <i class="fas fa-chevron-right"></i>
-                        </a>
-                    <?php endif; ?>
-                </div>
-            <?php endif; ?>
         </div>
     </main>
     
@@ -707,161 +629,191 @@ $total_active_users = $stats['active'];
             links.classList.toggle('collapsed');
         }
         
-        function toggleUserStatus(id, status) {
+        function viewSchool(id) {
+            window.location.href = '../schools-view?id=' + id;
+        }
+
+        function editSchool(id) {
+            window.location.href = '../schools-edit?id=' + id;
+        }
+
+        function toggleStatus(id, status) {
             try {
-                console.log('toggleUserStatus called with id:', id, 'status:', status);
+                console.log('toggleStatus called with id:', id, 'status:', status);
                 
                 // Set values
-                document.getElementById('confirmUserId').value = id;
-                document.getElementById('confirmUserStatus').value = status;
-                const statusText = status == 1 ? 'verify' : 'unverify';
-                document.getElementById('confirmUserMessage').textContent = 'Are you sure you want to ' + statusText + ' this user?';
+                document.getElementById('confirmStatusId').value = id;
+                document.getElementById('confirmStatusValue').value = status;
+                document.getElementById('confirmStatusMessage').textContent = 'Are you sure you want to change this school status to ' + status + '?';
                 
-                console.log('Modal element:', document.getElementById('confirmUserModal'));
+                console.log('Modal element:', document.getElementById('confirmStatusModal'));
                 console.log('Bootstrap available:', typeof bootstrap !== 'undefined');
                 
                 // Try to show modal
                 if (typeof bootstrap !== 'undefined') {
-                    const modal = new bootstrap.Modal(document.getElementById('confirmUserModal'));
+                    const modal = new bootstrap.Modal(document.getElementById('confirmStatusModal'));
                     modal.show();
                     console.log('Modal shown via Bootstrap');
                 } else {
                     console.error('Bootstrap not available');
-                    // Fallback to browser confirm with AJAX
-                    if (confirm('Are you sure you want to ' + statusText + ' this user?')) {
-                        performToggleStatus(id, status);
+                    // Fallback to browser confirm
+                    if (confirm('Are you sure you want to change this school status to ' + status + '?')) {
+                        window.location.href = 'api/toggle_status.php?id=' + id + '&status=' + status + '&csrf_token=' + window.currentCSRFToken;
                     }
                 }
             } catch (error) {
                 console.error('Error showing modal:', error);
                 // Fallback to browser confirm if modal fails
-                const statusText = status == 1 ? 'verify' : 'unverify';
-                if (confirm('Are you sure you want to ' + statusText + ' this user?')) {
-                    performToggleStatus(id, status);
+                if (confirm('Are you sure you want to change this school status to ' + status + '?')) {
+                    window.location.href = 'api/toggle_status.php?id=' + id + '&status=' + status + '&csrf_token=' + window.currentCSRFToken;
                 }
             }
         }
 
-        function performToggleStatus(id, status) {
-            fetch('api/users.php?action=toggle_status&id=' + id + '&status=' + status + '&csrf_token=' + window.currentCSRFToken)
-                .then(response => response.json())
+        function confirmStatusChange() {
+            const id = document.getElementById('confirmStatusId').value;
+            const status = document.getElementById('confirmStatusValue').value;
+            window.location.href = 'api/toggle_status.php?id=' + id + '&status=' + status + '&csrf_token=' + window.currentCSRFToken;
+        }
+
+        function managePin(id, schoolName) {
+            document.getElementById('pinSchoolId').value = id;
+            document.getElementById('pinSchoolName').textContent = schoolName;
+            
+            // Fetch current PIN status
+            fetch('../../api/get_pin_status.php?id=' + id + '&csrf_token=' + window.currentCSRFToken)
+                .then(response => {
+                    console.log('PIN Status Response:', response.status, response.statusText);
+                    return response.json();
+                })
                 .then(data => {
-                    if (data.success) {
-                        // Update the status badge in the UI
-                        const statusBadge = document.querySelector(`tr[data-user-id="${id}"] .status-badge`);
-                        if (statusBadge) {
-                            statusBadge.className = 'status-badge ' + (status == 1 ? 'status-active' : 'status-inactive');
-                            statusBadge.textContent = status == 1 ? 'Verified' : 'Not Verified';
-                        }
-                        
-                        // Update the button icon
-                        const button = document.querySelector(`button[onclick*="toggleUserStatus(${id}"]`);
-                        if (button) {
-                            const icon = button.querySelector('i');
-                            if (icon) {
-                                icon.className = 'fas fa-' + (status == 1 ? 'ban' : 'check');
-                            }
-                        }
-                        
-                        // Show success message in modal
-                        showResultModal(data.message, true);
+                    console.log('PIN Status Data:', data);
+                    if (data.has_pin) {
+                        document.getElementById('pinStatus').textContent = 'PIN is set';
+                        document.getElementById('pinStatus').className = 'alert alert-info';
+                        document.getElementById('currentPinSection').style.display = 'block';
+                        document.getElementById('newPinSection').style.display = 'none';
                     } else {
-                        showResultModal(data.message || 'Failed to update user status', false);
+                        document.getElementById('pinStatus').textContent = 'No PIN set';
+                        document.getElementById('pinStatus').className = 'alert alert-warning';
+                        document.getElementById('currentPinSection').style.display = 'none';
+                        document.getElementById('newPinSection').style.display = 'block';
                     }
+                    
+                    const modal = new bootstrap.Modal(document.getElementById('pinModal'));
+                    modal.show();
                 })
                 .catch(error => {
-                    console.error('Error:', error);
-                    showResultModal('An error occurred while updating user status', false);
+                    console.error('Error fetching PIN status:', error);
+                    alert('Failed to load PIN status: ' + error.message);
                 });
         }
 
-        function deleteUser(id) {
-            // Show custom delete confirmation modal
-            const modalElement = document.getElementById('confirmUserModal');
-            const modalTitle = modalElement.querySelector('.modal-title');
-            const modalMessage = document.getElementById('confirmUserMessage');
-            const modalFooter = modalElement.querySelector('.modal-footer');
-            
-            // Update modal content for delete confirmation
-            modalTitle.textContent = 'Confirm Deletion';
-            modalMessage.textContent = 'Are you sure you want to delete this user? This action cannot be undone.';
-            
-            // Update footer buttons
-            modalFooter.innerHTML = `
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="background: #f1f3f4; color: #202124; border: 1px solid #dadce0; border-radius: 8px; padding: 10px 24px; font-size: 14px; font-weight: 500; transition: all 0.2s ease;">Cancel</button>
-                <button type="button" class="btn btn-danger" onclick="confirmDeleteUser(${id})" style="background: #dc3545; color: white; border: none; border-radius: 8px; padding: 10px 24px; font-size: 14px; font-weight: 500; transition: all 0.2s ease;">Delete</button>
-            `;
-            
-            // Show modal
-            if (typeof bootstrap !== 'undefined') {
-                const modal = new bootstrap.Modal(modalElement);
-                modal.show();
-            }
+        function showChangePinForm() {
+            document.getElementById('changePinSection').style.display = 'block';
+            document.getElementById('changePinBtn').style.display = 'none';
         }
 
-        function confirmDeleteUser(id) {
-            // Hide modal
-            if (typeof bootstrap !== 'undefined') {
-                const modal = bootstrap.Modal.getInstance(document.getElementById('confirmUserModal'));
-                if (modal) {
-                    modal.hide();
+        function savePin() {
+            const id = document.getElementById('pinSchoolId').value;
+            const currentPin = document.getElementById('currentPinInput').value;
+            const newPin = document.getElementById('newPinInput').value;
+            const confirmPin = document.getElementById('confirmPinInput').value;
+            
+            const formData = new FormData();
+            formData.append('school_id', id);
+            formData.append('current_pin', currentPin);
+            formData.append('new_pin', newPin);
+            formData.append('confirm_pin', confirmPin);
+            formData.append('csrf_token', window.currentCSRFToken);
+            
+            fetch('../../api/update_pin.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(data.message);
+                    bootstrap.Modal.getInstance(document.getElementById('pinModal')).hide();
+                    location.reload();
+                } else {
+                    alert(data.message);
                 }
-            }
-            
-            // Perform delete via AJAX
-            fetch('api/users.php?action=delete&id=' + id + '&csrf_token=' + window.currentCSRFToken)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        // Remove the row from the table
-                        const row = document.querySelector(`tr[data-user-id="${id}"]`);
-                        if (row) {
-                            row.remove();
-                        }
-                        showResultModal(data.message, true);
-                    } else {
-                        showResultModal(data.message || 'Failed to delete user', false);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    showResultModal('An error occurred while deleting user', false);
-                });
-        }
-
-        function showResultModal(message, isSuccess) {
-            const modalElement = document.getElementById('confirmUserModal');
-            const modalTitle = modalElement.querySelector('.modal-title');
-            const modalMessage = document.getElementById('confirmUserMessage');
-            const modalFooter = modalElement.querySelector('.modal-footer');
-            
-            // Update modal content
-            modalTitle.textContent = isSuccess ? 'Success' : 'Error';
-            modalMessage.textContent = message;
-            
-            // Update footer buttons
-            modalFooter.innerHTML = `
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" onclick="location.reload()" style="background: #f1f3f4; color: #202124; border: 1px solid #dadce0; border-radius: 8px; padding: 10px 24px; font-size: 14px; font-weight: 500; transition: all 0.2s ease;">Close</button>
-            `;
-            
-            // Show modal
-            if (typeof bootstrap !== 'undefined') {
-                const modal = new bootstrap.Modal(modalElement);
-                modal.show();
-            }
-        }
-
-        function confirmUserStatusChange() {
-            const id = document.getElementById('confirmUserId').value;
-            const status = document.getElementById('confirmUserStatus').value;
-            
-            // Perform AJAX request
-            performToggleStatus(id, status);
+            })
+            .catch(error => {
+                console.error('Error updating PIN:', error);
+                alert('Failed to update PIN');
+            });
         }
     </script>
 
+    <!-- PIN Management Modal -->
+    <div class="modal fade" id="pinModal" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="border: none; border-radius: 24px; box-shadow: 0 24px 38px 3px rgba(0,0,0,0.14), 0 9px 46px 8px rgba(0,0,0,0.12);">
+                <div class="modal-header" style="border: none; padding: 24px 32px 0 32px;">
+                    <h5 class="modal-title" style="font-size: 22px; font-weight: 400; color: #202124;">Manage Withdrawal PIN</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" style="padding: 24px 32px;">
+                    <p style="font-size: 14px; color: #5f6368; margin-bottom: 16px;">
+                        School: <strong id="pinSchoolName"></strong>
+                    </p>
+                    
+                    <div id="pinStatus" style="margin-bottom: 20px;"></div>
+                    
+                    <input type="hidden" id="pinSchoolId">
+                    
+                    <!-- New PIN Section (for schools without PIN) -->
+                    <div id="newPinSection" style="display: none;">
+                        <div class="mb-3">
+                            <label class="form-label">New PIN</label>
+                            <input type="password" class="form-control" id="newPinInput" placeholder="Enter 4+ digit PIN" minlength="4" pattern="[0-9]+" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Confirm PIN</label>
+                            <input type="password" class="form-control" id="confirmPinInput" placeholder="Confirm PIN" minlength="4" pattern="[0-9]+" required>
+                        </div>
+                        <button type="button" class="btn btn-primary" onclick="savePin()">
+                            <i class="fas fa-save me-2"></i> Set PIN
+                        </button>
+                    </div>
+                    
+                    <!-- Current PIN Section (for schools with PIN) -->
+                    <div id="currentPinSection" style="display: none;">
+                        <div id="changePinSection" style="display: none;">
+                            <div class="mb-3">
+                                <label class="form-label">Current PIN</label>
+                                <input type="password" class="form-control" id="currentPinInput" placeholder="Enter current PIN" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">New PIN</label>
+                                <input type="password" class="form-control" id="newPinInput" placeholder="Enter 4+ digit PIN" minlength="4" pattern="[0-9]+" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Confirm PIN</label>
+                                <input type="password" class="form-control" id="confirmPinInput" placeholder="Confirm PIN" minlength="4" pattern="[0-9]+" required>
+                            </div>
+                            <button type="button" class="btn btn-primary" onclick="savePin()">
+                                <i class="fas fa-save me-2"></i> Update PIN
+                            </button>
+                        </div>
+                        
+                        <button type="button" id="changePinBtn" class="btn btn-primary" onclick="showChangePinForm()">
+                            <i class="fas fa-key me-2"></i> Change PIN
+                        </button>
+                    </div>
+                </div>
+                <div class="modal-footer" style="border: none; padding: 0 32px 32px 32px;">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="background: transparent; color: #5f6368; border: none; border-radius: 25px; padding: 10px 24px; font-size: 14px; font-weight: 500; letter-spacing: 0.25px; text-transform: uppercase;">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Confirmation Modal -->
-    <div class="modal fade" id="confirmUserModal" tabindex="-1" data-bs-backdrop="static">
+    <div class="modal fade" id="confirmStatusModal" tabindex="-1" data-bs-backdrop="static">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content" style="border: none; border-radius: 24px; box-shadow: 0 24px 38px 3px rgba(0,0,0,0.14), 0 9px 46px 8px rgba(0,0,0,0.12);">
                 <div class="modal-header" style="border: none; padding: 24px 32px 0 32px;">
@@ -869,13 +821,13 @@ $total_active_users = $stats['active'];
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body" style="padding: 24px 32px;">
-                    <p id="confirmUserMessage" style="font-size: 14px; color: #5f6368;"></p>
-                    <input type="hidden" id="confirmUserId">
-                    <input type="hidden" id="confirmUserStatus">
+                    <p id="confirmStatusMessage" style="font-size: 14px; color: #5f6368;"></p>
+                    <input type="hidden" id="confirmStatusId">
+                    <input type="hidden" id="confirmStatusValue">
                 </div>
                 <div class="modal-footer" style="border: none; padding: 0 32px 32px 32px;">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="background: transparent; color: #5f6368; border: none; border-radius: 25px; padding: 10px 24px; font-size: 14px; font-weight: 500; letter-spacing: 0.25px; text-transform: uppercase;">Cancel</button>
-                    <button type="button" class="btn btn-primary" onclick="confirmUserStatusChange()" style="background: #FF6B35; color: white; border: none; border-radius: 25px; padding: 10px 24px; font-size: 14px; font-weight: 500; letter-spacing: 0.25px; text-transform: uppercase;">Confirm</button>
+                    <button type="button" class="btn btn-primary" onclick="confirmStatusChange()" style="background: #FF6B35; color: white; border: none; border-radius: 25px; padding: 10px 24px; font-size: 14px; font-weight: 500; letter-spacing: 0.25px; text-transform: uppercase;">Confirm</button>
                 </div>
             </div>
         </div>

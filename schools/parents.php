@@ -288,6 +288,17 @@ try {
             background: #b92b20;
         }
         
+        .btn-action {
+            background: #f8f9fa;
+            color: #000;
+            border: 1px solid #000;
+            cursor: pointer;
+        }
+        
+        .btn-action:hover {
+            background: #e9ecef;
+        }
+        
         .table {
             border-collapse: collapse;
             background: white;
@@ -529,6 +540,12 @@ try {
             </a>
             <a class="nav-link active" href="parents">
                 <i class="fas fa-users"></i> Parents
+            </a>
+            <a class="nav-link" href="disciplinary">
+                <i class="fas fa-shield-alt"></i> Disciplinary
+            </a>
+            <a class="nav-link" href="disciplinary-action-types">
+                <i class="fas fa-list-alt"></i> Disciplinary Types
             </a>
             <a class="nav-link" href="performance">
                 <i class="fas fa-chart-line"></i> Performance
@@ -827,10 +844,10 @@ try {
                             <td>${parent.relationship}</td>
                             <td>${parent.linked_students || 'No students linked'}</td>
                             <td>
-                                <button class="btn btn-sm btn-primary" onclick="editParent(${parent.id})">
+                                <button class="btn btn-sm btn-action" onclick="editParent(${parent.id})">
                                     <i class="fas fa-edit"></i>
                                 </button>
-                                <button class="btn btn-sm btn-danger" onclick="deleteParent(${parent.id})">
+                                <button class="btn btn-sm btn-action" onclick="deleteParent(${parent.id})">
                                     <i class="fas fa-trash"></i>
                                 </button>
                             </td>

@@ -38,12 +38,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             $stmt = $pdo->prepare($query);
             $stmt->execute([$class_id]);
         } else {
-            $query = "SELECT s.*, c.class_name, c.class_level,
-                     (SELECT COUNT(*) FROM students WHERE stream_id = s.id) as student_count
+            // Return unique stream names with aggregated data
+            $query = "SELECT s.stream_name, 
+                             GROUP_CONCAT(DISTINCT c.class_name ORDER BY c.class_level, c.class_name SEPARATOR ', ') as class_names,
+                             GROUP_CONCAT(DISTINCT c.class_level ORDER BY c.class_level SEPARATOR ', ') as class_levels,
+                             SUM(s.capacity) as total_capacity,
+                             (SELECT COUNT(*) FROM students st JOIN streams s2 ON st.stream_id = s2.id WHERE s2.stream_name = s.stream_name) as student_count
                      FROM streams s
                      JOIN classes c ON s.class_id = c.id
                      WHERE c.school_id = ?
-                     ORDER BY c.class_level, c.class_name, s.stream_name";
+                     GROUP BY s.stream_name
+                     ORDER BY s.stream_name";
             $stmt = $pdo->prepare($query);
             $stmt->execute([$school_id]);
         }

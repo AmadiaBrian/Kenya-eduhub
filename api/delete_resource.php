@@ -48,17 +48,17 @@ if ($stmt->rowCount() === 0) {
 $filename = $stmt->fetchColumn();
 $filePath = $_SERVER['DOCUMENT_ROOT'] . '/kenyaeduhub/' . $filename;
 
-// Delete the database record
+// Delete the file first if it exists
+if (file_exists($filePath)) {
+    unlink($filePath);
+}
+
+// Then delete the database record
 $sql = "DELETE FROM resources WHERE id = ?";
 $stmt = $pdo->prepare($sql);
 $stmt->bindParam(1, $resourceId, PDO::PARAM_INT);
 
 if ($stmt->execute()) {
-    // Delete the file if it exists
-    if (file_exists($filePath)) {
-        unlink($filePath);
-    }
-    
     echo json_encode(['success' => true, 'message' => 'Resource deleted successfully']);
 } else {
     http_response_code(500);

@@ -1,11 +1,11 @@
 <?php
-// Admin Reports
+// Admin Edit School
 // Session is started by index.php router
-require_once __DIR__ . '/../config.php';
-require_once __DIR__ . '/../includes/helpers.php';
-require_once __DIR__ . '/../includes/security_lite.php';
+require_once __DIR__ . '/../../config.php';
+require_once __DIR__ . '/../../includes/helpers.php';
+require_once __DIR__ . '/../../includes/security_lite.php';
 
-// Output CSRF token variable for use in HTML
+// Output CSRF token
 $csrf_token = generateCSRFLite();
 
 // Check if user is logged in and is admin
@@ -14,7 +14,6 @@ if (!isset($_SESSION['user_id'])) {
     exit();
 }
 
-// Check if user is admin
 $stmt = $conn->prepare("SELECT * FROM users WHERE id = ?");
 $stmt->bind_param("i", $_SESSION['user_id']);
 $stmt->execute();
@@ -26,98 +25,121 @@ if (!isset($user['role']) || $user['role'] !== 'admin') {
     exit();
 }
 
-// Initialize variables to prevent undefined variable errors
-$user_registrations = [];
-$resources_by_subject = [];
-$most_downloaded = [];
-$total_users = 0;
-$total_resources = 0;
-$total_downloads = 0;
+$school_id = (int)($_GET['id'] ?? 0);
+$school = null;
 
-// Get report data
-try {
-    // User registration trends - Since created_at doesn't exist, we'll use mock data
-    $user_registrations = [];
-    for ($i = 0; $i < 10; $i++) {
-        $date = date('Y-m-d', strtotime("-$i days"));
-        $user_registrations[] = [
-            'date' => $date,
-            'count' => rand(0, 5) // Random registration count for demo
-        ];
-    }
-    
-    // Check if resources table exists and get data
-    $resources_table_exists = $conn->query("SHOW TABLES LIKE 'resources'")->num_rows > 0;
-    
-    if ($resources_table_exists) {
-        // Resource uploads by subject
-        $stmt = $conn->prepare("
-            SELECT subject, COUNT(*) as count 
-            FROM resources 
-            GROUP BY subject 
-            ORDER BY count DESC
-        ");
+if ($school_id) {
+    try {
+        $stmt = $conn->prepare("SELECT * FROM schools WHERE id = ?");
+        $stmt->bind_param("i", $school_id);
         $stmt->execute();
-        $resources_by_subject = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+        $result = $stmt->get_result();
+        $school = $result->fetch_assoc();
         
-        // Most downloaded resources
-        $stmt = $conn->prepare("
-            SELECT title, downloads, subject 
-            FROM resources 
-            ORDER BY downloads DESC 
-            LIMIT 10
-        ");
-        $stmt->execute();
-        $most_downloaded = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+        if (!$school) {
+            header("Location: ../schools");
+            exit();
+        }
+    } catch (Exception $e) {
+        error_log("Error fetching school: " . $e->getMessage());
+        header("Location: ../schools");
+        exit();
+    }
+} else {
+    header("Location: ../schools");
+    exit();
+}
+
+$error = '';
+$success = '';
+
+// Handle form submission
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!validateCSRFLite($_POST['csrf_token'] ?? '')) {
+        $error = 'Invalid CSRF token';
     } else {
-        // Mock data for resources if table doesn't exist
-        $resources_by_subject = [
-            ['subject' => 'Mathematics', 'count' => 45],
-            ['subject' => 'English', 'count' => 32],
-            ['subject' => 'Science', 'count' => 28],
-            ['subject' => 'History', 'count' => 15],
-            ['subject' => 'Geography', 'count' => 12]
-        ];
+        $school_name = trim($_POST['school_name'] ?? '');
+        $email = trim($_POST['email'] ?? '');
+        $phone = trim($_POST['phone'] ?? '');
+        $address = trim($_POST['address'] ?? '');
+        $county = trim($_POST['county'] ?? '');
+        $school_type = trim($_POST['school_type'] ?? '');
+        $admission_prefix = trim($_POST['admission_prefix'] ?? '');
+        $password = $_POST['password'] ?? '';
         
-        $most_downloaded = [
-            ['title' => 'Mathematics Form 1', 'downloads' => 156, 'subject' => 'Mathematics'],
-            ['title' => 'English Grammar Guide', 'downloads' => 134, 'subject' => 'English'],
-            ['title' => 'Science Lab Manual', 'downloads' => 98, 'subject' => 'Science']
-        ];
-    }
-    
-    // System statistics
-    $stmt = $conn->prepare("SELECT COUNT(*) as total FROM users");
-    $stmt->execute();
-    $total_users = $stmt->get_result()->fetch_assoc()['total'];
-    
-    // Handle resources table that might not exist
-    if ($resources_table_exists) {
-        $stmt = $conn->prepare("SELECT COUNT(*) as total FROM resources");
-        $stmt->execute();
-        $total_resources = $stmt->get_result()->fetch_assoc()['total'];
+        $errors = [];
+        if (empty($school_name)) $errors[] = 'School name is required';
+        if (empty($email)) $errors[] = 'Email is required';
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) $errors[] = 'Invalid email format';
+        if (empty($phone)) $errors[] = 'Phone is required';
+        if (empty($county)) $errors[] = 'County is required';
+        if (empty($school_type)) $errors[] = 'School type is required';
+        if (empty($admission_prefix)) $errors[] = 'Admission prefix is required';
+        if (!empty($password) && strlen($password) < 8) $errors[] = 'Password must be at least 8 characters';
         
-        $stmt = $conn->prepare("SELECT SUM(downloads) as total FROM resources");
-        $stmt->execute();
-        $total_downloads = $stmt->get_result()->fetch_assoc()['total'] ?? 0;
-    } else {
-        $total_resources = 0;
-        $total_downloads = 0;
+        if (empty($errors)) {
+            try {
+                // Check if email already exists (excluding current school)
+                $stmt = $conn->prepare("SELECT id FROM schools WHERE email = ? AND id != ?");
+                $stmt->bind_param("si", $email, $school_id);
+                $stmt->execute();
+                if ($stmt->get_result()->num_rows > 0) {
+                    $errors[] = 'Email already exists';
+                }
+            } catch (Exception $e) {
+                error_log("Error checking email: " . $e->getMessage());
+            }
+        }
+        
+        if (empty($errors)) {
+            try {
+                if (!empty($password)) {
+                    // Update with new password
+                    $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+                    $stmt = $conn->prepare("
+                        UPDATE schools 
+                        SET school_name = ?, email = ?, password = ?, phone = ?, address = ?, county = ?, school_type = ?, admission_prefix = ?, updated_at = NOW()
+                        WHERE id = ?
+                    ");
+                    $stmt->bind_param("ssssssssi", $school_name, $email, $hashed_password, $phone, $address, $county, $school_type, $admission_prefix, $school_id);
+                } else {
+                    // Update without password
+                    $stmt = $conn->prepare("
+                        UPDATE schools 
+                        SET school_name = ?, email = ?, phone = ?, address = ?, county = ?, school_type = ?, admission_prefix = ?, updated_at = NOW()
+                        WHERE id = ?
+                    ");
+                    $stmt->bind_param("sssssssi", $school_name, $email, $phone, $address, $county, $school_type, $admission_prefix, $school_id);
+                }
+                
+                if ($stmt->execute()) {
+                    $success = 'School updated successfully!';
+                    // Refresh school data
+                    $stmt = $conn->prepare("SELECT * FROM schools WHERE id = ?");
+                    $stmt->bind_param("i", $school_id);
+                    $stmt->execute();
+                    $result = $stmt->get_result();
+                    $school = $result->fetch_assoc();
+                } else {
+                    $errors[] = 'Failed to update school';
+                }
+            } catch (Exception $e) {
+                error_log("Error updating school: " . $e->getMessage());
+                $errors[] = 'An error occurred. Please try again.';
+            }
+        }
+        
+        $error = implode('<br>', $errors);
     }
-    
-} catch (Exception $e) {
-    $error = "Error generating reports: " . $e->getMessage();
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reports - Kenya EduHub</title>
+    <title>Edit School - Kenya EduHub</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <script>window.currentCSRFToken = "<?php echo $csrf_token; ?>";</script>
     <style>
         :root {
@@ -337,56 +359,42 @@ try {
             }
         }
         
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-        
-        .stat-card {
-            background: transparent;
-            padding: 25px;
-            border-radius: 8px;
-            border: 1px solid #e8eaed;
-        }
-        
-        .stat-card h3 {
-            font-size: 36px;
-            font-weight: 400;
-            color: var(--primary-color);
-            margin-bottom: 5px;
-        }
-        
-        .stat-card p {
-            font-size: 14px;
-            color: var(--secondary-color);
-        }
-        
         .card {
             background: transparent;
             border-radius: 8px;
             border: 1px solid #e8eaed;
-            overflow: hidden;
+            padding: 30px;
         }
         
-        .card-header {
-            background: transparent;
-            padding: 20px 25px;
-            border-bottom: 1px solid #e8eaed;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        .form-group {
+            margin-bottom: 20px;
         }
         
-        .card-header h2 {
-            font-size: 20px;
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
             font-weight: 500;
+            font-size: 14px;
             color: #202124;
         }
         
-        .card-body {
-            padding: 24px;
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #dadce0;
+            border-radius: 25px;
+            font-size: 14px;
+            font-family: inherit;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            border-color: var(--primary-color);
         }
         
         .btn {
@@ -408,83 +416,57 @@ try {
             background: #e55a2b;
         }
         
-        .btn-sm {
-            padding: 6px 12px;
-            font-size: 12px;
-        }
-        
-        .btn-action {
-            background: #f8f9fa;
-            color: #000;
-            border: 1px solid #000;
-            cursor: pointer;
-        }
-        
-        .btn-action:hover {
-            background: #e9ecef;
-        }
-
-        .table-responsive {
-            overflow-x: auto;
-        }
-        
-        table {
-            width: 100%;
-            border-collapse: collapse;
+        .btn-secondary {
             background: white;
-            border: 1px solid #000;
+            color: #5f6368;
+            border: 1px solid #dadce0;
         }
         
-        thead {
-            background: #f0f0f0;
-            border-bottom: 2px solid #000;
+        .btn-secondary:hover {
+            background: #f1f3f4;
         }
         
-        th {
-            padding: 12px 15px;
-            text-align: left;
-            font-weight: 500;
-            font-size: 13px;
-            color: #000;
-            border: 1px solid #000;
-            border-bottom: 2px solid #000;
+        .alert {
+            padding: 12px 16px;
+            border-radius: 4px;
+            margin-bottom: 20px;
         }
         
-        td {
-            padding: 12px 15px;
-            font-size: 13px;
-            border: 1px solid #000;
-            color: #000;
-        }
-        
-        tbody tr:hover {
-            background: #f8f9fa;
-        }
-        
-        .status-badge {
-            padding: 4px 12px;
-            border-radius: 16px;
-            font-size: 12px;
-            font-weight: 500;
-        }
-        
-        .status-active {
+        .alert-success {
             background: #e6f4ea;
             color: #137333;
+            border: 1px solid rgba(19, 115, 51, 0.1);
         }
         
-        .status-inactive {
+        .alert-danger {
             background: #fce8e6;
             color: #c5221f;
+            border: 1px solid rgba(197, 34, 31, 0.1);
         }
         
-        .status-suspended {
-            background: #fef7e0;
-            color: #f9ab00;
+        .nav-back {
+            margin-bottom: 20px;
+        }
+        
+        .nav-back a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-size: 14px;
+        }
+        
+        .school-code {
+            background: #f8f9fa;
+            padding: 10px 12px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 14px;
+            color: var(--secondary-color);
+            border: 1px solid #e8eaed;
         }
     </style>
 </head>
 <body>
+    <!-- Header -->
     <header class="header">
         <div class="header-left">
             <button class="menu-btn" onclick="toggleSidebar()">
@@ -501,7 +483,7 @@ try {
         </div>
         <div class="header-right">
             <div class="user-avatar">
-                <?php echo strtoupper(substr($user['username'] ?? 'A', 0, 1)); ?>
+                <?php echo strtoupper(substr($user['name'] ?? 'A', 0, 1)); ?>
             </div>
         </div>
     </header>
@@ -513,14 +495,11 @@ try {
                 Main <i class="fas fa-chevron-down chevron"></i>
             </div>
             <div class="sidebar-links">
-                <a class="nav-link" href="dashboard">
+                <a class="nav-link" href="../dashboard">
                     <i class="fas fa-tachometer-alt"></i> Dashboard
                 </a>
-                <a class="nav-link" href="schools">
+                <a class="nav-link" href="../schools">
                     <i class="fas fa-school"></i> Schools
-                </a>
-                <a class="nav-link" href="resources">
-                    <i class="fas fa-book"></i> Resources
                 </a>
             </div>
         </div>
@@ -530,10 +509,10 @@ try {
                 Management <i class="fas fa-chevron-down chevron"></i>
             </div>
             <div class="sidebar-links">
-                <a class="nav-link" href="users">
+                <a class="nav-link" href="../users">
                     <i class="fas fa-users"></i> Users
                 </a>
-                <a class="nav-link" href="resources">
+                <a class="nav-link" href="../resources">
                     <i class="fas fa-book"></i> Resources
                 </a>
             </div>
@@ -544,10 +523,10 @@ try {
                 Reports <i class="fas fa-chevron-down chevron"></i>
             </div>
             <div class="sidebar-links">
-                <a class="nav-link active" href="reports">
+                <a class="nav-link" href="../reports">
                     <i class="fas fa-chart-bar"></i> Reports
                 </a>
-                <a class="nav-link" href="logs">
+                <a class="nav-link" href="../logs">
                     <i class="fas fa-file-alt"></i> Logs
                 </a>
             </div>
@@ -558,10 +537,10 @@ try {
                 Settings <i class="fas fa-chevron-down chevron"></i>
             </div>
             <div class="sidebar-links">
-                <a class="nav-link" href="settings">
+                <a class="nav-link" href="../settings">
                     <i class="fas fa-cog"></i> Settings
                 </a>
-                <a class="nav-link" href="logout">
+                <a class="nav-link" href="../logout">
                     <i class="fas fa-sign-out-alt"></i> Logout
                 </a>
             </div>
@@ -569,82 +548,88 @@ try {
     </aside>
     
     <!-- Main Content -->
-    <div class="main-content" id="mainContent">
-        <h1 class="page-title">Reports</h1>
+    <main class="main-content" id="mainContent">
+        <h1 class="page-title">Edit School</h1>
         
-        <!-- Statistics Cards -->
-        <div class="stats-grid">
-            <div class="stat-card">
-                <h3><?php echo number_format($total_users); ?></h3>
-                <p>Total Users</p>
+        <?php if ($success): ?>
+            <div class="alert alert-success">
+                <?php echo $success; ?>
             </div>
-            <div class="stat-card">
-                <h3><?php echo number_format($total_resources); ?></h3>
-                <p>Total Resources</p>
-            </div>
-            <div class="stat-card">
-                <h3><?php echo number_format($total_downloads); ?></h3>
-                <p>Total Downloads</p>
-            </div>
-        </div>
+        <?php endif; ?>
         
-        <!-- Resources by Subject -->
+        <?php if ($error): ?>
+            <div class="alert alert-danger">
+                <?php echo $error; ?>
+            </div>
+        <?php endif; ?>
+        
         <div class="card">
-            <div class="card-header">
-                <h2>Resources by Subject</h2>
-            </div>
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Subject</th>
-                                <th>Count</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php foreach ($resources_by_subject as $subject): ?>
-                            <tr>
-                                <td><?php echo htmlspecialchars($subject['subject']); ?></td>
-                                <td><?php echo number_format($subject['count']); ?></td>
-                            </tr>
-                            <?php endforeach; ?>
-                        </tbody>
-                    </table>
+            <form method="POST">
+                <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
+                
+                <div class="form-group">
+                    <label>School Code (Read-only)</label>
+                    <div class="school-code"><?php echo htmlspecialchars($school['school_code']); ?></div>
                 </div>
-            </div>
-        </div>
-        
-        <!-- Most Downloaded Resources -->
-        <div class="card">
-            <div class="card-header">
-                <h2>Most Downloaded Resources</h2>
-            </div>
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Title</th>
-                                <th>Subject</th>
-                                <th>Downloads</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php foreach ($most_downloaded as $resource): ?>
-                            <tr>
-                                <td><?php echo htmlspecialchars($resource['title']); ?></td>
-                                <td><?php echo htmlspecialchars($resource['subject']); ?></td>
-                                <td><?php echo number_format($resource['downloads']); ?></td>
-                            </tr>
-                            <?php endforeach; ?>
-                        </tbody>
-                    </table>
+                
+                <div class="form-group">
+                    <label for="school_name">School Name *</label>
+                    <input type="text" id="school_name" name="school_name" required value="<?php echo htmlspecialchars($school['school_name']); ?>">
                 </div>
-            </div>
+                
+                <div class="form-group">
+                    <label for="email">Email *</label>
+                    <input type="email" id="email" name="email" required value="<?php echo htmlspecialchars($school['email']); ?>">
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Password (Leave blank to keep current)</label>
+                    <input type="password" id="password" name="password" placeholder="Enter new password to change">
+                </div>
+                
+                <div class="form-group">
+                    <label for="phone">Phone *</label>
+                    <input type="text" id="phone" name="phone" required value="<?php echo htmlspecialchars($school['phone']); ?>">
+                </div>
+                
+                <div class="form-group">
+                    <label for="address">Address</label>
+                    <textarea id="address" name="address" rows="3"><?php echo htmlspecialchars($school['address'] ?? ''); ?></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="county">County *</label>
+                    <input type="text" id="county" name="county" required value="<?php echo htmlspecialchars($school['county']); ?>">
+                </div>
+                
+                <div class="form-group">
+                    <label for="school_type">School Type *</label>
+                    <select id="school_type" name="school_type" required>
+                        <option value="">Select Type</option>
+                        <option value="Primary" <?php echo $school['school_type'] === 'Primary' ? 'selected' : ''; ?>>Primary</option>
+                        <option value="Secondary" <?php echo $school['school_type'] === 'Secondary' ? 'selected' : ''; ?>>Secondary</option>
+                        <option value="College" <?php echo $school['school_type'] === 'College' ? 'selected' : ''; ?>>College</option>
+                        <option value="University" <?php echo $school['school_type'] === 'University' ? 'selected' : ''; ?>>University</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="admission_prefix">Admission Prefix *</label>
+                    <input type="text" id="admission_prefix" name="admission_prefix" required value="<?php echo htmlspecialchars($school['admission_prefix']); ?>">
+                </div>
+                
+                <div style="display: flex; gap: 10px; margin-top: 30px;">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Update School
+                    </button>
+                    <a href="../schools-view?id=<?php echo $school['id']; ?>" class="btn btn-secondary">
+                        <i class="fas fa-times"></i> Cancel
+                    </a>
+                </div>
+            </form>
         </div>
-    </div>
-
+    </main>
+    
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         function toggleSidebar() {

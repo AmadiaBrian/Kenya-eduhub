@@ -29,10 +29,15 @@ $destination_labels = [
 
 // Get school phone number from database
 $school_phone = '';
+$school_withdrawal_pin = '';
 try {
-    $stmt = $pdo->prepare("SELECT phone FROM schools WHERE id = ?");
+    $stmt = $pdo->prepare("SELECT phone, withdrawal_pin FROM schools WHERE id = ?");
     $stmt->execute([$school_id]);
-    $school_phone = $stmt->fetchColumn();
+    $school_data = $stmt->fetch();
+    if ($school_data) {
+        $school_phone = $school_data['phone'];
+        $school_withdrawal_pin = $school_data['withdrawal_pin'];
+    }
 } catch (PDOException $e) {
     error_log("Failed to fetch school phone: " . $e->getMessage());
 }
@@ -510,13 +515,40 @@ if (empty($_SESSION['csrf_token'])) {
         <!-- Withdrawal Section -->
         <div class="card">
             <h2 class="card-title">Withdraw Funds</h2>
-            <button type="button" class="btn btn-orange" onclick="toggleWithdrawalForm()" style="margin-bottom: 20px;">
-                <i class="fas fa-plus-circle"></i> New Withdrawal Request
-            </button>
             
-            <div id="withdrawalForm" style="display: none;">
-                <form id="withdrawalRequestForm">
-                    <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
+            <?php if (empty($school_withdrawal_pin)): ?>
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle me-2"></i> 
+                    <strong>No withdrawal PIN set.</strong> Please set your withdrawal PIN in <a href="settings">Settings</a> before making withdrawals.
+                </div>
+            <?php else: ?>
+                <button type="button" class="btn btn-orange" onclick="showPinVerification()" style="margin-bottom: 20px;">
+                    <i class="fas fa-plus-circle"></i> New Withdrawal Request
+                </button>
+                
+                <!-- PIN Verification Section -->
+                <div id="pinVerificationSection" style="display: none;">
+                    <div class="alert alert-info">
+                        <i class="fas fa-lock me-2"></i> Enter your withdrawal PIN to proceed
+                    </div>
+                    <div style="margin-bottom: 20px;">
+                        <label for="withdrawalPin" style="display: block; margin-bottom: 8px; color: #202124; font-weight: 500;">Withdrawal PIN</label>
+                        <input type="password" id="withdrawalPin" class="form-control" placeholder="Enter your 4-digit PIN" maxlength="4" style="width: 100%; padding: 12px 15px; border: 1px solid #e8eaed; border-radius: 6px; background: #ffffff; color: #202124; font-size: 16px;">
+                    </div>
+                    <div style="display: flex; gap: 15px;">
+                        <button type="button" class="btn btn-orange" onclick="verifyWithdrawalPin()">
+                            <i class="fas fa-check"></i> Verify PIN
+                        </button>
+                        <button type="button" class="btn btn-secondary" onclick="hidePinVerification()">
+                            Cancel
+                        </button>
+                    </div>
+                    <div id="pinError" style="margin-top: 10px; display: none;" class="alert alert-danger"></div>
+                </div>
+                
+                <div id="withdrawalForm" style="display: none;">
+                    <form id="withdrawalRequestForm">
+                        <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
                     
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
                         <div>
@@ -566,7 +598,7 @@ if (empty($_SESSION['csrf_token'])) {
                         <button type="submit" class="btn btn-orange">
                             <i class="fas fa-paper-plane"></i> Withdraw Money
                         </button>
-                        <button type="button" class="btn btn-secondary" onclick="toggleWithdrawalForm()">
+                        <button type="button" class="btn btn-secondary" onclick="hidePinVerification()">
                             Cancel
                         </button>
                     </div>
@@ -574,6 +606,7 @@ if (empty($_SESSION['csrf_token'])) {
                 
                 <div id="withdrawalResult" style="margin-top: 20px;"></div>
             </div>
+            <?php endif; ?>
         </div>
         
         <!-- Recent Withdrawals -->
@@ -680,6 +713,57 @@ if (empty($_SESSION['csrf_token'])) {
             const mainContent = document.getElementById('mainContent');
             sidebar.classList.toggle('collapsed');
             mainContent.classList.toggle('expanded');
+        }
+        
+        function showPinVerification() {
+            document.getElementById('pinVerificationSection').style.display = 'block';
+            document.getElementById('withdrawalPin').focus();
+        }
+        
+        function hidePinVerification() {
+            document.getElementById('pinVerificationSection').style.display = 'none';
+            document.getElementById('withdrawalForm').style.display = 'none';
+            document.getElementById('withdrawalPin').value = '';
+            document.getElementById('pinError').style.display = 'none';
+        }
+        
+        function verifyWithdrawalPin() {
+            const pin = document.getElementById('withdrawalPin').value;
+            const pinError = document.getElementById('pinError');
+            
+            if (pin.length !== 4 || !/^\d+$/.test(pin)) {
+                pinError.textContent = 'Please enter a valid 4-digit PIN';
+                pinError.style.display = 'block';
+                return;
+            }
+            
+            // Verify PIN via API
+            const formData = new FormData();
+            formData.append('pin', pin);
+            formData.append('csrf_token', window.currentCSRFToken || '<?php echo $_SESSION['csrf_token'] ?? ''; ?>');
+            
+            fetch('../api/verify_withdrawal_pin.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // PIN verified, show withdrawal form
+                    document.getElementById('pinVerificationSection').style.display = 'none';
+                    document.getElementById('withdrawalForm').style.display = 'block';
+                    document.getElementById('pinError').style.display = 'none';
+                } else {
+                    pinError.textContent = data.error || 'Invalid PIN';
+                    pinError.style.display = 'block';
+                    document.getElementById('withdrawalPin').value = '';
+                }
+            })
+            .catch(error => {
+                console.error('PIN verification error:', error);
+                pinError.textContent = 'Failed to verify PIN. Please try again.';
+                pinError.style.display = 'block';
+            });
         }
         
         function toggleWithdrawalForm() {

@@ -420,6 +420,17 @@ try {
             background: #a91c1a;
         }
         
+        .btn-action {
+            background: #f8f9fa;
+            color: #000;
+            border: 1px solid #000;
+            cursor: pointer;
+        }
+        
+        .btn-action:hover {
+            background: #e9ecef;
+        }
+        
         .btn-sm {
             padding: 4px 8px;
             font-size: 12px;
@@ -598,6 +609,18 @@ try {
                 <i class="fas fa-money-bill-wave"></i>
                 <span>Fees</span>
             </a>
+            <a href="parents" class="nav-link">
+                <i class="fas fa-users"></i>
+                <span>Parents</span>
+            </a>
+            <a href="disciplinary" class="nav-link">
+                <i class="fas fa-shield-alt"></i>
+                <span>Disciplinary</span>
+            </a>
+            <a href="disciplinary-action-types" class="nav-link">
+                <i class="fas fa-list-alt"></i>
+                <span>Disciplinary Types</span>
+            </a>
         </div>
         <div class="sidebar-section">
             <div class="sidebar-title">Management</div>
@@ -719,13 +742,13 @@ try {
                                         <form method="POST" style="display: inline;">
                                             <input type="hidden" name="librarian_id" value="<?php echo $librarian['id']; ?>">
                                             <input type="hidden" name="status" value="<?php echo $librarian['status'] === 'active' ? 'inactive' : 'active'; ?>">
-                                            <button type="submit" name="update_status" class="btn btn-sm btn-secondary">
+                                            <button type="submit" name="update_status" class="btn btn-sm btn-action">
                                                 <?php echo $librarian['status'] === 'active' ? 'Deactivate' : 'Activate'; ?>
                                             </button>
                                         </form>
                                         <form method="POST" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this librarian?');">
                                             <input type="hidden" name="librarian_id" value="<?php echo $librarian['id']; ?>">
-                                            <button type="submit" name="delete_librarian" class="btn btn-sm btn-danger">
+                                            <button type="submit" name="delete_librarian" class="btn btn-sm btn-action">
                                                 <i class="fas fa-trash"></i>
                                             </button>
                                         </form>

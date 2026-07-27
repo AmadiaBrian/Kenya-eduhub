@@ -4,6 +4,7 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 require_once __DIR__ . '/../../config.php';
+require_once __DIR__ . '/../../config/mpesa_config.php';
 
 header('Content-Type: application/json');
 
@@ -16,12 +17,19 @@ if (!isset($_SESSION['parent_id'])) {
 $parent_id = $_SESSION['parent_id'];
 $school_id = $_SESSION['school_id'];
 
-// Load calendar helpers
-require_once __DIR__ . '/../../includes/calendar_helpers.php';
-
-// Get calendar status to find active term
-$calendar_status = getSchoolCalendarStatus($pdo, $school_id);
-$active_term = $calendar_status['current_term']['term_name'] ?? null;
+// Get active term directly from database
+$current_year = date('Y');
+$active_term = null;
+try {
+    $stmt = $pdo->prepare("SELECT term_name FROM terms WHERE school_id = ? AND year = ? AND is_active = 1");
+    $stmt->execute([$school_id, $current_year]);
+    $term = $stmt->fetch();
+    if ($term) {
+        $active_term = $term['term_name'];
+    }
+} catch (PDOException $e) {
+    error_log("Failed to fetch active term: " . $e->getMessage());
+}
 
 // Get terms from database for current year
 $terms = [];
@@ -35,18 +43,20 @@ try {
     }
 } catch (PDOException $e) {
     error_log("Failed to fetch terms: " . $e->getMessage());
-    $terms = ['Term 1', 'Term 2', 'Term 3'];
+    echo json_encode(['success' => false, 'error' => 'Failed to fetch terms from database']);
+    exit;
 }
 
 if (empty($terms)) {
-    $terms = ['Term 1', 'Term 2', 'Term 3'];
+    echo json_encode(['success' => false, 'error' => 'No terms configured for this school']);
+    exit;
 }
 
 // Use active term if available, otherwise use first term
 $default_term = $active_term ?? ($terms[0] ?? 'Term 1');
 
-// Configure your actual callback URL here
-$base_url = 'https://9382-129-222-187-139.ngrok-free.app'; // Update this to your actual domain
+// Use callback URL from M-Pesa configuration
+$base_url = MPESA_CALLBACK_BASE_URL;
 
 // Database connection is already handled by config.php ($pdo)
 

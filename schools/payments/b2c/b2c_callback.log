@@ -1,2 +1,31 @@
-2026-07-25 02:22:53 - B2C Result: {"Result":{"ResultType":0,"ResultCode":0,"ResultDesc":"The service request is processed successfully.","OriginatorConversationID":"b13d-4e1d-8fb5-0f0d66c4323016055","ConversationID":"AG_20260725_01001003077xj8a055yi","TransactionID":"UGP030DTRI","ResultParameters":{"ResultParameter":[{"Key":"TransactionAmount","Value":10},{"Key":"TransactionReceipt","Value":"UGP030DTRI"},{"Key":"ReceiverPartyPublicName","Value":"254708374149 - John Doe"},{"Key":"TransactionCompletedDateTime","Value":"25.07.2026 03:22:07"},{"Key":"B2CUtilityAccountAvailableFunds","Value":3020324.24},{"Key":"B2CWorkingAccountAvailableFunds","Value":584459.00},{"Key":"B2CRecipientIsRegisteredCustomer","Value":"Y"},{"Key":"B2CChargesPaidAccountAvailableFunds","Value":-2420.00}]},"ReferenceData":{"ReferenceItem":{"Key":"QueueTimeoutURL","Value":"https:\/\/internalsandbox.safaricom.co.ke\/mpesa\/b2cresults\/v1\/submit"}}}}
-2026-07-25 02:22:53 - B2C Success: Ksh 10.00 sent to 254708374149 - John Doe, TransactionID: UGP030DTRI, WithdrawalID: 83
+2026-07-27 21:38:36 - B2C Result: 
+2026-07-27 21:38:36 - B2C Result withdrawal not found. ConversationID: , OriginatorConversationID: 
+2026-07-27 21:55:57 - B2C Result: {"Result":{"ResultType":0,"ResultCode":0,"ResultDesc":"The service request is processed successfully.","OriginatorConversationID":"8544-4e2a-bd68-bbd981b518db52627","ConversationID":"AG_20260727_010010031d2dx77ekv48","TransactionID":"TEST1785182157","ResultParameters":{"ResultParameter":[{"Key":"TransactionAmount","Value":"10.00"},{"Key":"TransactionReceipt","Value":"TEST1785182157"},{"Key":"ReceiverPartyPublicName","Value":"254708374149 - Test"},{"Key":"TransactionCompletedDateTime","Value":"27.07.2026 21:55:57"}]}}}
+2026-07-27 21:55:57 - B2C Success: Ksh 10.00 sent to 254708374149 - Test, TransactionID: TEST1785182157, WithdrawalID: 102
+2026-07-27 21:55:58 - SMS sent via Text SMS: Array
+(
+    [success] => 1
+    [message_id] => 771392022
+    [response] => Array
+        (
+            [responses] => Array
+                (
+                    [0] => Array
+                        (
+                            [response-code] => 200
+                            [response-description] => Success
+                            [mobile] => 254745959757
+                            [messageid] => 771392022
+                            [networkid] => 1
+                        )
+
+                )
+
+        )
+
+)
+
+2026-07-27 22:29:10 - B2C Result: 
+2026-07-27 22:29:10 - B2C Result withdrawal not found. ConversationID: , OriginatorConversationID: 
+2026-07-27 22:29:46 - B2C Result: 
+2026-07-27 22:29:46 - B2C Result withdrawal not found. ConversationID: , OriginatorConversationID: 

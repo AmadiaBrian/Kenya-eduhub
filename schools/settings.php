@@ -19,6 +19,51 @@ if (!isset($_SESSION['school_id']) || !isset($_SESSION['school_token'])) {
 $school_id = $_SESSION['school_id'];
 $school_name = $_SESSION['school_name'] ?? 'School';
 
+// Handle PIN creation (first-time setup only - PIN changes by admin only)
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'update_pin') {
+    $new_pin = trim($_POST['new_pin'] ?? '');
+    $confirm_pin = trim($_POST['confirm_pin'] ?? '');
+    
+    $errors = [];
+    $success = '';
+    
+    // Add withdrawal_pin column if it doesn't exist
+    try {
+        $pdo->exec("ALTER TABLE schools ADD COLUMN IF NOT EXISTS withdrawal_pin VARCHAR(255) DEFAULT NULL AFTER password");
+    } catch (PDOException $e) {
+        // Column might already exist, ignore error
+    }
+    
+    // Only allow PIN creation if not already set
+    if (!empty($school['withdrawal_pin'])) {
+        $errors[] = 'PIN is already set. Contact admin to change your withdrawal PIN.';
+    } else {
+        // First time PIN creation
+        if (empty($new_pin)) {
+            $errors[] = 'PIN is required';
+        } elseif (strlen($new_pin) < 4) {
+            $errors[] = 'PIN must be at least 4 digits';
+        } elseif (!ctype_digit($new_pin)) {
+            $errors[] = 'PIN must contain only numbers';
+        } elseif ($new_pin !== $confirm_pin) {
+            $errors[] = 'PIN confirmation does not match';
+        } else {
+            try {
+                $hashed_pin = password_hash($new_pin, PASSWORD_DEFAULT);
+                $stmt = $pdo->prepare("UPDATE schools SET withdrawal_pin = ? WHERE id = ?");
+                $stmt->execute([$hashed_pin, $school_id]);
+                $success = 'PIN created successfully!';
+                // Refresh school data
+                $stmt = $pdo->prepare("SELECT * FROM schools WHERE id = ?");
+                $stmt->execute([$school_id]);
+                $school = $stmt->fetch();
+            } catch (PDOException $e) {
+                $errors[] = 'Failed to create PIN: ' . $e->getMessage();
+            }
+        }
+    }
+}
+
 // Get current school settings
 try {
     $stmt = $pdo->prepare("SELECT * FROM schools WHERE id = ?");
@@ -569,6 +614,12 @@ try {
             <a class="nav-link" href="parents">
                 <i class="fas fa-users"></i> Parents
             </a>
+            <a class="nav-link" href="disciplinary">
+                <i class="fas fa-shield-alt"></i> Disciplinary
+            </a>
+            <a class="nav-link" href="disciplinary-action-types">
+                <i class="fas fa-list-alt"></i> Disciplinary Types
+            </a>
             <a class="nav-link" href="performance">
                 <i class="fas fa-chart-line"></i> Performance
             </a>
@@ -602,6 +653,61 @@ try {
     <!-- Main Content -->
     <main class="main-content" id="mainContent">
         <h1 class="page-title">School Settings</h1>
+        
+        <?php if (!empty($errors)): ?>
+            <div class="alert alert-danger">
+                <?php foreach ($errors as $error): ?>
+                    <div><?php echo htmlspecialchars($error); ?></div>
+                <?php endforeach; ?>
+            </div>
+        <?php endif; ?>
+        
+        <?php if (!empty($success)): ?>
+            <div class="alert alert-success">
+                <?php echo htmlspecialchars($success); ?>
+            </div>
+        <?php endif; ?>
+        
+        <div class="card mb-4">
+            <div class="card-header">
+                <i class="fas fa-lock me-2"></i> Withdrawal PIN
+            </div>
+            <div class="card-body">
+                <p class="mb-3">Create a PIN for secure withdrawals at the office. This PIN will be required when withdrawing money from your school account.</p>
+                
+                <?php if (!empty($school['withdrawal_pin'])): ?>
+                    <div class="alert alert-info">
+                        <i class="fas fa-check-circle me-2"></i> PIN is currently set. Contact admin to change your withdrawal PIN.
+                    </div>
+                <?php else: ?>
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle me-2"></i> No PIN set. Please create one for secure withdrawals.
+                    </div>
+                <?php endif; ?>
+                
+                <?php if (empty($school['withdrawal_pin'])): ?>
+                    <form method="POST">
+                        <input type="hidden" name="action" value="update_pin">
+                        
+                        <div class="mb-3">
+                            <label class="form-label">New PIN</label>
+                            <input type="password" class="form-control" name="new_pin" placeholder="Enter new PIN (4+ digits)" required minlength="4" pattern="[0-9]+" title="PIN must be at least 4 digits and contain only numbers">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Confirm PIN</label>
+                            <input type="password" class="form-control" name="confirm_pin" placeholder="Confirm new PIN" required minlength="4" pattern="[0-9]+" title="PIN must be at least 4 digits and contain only numbers">
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i> Create PIN
+                        </button>
+                    </form>
+                <?php else: ?>
+                    <p class="text-muted">Your withdrawal PIN is set and active. If you need to change it, please contact the system administrator.</p>
+                <?php endif; ?>
+            </div>
+        </div>
         
         <div class="card mb-4">
             <div class="card-header">

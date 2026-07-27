@@ -15,7 +15,7 @@ define('MPESA_ENVIRONMENT', 'sandbox');
 // Base URL for M-Pesa callbacks
 // For local testing, use a tunneling service like ngrok
 // For production, use your actual domain with HTTPS
-define('MPESA_CALLBACK_BASE_URL', 'https://7b9d-129-222-147-93.ngrok-free.app');
+define('MPESA_CALLBACK_BASE_URL', 'https://2d4a-129-222-187-199.ngrok-free.app');
 
 // M-Pesa API Credentials
 // Sandbox credentials (for testing)
@@ -59,5 +59,6 @@ define('MPESA_TRANSACTION_TYPE', 'CustomerPayBillOnline');
 define('MPESA_TIMEOUT', 30); // seconds
 
 // Callback URL paths (relative to base URL)
-define('MPESA_B2C_TIMEOUT_PATH', '/Kenyaeduhub/schools/payments/b2c/b2c_timeout.php');
-define('MPESA_B2C_RESULT_PATH', '/Kenyaeduhub/schools/payments/b2c/b2c_result.php');
+// These paths work on both localhost (with ngrok) and live hosting
+define('MPESA_B2C_TIMEOUT_PATH', '/kenyaeduhub/schools/payments/b2c/b2c_timeout.php');
+define('MPESA_B2C_RESULT_PATH', '/kenyaeduhub/schools/payments/b2c/b2c_result.php');

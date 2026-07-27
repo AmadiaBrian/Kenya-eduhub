@@ -1046,6 +1046,17 @@ try {
             color: white;
         }
         
+        .btn-action {
+            background: #f8f9fa;
+            color: #000;
+            border: 1px solid #000;
+            cursor: pointer;
+        }
+        
+        .btn-action:hover {
+            background: #e9ecef;
+        }
+        
         @media (max-width: 768px) {
             .sidebar {
                 transform: translateX(-256px);
@@ -1177,6 +1188,9 @@ try {
                 </a>
                 <a class="nav-link" href="disciplinary">
                     <i class="fas fa-exclamation-triangle"></i> Discipline
+                </a>
+                <a class="nav-link" href="disciplinary-action-types">
+                    <i class="fas fa-list-alt"></i> Disciplinary Types
                 </a>
                 <a class="nav-link" href="librarians">
                     <i class="fas fa-book-reader"></i> Librarians
@@ -1393,7 +1407,7 @@ try {
                                         <td><?php echo htmlspecialchars($assignment['teacher_name']); ?></td>
                                         <td><?php echo htmlspecialchars($assignment['notes'] ?? '-'); ?></td>
                                         <td>
-                                            <button type="button" class="btn btn-sm btn-danger" onclick="confirmDeleteAssignment(<?php echo $assignment['id']; ?>)">
+                                            <button type="button" class="btn btn-sm btn-action" onclick="confirmDeleteAssignment(<?php echo $assignment['id']; ?>)">
                                                 <i class="fas fa-trash"></i>
                                             </button>
                                         </td>
@@ -1489,13 +1503,13 @@ try {
                                         </span>
                                     </td>
                                     <td>
-                                        <button class="btn btn-sm btn-primary" onclick="viewTimetable(<?php echo $timetable['id']; ?>)">
+                                        <button class="btn btn-sm btn-action" onclick="viewTimetable(<?php echo $timetable['id']; ?>)">
                                             <i class="fas fa-eye"></i> View
                                         </button>
-                                        <button class="btn btn-sm btn-secondary" onclick="editTimetable(<?php echo $timetable['id']; ?>)">
+                                        <button class="btn btn-sm btn-action" onclick="editTimetable(<?php echo $timetable['id']; ?>)">
                                             <i class="fas fa-edit"></i> Edit
                                         </button>
-                                        <button type="button" class="btn btn-sm btn-danger" onclick="confirmDeleteTimetable(<?php echo $timetable['id']; ?>)">
+                                        <button type="button" class="btn btn-sm btn-action" onclick="confirmDeleteTimetable(<?php echo $timetable['id']; ?>)">
                                             <i class="fas fa-trash"></i>
                                         </button>
                                     </td>
@@ -1582,10 +1596,10 @@ try {
                                     <td><?php echo htmlspecialchars($slot['start_time']); ?></td>
                                     <td><?php echo htmlspecialchars($slot['end_time']); ?></td>
                                     <td>
-                                        <button class="btn btn-sm btn-secondary" onclick="editSlot(<?php echo $slot['id']; ?>, '<?php echo htmlspecialchars($slot['day_of_week']); ?>', '<?php echo htmlspecialchars($slot['start_time']); ?>', '<?php echo htmlspecialchars($slot['end_time']); ?>')">
+                                        <button class="btn btn-sm btn-action" onclick="editSlot(<?php echo $slot['id']; ?>, '<?php echo htmlspecialchars($slot['day_of_week']); ?>', '<?php echo htmlspecialchars($slot['start_time']); ?>', '<?php echo htmlspecialchars($slot['end_time']); ?>')">
                                             <i class="fas fa-edit"></i>
                                         </button>
-                                        <button class="btn btn-sm btn-danger" onclick="deleteSlot(<?php echo $slot['id']; ?>)">
+                                        <button class="btn btn-sm btn-action" onclick="deleteSlot(<?php echo $slot['id']; ?>)">
                                             <i class="fas fa-trash"></i>
                                         </button>
                                     </td>
@@ -1654,7 +1668,7 @@ try {
                                     <td><?php echo htmlspecialchars($break['start_time']); ?></td>
                                     <td><?php echo htmlspecialchars($break['end_time']); ?></td>
                                     <td>
-                                        <button type="button" class="btn btn-sm btn-danger" onclick="confirmDeleteBreak(<?php echo $break['id']; ?>)">
+                                        <button type="button" class="btn btn-sm btn-action" onclick="confirmDeleteBreak(<?php echo $break['id']; ?>)">
                                             <i class="fas fa-trash"></i>
                                         </button>
                                     </td>

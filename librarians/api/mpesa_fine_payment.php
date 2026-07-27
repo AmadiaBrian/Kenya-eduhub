@@ -142,7 +142,7 @@ try {
     $accountnumber = "FINE:$fine_id|BOOK:{$fine['book_id']}|AMOUNT:$amount|USER:{$fine['user_id']}";
     
     // Callback URL using configured base URL
-    $callbackurl = $base_url . '/Kenyaeduhub/librarians/api/mpesa_fine_callback.php';
+    $callbackurl = $base_url . '/kenyaeduhub/librarians/api/mpesa_fine_callback.php';
     
     $stkpushheader = ['Content-Type:application/json', 'Authorization:Bearer ' . $access_token];
     

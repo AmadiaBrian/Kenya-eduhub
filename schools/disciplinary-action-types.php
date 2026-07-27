@@ -370,6 +370,17 @@ if (isset($_GET['delete'])) {
             background: #b3261e;
         }
         
+        .btn-action {
+            background: #f8f9fa;
+            color: #000;
+            border: 1px solid #000;
+            cursor: pointer;
+        }
+        
+        .btn-action:hover {
+            background: #e9ecef;
+        }
+        
         .alert {
             padding: 12px 16px;
             border-radius: 6px;
@@ -553,7 +564,7 @@ if (isset($_GET['delete'])) {
                                         </span>
                                     </td>
                                     <td>
-                                        <a href="?delete=<?php echo $type['id']; ?>" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this action type?');">
+                                        <a href="?delete=<?php echo $type['id']; ?>" class="btn btn-action btn-sm" onclick="return confirm('Are you sure you want to delete this action type?');">
                                             <i class="fas fa-trash"></i> Delete
                                         </a>
                                     </td>

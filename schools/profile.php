@@ -525,6 +525,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['upload_logo'])) {
             <a class="nav-link" href="disciplinary">
                 <i class="fas fa-exclamation-triangle"></i> Disciplinary
             </a>
+            <a class="nav-link" href="disciplinary-action-types">
+                <i class="fas fa-list-alt"></i> Disciplinary Types
+            </a>
         </div>
         <div class="sidebar-section">
             <div class="sidebar-title">Settings</div>
