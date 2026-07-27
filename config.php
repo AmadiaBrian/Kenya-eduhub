@@ -5,6 +5,19 @@ define('DB_USER', 'root');
 define('DB_PASS', '');
 define('DB_NAME', 'users_db');
 
+// Configure session to work across all directories
+if (session_status() === PHP_SESSION_NONE) {
+    session_set_cookie_params([
+        'lifetime' => 86400, // 24 hours
+        'path' => '/',
+        'domain' => '',
+        'secure' => false,
+        'httponly' => true,
+        'samesite' => 'Lax'
+    ]);
+    session_start();
+}
+
 // Create MySQLi connection (for existing code)
 $conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
 

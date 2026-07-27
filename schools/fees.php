@@ -296,6 +296,20 @@ try {
             background: #b92b20;
         }
         
+        .btn-action {
+            background: #f8f9fa;
+            color: #000;
+            border: 1px solid #000;
+        }
+        
+        .btn-action:hover {
+            background: #e9ecef;
+        }
+        
+        .btn-action i {
+            color: #000;
+        }
+        
         .table {
             border-collapse: collapse;
             background: white;
@@ -602,6 +616,12 @@ try {
             </a>
             <a class="nav-link" href="parents">
                 <i class="fas fa-users"></i> Parents
+            </a>
+            <a class="nav-link" href="disciplinary">
+                <i class="fas fa-shield-alt"></i> Disciplinary
+            </a>
+            <a class="nav-link" href="disciplinary-action-types">
+                <i class="fas fa-list-alt"></i> Disciplinary Types
             </a>
             <a class="nav-link" href="performance">
                 <i class="fas fa-chart-line"></i> Performance
@@ -1146,10 +1166,10 @@ try {
                     <td>KES ${fee.amount.toLocaleString()}</td>
                     <td>${fee.description || '-'}</td>
                     <td>
-                        <button class="btn btn-sm btn-outline-primary me-1" onclick="editFeeStructure(${fee.id}, '${fee.class_id}', '${fee.term}', ${fee.year}, '${fee.fee_type}', ${fee.amount}, '${fee.description || ''}')">
+                        <button class="btn btn-sm btn-action me-1" onclick="editFeeStructure(${fee.id}, '${fee.class_id}', '${fee.term}', ${fee.year}, '${fee.fee_type}', ${fee.amount}, '${fee.description || ''}')">
                             <i class="fas fa-edit"></i>
                         </button>
-                        <button class="btn btn-sm btn-danger" onclick="deleteFeeStructure(${fee.id})">
+                        <button class="btn btn-sm btn-action" onclick="deleteFeeStructure(${fee.id})">
                             <i class="fas fa-trash"></i>
                         </button>
                     </td>
@@ -1195,12 +1215,12 @@ try {
                     <td>${payment.payment_method}</td>
                     <td>${payment.term}</td>
                     <td>
-                        <button class="btn btn-sm btn-danger" onclick="deletePayment(${payment.id})">
+                        <button class="btn btn-sm btn-action" onclick="deletePayment(${payment.id})">
                             <i class="fas fa-trash"></i>
                         </button>
                     </td>
                     <td>
-                        <button class="btn btn-sm btn-primary" onclick="generateFeeStatement(${payment.student_id})">
+                        <button class="btn btn-sm btn-action" onclick="generateFeeStatement(${payment.student_id})">
                             <i class="fas fa-file-invoice"></i> Statement
                         </button>
                     </td>

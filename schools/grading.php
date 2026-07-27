@@ -521,6 +521,17 @@ if (isset($_GET['delete_aggregate']) && isset($_GET['aggregate_id'])) {
         .btn-danger:active {
             background: #dadce0 !important;
         }
+        
+        .btn-action {
+            background: #f8f9fa;
+            color: #000;
+            border: 1px solid #000;
+            cursor: pointer;
+        }
+        
+        .btn-action:hover {
+            background: #e9ecef;
+        }
 
         .btn-warning {
             background: whitesmoke !important;
@@ -933,6 +944,12 @@ if (isset($_GET['delete_aggregate']) && isset($_GET['aggregate_id'])) {
             <a class="nav-link" href="parents">
                 <i class="fas fa-users"></i> Parents
             </a>
+            <a class="nav-link" href="disciplinary">
+                <i class="fas fa-shield-alt"></i> Disciplinary
+            </a>
+            <a class="nav-link" href="disciplinary-action-types">
+                <i class="fas fa-list-alt"></i> Disciplinary Types
+            </a>
             <a class="nav-link" href="teachers">
                 <i class="fas fa-chalkboard-teacher"></i> Teachers
             </a>
@@ -1041,7 +1058,7 @@ if (isset($_GET['delete_aggregate']) && isset($_GET['aggregate_id'])) {
                             <i class="fas fa-book"></i> <?php echo htmlspecialchars($subject_name); ?>
                             <?php if ($subject_data['subject_id']): ?>
                                 <a href="grading.php?delete_subject_scales=1&subject_id=<?php echo $subject_data['subject_id']; ?>"
-                                   class="btn btn-sm btn-danger float-end"
+                                   class="btn btn-sm btn-action float-end"
                                    onclick="return confirm('Are you sure you want to delete ALL grading scales for <?php echo htmlspecialchars($subject_name); ?>?')">
                                     <i class="fas fa-trash-alt"></i> Delete All
                                 </a>
@@ -1068,11 +1085,11 @@ if (isset($_GET['delete_aggregate']) && isset($_GET['aggregate_id'])) {
                                             <td><?php echo htmlspecialchars($scale['grade_description'] ?? '-'); ?></td>
                                             <td><strong><?php echo $scale['points'] ?? 0; ?></strong></td>
                                             <td>
-                                                <button class="btn btn-sm btn-warning" onclick="editScale(<?php echo $scale['id']; ?>, '<?php echo $scale['min_score']; ?>', '<?php echo $scale['max_score']; ?>', '<?php echo htmlspecialchars($scale['grade_name']); ?>', '<?php echo htmlspecialchars($scale['grade_description'] ?? ''); ?>', '<?php echo $scale['points'] ?? 0; ?>')">
+                                                <button class="btn btn-sm btn-action" onclick="editScale(<?php echo $scale['id']; ?>, '<?php echo $scale['min_score']; ?>', '<?php echo $scale['max_score']; ?>', '<?php echo htmlspecialchars($scale['grade_name']); ?>', '<?php echo htmlspecialchars($scale['grade_description'] ?? ''); ?>', '<?php echo $scale['points'] ?? 0; ?>')">
                                                     <i class="fas fa-edit"></i> Edit
                                                 </button>
                                                 <a href="grading.php?delete_scale=1&scale_id=<?php echo $scale['id']; ?>"
-                                                   class="btn btn-sm btn-danger"
+                                                   class="btn btn-sm btn-action"
                                                    onclick="return confirm('Are you sure you want to delete this grading scale?')">
                                                     <i class="fas fa-trash"></i> Delete
                                                 </a>
@@ -1139,7 +1156,7 @@ if (isset($_GET['delete_aggregate']) && isset($_GET['aggregate_id'])) {
                                     <td><?php echo htmlspecialchars($aggregate['grade_description'] ?? '-'); ?></td>
                                     <td>
                                         <a href="grading?delete_aggregate=1&aggregate_id=<?php echo $aggregate['id']; ?>"
-                                           class="btn btn-sm btn-danger"
+                                           class="btn btn-sm btn-action"
                                            onclick="return confirm('Are you sure you want to delete this aggregate points distribution entry?')">
                                             <i class="fas fa-trash"></i> Delete
                                         </a>

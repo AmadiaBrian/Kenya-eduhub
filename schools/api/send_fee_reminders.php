@@ -336,6 +336,10 @@ try {
         $pdf_content = generateIndividualFeeStatement($parent_student_data, $school_name, $parent);
         $pdf_filename = "fee_statement_{$parent['last_name']}_{$parent['first_name']}_" . date('Y-m-d_H-i-s') . ".pdf";
         
+        // Save PDF to temporary file for attachment
+        $temp_pdf_path = sys_get_temp_dir() . '/' . $pdf_filename;
+        file_put_contents($temp_pdf_path, $pdf_content);
+        
         // Send email using PHPMailer with SMTP
         $mail = new PHPMailer(true);
         
@@ -354,6 +358,9 @@ try {
             $mail->setFrom($smtp_settings['email'] ?? 'noreply@kenyaeduhub.com', $school_name);
             $mail->addAddress($parent['email'], "{$parent['first_name']} {$parent['last_name']}");
             
+            // Attach PDF from file
+            $mail->addAttachment($temp_pdf_path, $pdf_filename);
+            
             // Build student list for email body
             $student_list = '';
             $total_balance = 0;
@@ -362,40 +369,110 @@ try {
                 $total_balance += $student['balance'];
             }
             
-            $mail->Subject = "Fee Statement - " . count($parent_students) . " Student(s)";
+            $mail->Subject = 'Fee Statement for Your Child - ' . date('F j, Y');
+            
+            // Build fee table for email body (matching teachers/fees design)
+            $feeTable = "<table border='1' cellpadding='5' style='border-collapse: collapse; width: 100%;'>";
+            $feeTable .= "<tr style='background: #FF6B35; color: white;'>";
+            $feeTable .= "<th>Admission</th><th>Name</th><th>Term</th><th>Fee Type</th><th>Fees</th><th>Paid</th><th>Balance</th><th>Status</th>";
+            $feeTable .= "</tr>";
+            
+            $totalFeesSum = 0;
+            $totalPaidSum = 0;
+            $totalBalanceSum = 0;
+            $paidCount = 0;
+            $unpaidCount = 0;
+            $partialCount = 0;
+            
+            foreach ($parent_students as $student) {
+                $feeTable .= "<tr>";
+                $feeTable .= "<td>{$student['admission_number']}</td>";
+                $feeTable .= "<td>{$student['student_name']}</td>";
+                $feeTable .= "<td>{$student['term']}</td>";
+                $feeTable .= "<td>{$student['fee_type']}</td>";
+                $feeTable .= "<td>KES " . number_format($student['fee_amount']) . "</td>";
+                $feeTable .= "<td>KES " . number_format($student['paid_amount']) . "</td>";
+                $feeTable .= "<td>KES " . number_format($student['balance']) . "</td>";
+                $feeTable .= "<td>" . ($student['balance'] <= 0 ? 'PAID' : 'BALANCE DUE') . "</td>";
+                $feeTable .= "</tr>";
+                
+                $totalFeesSum += $student['fee_amount'];
+                $totalPaidSum += $student['paid_amount'];
+                $totalBalanceSum += $student['balance'];
+                
+                if ($student['balance'] <= 0) {
+                    $paidCount++;
+                } elseif ($student['paid_amount'] > 0) {
+                    $partialCount++;
+                } else {
+                    $unpaidCount++;
+                }
+            }
+            $feeTable .= "</table>";
+            
+            $currentDate = date('F j, Y');
+            $currentYear = date('Y');
+            $parentName = $parent['first_name'] . ' ' . $parent['last_name'];
             
             $mail->isHTML(true);
             $mail->Body = "
-                <html>
-                <head>
-                    <title>Fee Statement</title>
-                </head>
-                <body style='font-family: Arial, sans-serif;'>
-                    <h2 style='color: #1a73e8;'>Fee Statement</h2>
-                    <p>Dear {$parent['first_name']} {$parent['last_name']},</p>
-                    <p>Please find attached the fee statement for the following student(s):</p>
-                    <ul>
-                        $student_list
-                    </ul>
-                    <p><strong>Total Outstanding Balance: KES " . number_format($total_balance) . "</strong></p>
-                    <p>Attached is the detailed fee statement for your reference.</p>
-                    <p>If you have any questions, please contact the school administration.</p>
-                    <p>Thank you.</p>
-                    <hr>
-                    <p><strong>$school_name</strong></p>
-                </body>
-                </html>
+                <div style='font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto;'>
+                    <div style='background: #FF6B35; color: white; padding: 20px; text-align: center;'>
+                        <h2 style='margin: 0;'>$school_name</h2>
+                        <p style='margin: 5px 0 0 0; opacity: 0.9;'>Kenya EduHub</p>
+                    </div>
+                    <div style='background: #f8f9fa; padding: 15px; border-left: 4px solid #FF6B35;'>
+                        <p style='margin: 0; font-size: 12px; color: #666;'>
+                            <strong>To:</strong> $parentName<br>
+                            <strong>Date:</strong> $currentDate<br>
+                            <strong>Academic Year:</strong> $currentYear
+                        </p>
+                    </div>
+                    <div style='padding: 20px; background: white;'>
+                        <p>Dear $parentName,</p>
+                        <p>Please find below the fee statement for your child(ren) for the academic year <strong>$currentYear</strong>.</p>
+                        
+                        <h3 style='color: #FF6B35;'>STUDENT FEE DETAILS</h3>
+                        $feeTable
+                        
+                        <h3 style='color: #FF6B35; margin-top: 20px;'>SUMMARY</h3>
+                        <p>
+                            <strong>Total Children:</strong> " . count($parent_students) . "<br>
+                            <strong>Fully Paid:</strong> $paidCount<br>
+                            <strong>Partial Payment:</strong> $partialCount<br>
+                            <strong>Not Paid:</strong> $unpaidCount<br>
+                            <strong>Total Fees:</strong> KES " . number_format($totalFeesSum) . "<br>
+                            <strong>Total Paid:</strong> KES " . number_format($totalPaidSum) . "<br>
+                            <strong>Total Balance:</strong> KES " . number_format($totalBalanceSum) . "
+                        </p>
+                        
+                        <p>Attached is the detailed fee statement for your reference.</p>
+                        <p>For payment inquiries, please contact the school administration.</p>
+                        <p>Thank you for your cooperation.</p>
+                    </div>
+                    <div style='background: #f1f3f4; padding: 15px; text-align: center; font-size: 12px; color: #666;'>
+                        <p style='margin: 0;'>This email was sent from $school_name via Kenya EduHub</p>
+                        <p style='margin: 5px 0 0 0;'>&copy; " . date('Y') . " $school_name. All rights reserved.</p>
+                    </div>
+                </div>
             ";
-            
-            // Attach individual PDF
-            $mail->addStringAttachment($pdf_content, $pdf_filename);
             
             $mail->send();
             $sent_count++;
             error_log("Fee statement email sent to: {$parent['email']} for " . count($parent_students) . " student(s)");
+            
+            // Clean up temporary PDF file
+            if (file_exists($temp_pdf_path)) {
+                unlink($temp_pdf_path);
+            }
         } catch (Exception $e) {
             $failed_count++;
             error_log("Failed to send fee statement email to: {$parent['email']} - Error: " . $mail->ErrorInfo);
+            
+            // Clean up temporary PDF file even on error
+            if (file_exists($temp_pdf_path)) {
+                unlink($temp_pdf_path);
+            }
         }
     }
     
@@ -765,8 +842,8 @@ function generateIndividualFeeStatement($students, $school_name, $parent) {
     $pdf->SetHeaderMargin(5);
     $pdf->SetFooterMargin(10);
     
-    // Set auto page breaks
-    $pdf->SetAutoPageBreak(TRUE, 15);
+    // Set auto page breaks with larger bottom margin to prevent footer overflow
+    $pdf->SetAutoPageBreak(TRUE, 25);
     
     // Add a page
     $pdf->AddPage();
@@ -774,7 +851,7 @@ function generateIndividualFeeStatement($students, $school_name, $parent) {
     // Set font
     $pdf->SetFont('helvetica', '', 10);
     
-    // Professional Header Box
+    // Professional Header Box (EXACT teachers/fees design)
     $pdf->SetFillColor(240, 240, 240);
     $pdf->Rect(15, 15, 180, 35, 'F');
     $pdf->SetDrawColor(200, 200, 200);
@@ -790,7 +867,7 @@ function generateIndividualFeeStatement($students, $school_name, $parent) {
     
     $pdf->Ln(8);
     
-    // Statement Title with border
+    // Statement Title with border (EXACT teachers/fees design)
     $pdf->SetFont('helvetica', 'B', 16);
     $pdf->SetFillColor(255, 102, 0);
     $pdf->SetTextColor(255, 255, 255);
@@ -816,7 +893,7 @@ function generateIndividualFeeStatement($students, $school_name, $parent) {
     
     $pdf->Ln(10);
     
-    // Parent Information Section
+    // Parent Information Section (EXACT teachers/fees design)
     $pdf->SetFont('helvetica', 'B', 12);
     $pdf->SetTextColor(255, 102, 0);
     $pdf->Cell(0, 8, 'PARENT INFORMATION', 0, 1, 'L');
@@ -868,6 +945,15 @@ function generateIndividualFeeStatement($students, $school_name, $parent) {
             $total_paid = $paid_amount;
             $grand_total_fees += $total_fees;
             $grand_total_paid += $total_paid;
+            
+            // Get payment history for this student (even when fee details provided)
+            $stmt = $pdo->prepare("
+                SELECT * FROM fee_payments 
+                WHERE student_id = ? AND year = ? AND status = 'completed' 
+                ORDER BY payment_date DESC
+            ");
+            $stmt->execute([$student_id, $current_year]);
+            $payments = $stmt->fetchAll();
         } else {
             // Original logic for when fee details not provided
             // Get fee structure for this student
@@ -925,7 +1011,7 @@ function generateIndividualFeeStatement($students, $school_name, $parent) {
             $grand_total_paid += $total_paid;
         }
         
-        // Student Information Section
+        // Student Information Section (EXACT teachers/fees design)
         $pdf->SetFont('helvetica', 'B', 12);
         $pdf->SetTextColor(255, 102, 0);
         $pdf->Cell(0, 8, 'STUDENT INFORMATION', 0, 1, 'L');
@@ -962,50 +1048,29 @@ function generateIndividualFeeStatement($students, $school_name, $parent) {
         $pdf->Line(15, $pdf->GetY(), 195, $pdf->GetY());
         $pdf->Ln(3);
         
-        // Check if we have specific fee details from selection
-        $has_specific_fee = isset($student['fee_type']) && isset($student['term']);
-        
-        // Summary table header
+        // Summary table header (EXACT teachers/fees design - no Fee Type column)
         $pdf->SetFillColor(255, 102, 0);
         $pdf->SetTextColor(255, 255, 255);
         $pdf->SetFont('helvetica', 'B', 10);
-        if ($has_specific_fee) {
-            $pdf->Cell(40, 8, 'Fee Type', 1, 0, 'C', true);
-        }
         $pdf->Cell(50, 8, 'Term', 1, 0, 'C', true);
         $pdf->Cell(40, 8, 'Fees', 1, 0, 'C', true);
         $pdf->Cell(40, 8, 'Paid', 1, 0, 'C', true);
         $pdf->Cell(50, 8, 'Balance', 1, 1, 'C', true);
         $pdf->SetTextColor(0, 0, 0);
         
-        // Summary table data
+        // Summary table data (EXACT teachers/fees design)
         $pdf->SetFont('helvetica', '', 9);
-        if ($has_specific_fee) {
-            // Show only the specific fee type selected
-            foreach ($term_data as $term => $data) {
-                $pdf->Cell(40, 7, $data['fee_type'] ?? 'N/A', 1, 0, 'C');
-                $pdf->Cell(50, 7, $term, 1, 0, 'C');
-                $pdf->Cell(40, 7, 'KES ' . number_format($data['fees'], 2), 1, 0, 'R');
-                $pdf->Cell(40, 7, 'KES ' . number_format($data['paid'], 2), 1, 0, 'R');
-                $pdf->Cell(50, 7, 'KES ' . number_format($data['balance'], 2), 1, 1, 'R');
-            }
-        } else {
-            // Show all terms
-            foreach ($terms as $term) {
-                $data = $term_data[$term];
-                $pdf->Cell(50, 7, $term, 1, 0, 'C');
-                $pdf->Cell(40, 7, 'KES ' . number_format($data['fees'], 2), 1, 0, 'R');
-                $pdf->Cell(40, 7, 'KES ' . number_format($data['paid'], 2), 1, 0, 'R');
-                $pdf->Cell(50, 7, 'KES ' . number_format($data['balance'], 2), 1, 1, 'R');
-            }
+        foreach ($terms as $term) {
+            $data = $term_data[$term] ?? ['fees' => 0, 'paid' => 0, 'balance' => 0];
+            $pdf->Cell(50, 7, $term, 1, 0, 'C');
+            $pdf->Cell(40, 7, 'KES ' . number_format($data['fees'], 2), 1, 0, 'R');
+            $pdf->Cell(40, 7, 'KES ' . number_format($data['paid'], 2), 1, 0, 'R');
+            $pdf->Cell(50, 7, 'KES ' . number_format($data['balance'], 2), 1, 1, 'R');
         }
         
-        // Total row
+        // Total row (EXACT teachers/fees design)
         $pdf->SetFillColor(240, 240, 240);
         $pdf->SetFont('helvetica', 'B', 10);
-        if ($has_specific_fee) {
-            $pdf->Cell(40, 8, 'TOTAL', 1, 0, 'C', true);
-        }
         $pdf->Cell(50, 8, 'TOTAL', 1, 0, 'C', true);
         $pdf->Cell(40, 8, 'KES ' . number_format($total_fees, 2), 1, 0, 'R', true);
         $pdf->Cell(40, 8, 'KES ' . number_format($total_paid, 2), 1, 0, 'R', true);
@@ -1027,7 +1092,7 @@ function generateIndividualFeeStatement($students, $school_name, $parent) {
             $pdf->SetFont('helvetica', '', 10);
             $pdf->Cell(0, 7, 'No payments recorded for this academic year.', 0, 1, 'C');
         } else {
-            // Payment history table header
+            // Payment history table header (EXACT teachers/fees design)
             $pdf->SetFillColor(255, 102, 0);
             $pdf->SetTextColor(255, 255, 255);
             $pdf->SetFont('helvetica', 'B', 9);
@@ -1056,7 +1121,7 @@ function generateIndividualFeeStatement($students, $school_name, $parent) {
         $pdf->Ln(10);
     }
     
-    // Grand Total Section
+    // Grand Total Section (EXACT teachers/fees design)
     $pdf->SetFont('helvetica', 'B', 12);
     $pdf->SetTextColor(255, 102, 0);
     $pdf->Cell(0, 8, 'GRAND TOTAL (All Children)', 0, 1, 'L');
@@ -1073,7 +1138,67 @@ function generateIndividualFeeStatement($students, $school_name, $parent) {
     $pdf->Cell(40, 10, 'KES ' . number_format($grand_total_paid, 2), 1, 0, 'R', true);
     $pdf->Cell(50, 10, 'KES ' . number_format($grand_total_fees - $grand_total_paid, 2), 1, 1, 'R', true);
     
-    $pdf->Ln(15);
+    $pdf->Ln(10);
+    
+    // Add QR Code for verification
+    // Include full names and mobile number
+    $student_list = '';
+    foreach ($students as $student) {
+        $student_list .= $student['first_name'] . ' ' . $student['last_name'] . 
+                        ' (' . $student['admission_number'] . '), ';
+    }
+    $student_list = rtrim($student_list, ', ');
+    
+    $verification_data = "FEE STATEMENT\n" .
+        "School: " . $school['school_name'] . "\n" .
+        "Parent: " . $parent['first_name'] . ' ' . $parent['last_name'] . "\n" .
+        "Mobile: " . ($parent['phone'] ?? 'N/A') . "\n" .
+        "Date: " . date('d M Y') . "\n" .
+        "Year: " . $current_year . "\n" .
+        "Students: " . $student_list . "\n" .
+        "Total: KES " . number_format($grand_total_fees, 2) . "\n" .
+        "Paid: KES " . number_format($grand_total_paid, 2) . "\n" .
+        "Ref: " . substr(md5($parent['email'] . time()), 0, 6);
+    
+    // QR Code Section
+    $pdf->SetFont('helvetica', 'B', 12);
+    $pdf->SetTextColor(255, 102, 0);
+    $pdf->Cell(0, 8, 'VERIFICATION', 0, 1, 'L');
+    $pdf->SetTextColor(0, 0, 0);
+    
+    $pdf->SetDrawColor(200, 200, 200);
+    $pdf->Line(15, $pdf->GetY(), 195, $pdf->GetY());
+    $pdf->Ln(5);
+    
+    // Save current position
+    $qr_y = $pdf->GetY();
+    
+    // Add QR code using TCPDF's 2D barcode - centered on page
+    $style = [
+        'border' => 2,
+        'vpadding' => 'auto',
+        'hpadding' => 'auto',
+        'fgcolor' => array(0,0,0),
+        'bgcolor' => false,
+        'module_width' => 5,
+        'module_height' => 5
+    ];
+    
+    // Center QR code on page with larger size for better readability with additional data
+    $pdf->write2DBarcode($verification_data, 'QRCODE,M', 80, $qr_y, 50, 50, $style, 'N');
+    
+    // Add explanatory text below QR code
+    $pdf->Ln(55);
+    $pdf->SetFont('helvetica', '', 8);
+    $pdf->Cell(0, 5, 'Scan this QR code to view fee statement details.', 0, 1, 'C');
+    $pdf->Cell(0, 5, 'Contains: School, Parent Name & Mobile, Students with Admission Numbers, and Financial Summary', 0, 1, 'C');
+    
+    $pdf->Ln(10);
+    
+    // Check if we need a new page for footer to prevent overflow
+    if ($pdf->GetY() > 250) {
+        $pdf->AddPage();
+    }
     
     // Professional Footer
     $pdf->SetDrawColor(200, 200, 200);

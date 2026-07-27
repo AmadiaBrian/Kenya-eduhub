@@ -336,6 +336,12 @@ try {
             overflow-y: auto;
             transition: transform 0.3s ease;
             z-index: 999;
+            scrollbar-width: none; /* Firefox */
+            -ms-overflow-style: none; /* IE and Edge */
+        }
+        
+        .sidebar::-webkit-scrollbar {
+            display: none; /* Chrome, Safari, Opera */
         }
         
         .sidebar.collapsed {
@@ -493,6 +499,17 @@ try {
         
         .btn-danger:hover {
             background: #b71c1c;
+        }
+        
+        .btn-action {
+            background: #f8f9fa;
+            color: #000;
+            border: 1px solid #000;
+            cursor: pointer;
+        }
+        
+        .btn-action:hover {
+            background: #e9ecef;
         }
         
         .btn-sm {
@@ -720,6 +737,15 @@ try {
             <a class="nav-link" href="students">
                 <i class="fas fa-user-graduate"></i> Students
             </a>
+            <a class="nav-link" href="parents">
+                <i class="fas fa-users"></i> Parents
+            </a>
+            <a class="nav-link" href="disciplinary">
+                <i class="fas fa-shield-alt"></i> Disciplinary
+            </a>
+            <a class="nav-link" href="disciplinary-action-types">
+                <i class="fas fa-list-alt"></i> Disciplinary Types
+            </a>
             <a class="nav-link" href="teachers">
                 <i class="fas fa-chalkboard-teacher"></i> Teachers
             </a>
@@ -860,13 +886,13 @@ try {
                                 </td>
                                 <td>
                                     <?php if (!$term['is_active']): ?>
-                                        <button type="button" class="btn btn-sm btn-primary" onclick="activateTerm(<?php echo $term['id']; ?>)">
+                                        <button type="button" class="btn btn-sm btn-action" onclick="activateTerm(<?php echo $term['id']; ?>)">
                                             <i class="fas fa-check"></i> Activate
                                         </button>
                                     <?php else: ?>
                                         <span class="status-badge status-in-session">Active</span>
                                     <?php endif; ?>
-                                    <button type="button" class="btn btn-sm btn-danger" onclick="confirmDeleteTerm(<?php echo $term['id']; ?>)">
+                                    <button type="button" class="btn btn-sm btn-action" onclick="confirmDeleteTerm(<?php echo $term['id']; ?>)">
                                         <i class="fas fa-trash"></i>
                                     </button>
                                 </td>
@@ -937,7 +963,7 @@ try {
                                 <td><?php echo date('M j, Y', strtotime($holiday['start_date'])); ?></td>
                                 <td><?php echo date('M j, Y', strtotime($holiday['end_date'])); ?></td>
                                 <td>
-                                    <button type="button" class="btn btn-sm btn-danger" onclick="confirmDeleteHoliday(<?php echo $holiday['id']; ?>)">
+                                    <button type="button" class="btn btn-sm btn-action" onclick="confirmDeleteHoliday(<?php echo $holiday['id']; ?>)">
                                         <i class="fas fa-trash"></i>
                                     </button>
                                 </td>
@@ -1009,7 +1035,7 @@ try {
                                 <td><?php echo date('M j, Y', strtotime($event['event_date'])); ?></td>
                                 <td><?php echo $event['event_time'] ? date('h:i A', strtotime($event['event_time'])) : '-'; ?></td>
                                 <td>
-                                    <button type="button" class="btn btn-sm btn-danger" onclick="confirmDeleteEvent(<?php echo $event['id']; ?>)">
+                                    <button type="button" class="btn btn-sm btn-action" onclick="confirmDeleteEvent(<?php echo $event['id']; ?>)">
                                         <i class="fas fa-trash"></i>
                                     </button>
                                 </td>

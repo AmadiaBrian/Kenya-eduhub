@@ -331,6 +331,15 @@ try {
     $baseUrl = getPublicBaseUrl();
     $queueTimeoutUrl = $baseUrl . MPESA_B2C_TIMEOUT_PATH;
     $resultUrl = $baseUrl . MPESA_B2C_RESULT_PATH;
+    
+    error_log("=== Callback URLs ===");
+    error_log("Base URL from config: " . MPESA_CALLBACK_BASE_URL);
+    error_log("Base URL after getPublicBaseUrl(): $baseUrl");
+    error_log("Timeout Path from config: " . MPESA_B2C_TIMEOUT_PATH);
+    error_log("Result Path from config: " . MPESA_B2C_RESULT_PATH);
+    error_log("Final Queue Timeout URL: $queueTimeoutUrl");
+    error_log("Final Result URL: $resultUrl");
+    error_log("Full B2C callback URL being sent to Safaricom: $resultUrl");
 
     $b2cData = [
         'InitiatorName' => $initiatorName,
@@ -373,6 +382,8 @@ try {
     }
 
     $responseData = json_decode($b2cResponse, true);
+    error_log("B2C Response Data: " . json_encode($responseData));
+    
     if ($b2cStatus !== 200 || ($responseData['ResponseCode'] ?? '') !== '0') {
         $message = $responseData['errorMessage'] ?? $responseData['ResponseDescription'] ?? 'Failed to initiate B2C withdrawal.';
         

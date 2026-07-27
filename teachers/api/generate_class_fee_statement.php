@@ -356,6 +356,52 @@ try {
     
     $pdf->Ln(15);
     
+    // Add QR Code for verification
+    // Format for class fee statement
+    $student_count = count($class_fee_data);
+    $verification_data = "CLASS FEE STATEMENT\n" .
+        "School: " . $school['school_name'] . "\n" .
+        "Class: " . $class_name . ($stream_name ? ' - ' . $stream_name : '') . "\n" .
+        "Date: " . date('d M Y') . "\n" .
+        "Year: " . $current_year . "\n" .
+        "Students: " . $student_count . "\n" .
+        "Ref: " . substr(md5($class_id . $stream_id . time()), 0, 6);
+    
+    // QR Code Section
+    $pdf->SetFont('helvetica', 'B', 12);
+    $pdf->SetTextColor(255, 102, 0);
+    $pdf->Cell(0, 8, 'VERIFICATION', 0, 1, 'L');
+    $pdf->SetTextColor(0, 0, 0);
+    
+    $pdf->SetDrawColor(200, 200, 200);
+    $pdf->Line(15, $pdf->GetY(), 195, $pdf->GetY());
+    $pdf->Ln(5);
+    
+    // Save current position
+    $qr_y = $pdf->GetY();
+    
+    // Add QR code using TCPDF's 2D barcode - centered on page
+    $style = [
+        'border' => 2,
+        'vpadding' => 'auto',
+        'hpadding' => 'auto',
+        'fgcolor' => array(0,0,0),
+        'bgcolor' => false,
+        'module_width' => 5,
+        'module_height' => 5
+    ];
+    
+    // Center QR code on page
+    $pdf->write2DBarcode($verification_data, 'QRCODE,M', 80, $qr_y, 50, 50, $style, 'N');
+    
+    // Add explanatory text below QR code
+    $pdf->Ln(55);
+    $pdf->SetFont('helvetica', '', 8);
+    $pdf->Cell(0, 5, 'Scan this QR code to view class fee statement details.', 0, 1, 'C');
+    $pdf->Cell(0, 5, 'Contains: School, Class, Date, Academic Year, and Student Count', 0, 1, 'C');
+    
+    $pdf->Ln(15);
+    
     // Professional Footer
     $pdf->SetDrawColor(200, 200, 200);
     $pdf->Line(15, $pdf->GetY(), 195, $pdf->GetY());

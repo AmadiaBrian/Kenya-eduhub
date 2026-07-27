@@ -693,6 +693,9 @@ try {
             #addRecordModal {
                 display: none !important;
             }
+            #addRecordModalBtn {
+                display: none !important;
+            }
         }
         
         @media (max-width: 991px) {
@@ -815,6 +818,9 @@ try {
                 <a class="nav-link active" href="disciplinary">
                     <i class="fas fa-shield-alt"></i> Disciplinary
                 </a>
+                <a class="nav-link" href="disciplinary-action-types">
+                    <i class="fas fa-list-alt"></i> Disciplinary Types
+                </a>
                 <a class="nav-link" href="librarians">
                     <i class="fas fa-book-reader"></i> Librarians
                 </a>
@@ -870,13 +876,13 @@ try {
 
         <!-- Add New Record Button -->
         <div class="mb-4">
-            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addRecordModal">
+            <button class="btn btn-primary" id="addRecordModalBtn" data-bs-toggle="modal" data-bs-target="#addRecordModal">
                 <i class="fas fa-plus"></i> Add Disciplinary Record
             </button>
             <button class="btn btn-secondary" onclick="loadRecords()">
                 <i class="fas fa-sync"></i> Refresh
             </button>
-            <a href="disciplinary-action-types.php" class="btn btn-info">
+            <a href="disciplinary-action-types" class="btn btn-info">
                 <i class="fas fa-cog"></i> Manage Action Types
             </a>
         </div>
@@ -1055,14 +1061,14 @@ try {
                                         <strong><?php echo ucfirst($record['status']); ?></strong>
                                     </td>
                                     <td>
-                                        <a href="disciplinary_view.php?id=<?php echo $record['id']; ?>" class="btn btn-sm btn-outline-primary">
+                                        <a href="disciplinary_view.php?id=<?php echo $record['id']; ?>" class="btn btn-sm btn-action">
                                             <i class="fas fa-eye"></i>
                                         </a>
-                                        <button class="btn btn-sm btn-outline-secondary" onclick="editRecord(<?php echo $record['id']; ?>)">
+                                        <button class="btn btn-sm btn-action" onclick="editRecord(<?php echo $record['id']; ?>)">
                                             <i class="fas fa-edit"></i>
                                         </button>
                                         <?php if (in_array($record['action_type'], ['suspension', 'expulsion', 'transfer'])): ?>
-                                            <button class="btn btn-sm btn-outline-success" onclick="generatePDF(<?php echo $record['id']; ?>)">
+                                            <button class="btn btn-sm btn-action" onclick="generatePDF(<?php echo $record['id']; ?>)">
                                                 <i class="fas fa-print"></i>
                                             </button>
                                         <?php endif; ?>
@@ -1315,7 +1321,7 @@ try {
         }
         
         function generatePDF(recordId) {
-            window.open('disciplinary_document.php?record_id=' + recordId, '_blank');
+            window.location.href = 'disciplinary_document?record_id=' + recordId;
         }
     </script>
     

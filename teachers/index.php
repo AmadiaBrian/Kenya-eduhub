@@ -20,6 +20,7 @@ $allowed_routes = [
     'students',
     'assignments',
     'timetable',
+    'calendar',
     'student-subjects'
 ];
 

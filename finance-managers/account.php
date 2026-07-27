@@ -29,14 +29,16 @@ if (empty($_SESSION['csrf_token'])) {
 }
 $csrf_token = $_SESSION['csrf_token'];
 
-// Get school phone number
+// Get school phone number and withdrawal PIN
 $school_phone = '';
+$school_withdrawal_pin = '';
 try {
-    $stmt = $pdo->prepare("SELECT phone FROM schools WHERE id = ?");
+    $stmt = $pdo->prepare("SELECT phone, withdrawal_pin FROM schools WHERE id = ?");
     $stmt->execute([$school_id]);
     $school_data = $stmt->fetch();
     if ($school_data) {
         $school_phone = $school_data['phone'] ?? '';
+        $school_withdrawal_pin = $school_data['withdrawal_pin'] ?? '';
     }
 } catch (PDOException $e) {
     error_log("Failed to fetch school phone: " . $e->getMessage());
@@ -564,49 +566,83 @@ try {
         <!-- Withdraw Funds -->
         <div class="card">
             <h2 class="card-title">Withdraw School Money</h2>
-            <form id="withdrawalForm">
-                <input type="hidden" name="action" value="withdraw">
-                <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
-                <div class="form-grid">
-                    <div>
-                        <label class="form-label" for="amount">Amount (KES)</label>
-                        <input type="number" class="form-control" id="amount" name="amount" min="1" step="1" max="<?php echo htmlspecialchars((string) $available_to_withdraw); ?>" required>
-                    </div>
-                    <div>
-                        <label class="form-label" for="destination_type">Send To</label>
-                        <select class="form-select" id="destination_type" name="destination_type" required onchange="updateDestinationFields()">
-                            <option value="phone" selected>Phone Number</option>
-                            <option value="till">Till Number</option>
-                            <option value="paybill">Paybill</option>
-                            <option value="bank">Bank Account</option>
-                            <option value="other">Other Source</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="form-label" for="destination_name" id="destination_name_label">Recipient Name</label>
-                        <input type="text" class="form-control" id="destination_name" name="destination_name" placeholder="Recipient name">
-                    </div>
-                    <div>
-                        <label class="form-label" for="destination_account" id="destination_account_label">Phone Number</label>
-                        <input type="text" class="form-control" id="destination_account" name="destination_account" placeholder="0712345678 or 254712345678" required>
-                        <small class="text-muted" id="phone_hint" style="display: none;">Using school phone: <?php echo htmlspecialchars($school_phone); ?></small>
-                    </div>
-                    <div class="full-width">
-                        <label class="form-label" for="destination_extra" id="destination_extra_label">Extra Details</label>
-                        <input type="text" class="form-control" id="destination_extra" name="destination_extra" placeholder="Optional extra instruction">
-                    </div>
-                    <div class="full-width">
-                        <label class="form-label" for="notes">Notes</label>
-                        <textarea class="form-control" id="notes" name="notes" rows="3" placeholder="Optional withdrawal note"></textarea>
-                    </div>
-                    <div class="full-width withdrawal-actions">
-                        <button type="submit" class="btn btn-primary" <?php echo $available_to_withdraw < 1 ? 'disabled' : ''; ?>>
-                            <i class="fas fa-paper-plane"></i> Withdraw Money
-                        </button>
-                        <span class="text-muted">Available: KES <?php echo number_format($available_to_withdraw, 2); ?></span>
-                    </div>
+            
+            <?php if (empty($school_withdrawal_pin)): ?>
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle me-2"></i> 
+                    <strong>No withdrawal PIN set.</strong> Please set your withdrawal PIN in school settings before making withdrawals.
                 </div>
-            </form>
+            <?php else: ?>
+                <button type="button" class="btn btn-primary" onclick="showPinVerification()" style="margin-bottom: 20px;">
+                    <i class="fas fa-plus-circle"></i> New Withdrawal Request
+                </button>
+                
+                <!-- PIN Verification Section -->
+                <div id="pinVerificationSection" style="display: none;">
+                    <div class="alert alert-info">
+                        <i class="fas fa-lock me-2"></i> Enter your withdrawal PIN to proceed
+                    </div>
+                    <div style="margin-bottom: 20px;">
+                        <label for="withdrawalPin" class="form-label">Withdrawal PIN</label>
+                        <input type="password" id="withdrawalPin" class="form-control" placeholder="Enter your 4-digit PIN" maxlength="4">
+                    </div>
+                    <div style="display: flex; gap: 15px;">
+                        <button type="button" class="btn btn-primary" onclick="verifyWithdrawalPin()">
+                            <i class="fas fa-check"></i> Verify PIN
+                        </button>
+                        <button type="button" class="btn btn-secondary" onclick="hidePinVerification()">
+                            Cancel
+                        </button>
+                    </div>
+                    <div id="pinError" style="margin-top: 10px; display: none;" class="alert alert-danger"></div>
+                </div>
+                
+                <div id="withdrawalForm" style="display: none;">
+                    <form id="withdrawalFormElement">
+                        <input type="hidden" name="action" value="withdraw">
+                        <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
+                        <div class="form-grid">
+                            <div>
+                                <label class="form-label" for="amount">Amount (KES)</label>
+                                <input type="number" class="form-control" id="amount" name="amount" min="1" step="1" max="<?php echo htmlspecialchars((string) $available_to_withdraw); ?>" required>
+                            </div>
+                            <div>
+                                <label class="form-label" for="destination_type">Send To</label>
+                                <select class="form-select" id="destination_type" name="destination_type" required onchange="updateDestinationFields()">
+                                    <option value="phone" selected>Phone Number</option>
+                                    <option value="till">Till Number</option>
+                                    <option value="paybill">Paybill</option>
+                                    <option value="bank">Bank Account</option>
+                                    <option value="other">Other Source</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="form-label" for="destination_name" id="destination_name_label">Recipient Name</label>
+                                <input type="text" class="form-control" id="destination_name" name="destination_name" placeholder="Recipient name">
+                            </div>
+                            <div>
+                                <label class="form-label" for="destination_account" id="destination_account_label">Phone Number</label>
+                                <input type="text" class="form-control" id="destination_account" name="destination_account" placeholder="0712345678 or 254712345678" required>
+                                <small class="text-muted" id="phone_hint" style="display: none;">Using school phone: <?php echo htmlspecialchars($school_phone); ?></small>
+                            </div>
+                            <div class="full-width">
+                                <label class="form-label" for="destination_extra" id="destination_extra_label">Extra Details</label>
+                                <input type="text" class="form-control" id="destination_extra" name="destination_extra" placeholder="Optional extra instruction">
+                            </div>
+                            <div class="full-width">
+                                <label class="form-label" for="notes">Notes</label>
+                                <textarea class="form-control" id="notes" name="notes" rows="3" placeholder="Optional withdrawal note"></textarea>
+                            </div>
+                            <div class="full-width withdrawal-actions">
+                                <button type="submit" class="btn btn-primary" <?php echo $available_to_withdraw < 1 ? 'disabled' : ''; ?>>
+                                    <i class="fas fa-paper-plane"></i> Withdraw Money
+                                </button>
+                                <span class="text-muted">Available: KES <?php echo number_format($available_to_withdraw, 2); ?></span>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            <?php endif; ?>
         </div>
 
         <!-- Recent Withdrawals -->
@@ -708,11 +744,108 @@ try {
     </main>
     
     <script>
+        // Set CSRF token for JavaScript
+        window.currentCSRFToken = '<?php echo $csrf_token; ?>';
+
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
             const mainContent = document.getElementById('mainContent');
             sidebar.classList.toggle('collapsed');
             mainContent.classList.toggle('expanded');
+        }
+
+        // PIN Verification Functions
+        function showPinVerification() {
+            document.getElementById('pinVerificationSection').style.display = 'block';
+            document.getElementById('withdrawalPin').focus();
+        }
+
+        function hidePinVerification() {
+            document.getElementById('pinVerificationSection').style.display = 'none';
+            document.getElementById('withdrawalForm').style.display = 'none';
+            document.getElementById('withdrawalPin').value = '';
+            document.getElementById('pinError').style.display = 'none';
+        }
+
+        function verifyWithdrawalPin() {
+            const pin = document.getElementById('withdrawalPin').value;
+            const pinError = document.getElementById('pinError');
+            
+            if (pin.length !== 4 || !/^\d+$/.test(pin)) {
+                pinError.textContent = 'Please enter a valid 4-digit PIN';
+                pinError.style.display = 'block';
+                return;
+            }
+            
+            // Verify PIN via API
+            const formData = new FormData();
+            formData.append('pin', pin);
+            formData.append('csrf_token', window.currentCSRFToken);
+            
+            fetch('../api/verify_withdrawal_pin.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // PIN verified, show withdrawal form
+                    document.getElementById('pinVerificationSection').style.display = 'none';
+                    document.getElementById('withdrawalForm').style.display = 'block';
+                    document.getElementById('pinError').style.display = 'none';
+                } else {
+                    pinError.textContent = data.error || 'Invalid PIN';
+                    pinError.style.display = 'block';
+                    document.getElementById('withdrawalPin').value = '';
+                }
+            })
+            .catch(error => {
+                console.error('PIN verification error:', error);
+                pinError.textContent = 'Failed to verify PIN. Please try again.';
+                pinError.style.display = 'block';
+            });
+        }
+
+        function updateDestinationFields() {
+            const destinationType = document.getElementById('destination_type').value;
+            const nameLabel = document.getElementById('destination_name_label');
+            const accountLabel = document.getElementById('destination_account_label');
+            const extraLabel = document.getElementById('destination_extra_label');
+            const phoneHint = document.getElementById('phone_hint');
+
+            // Reset labels
+            nameLabel.textContent = 'Recipient Name';
+            accountLabel.textContent = 'Phone Number';
+            extraLabel.textContent = 'Extra Details';
+            phoneHint.style.display = 'none';
+
+            switch (destinationType) {
+                case 'phone':
+                    nameLabel.textContent = 'Recipient Name';
+                    accountLabel.textContent = 'Phone Number';
+                    phoneHint.style.display = 'block';
+                    break;
+                case 'till':
+                    nameLabel.textContent = 'Till Name';
+                    accountLabel.textContent = 'Till Number';
+                    extraLabel.textContent = 'Store Number';
+                    break;
+                case 'paybill':
+                    nameLabel.textContent = 'Account Name';
+                    accountLabel.textContent = 'Paybill Number';
+                    extraLabel.textContent = 'Account Number';
+                    break;
+                case 'bank':
+                    nameLabel.textContent = 'Bank Name';
+                    accountLabel.textContent = 'Account Number';
+                    extraLabel.textContent = 'Bank Branch';
+                    break;
+                case 'other':
+                    nameLabel.textContent = 'Source Name';
+                    accountLabel.textContent = 'Account/Reference';
+                    extraLabel.textContent = 'Additional Details';
+                    break;
+            }
         }
 
         // Withdrawal Modal Functions - Google Material Design Style
@@ -922,7 +1055,7 @@ try {
         }
 
         // Withdrawal Form Handler
-        document.getElementById('withdrawalForm').addEventListener('submit', function(e) {
+        document.getElementById('withdrawalFormElement').addEventListener('submit', function(e) {
             e.preventDefault();
             
             const form = this;

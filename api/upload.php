@@ -1,14 +1,20 @@
 <?php
 // Configure session cookie to be shared across all subdirectories
+$protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http';
+$domain = $_SERVER['HTTP_HOST'] ?? '';
+$path = dirname($_SERVER['SCRIPT_NAME']) ?: '/';
+
 session_set_cookie_params([
     'lifetime' => 0,
-    'path' => '/kenyaeduhub/',
-    'domain' => '',
-    'secure' => false,
+    'path' => $path,
+    'domain' => $domain,
+    'secure' => $protocol === 'https',
     'httponly' => true,
-    'samesite' => 'Lax'
+    'samesite' => $protocol === 'https' ? 'Strict' : 'Lax'
 ]);
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
 header('Content-Type: application/json');
 
@@ -23,7 +29,6 @@ if (defined('ENVIRONMENT') && ENVIRONMENT === 'development') {
 
 try {
     require_once '../config.php';
-    session_start();
     
     // Security: Check if user is logged in
     if (!isset($_SESSION['user_id'])) {

@@ -318,13 +318,13 @@ try {
             background: var(--bg-color);
             border: none;
             border-radius: 12px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+            box-shadow: none;
             margin-bottom: 20px;
         }
         
         .card-header {
             background: var(--bg-color);
-            border-bottom: 1px solid rgba(0,0,0,0.08);
+            border-bottom: 1px solid rgba(0,0,0,0.04);
             padding: 16px 20px;
             font-weight: 500;
             color: var(--secondary-color);
@@ -360,24 +360,50 @@ try {
             background: #e55a2b;
         }
         
+        .btn-action {
+            background: #f8f9fa;
+            color: #000;
+            border: 1px solid #000;
+            cursor: pointer;
+        }
+        
+        .btn-action:hover {
+            background: #e9ecef;
+        }
+        
         .table {
             margin-bottom: 0;
-            background: var(--bg-color);
-            border-radius: 12px;
+            background: white;
+            border: 1px solid #000;
+            border-radius: 0;
             overflow: hidden;
         }
         
         .table th {
-            font-weight: 500;
-            color: var(--secondary-color);
-            border-bottom: 1px solid rgba(0,0,0,0.08);
-            background: var(--bg-color);
+            font-weight: 600;
+            color: #000;
+            border-bottom: 2px solid #000;
+            border-right: 1px solid #000;
+            background: #f8f9fa;
+        }
+        
+        .table th:last-child {
+            border-right: none;
         }
         
         .table td {
             vertical-align: middle;
-            background: var(--bg-color);
-            border-bottom: 1px solid rgba(0,0,0,0.08);
+            background: white;
+            border-bottom: 1px solid #000;
+            border-right: 1px solid #000;
+        }
+        
+        .table td:last-child {
+            border-right: none;
+        }
+        
+        .table tr:last-child td {
+            border-bottom: none;
         }
         
         .badge {
@@ -398,7 +424,7 @@ try {
         }
         
         .form-control {
-            border: 1px solid rgba(0,0,0,0.08);
+            border: 1px solid rgba(0,0,0,0.04);
             border-radius: 12px;
             padding: 8px 12px;
         }
@@ -438,16 +464,16 @@ try {
         
         .modal-content {
             background: white;
-            border: 1px solid rgba(0,0,0,0.08);
-            border-radius: 12px;
-            box-shadow: 0 4px 24px rgba(0,0,0,0.2);
+            border: none;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
             font-family: 'Google Sans', 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
         
         .modal-header {
             background: white;
-            border-bottom: 1px solid rgba(0,0,0,0.08);
-            padding: 20px 24px;
+            border-bottom: 1px solid #e8eaed;
+            padding: 24px 24px 16px 24px;
         }
         
         .modal-title {
@@ -459,16 +485,19 @@ try {
         
         .modal-body {
             background: white;
-            padding: 24px;
+            padding: 16px 24px 24px 24px;
             font-family: 'Google Sans', 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             color: #202124;
         }
         
         .modal-footer {
             background: white;
-            border-top: 1px solid rgba(0,0,0,0.08);
+            border-top: 1px solid #e8eaed;
             padding: 16px 24px;
             font-family: 'Google Sans', 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
         }
         
         .btn-close {
@@ -629,6 +658,9 @@ try {
                 <a class="nav-link" href="disciplinary">
                     <i class="fas fa-exclamation-triangle"></i> Disciplinary
                 </a>
+                <a class="nav-link" href="disciplinary-action-types">
+                    <i class="fas fa-list-alt"></i> Disciplinary Types
+                </a>
             </div>
         </div>
         
@@ -734,10 +766,10 @@ try {
                                                 <?php endif; ?>
                                             </td>
                                             <td>
-                                                <button class="btn btn-sm btn-primary" onclick="editExamType(<?php echo $exam_type['id']; ?>, '<?php echo htmlspecialchars($exam_type['exam_type_name']); ?>', '<?php echo htmlspecialchars($exam_type['exam_type_code']); ?>', '<?php echo htmlspecialchars($exam_type['description']); ?>')">
+                                                <button class="btn btn-sm btn-action" onclick="editExamType(<?php echo $exam_type['id']; ?>, '<?php echo htmlspecialchars($exam_type['exam_type_name']); ?>', '<?php echo htmlspecialchars($exam_type['exam_type_code']); ?>', '<?php echo htmlspecialchars($exam_type['description']); ?>')">
                                                     <i class="fas fa-edit"></i>
                                                 </button>
-                                                <button class="btn btn-sm btn-danger" onclick="openDeleteModal(<?php echo $exam_type['id']; ?>)">
+                                                <button class="btn btn-sm btn-action" onclick="openDeleteModal(<?php echo $exam_type['id']; ?>)">
                                                     <i class="fas fa-trash"></i>
                                                 </button>
                                             </td>
@@ -772,30 +804,33 @@ try {
     </div>
     
     <!-- Edit Modal -->
-    <div class="modal fade" id="editModal" tabindex="-1" aria-hidden="true" style="backdrop-filter: blur(2px);">
-        <div class="modal-dialog modal-dialog-centered" style="max-width: 500px;">
-            <div class="modal-content" style="border: none; border-radius: 24px; box-shadow: 0 24px 38px 3px rgba(0,0,0,0.14), 0 9px 46px 8px rgba(0,0,0,0.12); font-family: 'Google Sans', 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
-                <div class="modal-body" style="padding: 32px;">
-                    <h3 style="font-size: 22px; font-weight: 400; color: #202124; margin: 0 0 24px 0; line-height: 28px;">Edit Exam Type</h3>
+    <div class="modal fade" id="editModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Exam Type</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
                     <form method="POST" id="editForm">
                         <input type="hidden" name="exam_type_id" id="editExamTypeId">
                         <div class="mb-3">
-                            <label class="form-label" style="font-weight: 500; color: #202124;">Exam Type Name *</label>
+                            <label class="form-label">Exam Type Name *</label>
                             <input type="text" class="form-control" name="exam_type_name" id="editExamTypeName" required placeholder="e.g., CAT, Mid Term, End Term">
                         </div>
                         <div class="mb-3">
-                            <label class="form-label" style="font-weight: 500; color: #202124;">Exam Type Code *</label>
+                            <label class="form-label">Exam Type Code *</label>
                             <input type="text" class="form-control" name="exam_type_code" id="editExamTypeCode" required placeholder="e.g., CAT, MID_TERM, END_TERM">
                         </div>
                         <div class="mb-3">
-                            <label class="form-label" style="font-weight: 500; color: #202124;">Description</label>
+                            <label class="form-label">Description</label>
                             <textarea class="form-control" name="description" id="editDescription" rows="3" placeholder="Description of this exam type..."></textarea>
                         </div>
                     </form>
                 </div>
-                <div class="modal-footer" style="border: none; padding: 0 32px 32px 32px; display: flex; justify-content: flex-end; gap: 12px;">
-                    <button type="button" class="btn" data-bs-dismiss="modal" style="background: transparent; color: #5f6368; border: none; padding: 10px 24px; border-radius: 4px; font-size: 14px; font-weight: 500; letter-spacing: 0.25px; text-transform: uppercase;">Cancel</button>
-                    <button type="submit" form="editForm" name="edit_exam_type" style="background: #FF6B35; color: white; border: none; padding: 10px 24px; border-radius: 25px; font-size: 14px; font-weight: 500; letter-spacing: 0.25px; text-transform: uppercase;">Update</button>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" form="editForm" name="edit_exam_type" class="btn btn-primary">Update</button>
                 </div>
             </div>
         </div>

@@ -393,6 +393,17 @@ try {
             background: #b3261e;
         }
         
+        .btn-action {
+            background: #f8f9fa;
+            color: #000;
+            border: 1px solid #000;
+            cursor: pointer;
+        }
+        
+        .btn-action:hover {
+            background: #e9ecef;
+        }
+        
         .table {
             width: 100%;
             border-collapse: collapse;
@@ -574,6 +585,12 @@ try {
             <a class="nav-link" href="parents">
                 <i class="fas fa-users"></i> Parents
             </a>
+            <a class="nav-link" href="disciplinary">
+                <i class="fas fa-shield-alt"></i> Disciplinary
+            </a>
+            <a class="nav-link" href="disciplinary-action-types">
+                <i class="fas fa-list-alt"></i> Disciplinary Types
+            </a>
             <a class="nav-link" href="classes">
                 <i class="fas fa-school"></i> Classes
             </a>
@@ -729,7 +746,7 @@ try {
                                             <input type="hidden" name="finance_manager_id" value="<?php echo $fm['id']; ?>">
                                             <input type="hidden" name="update_status" value="1">
                                             <input type="hidden" name="status" value="<?php echo $fm['status'] === 'active' ? 'inactive' : 'active'; ?>">
-                                            <button type="submit" class="btn btn-sm <?php echo $fm['status'] === 'active' ? 'btn-danger' : 'btn-primary'; ?>">
+                                            <button type="submit" class="btn btn-sm btn-action">
                                                 <i class="fas <?php echo $fm['status'] === 'active' ? 'fa-ban' : 'fa-check'; ?>"></i>
                                                 <?php echo $fm['status'] === 'active' ? 'Deactivate' : 'Activate'; ?>
                                             </button>
@@ -737,7 +754,7 @@ try {
                                         <form method="POST" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this finance manager?');">
                                             <input type="hidden" name="finance_manager_id" value="<?php echo $fm['id']; ?>">
                                             <input type="hidden" name="delete_finance_manager" value="1">
-                                            <button type="submit" class="btn btn-sm btn-danger">
+                                            <button type="submit" class="btn btn-sm btn-action">
                                                 <i class="fas fa-trash"></i>
                                             </button>
                                         </form>

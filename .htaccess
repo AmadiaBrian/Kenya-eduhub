@@ -1,5 +1,9 @@
 # RewriteEngine On
 
+# Allow M-Pesa callback URLs (bypass all rewrite rules)
+RewriteCond %{REQUEST_URI} /(schools|finance-managers)/payments/b2c/(b2c_result|b2c_timeout)\.php$ [NC]
+RewriteRule ^ - [L]
+
 # Hide .php extension from URLs (works for all folders)
 RewriteCond %{THE_REQUEST} \s/(.+?)\.php[\s?] [NC]
 RewriteRule ^ /%1 [R=301,L]

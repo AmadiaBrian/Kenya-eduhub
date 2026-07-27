@@ -277,6 +277,17 @@ $school_name = $_SESSION['school_name'] ?? 'School';
             background: #b92b20;
         }
         
+        .btn-action {
+            background: #f8f9fa;
+            color: #000;
+            border: 1px solid #000;
+            cursor: pointer;
+        }
+        
+        .btn-action:hover {
+            background: #e9ecef;
+        }
+        
         .table {
             border-collapse: collapse;
             background: white;
@@ -519,6 +530,12 @@ $school_name = $_SESSION['school_name'] ?? 'School';
             <a class="nav-link" href="parents">
                 <i class="fas fa-users"></i> Parents
             </a>
+            <a class="nav-link" href="disciplinary">
+                <i class="fas fa-shield-alt"></i> Disciplinary
+            </a>
+            <a class="nav-link" href="disciplinary-action-types">
+                <i class="fas fa-list-alt"></i> Disciplinary Types
+            </a>
             <a class="nav-link" href="performance">
                 <i class="fas fa-chart-line"></i> Performance
             </a>
@@ -560,20 +577,25 @@ $school_name = $_SESSION['school_name'] ?? 'School';
             $totalStudents = 0;
             $totalCapacity = 0;
             $totalClasses = 0;
-            
+
             try {
+                // Count unique stream names
+                $stmt = $pdo->prepare("SELECT COUNT(DISTINCT stream_name) as count FROM streams s JOIN classes c ON s.class_id = c.id WHERE c.school_id = ?");
+                $stmt->execute([$school_id]);
+                $totalStreams = $stmt->fetch()['count'];
+
+                // Get all streams for capacity and student counts
                 $stmt = $pdo->prepare("SELECT s.id, s.capacity, c.class_name FROM streams s JOIN classes c ON s.class_id = c.id WHERE c.school_id = ?");
                 $stmt->execute([$school_id]);
                 $streams = $stmt->fetchAll();
-                
+
                 $classNames = [];
                 foreach ($streams as $stream) {
-                    $totalStreams++;
                     $totalCapacity += $stream['capacity'];
                     if (!in_array($stream['class_name'], $classNames)) {
                         $classNames[] = $stream['class_name'];
                     }
-                    
+
                     // Count students for this stream
                     $studentStmt = $pdo->prepare("SELECT COUNT(*) as count FROM students WHERE stream_id = ?");
                     $studentStmt->execute([$stream['id']]);
@@ -639,9 +661,9 @@ $school_name = $_SESSION['school_name'] ?? 'School';
                         <thead>
                             <tr>
                                 <th>Stream Name</th>
-                                <th>Class</th>
-                                <th>Level</th>
-                                <th>Capacity</th>
+                                <th>Classes</th>
+                                <th>Levels</th>
+                                <th>Total Capacity</th>
                                 <th>Students</th>
                                 <th>Actions</th>
                             </tr>
@@ -751,15 +773,15 @@ $school_name = $_SESSION['school_name'] ?? 'School';
                     tbody.innerHTML = data.data.map(stream => `
                         <tr>
                             <td>${stream.stream_name}</td>
-                            <td>${stream.class_name}</td>
-                            <td>${stream.class_level}</td>
-                            <td>${stream.capacity}</td>
+                            <td>${stream.class_names}</td>
+                            <td>${stream.class_levels}</td>
+                            <td>${stream.total_capacity}</td>
                             <td>${stream.student_count}</td>
                             <td>
-                                <button class="btn btn-sm btn-primary" onclick="editStream(${stream.id})">
+                                <button class="btn btn-sm btn-action" onclick="alert('Edit functionality requires individual stream selection')">
                                     <i class="fas fa-edit"></i>
                                 </button>
-                                <button class="btn btn-sm btn-danger" onclick="deleteStream(${stream.id})">
+                                <button class="btn btn-sm btn-action" onclick="alert('Delete functionality requires individual stream selection')">
                                     <i class="fas fa-trash"></i>
                                 </button>
                             </td>

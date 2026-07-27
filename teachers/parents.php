@@ -255,6 +255,20 @@ $teacher_type = $_SESSION['teacher_type'] ?? 'class_teacher';
             background: #01579b;
         }
         
+        .btn-action {
+            background: #f8f9fa;
+            color: #000;
+            border: 1px solid #000;
+        }
+        
+        .btn-action:hover {
+            background: #e9ecef;
+        }
+        
+        .btn-action i {
+            color: #000;
+        }
+        
         .table {
             width: 100%;
             border-collapse: collapse;
@@ -606,13 +620,13 @@ $teacher_type = $_SESSION['teacher_type'] ?? 'class_teacher';
                     <td>${parent.relationship}</td>
                     <td>${parent.linked_students || 'No students linked'}</td>
                     <td>
-                        <button class="btn btn-sm btn-success" onclick="sendEmail(${parent.id})" style="border-radius: 25px; margin-right: 4px;" title="Send Email">
+                        <button class="btn btn-sm btn-action" onclick="sendEmail(${parent.id})" style="border-radius: 25px; margin-right: 4px;" title="Send Email">
                             <i class="fas fa-envelope"></i>
                         </button>
-                        <a href="tel:${parent.phone}" class="btn btn-sm btn-primary" style="border-radius: 25px; margin-right: 4px;" title="Call">
+                        <a href="tel:${parent.phone}" class="btn btn-sm btn-action" style="border-radius: 25px; margin-right: 4px;" title="Call">
                             <i class="fas fa-phone"></i>
                         </a>
-                        <button class="btn btn-sm btn-info" onclick="viewParentDetails(${parent.id})" style="border-radius: 25px;" title="View Details">
+                        <button class="btn btn-sm btn-action" onclick="viewParentDetails(${parent.id})" style="border-radius: 25px;" title="View Details">
                             <i class="fas fa-eye"></i>
                         </button>
                     </td>

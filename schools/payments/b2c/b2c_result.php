@@ -113,6 +113,53 @@ try {
 
         $pdo->commit();
         file_put_contents('b2c_callback.log', date('Y-m-d H:i:s') . " - B2C Success: Ksh {$withdrawal['amount']} sent to $receiverParty, TransactionID: $transactionId, WithdrawalID: {$withdrawal['id']}\n", FILE_APPEND);
+        
+        // Send SMS notification to school phone
+        try {
+            require_once __DIR__ . '/../../../sms/sms_config.php';
+            require_once __DIR__ . '/../../../sms/MobitechSMS.php';
+            require_once __DIR__ . '/../../../sms/TextSMS.php';
+            
+            // Get school phone number
+            $stmt = $pdo->prepare("SELECT phone, school_name FROM schools WHERE id = ?");
+            $stmt->execute([$withdrawal['school_id']]);
+            $school = $stmt->fetch();
+            
+            if ($school && !empty($school['phone'])) {
+                // Get admin SMS settings
+                $stmt = $pdo->prepare("SELECT * FROM admin_sms_settings LIMIT 1");
+                $stmt->execute();
+                $admin_sms = $stmt->fetch();
+                
+                if ($admin_sms && !empty($admin_sms['sms_enabled'])) {
+                    $phone = $school['phone'];
+                    $reference_number = $withdrawal['reference_number'];
+                    $amount = $withdrawal['amount'];
+                    
+                    // Get new balance
+                    $stmt = $pdo->prepare("SELECT balance FROM school_balances WHERE school_id = ?");
+                    $stmt->execute([$withdrawal['school_id']]);
+                    $new_balance = $stmt->fetchColumn();
+                    
+                    // Create M-Pesa style SMS message
+                    $sms_message = $reference_number . " Confirmed. KES " . number_format($amount, 2) . " withdrawn from Kenya EduHub on " . date('d/m/y') . " at " . date('h:i A') . ". New balance is KES " . number_format($new_balance, 2) . ".";
+                    
+                    // Send SMS using configured provider
+                    if ($admin_sms['sms_provider'] === 'mobitech') {
+                        $mobitech = new MobitechSMS($admin_sms['mobitech_api_key'], $admin_sms['mobitech_sender_id']);
+                        $result = $mobitech->sendSMS($phone, $sms_message);
+                        file_put_contents('b2c_callback.log', date('Y-m-d H:i:s') . " - SMS sent via Mobitech: " . print_r($result, true) . "\n", FILE_APPEND);
+                    } elseif ($admin_sms['sms_provider'] === 'textsms') {
+                        $textsms = new TextSMS($admin_sms['textsms_api_key'], $admin_sms['textsms_partner_id'], $admin_sms['textsms_sender_id']);
+                        $result = $textsms->sendSMS($phone, $sms_message);
+                        file_put_contents('b2c_callback.log', date('Y-m-d H:i:s') . " - SMS sent via Text SMS: " . print_r($result, true) . "\n", FILE_APPEND);
+                    }
+                }
+            }
+        } catch (Exception $sms_error) {
+            file_put_contents('b2c_callback.log', date('Y-m-d H:i:s') . " - Failed to send withdrawal SMS: " . $sms_error->getMessage() . "\n", FILE_APPEND);
+            // Don't fail the callback if SMS fails
+        }
     } else {
         $stmt = $pdo->prepare("UPDATE school_withdrawals SET status = 'failed', result_code = ?, result_desc = ?, callback_payload = ? WHERE id = ?");
         $stmt->execute([(string) $resultCode, $resultDesc ?: 'B2C payment failed.', $jsonData, $withdrawal['id']]);

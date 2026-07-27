@@ -108,8 +108,63 @@ try {
             $stmt = $pdo->prepare("UPDATE school_balances SET balance = balance + ? WHERE school_id = ?");
             $stmt->execute([$Amount, $school_id]);
             
+            // Get new balance for SMS
+            $stmt = $pdo->prepare("SELECT balance FROM school_balances WHERE school_id = ?");
+            $stmt->execute([$school_id]);
+            $new_balance = $stmt->fetchColumn();
+            
             // Log the school balance update
-            error_log("School balance updated: School ID=$school_id, Amount=$Amount, Receipt=$MpesaReceiptNumber");
+            error_log("School balance updated: School ID=$school_id, Amount=$Amount, Receipt=$MpesaReceiptNumber, New Balance=$new_balance");
+            
+            // Send SMS notification to school about library fine payment
+            try {
+                require_once __DIR__ . '/../../sms/sms_config.php';
+                require_once __DIR__ . '/../../sms/MobitechSMS.php';
+                require_once __DIR__ . '/../../sms/TextSMS.php';
+                
+                // Get school phone and name
+                $getSchool = $pdo->prepare("SELECT phone, school_name FROM schools WHERE id = ?");
+                $getSchool->execute([$school_id]);
+                $school = $getSchool->fetch();
+                
+                // Get book information
+                $getBook = $pdo->prepare("SELECT title FROM books WHERE id = ?");
+                $getBook->execute([$fine['book_id']]);
+                $book = $getBook->fetch();
+                
+                if ($school && !empty($school['phone'])) {
+                    // Get admin SMS settings
+                    $getSmsSettings = $pdo->prepare("SELECT * FROM admin_sms_settings LIMIT 1");
+                    $getSmsSettings->execute();
+                    $admin_sms = $getSmsSettings->fetch();
+                    
+                    if ($admin_sms && !empty($admin_sms['sms_enabled'])) {
+                        // Use user information from fine record if available, otherwise use generic
+                        $user_name = 'User';
+                        if (!empty($fine['user_name'])) {
+                            $user_name = $fine['user_name'];
+                        }
+                        $book_title = $book ? $book['title'] : 'Book';
+                        
+                        // Create SMS message in M-Pesa format
+                        $sms_message = $MpesaReceiptNumber . " Confirmed. KES " . number_format($Amount, 2) . " received from $user_name for Library Fine ($book_title) on " . date('d/m/y') . " at " . date('h:i A') . ". New school balance is KES " . number_format($new_balance, 2) . ".";
+                        
+                        // Send SMS using configured provider
+                        if ($admin_sms['sms_provider'] === 'mobitech') {
+                            $mobitech = new MobitechSMS($admin_sms['mobitech_api_key'], $admin_sms['mobitech_sender_id']);
+                            $result = $mobitech->sendSMS($school['phone'], $sms_message);
+                            error_log("SMS sent via Mobitech: " . print_r($result, true));
+                        } elseif ($admin_sms['sms_provider'] === 'textsms') {
+                            $textsms = new TextSMS($admin_sms['textsms_api_key'], $admin_sms['textsms_partner_id'], $admin_sms['textsms_sender_id']);
+                            $result = $textsms->sendSMS($school['phone'], $sms_message);
+                            error_log("SMS sent via Text SMS: " . print_r($result, true));
+                        }
+                    }
+                }
+            } catch (Exception $sms_error) {
+                error_log("Failed to send library fine payment SMS: " . $sms_error->getMessage());
+                // Don't fail the callback if SMS fails
+            }
             
             // Create school withdrawal record for tracking
             $stmt = $pdo->prepare("INSERT INTO school_withdrawals 
