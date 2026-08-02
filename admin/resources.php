@@ -581,57 +581,33 @@ try {
 
     <!-- Sidebar -->
     <div class="sidebar" id="sidebar">
-        <div class="sidebar-section">
-            <div class="sidebar-title" onclick="toggleSidebarSection(this)">
-                <span>Main</span>
-                <i class="fas fa-chevron-down chevron"></i>
-            </div>
-            <div class="sidebar-links">
-                <a class="nav-link" href="dashboard">
-                    <i class="fas fa-home"></i> Dashboard
-                </a>
-                <a class="nav-link active" href="resources">
-                    <i class="fas fa-book"></i> Resources
-                </a>
-                <a class="nav-link" href="users">
-                    <i class="fas fa-users"></i> Users
-                </a>
-                <a class="nav-link" href="schools">
-                    <i class="fas fa-school"></i> Schools
-                </a>
-            </div>
-        </div>
-        <div class="sidebar-section">
-            <div class="sidebar-title" onclick="toggleSidebarSection(this)">
-                <span>Management</span>
-                <i class="fas fa-chevron-down chevron"></i>
-            </div>
-            <div class="sidebar-links">
-                <a class="nav-link" href="reports">
-                    <i class="fas fa-chart-bar"></i> Reports
-                </a>
-                <a class="nav-link" href="logs">
-                    <i class="fas fa-history"></i> Activity Logs
-                </a>
-                <a class="nav-link" href="settings">
-                    <i class="fas fa-cog"></i> Settings
-                </a>
-            </div>
-        </div>
-        <div class="sidebar-section">
-            <div class="sidebar-title" onclick="toggleSidebarSection(this)">
-                <span>Account</span>
-                <i class="fas fa-chevron-down chevron"></i>
-            </div>
-            <div class="sidebar-links">
-                <a class="nav-link" href="../../dashboard">
-                    <i class="fas fa-arrow-left"></i> Back to Dashboard
-                </a>
-                <a class="nav-link" href="logout">
-                    <i class="fas fa-sign-out-alt"></i> Logout
-                </a>
-            </div>
-        </div>
+        <a class="nav-link" href="dashboard">
+            <i class="fas fa-home"></i> Dashboard
+        </a>
+        <a class="nav-link active" href="resources">
+            <i class="fas fa-book"></i> Resources
+        </a>
+        <a class="nav-link" href="users">
+            <i class="fas fa-users"></i> Users
+        </a>
+        <a class="nav-link" href="schools">
+            <i class="fas fa-school"></i> Schools
+        </a>
+        <a class="nav-link" href="reports">
+            <i class="fas fa-chart-bar"></i> Reports
+        </a>
+        <a class="nav-link" href="logs">
+            <i class="fas fa-history"></i> Activity Logs
+        </a>
+        <a class="nav-link" href="settings">
+            <i class="fas fa-cog"></i> Settings
+        </a>
+        <a class="nav-link" href="../../dashboard">
+            <i class="fas fa-arrow-left"></i> Back to Dashboard
+        </a>
+        <a class="nav-link" href="logout">
+            <i class="fas fa-sign-out-alt"></i> Logout
+        </a>
     </div>
 
     <!-- Main Content -->

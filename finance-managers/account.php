@@ -112,6 +112,7 @@ try {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#FF6B35">
     <title>Account Balance - <?php echo htmlspecialchars($finance_manager_name); ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -215,7 +216,7 @@ try {
             height: calc(100vh - var(--header-height));
             background: var(--bg-color);
             overflow-y: auto;
-            transition: transform 0.3s ease;
+            transition: transform 0.3s ease, margin-left 0.3s ease;
             z-index: 999;
         }
         
@@ -453,6 +454,7 @@ try {
         @media (max-width: 768px) {
             .sidebar {
                 transform: translateX(-256px);
+                z-index: 9999;
             }
             
             .sidebar.show {
@@ -750,8 +752,16 @@ try {
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
             const mainContent = document.getElementById('mainContent');
-            sidebar.classList.toggle('collapsed');
-            mainContent.classList.toggle('expanded');
+            
+            // Check if we're on mobile
+            if (window.innerWidth <= 768) {
+                // Mobile: toggle the 'show' class
+                sidebar.classList.toggle('show');
+            } else {
+                // Desktop: toggle the 'collapsed' and 'expanded' classes
+                sidebar.classList.toggle('collapsed');
+                mainContent.classList.toggle('expanded');
+            }
         }
 
         // PIN Verification Functions

@@ -24,6 +24,7 @@ $school_name = $_SESSION['school_name'] ?? 'School';
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#FF6B35">
     <title>Teachers - <?php echo htmlspecialchars($school_name); ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -606,14 +607,8 @@ $school_name = $_SESSION['school_name'] ?? 'School';
             <a class="nav-link" href="timetable">
                 <i class="fas fa-calendar-alt"></i> Timetable
             </a>
-            <a class="nav-link" href="parents">
-                <i class="fas fa-users"></i> Parents
-            </a>
-            <a class="nav-link" href="disciplinary">
-                <i class="fas fa-shield-alt"></i> Disciplinary
-            </a>
-            <a class="nav-link" href="disciplinary-action-types">
-                <i class="fas fa-list-alt"></i> Disciplinary Types
+            <a class="nav-link" href="grading">
+                <i class="fas fa-chart-bar"></i> Grading
             </a>
             <a class="nav-link" href="performance">
                 <i class="fas fa-chart-line"></i> Performance
@@ -632,6 +627,30 @@ $school_name = $_SESSION['school_name'] ?? 'School';
             </a>
             <a class="nav-link" href="invoices">
                 <i class="fas fa-file-invoice-dollar"></i> Invoices
+            </a>
+            <a class="nav-link" href="finance-managers">
+                <i class="fas fa-user-tie"></i> Finance Managers
+            </a>
+            <a class="nav-link" href="account">
+                <i class="fas fa-wallet"></i> Account Balance
+            </a>
+            <a class="nav-link" href="parents">
+                <i class="fas fa-users"></i> Parents
+            </a>
+            <a class="nav-link" href="disciplinary">
+                <i class="fas fa-shield-alt"></i> Disciplinary
+            </a>
+            <a class="nav-link" href="disciplinary-action-types">
+                <i class="fas fa-list-alt"></i> Disciplinary Types
+            </a>
+            <a class="nav-link" href="librarians">
+                <i class="fas fa-book-reader"></i> Librarians
+            </a>
+            <a class="nav-link" href="duty-assignments">
+                <i class="fas fa-clipboard-list"></i> Duty Assignments
+            </a>
+            <a class="nav-link" href="examination-heads">
+                <i class="fas fa-user-tie"></i> Examination Heads
             </a>
         </div>
         <div class="sidebar-section">

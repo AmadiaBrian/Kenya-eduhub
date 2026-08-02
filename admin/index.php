@@ -24,7 +24,8 @@ $allowed_routes = [
     'schools-add',
     'schools-view',
     'schools-edit',
-    'school-accounts'
+    'school-accounts',
+    'transaction-rates'
 ];
 
 // Validate route
@@ -129,6 +130,9 @@ if ($route === 'dashboard') {
     } elseif ($route === 'schools-edit') {
         require __DIR__ . '/schools/edit.php';
     }
+} elseif ($route === 'transaction-rates') {
+    // Handle transaction rates route
+    require __DIR__ . '/schools/transaction_rates.php';
 } elseif ($route === 'edit-resource') {
     // Handle edit resource route
     require __DIR__ . '/edit-resource.php';

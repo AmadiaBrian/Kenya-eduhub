@@ -15,13 +15,13 @@ if (!isset($_SESSION['user_id']) && isset($_GET['logout']) && $_GET['logout'] ==
     $_SESSION = array();
     
     // Redirect to homepage
-    header("Location: ../");
+    header("Location: ../index.php");
     exit();
 }
 
 // If user is already logged in, redirect to dashboard
 if (isset($_SESSION['user_id'])) {
-    header("Location: ../dashboard/");
+    header("Location: ../dashboard/dashboard");
     exit();
 }
 
@@ -31,7 +31,7 @@ require_once '../includes/helpers.php';
 
 // Check for remember me cookie first
 if (!isset($_SESSION['user_id']) && validateRememberCookie($conn)) {
-    header("Location: ../dashboard/");
+    header("Location: ../dashboard/dashboard");
     exit();
 }
 
@@ -96,7 +96,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     deleteRememberCookie($user['id'], $conn);
                 }
                 
-                header("Location: ../dashboard/");
+                header("Location: ../dashboard/dashboard");
                 exit();
             } else {
                 error_log("Auth Login - Invalid password");

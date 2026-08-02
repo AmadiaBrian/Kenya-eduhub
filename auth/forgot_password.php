@@ -1,6 +1,7 @@
 <?php
-session_start();
+// Session is already started by the router (auth/index.php)
 require_once '../config.php';
+require_once '../includes/helpers.php';
 require '../PHPMailer/src/Exception.php';
 require '../PHPMailer/src/PHPMailer.php';
 require '../PHPMailer/src/SMTP.php';
@@ -14,17 +15,32 @@ $email = $_SESSION['reset_email'] ?? null;
 
 // Function to send email
 function sendResetCode($email, $code) {
+    // Get SMTP settings from database
+    $smtp_settings = getSMTPSettings();
+    
+    if (!$smtp_settings) {
+        error_log("SMTP settings not configured in database");
+        return false;
+    }
+    
+    $smtp_host = $smtp_settings['smtp_host'];
+    $smtp_port = $smtp_settings['smtp_port'];
+    $smtp_username = $smtp_settings['smtp_username'];
+    $smtp_password = $smtp_settings['smtp_password'];
+    $email_from = $smtp_settings['email_from'];
+    $encryption = $smtp_settings['encryption'];
+    
     $mail = new PHPMailer(true);
     try {
         $mail->isSMTP();
-        $mail->Host       = 'smtp.gmail.com';
-        $mail->SMTPAuth   = true;
-        $mail->Username   = 'otienobrian029@gmail.com'; // Your Gmail
-        $mail->Password   = 'dwuunoftzkodeome';         // App Password
-        $mail->SMTPSecure = 'tls';
-        $mail->Port       = 587;
+        $mail->Host = $smtp_host;
+        $mail->SMTPAuth = true;
+        $mail->Username = $smtp_username;
+        $mail->Password = $smtp_password;
+        $mail->SMTPSecure = $encryption;
+        $mail->Port = $smtp_port;
 
-        $mail->setFrom('otienobrian029@gmail.com', 'Kenya EduHub');
+        $mail->setFrom($email_from, 'Kenya EduHub');
         $mail->addAddress($email);
         $mail->isHTML(true);
         $mail->Subject = 'Password Reset Code - Kenya EduHub';
@@ -36,6 +52,7 @@ function sendResetCode($email, $code) {
         $mail->send();
         return true;
     } catch (Exception $e) {
+        error_log("Email sending failed: " . $e->getMessage());
         return false;
     }
 }
@@ -108,7 +125,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['new_password']) && $s
         $stmt = $conn->prepare("UPDATE users SET password = ?, reset_code = NULL, reset_expires_at = NULL WHERE email = ?");
         $stmt->bind_param("ss", $hashed, $email);
         if ($stmt->execute()) {
-            $message = "Password reset successfully. <a href='index.php'>Login</a>";
+            $message = "Password reset successfully. <a href='login'>Login</a>";
             session_unset();
             session_destroy();
         } else {
@@ -124,261 +141,196 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['new_password']) && $s
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#FF6B35">
     <title>Forgot Password - Kenya EduHub</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <link rel="stylesheet" href="../assets/css/auth-animations.css">
     <style>
-        /* Base */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            background: #000000 !important;
-            background-image: none !important;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #ffffff;
             min-height: 100vh;
             display: flex;
-            justify-content: center;
             align-items: center;
-            padding: 1rem;
-            color: #fff;
-            position: relative;
-            overflow: hidden;
+            justify-content: center;
+            font-family: 'Google Sans', 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #202124;
         }
 
-        body::before,
-        body::after {
-            display: none !important;
-        }
-
-        html {
-            background: #000000 !important;
-            background-image: none !important;
-        }
-
-
-        /* Card */
         .login-card {
-            background: #000000;
-            max-width: 420px;
             width: 100%;
-            padding: 3rem 2.5rem 2.5rem;
-            border-radius: 0;
-            box-shadow: none;
-            border: none;
-            animation: none;
-            user-select: none;
-            will-change: auto;
-            transform: none;
-            contain: layout style paint;
-            position: relative;
-            overflow: hidden;
-            transition: none;
-        }
-
-        .login-card::before {
-            display: none;
-        }
-
-        .login-card:hover {
-            transform: none;
-            box-shadow: none;
-            background: #000000;
-            border: none;
-        }
-
-        .login-card h3 {
-            font-weight: 700;
-            color: #666;
-            margin-bottom: 1.75rem;
-            text-align: center;
-            text-shadow: none;
-        }
-
-        /* Form inputs */
-        input.form-control {
-            height: 48px;
-            font-size: 1rem;
-            border-radius: 0;
-            border: 2px solid #fff;
-            background: #000;
-            color: #fff !important;
-            transition: none;
-            will-change: auto;
-        }
-
-        input.form-control::placeholder {
-            color: #888 !important;
-            opacity: 1;
-        }
-
-        input.form-control:-webkit-autofill,
-        input.form-control:-webkit-autofill:hover,
-        input.form-control:-webkit-autofill:focus {
-            -webkit-text-fill-color: #fff !important;
-            -webkit-box-shadow: 0 0 0 1000px #000 inset;
-            transition: background-color 5000s ease-in-out 0s;
-        }
-
-        input.form-control:focus {
-            border: 2px solid #333;
-            box-shadow: none;
-            outline: none;
-            transform: none;
-            background: #000;
-        }
-
-        /* Button */
-        button.btn-primary {
-            width: 100%;
-            height: 48px;
-            font-weight: 700;
-            font-size: 1.125rem;
-            border-radius: 0;
-            background: #000;
-            border: 1px solid #333;
-            color: #fff;
-            transition: none;
-            box-shadow: none;
-            user-select: none;
-            will-change: auto;
-            position: relative;
-            overflow: hidden;
-        }
-
-        button.btn-primary:hover,
-        button.btn-primary:focus-visible {
-            background: #111;
-            transform: none;
-            box-shadow: none;
-            outline: none;
-            border: 1px solid #444;
-        }
-
-        /* Alert styling */
-        .alert {
-            background-color: #000;
-            border-radius: 0;
-            padding: 0.9rem 1rem;
-            margin-bottom: 1.5rem;
-            text-align: center;
-            font-weight: 600;
-            box-shadow: none;
-            user-select: none;
-            animation: none;
-        }
-
-        .alert-success {
-            background-color: #000;
-            color: #0f5132;
-            border: 1px solid #0f5132;
-        }
-
-        .alert-warning {
-            background-color: #000;
-            color: #856404;
-            border: 1px solid #856404;
-        }
-
-        .alert-info {
-            background-color: #000;
-            color: #0dcaf0;
-            border: 1px solid #0dcaf0;
-        }
-
-        .alert-error {
-            background-color: #000;
-            color: #ff0000;
-            border: 1px solid #ff0000;
-        }
-
-        /* Animations */
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(40px) translateZ(0);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0) translateZ(0);
-            }
-        }
-
-        /* Responsive */
-        @media (max-width: 480px) {
-            .login-card {
-                padding: 2rem 1.5rem 2rem;
-            }
-            button.btn-primary {
-                font-size: 1rem;
-                height: 44px;
-            }
-        }
-
-        /* Reduced motion support */
-        @media (prefers-reduced-motion: reduce) {
-            .login-card {
-                animation: none;
-            }
-            
-            button.btn-primary:hover,
-            button.btn-primary:focus-visible {
-                transform: none;
-            }
-        }
-        :root {
-            --primary-orange: #FF6B35;
-            --primary-gold: #FFD700;
+            max-width: 450px;
+            padding: 48px 40px 36px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
         .auth-brand-logo {
-            display: inline-flex;
+            display: flex;
             align-items: center;
-            justify-content: center;
             gap: 0.75rem;
-            color: white;
-            text-decoration: none;
             font-size: 1.5rem;
             font-weight: bold;
-            margin-bottom: 1.5rem;
+            color: #202124;
+            margin-bottom: 8px;
         }
 
-        .auth-brand-logo .brand-text {
-            line-height: 1;
+        .auth-brand-logo .logo-circle {
+            width: 50px;
+            height: 50px;
+            background: #FFD700;
+            border: 3px solid #FF6B35;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 2px;
+            flex-shrink: 0;
+        }
+
+        .auth-brand-logo .logo-circle span {
+            font-weight: bold;
+            font-size: 24px;
         }
 
         .login-card h3 {
-            color: #ffffff;
+            font-size: 24px;
+            font-weight: 400;
+            color: #202124;
+            margin-bottom: 8px;
+            text-align: center;
         }
 
-        .login-card h3::first-letter {
-            color: var(--primary-orange);
+        .login-form {
+            width: 100%;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 12px;
+            font-weight: 500;
+            color: #5f6368;
+            margin-bottom: 8px;
+            letter-spacing: 0.3px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 13px 15px;
+            font-size: 16px;
+            border: 1px solid #dadce0;
+            border-radius: 25px;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            font-family: inherit;
+        }
+
+        .form-control:focus {
+            border-color: #FF6B35;
+            box-shadow: 0 0 0 2px rgba(255, 107, 53, 0.2);
+        }
+
+        .form-control::placeholder {
+            color: #9aa0a6;
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 12px 24px;
+            background: #FF6B35;
+            color: white;
+            border: 2px solid #FF6B35;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: inherit;
+            margin-top: 8px;
+        }
+
+        .btn-primary:hover {
+            background: #e55a2b;
+            border-color: #e55a2b;
+            color: white;
+        }
+
+        .alert-error {
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+            font-size: 14px;
+            font-weight: 500;
+            background: #fce8e6;
+            color: #c5221f;
+            border: 1px solid #fce8e6;
+        }
+
+        .alert-success {
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+            font-size: 14px;
+            font-weight: 500;
+            background: #e6f4ea;
+            color: #137333;
+            border: 1px solid #e6f4ea;
+        }
+
+        .login-links {
+            text-align: center;
+            margin-top: 24px;
+        }
+
+        .login-links a {
+            color: #FF6B35;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .login-links a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 480px) {
+            .login-card {
+                padding: 32px 24px 24px;
+            }
         }
     </style>
 </head>
 <body>
     <main class="login-card" role="main" aria-label="Password Reset Form">
-        <div class="text-center mb-4">
-            <div class="auth-brand-logo" aria-label="Kenya EduHub Logo">
-                <div style="width: 50px; height: 50px; background: var(--primary-gold); border: 3px solid var(--primary-orange); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 2px;">
-                    <span style="font-weight: bold; font-size: 24px;">
-                        <span style="color: var(--primary-orange); font-size: 28px;">K</span><span style="color: #008000; font-size: 24px;">E</span>
-                    </span>
-                </div>
-                <span class="brand-text"><span style="color: var(--primary-orange);">Kenya</span> <span style="color: #008000;">EduHub</span></span>
+        <div class="auth-brand-logo" aria-label="Kenya EduHub Logo">
+            <div class="logo-circle">
+                <span style="color: #FF6B35; font-size: 28px;">K</span><span style="color: #008000; font-size: 24px;">E</span>
             </div>
-            <h3>Forgot Password?</h3>
-            <p style="color: #6c757d; margin-bottom: 1.5rem;">Enter your email address and we'll send you a link to reset your password.</p>
+            <span class="brand-text"><span style="color: #FF6B35;">Kenya</span> <span style="color: #008000;">EduHub</span></span>
         </div>
 
+        <h3>Forgot Password?</h3>
+
         <?php if ($message): ?>
-            <div class="alert alert-info" role="alert" aria-live="assertive">
+            <div class="alert-success" role="alert" aria-live="assertive">
                 <p><?= $message ?></p>
             </div>
         <?php endif; ?>
 
         <?php if ($step === 1): ?>
-            <form method="post">
-                <div class="mb-4">
-                    <label for="email" class="visually-hidden">Email address</label>
+            <form method="post" class="login-form">
+                <div class="form-group">
+                    <label for="email">Email address</label>
                     <input
                         type="email"
                         id="email"
@@ -390,16 +342,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['new_password']) && $s
                         autocomplete="email"
                     />
                 </div>
-                <button type="submit" class="btn btn-primary" aria-label="Resend verification code">
-                    <i class="fas fa-paper-plane me-2"></i>
-                    Resend Code
+                <button type="submit" class="btn btn-primary" aria-label="Send verification code">
+                    Send Code
                 </button>
             </form>
 
         <?php elseif ($step === 2): ?>
-            <form method="post">
-                <div class="mb-4">
-                    <label for="code" class="visually-hidden">Verification Code</label>
+            <form method="post" class="login-form">
+                <div class="form-group">
+                    <label for="code">Verification Code</label>
                     <input
                         type="text"
                         id="code"
@@ -410,15 +361,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['new_password']) && $s
                     />
                 </div>
                 <button type="submit" class="btn btn-primary" aria-label="Verify Code">
-                    <i class="fas fa-check me-2"></i>
                     Verify Code
                 </button>
             </form>
 
         <?php elseif ($step === 3): ?>
-            <form method="post">
-                <div class="mb-4">
-                    <label for="new_password" class="visually-hidden">New Password</label>
+            <form method="post" class="login-form">
+                <div class="form-group">
+                    <label for="new_password">New Password</label>
                     <input
                         type="password"
                         id="new_password"
@@ -428,8 +378,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['new_password']) && $s
                         required
                     />
                 </div>
-                <div class="mb-4">
-                    <label for="confirm_password" class="visually-hidden">Confirm Password</label>
+                <div class="form-group">
+                    <label for="confirm_password">Confirm Password</label>
                     <input
                         type="password"
                         id="confirm_password"
@@ -440,14 +390,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['new_password']) && $s
                     />
                 </div>
                 <button type="submit" class="btn btn-primary" aria-label="Reset Password">
-                    <i class="fas fa-lock me-2"></i>
                     Reset Password
                 </button>
             </form>
         <?php endif; ?>
 
-        <div class="text-center mt-4">
-            <p class="small"><a href="login.php">Back to Login</a></p>
+        <div class="login-links">
+            <a href="login">Back to Login</a>
         </div>
     </main>
 </body>

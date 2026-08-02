@@ -16,7 +16,7 @@ $timetable_assignments = [];
 try {
     $stmt = $pdo->prepare("
         SELECT ta.*, ts.day_of_week, ts.start_time, ts.end_time, ts.break_type,
-               s.subject_name, t.name as timetable_name, t.academic_year, t.term, t.status,
+               s.subject_name, t.name as timetable_name, t.year, t.term, t.status,
                c.class_name, st.stream_name
         FROM timetable_assignments ta
         JOIN timetable_slots ts ON ta.slot_id = ts.id
@@ -69,6 +69,7 @@ foreach ($days_order as $day) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#FF6B35">
     <title>My Timetable - <?php echo htmlspecialchars($teacher_name); ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -375,42 +376,54 @@ foreach ($days_order as $day) {
     
     <!-- Sidebar -->
     <aside class="sidebar" id="sidebar">
-        <a href="dashboard" class="nav-link">
-            <i class="fas fa-home"></i> Dashboard
-        </a>
-        <a href="profile" class="nav-link">
-            <i class="fas fa-user"></i> Profile
-        </a>
-        <a href="timetable" class="nav-link active">
-            <i class="fas fa-calendar-alt"></i> Timetable
-        </a>
-        <a href="attendance" class="nav-link">
-            <i class="fas fa-calendar-check"></i> Attendance
-        </a>
-        <a href="calendar" class="nav-link">
-            <i class="fas fa-calendar"></i> Calendar
-        </a>
-        <a href="assignments" class="nav-link">
-            <i class="fas fa-tasks"></i> Assignments
-        </a>
-        <a href="students" class="nav-link">
-            <i class="fas fa-user-graduate"></i> Students
-        </a>
-        <a href="performance" class="nav-link">
-            <i class="fas fa-chart-line"></i> Performance
-        </a>
-        <a href="duty" class="nav-link">
-            <i class="fas fa-clipboard-list"></i> Duty
-        </a>
-        <a href="fees" class="nav-link">
-            <i class="fas fa-money-bill-wave"></i> Fees
-        </a>
-        <a href="parents" class="nav-link">
-            <i class="fas fa-users"></i> Parents
-        </a>
-        <button class="nav-link" onclick="logout()">
-            <i class="fas fa-sign-out-alt"></i> Logout
-        </button>
+        <div class="sidebar-section">
+            <div class="sidebar-title">Main</div>
+            <a class="nav-link" href="dashboard">
+                <i class="fas fa-home"></i> Dashboard
+            </a>
+            <a class="nav-link active" href="timetable">
+                <i class="fas fa-calendar-alt"></i> Timetable
+            </a>
+            <a class="nav-link" href="attendance">
+                <i class="fas fa-calendar-check"></i> Attendance
+            </a>
+            <a class="nav-link" href="calendar">
+                <i class="fas fa-calendar"></i> Calendar
+            </a>
+            <a class="nav-link" href="performance">
+                <i class="fas fa-chart-line"></i> Performance
+            </a>
+            <a class="nav-link" href="results">
+                <i class="fas fa-award"></i> Results
+            </a>
+            <a class="nav-link" href="students">
+                <i class="fas fa-user-graduate"></i> Students
+            </a>
+            <a class="nav-link" href="student-subjects">
+                <i class="fas fa-book"></i> Student Subjects
+            </a>
+            <a class="nav-link" href="assignments">
+                <i class="fas fa-tasks"></i> Assignments
+            </a>
+            <a class="nav-link" href="parents">
+                <i class="fas fa-users"></i> Parents
+            </a>
+            <a class="nav-link" href="duty">
+                <i class="fas fa-clipboard-list"></i> Duty
+            </a>
+            <a class="nav-link" href="fees">
+                <i class="fas fa-money-bill-wave"></i> Fees
+            </a>
+        </div>
+        <div class="sidebar-section">
+            <div class="sidebar-title">Account</div>
+            <a class="nav-link" href="profile">
+                <i class="fas fa-user"></i> Profile
+            </a>
+            <a class="nav-link" href="logout">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+        </div>
     </aside>
     
     <!-- Main Content -->
@@ -469,7 +482,7 @@ foreach ($days_order as $day) {
                 <i class="fas fa-info-circle me-2"></i>
                 No timetable assignments found. Contact your school administrator to get assigned to a timetable.
             </div>
-        <?php else: ?>
+        <?php endif; ?>
             <?php if (!empty($school_breaks)): ?>
                 <div class="card mb-4" style="background: #fff3cd; border: 1px solid #ffc107;">
                     <div class="card-body">
@@ -488,48 +501,54 @@ foreach ($days_order as $day) {
                 </div>
             <?php endif; ?>
             
-            <?php foreach ($days_order as $day): ?>
-                <?php if (!empty($assignments_by_day[$day])): ?>
-                    <div class="day-section">
-                        <h3 class="day-title"><?php echo $day; ?></h3>
-                        <div class="table-responsive">
-                            <table class="table">
-                                <thead>
+            <div class="day-section">
+                <h3 class="day-title">Weekly Timetable</h3>
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Day</th>
+                                <th>Time</th>
+                                <th>Class</th>
+                                <th>Stream</th>
+                                <th>Subject</th>
+                                <th>Timetable</th>
+                                <th>Notes</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php if (!empty($timetable_assignments)): ?>
+                                <?php foreach ($timetable_assignments as $assignment): ?>
                                     <tr>
-                                        <th>Time</th>
-                                        <th>Class</th>
-                                        <th>Stream</th>
-                                        <th>Subject</th>
-                                        <th>Timetable</th>
-                                        <th>Notes</th>
+                                        <td><?php echo htmlspecialchars($assignment['day_of_week']); ?></td>
+                                        <td>
+                                            <strong><?php echo htmlspecialchars($assignment['start_time']); ?></strong> - 
+                                            <?php echo htmlspecialchars($assignment['end_time']); ?>
+                                        </td>
+                                        <td><?php echo htmlspecialchars($assignment['class_name']); ?></td>
+                                        <td><?php echo htmlspecialchars($assignment['stream_name']); ?></td>
+                                        <td><?php echo htmlspecialchars($assignment['subject_name']); ?></td>
+                                        <td>
+                                            <?php echo htmlspecialchars($assignment['timetable_name']); ?><br>
+                                            <small style="color: #5f6368;">
+                                                <?php echo $assignment['year']; ?> - <?php echo htmlspecialchars($assignment['term']); ?>
+                                            </small>
+                                        </td>
+                                        <td><?php echo htmlspecialchars($assignment['notes'] ?? '-'); ?></td>
                                     </tr>
-                                </thead>
-                                <tbody>
-                                    <?php foreach ($assignments_by_day[$day] as $assignment): ?>
-                                        <tr>
-                                            <td>
-                                                <strong><?php echo htmlspecialchars($assignment['start_time']); ?></strong> - 
-                                                <?php echo htmlspecialchars($assignment['end_time']); ?>
-                                            </td>
-                                            <td><?php echo htmlspecialchars($assignment['class_name']); ?></td>
-                                            <td><?php echo htmlspecialchars($assignment['stream_name']); ?></td>
-                                            <td><?php echo htmlspecialchars($assignment['subject_name']); ?></td>
-                                            <td>
-                                                <?php echo htmlspecialchars($assignment['timetable_name']); ?><br>
-                                                <small style="color: #5f6368;">
-                                                    <?php echo $assignment['academic_year']; ?> - <?php echo htmlspecialchars($assignment['term']); ?>
-                                                </small>
-                                            </td>
-                                            <td><?php echo htmlspecialchars($assignment['notes'] ?? '-'); ?></td>
-                                        </tr>
-                                    <?php endforeach; ?>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                <?php endif; ?>
-            <?php endforeach; ?>
-        <?php endif; ?>
+                                <?php endforeach; ?>
+                            <?php else: ?>
+                                <tr>
+                                    <td colspan="7" style="text-align: center; padding: 20px; color: #5f6368;">
+                                        <i class="fas fa-calendar-times me-2"></i>
+                                        No lessons scheduled for the week.
+                                    </td>
+                                </tr>
+                            <?php endif; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
     </div>
     
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -548,5 +567,15 @@ foreach ($days_order as $day) {
             }
         }
     </script>
+    
+    <!-- Footer -->
+    <footer style="position: fixed; bottom: 0; left: 0; right: 0; background: var(--bg-color); color: #5f6368; padding: 1rem; text-align: center; border-top: 1px solid #e8eaed; z-index: 1000;">
+        <p style="margin: 0;">
+            <span style="color: #FF6B35;">&copy; 2026</span> 
+            <span style="color: #FF6B35;">Kenya</span> 
+            <span style="color: #008000;">EduHub</span>
+            <span style="color: #008000;">. All rights reserved.</span>
+        </p>
+    </footer>
 </body>
 </html>

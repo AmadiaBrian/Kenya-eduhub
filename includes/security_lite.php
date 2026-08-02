@@ -214,11 +214,9 @@ function checkRateLimit($identifier, $max = 10, $window = 300) {
 function validatePasswordStrength($password) {
     $errors = [];
     
-    if (strlen($password) < 8) $errors[] = "Be at least 8 characters long";
-    if (!preg_match('/[A-Z]/', $password)) $errors[] = "Contain at least one uppercase letter";
-    if (!preg_match('/[a-z]/', $password)) $errors[] = "Contain at least one lowercase letter";
-    if (!preg_match('/[0-9]/', $password)) $errors[] = "Contain at least one number";
-    if (!preg_match('/[\W]/', $password)) $errors[] = "Contain at least one special character (!@#$%^&*)";
+    if (strlen($password) < 8) {
+        $errors[] = "Use a strong password (at least 8 characters)";
+    }
     
     return $errors;
 }

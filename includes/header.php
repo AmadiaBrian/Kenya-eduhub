@@ -19,6 +19,7 @@ if ($is_logged_in) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#FF6B35">
     <title>Kenya EduHub - Educational Resource Platform</title>
     <meta name="description" content="Kenya's leading educational platform for sharing and accessing quality learning resources">
     <meta name="keywords" content="Kenya education platform, learning resources, educational materials, students, teachers">
@@ -368,8 +369,8 @@ if ($is_logged_in) {
                     <a href="#" class="header-link">Community</a>
                 <?php else: ?>
                     <a href="../index.php" class="header-link">Home</a>
-                    <a href="../auth/login.php" class="header-link">Login</a>
-                    <a href="../auth/register.php" class="header-link">Register</a>
+                    <a href="../auth/login" class="header-link">Login</a>
+                    <a href="../auth/register" class="header-link">Register</a>
                 <?php endif; ?>
             </nav>
 
@@ -383,12 +384,12 @@ if ($is_logged_in) {
                 </div>
 
                 <div class="header-actions">
-                    <a href="../dashboard/index.php" class="header-btn">Dashboard</a>
-                    <a href="../auth/logout.php" class="header-btn">Logout</a>
+                    <a href="../dashboard" class="header-btn">Dashboard</a>
+                    <a href="../auth/logout" class="header-btn">Logout</a>
                 </div>
             <?php else: ?>
                 <div class="header-actions">
-                    <a href="../auth/login.php" class="header-btn header-btn-primary">Get Started</a>
+                    <a href="../auth/login" class="header-btn header-btn-primary">Get Started</a>
                 </div>
             <?php endif; ?>
         </div>
@@ -403,15 +404,15 @@ if ($is_logged_in) {
         <!-- Mobile Navigation Menu -->
         <div class="mobile-menu" id="mobileMenu">
             <?php if ($is_logged_in): ?>
-                <a href="../dashboard/index.php" class="mobile-menu-link">Dashboard</a>
+                <a href="../dashboard/dashboard" class="mobile-menu-link">Dashboard</a>
                 <a href="../resources.php" class="mobile-menu-link">Resources</a>
                 <a href="#" class="mobile-menu-link">My Courses</a>
                 <a href="#" class="mobile-menu-link">Community</a>
-                <a href="../auth/logout.php" class="mobile-menu-link logout">Logout</a>
+                <a href="../auth/logout" class="mobile-menu-link logout">Logout</a>
             <?php else: ?>
                 <a href="../index.php" class="mobile-menu-link">Home</a>
-                <a href="../auth/login.php" class="mobile-menu-link">Login</a>
-                <a href="../auth/register.php" class="mobile-menu-link">Register</a>
+                <a href="../auth/login" class="mobile-menu-link">Login</a>
+                <a href="../auth/register" class="mobile-menu-link">Register</a>
             <?php endif; ?>
         </div>
     </header>

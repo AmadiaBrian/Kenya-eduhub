@@ -120,9 +120,9 @@ try {
         
         // Send SMS notification to school phone
         try {
-            require_once __DIR__ . '/../../../sms/sms_config.php';
-            require_once __DIR__ . '/../../../sms/MobitechSMS.php';
-            require_once __DIR__ . '/../../../sms/TextSMS.php';
+            require_once __DIR__ . '/../../sms/sms_config.php';
+            require_once __DIR__ . '/../../sms/MobitechSMS.php';
+            require_once __DIR__ . '/../../sms/TextSMS.php';
             
             // Get school phone number
             $stmt = $pdo->prepare("SELECT phone, school_name FROM schools WHERE id = ?");

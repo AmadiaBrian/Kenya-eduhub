@@ -1,13 +1,9 @@
 <?php
-session_start();
+// Session and security are handled by index.php router
+// No need to repeat session_start() and security checks here
+
 require_once '../config.php';
 require_once '../includes/helpers.php';
-
-// Check if user is logged in
-if (!isset($_SESSION['user_id'])) {
-    header("Location: ../auth/login.php");
-    exit();
-}
 
 $user_id = $_SESSION['user_id'];
 
@@ -18,1621 +14,1465 @@ $stmt->execute();
 $result = $stmt->get_result();
 $user = $result->fetch_assoc();
 
+// Get user settings
+$user_settings = getUserSettings($conn, $user_id);
+$dark_mode_class = applyUserTheme($user_settings['theme'] ?? 'light');
+
+// Create deleted_accounts table for soft delete functionality
+try {
+    $create_deleted_accounts_sql = "CREATE TABLE IF NOT EXISTS deleted_accounts (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        original_user_id INT NOT NULL,
+        name VARCHAR(255),
+        email VARCHAR(255) UNIQUE,
+        password VARCHAR(255),
+        role VARCHAR(50),
+        is_verified TINYINT(1) DEFAULT 0,
+        verification_code VARCHAR(10),
+        code_expires_at DATETIME,
+        last_login DATETIME,
+        created_at DATETIME,
+        deleted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        deletion_reason TEXT,
+        user_data JSON,
+        resources_data JSON,
+        activity_log JSON
+    )";
+    $conn->query($create_deleted_accounts_sql);
+} catch (Exception $e) {
+    error_log("Failed to create deleted_accounts table: " . $e->getMessage());
+}
+
+// Add created_at and last_login columns to users table if they don't exist
+try {
+    $conn->query("ALTER TABLE users ADD COLUMN IF NOT EXISTS created_at DATETIME DEFAULT CURRENT_TIMESTAMP");
+    $conn->query("ALTER TABLE users ADD COLUMN IF NOT EXISTS last_login DATETIME");
+} catch (Exception $e) {
+    error_log("Failed to add created_at/last_login columns: " . $e->getMessage());
+}
+
+// Create settings table if it doesn't exist (for new installations)
+try {
+    // First try with foreign key constraint
+    $create_table_sql = "CREATE TABLE IF NOT EXISTS user_settings (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        user_id INT NOT NULL,
+        email_uploads TINYINT(1) DEFAULT 1,
+        email_comments TINYINT(1) DEFAULT 1,
+        email_updates TINYINT(1) DEFAULT 0,
+        show_profile TINYINT(1) DEFAULT 1,
+        show_email TINYINT(1) DEFAULT 0,
+        theme VARCHAR(20) DEFAULT 'light',
+        language VARCHAR(10) DEFAULT 'en',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+        UNIQUE KEY unique_user (user_id)
+    )";
+    $conn->query($create_table_sql);
+} catch (Exception $e) {
+    // If foreign key constraint fails, try without it
+    try {
+        $create_table_sql_no_fk = "CREATE TABLE IF NOT EXISTS user_settings (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            user_id INT NOT NULL,
+            email_uploads TINYINT(1) DEFAULT 1,
+            email_comments TINYINT(1) DEFAULT 1,
+            email_updates TINYINT(1) DEFAULT 0,
+            show_profile TINYINT(1) DEFAULT 1,
+            show_email TINYINT(1) DEFAULT 0,
+            theme VARCHAR(20) DEFAULT 'light',
+            language VARCHAR(10) DEFAULT 'en',
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            UNIQUE KEY unique_user (user_id)
+        )";
+        $conn->query($create_table_sql_no_fk);
+    } catch (Exception $e2) {
+        // If that also fails, try without unique constraint
+        try {
+            $create_table_sql_simple = "CREATE TABLE IF NOT EXISTS user_settings (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                user_id INT NOT NULL,
+                email_uploads TINYINT(1) DEFAULT 1,
+                email_comments TINYINT(1) DEFAULT 1,
+                email_updates TINYINT(1) DEFAULT 0,
+                show_profile TINYINT(1) DEFAULT 1,
+                show_email TINYINT(1) DEFAULT 0,
+                theme VARCHAR(20) DEFAULT 'light',
+                language VARCHAR(10) DEFAULT 'en',
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+            )";
+            $conn->query($create_table_sql_simple);
+        } catch (Exception $e3) {
+            // Last resort - check if table exists and handle gracefully
+            $check_table = $conn->query("SHOW TABLES LIKE 'user_settings'");
+            if ($check_table->num_rows == 0) {
+                // Table doesn't exist and we couldn't create it
+                error_log("Failed to create user_settings table: " . $e3->getMessage());
+            }
+        }
+    }
+}
+
 // Handle settings update
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    // For now, we'll just show a success message
-    // In a real implementation, you would store settings in a separate settings table
-    // or add the necessary columns to the users table
-    $success = "Settings saved successfully! (Note: Database columns need to be added for persistent storage)";
+    // Handle account deletion
+    if (isset($_POST['action']) && $_POST['action'] === 'delete_account') {
+        $deletion_reason = $_POST['deletion_reason'] ?? 'User requested deletion';
+        $confirm_email = $_POST['confirm_email'] ?? '';
+        
+        // Verify email matches
+        if (strtolower($confirm_email) !== strtolower($user['email'])) {
+            $error = "Email confirmation does not match. Please enter your correct email address.";
+        } else {
+            // Start transaction for safe deletion
+            $conn->begin_transaction();
+            
+            try {
+                // Collect user data for backup
+                $user_data = [
+                    'id' => $user['id'],
+                    'name' => $user['name'],
+                    'email' => $user['email'],
+                    'role' => $user['role'],
+                    'is_verified' => $user['is_verified'],
+                    'created_at' => $user['created_at'] ?? null,
+                    'last_login' => $user['last_login'] ?? null
+                ];
+                
+                // Collect user's resources
+                $resources_stmt = $conn->prepare("SELECT * FROM resources WHERE user_id = ?");
+                $resources_stmt->bind_param("i", $user_id);
+                $resources_stmt->execute();
+                $resources_result = $resources_stmt->get_result();
+                $resources_data = [];
+                while ($row = $resources_result->fetch_assoc()) {
+                    $resources_data[] = $row;
+                }
+                
+                // Collect user's activity log (if exists)
+                $activity_data = [];
+                try {
+                    $activity_stmt = $conn->prepare("SELECT * FROM activity_log WHERE user_id = ? ORDER BY created_at DESC LIMIT 100");
+                    $activity_stmt->bind_param("i", $user_id);
+                    $activity_stmt->execute();
+                    $activity_result = $activity_stmt->get_result();
+                    while ($row = $activity_result->fetch_assoc()) {
+                        $activity_data[] = $row;
+                    }
+                } catch (Exception $e) {
+                    // Activity log table might not exist, skip
+                }
+                
+                // Create variables for bind_param (must be passed by reference)
+                $original_user_id = $user['id'];
+                $name = $user['name'];
+                $email = $user['email'];
+                $password = $user['password'];
+                $role = $user['role'];
+                $is_verified = $user['is_verified'];
+                $verification_code = $user['verification_code'] ?? null;
+                $code_expires_at = $user['code_expires_at'] ?? null;
+                $last_login = $user['last_login'] ?? null;
+                $created_at = $user['created_at'] ?? date('Y-m-d H:i:s');
+                $user_data_json = json_encode($user_data);
+                $resources_data_json = json_encode($resources_data);
+                $activity_data_json = json_encode($activity_data);
+                
+                // Create variables for bind_param (must be passed by reference)
+                $original_user_id = $user['id'];
+                $name = $user['name'];
+                $email = $user['email'];
+                $password = $user['password'];
+                $role = $user['role'];
+                $is_verified = $user['is_verified'];
+                $verification_code = $user['verification_code'] ?? null;
+                $code_expires_at = $user['code_expires_at'] ?? null;
+                $last_login = $user['last_login'] ?? null;
+                $created_at = $user['created_at'] ?? date('Y-m-d H:i:s');
+                $user_data_json = json_encode($user_data);
+                $resources_data_json = json_encode($resources_data);
+                $activity_data_json = json_encode($activity_data);
+                
+                // Check if email already exists in deleted_accounts and update it
+                $check_deleted_stmt = $conn->prepare("SELECT id FROM deleted_accounts WHERE email = ?");
+                $check_deleted_stmt->bind_param("s", $email);
+                $check_deleted_stmt->execute();
+                $existing_deleted = $check_deleted_stmt->get_result()->fetch_assoc();
+                
+                if ($existing_deleted) {
+                    // Update existing deleted account entry
+                    $update_deleted_stmt = $conn->prepare("UPDATE deleted_accounts SET 
+                        original_user_id = ?, name = ?, email = ?, password = ?, role = ?, is_verified = ?, 
+                        verification_code = ?, code_expires_at = ?, last_login = ?, created_at = ?, 
+                        deletion_reason = ?, user_data = ?, resources_data = ?, activity_log = ?, deleted_at = NOW()
+                        WHERE id = ?");
+                    
+                    $deleted_id = $existing_deleted['id'];
+                    
+                    // Ensure all variables are properly defined for bind_param
+                    $v1 = $original_user_id;
+                    $v2 = $name;
+                    $v3 = $email;
+                    $v4 = $password;
+                    $v5 = $role;
+                    $v6 = $is_verified;
+                    $v7 = $verification_code;
+                    $v8 = $code_expires_at;
+                    $v9 = $last_login;
+                    $v10 = $created_at;
+                    $v11 = $deletion_reason;
+                    $v12 = $user_data_json;
+                    $v13 = $resources_data_json;
+                    $v14 = $activity_data_json;
+                    $v15 = $deleted_id;
+                    
+                    $update_deleted_stmt->bind_param("issssissssssssi",
+                        $v1, $v2, $v3, $v4, $v5, $v6, $v7, $v8, $v9, $v10, $v11, $v12, $v13, $v14, $v15
+                    );
+                    $update_deleted_stmt->execute();
+                } else {
+                    // Insert new deleted account entry
+                    $insert_deleted_stmt = $conn->prepare("INSERT INTO deleted_accounts 
+                        (original_user_id, name, email, password, role, is_verified, verification_code, 
+                         code_expires_at, last_login, created_at, deletion_reason, user_data, resources_data, activity_log)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                    
+                    $insert_deleted_stmt->bind_param("isssisssssssss",
+                        $original_user_id,
+                        $name,
+                        $email,
+                        $password,
+                        $role,
+                        $is_verified,
+                        $verification_code,
+                        $code_expires_at,
+                        $last_login,
+                        $created_at,
+                        $deletion_reason,
+                        $user_data_json,
+                        $resources_data_json,
+                        $activity_data_json
+                    );
+                    
+                    $insert_deleted_stmt->execute();
+                }
+                
+                // Delete user's resources
+                $delete_resources_stmt = $conn->prepare("DELETE FROM resources WHERE user_id = ?");
+                $delete_resources_stmt->bind_param("i", $user_id);
+                $delete_resources_stmt->execute();
+                
+                // Delete user's settings
+                $delete_settings_stmt = $conn->prepare("DELETE FROM user_settings WHERE user_id = ?");
+                $delete_settings_stmt->bind_param("i", $user_id);
+                $delete_settings_stmt->execute();
+                
+                // Delete remember tokens (if table exists)
+                try {
+                    $delete_tokens_stmt = $conn->prepare("DELETE FROM remember_tokens WHERE user_id = ?");
+                    $delete_tokens_stmt->bind_param("i", $user_id);
+                    $delete_tokens_stmt->execute();
+                } catch (Exception $e) {
+                    // Table might not exist, skip this step
+                    error_log("Remember tokens table doesn't exist, skipping: " . $e->getMessage());
+                }
+                
+                // Delete the user account
+                $delete_user_stmt = $conn->prepare("DELETE FROM users WHERE id = ?");
+                $delete_user_stmt->bind_param("i", $user_id);
+                $delete_user_stmt->execute();
+                
+                // Commit transaction
+                $conn->commit();
+                
+                // Log the deletion
+                logActivity('ACCOUNT_DELETED', 'User account deleted', [
+                    'user_id' => $user_id,
+                    'user_email' => $user['email'],
+                    'deletion_reason' => $deletion_reason,
+                    'resources_count' => count($resources_data)
+                ]);
+                
+                // Destroy session and redirect
+                session_destroy();
+                header("Location: ../index.php?account_deleted=true");
+                exit();
+                
+            } catch (Exception $e) {
+                // Rollback on error
+                $conn->rollback();
+                $error = "Failed to delete account: " . $e->getMessage();
+                error_log("Account deletion failed: " . $e->getMessage());
+            }
+        }
+    } else {
+        // Handle regular settings update
+        $email_uploads = isset($_POST['email_uploads']) ? 1 : 0;
+        $email_comments = isset($_POST['email_comments']) ? 1 : 0;
+        $email_updates = isset($_POST['email_updates']) ? 1 : 0;
+        $show_profile = isset($_POST['show_profile']) ? 1 : 0;
+        $show_email = isset($_POST['show_email']) ? 1 : 0;
+        $theme = $_POST['theme'] ?? 'light';
+        $language = $_POST['language'] ?? 'en';
+
+        // Check if user settings already exist
+        $check_stmt = $conn->prepare("SELECT id FROM user_settings WHERE user_id = ?");
+        $check_stmt->bind_param("i", $user_id);
+        $check_stmt->execute();
+        $check_result = $check_stmt->get_result();
+
+        if ($check_result->num_rows > 0) {
+            // Update existing settings
+            $update_stmt = $conn->prepare("UPDATE user_settings SET
+                email_uploads = ?,
+                email_comments = ?,
+                email_updates = ?,
+                show_profile = ?,
+                show_email = ?,
+                theme = ?,
+                language = ?
+                WHERE user_id = ?");
+
+            $update_stmt->bind_param("iiiissii",
+                $email_uploads,
+                $email_comments,
+                $email_updates,
+                $show_profile,
+                $show_email,
+                $theme,
+                $language,
+                $user_id
+            );
+
+            if ($update_stmt->execute()) {
+                $success = "Settings saved successfully!";
+            } else {
+                $error = "Failed to save settings. Please try again.";
+            }
+        } else {
+            // Insert new settings
+            $insert_stmt = $conn->prepare("INSERT INTO user_settings
+                (user_id, email_uploads, email_comments, email_updates, show_profile, show_email, theme, language)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+
+            $insert_stmt->bind_param("iiiissii",
+                $user_id,
+                $email_uploads,
+                $email_comments,
+                $email_updates,
+                $show_profile,
+                $show_email,
+                $theme,
+                $language
+            );
+
+            if ($insert_stmt->execute()) {
+                $success = "Settings saved successfully!";
+            } else {
+                $error = "Failed to save settings. Please try again.";
+            }
+        }
+
+        // Refresh settings after save
+        $user_settings = getUserSettings($conn, $user_id);
+        $dark_mode_class = applyUserTheme($user_settings['theme'] ?? 'light');
+    }
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#FF6B35">
     <title>Settings - Kenya EduHub</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-    /* Custom Header Styles */
-    .custom-header {
-        background: #000000;
-        padding: 15px 20px;
-        padding-left: 240px;
-        border-bottom: 3px solid #FFD700;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-        position: sticky;
-        top: 0;
-        z-index: 1000;
-    }
-
-    .custom-header-content {
-        max-width: 1200px;
-        margin: 0 auto;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    .custom-logo {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        font-weight: bold;
-        font-size: 22px;
-        color: white;
-        text-shadow: 0 2px 4px rgba(0,0,0,0.3);
-    }
-
-    .custom-logo > span:first-child {
-        background: linear-gradient(45deg, #FFD700, #FFA500);
-        color: white;
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 16px;
-        box-shadow: 0 4px 12px rgba(255, 215, 0, 0.4);
-        border: 2px solid rgba(255, 255, 255, 0.3);
-    }
-
-    .custom-nav {
-        display: flex;
-        gap: 25px;
-    }
-
-    .custom-nav a {
-        color: white;
-        text-decoration: none;
-        font-weight: 600;
-        padding: 10px 18px;
-        border-radius: 25px;
-        transition: all 0.3s ease;
-        background: rgba(255, 255, 255, 0.1);
-        backdrop-filter: blur(5px);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        text-shadow: 0 1px 2px rgba(0,0,0,0.2);
-    }
-
-    .custom-nav a:hover {
-        background: rgba(255, 255, 255, 0.25);
-        color: #0078D4;
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(0, 120, 212, 0.3);
-        border-color: rgba(0, 120, 212, 0.4);
-    }
-
-    /* Mobile Header */
-    @media (max-width: 768px) {
-        .custom-header {
-            padding-left: 20px;
-        }
-        
-        .custom-header-content {
-            flex-direction: column;
-            gap: 20px;
-        }
-        
-        .custom-nav {
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 12px;
-        }
-        
-        .custom-nav a {
-            padding: 8px 14px;
-            font-size: 14px;
-        }
-    }
-
-    /* Professional Hero Section */
-    .hero-section {
-        background: #1a1a1a;
-        backdrop-filter: blur(15px) saturate(1.2);
-        border: 1px solid #333333;
-        border-radius: 12px;
-        padding: 40px 32px;
-        margin-bottom: 32px;
-        color: #ffffff;
-        position: relative;
-        overflow: hidden;
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-    }
-
-    .hero-section::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: url('../assets/images/Anjeline-C0XI691E.jpg');
-        background-size: cover;
-        background-position: center;
-        opacity: 0.6;
-        animation: imageCycle 12s infinite ease-in-out;
-        transition: all 1.5s cubic-bezier(0.4, 0, 0.2, 1);
-        filter: brightness(1.1) contrast(1.2);
-    }
-
-    @keyframes imageCycle {
-        0%, 100% { 
-            background: url('../assets/images/Anjeline-C0XI691E.jpg');
-            background-position: center;
-            backdrop-filter: blur(8px);
-        }
-        33% { 
-            background: url('../assets/images/logo2-UFkwg77b.png');
-            background-position: center;
-            backdrop-filter: blur(10px);
-        }
-        66% { 
-            background: url('../assets/images/logo-DRV3mraH.png');
-            background-position: center;
-            backdrop-filter: blur(12px);
-        }
-    }
-
-    .hero-content {
-        display: flex;
-        align-items: center;
-        gap: 32px;
-        position: relative;
-        z-index: 1;
-    }
-
-    .hero-avatar {
-        width: 80px;
-        height: 80px;
-        background: linear-gradient(45deg, #FFD700, #FFA500);
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: bold;
-        font-size: 24px;
-        color: #ffffff;
-        box-shadow: 0 12px 40px rgba(0,0,0,0.3);
-        flex-shrink: 0;
-        backdrop-filter: blur(12px) saturate(1.2);
-        background: rgba(255, 255, 255, 0.15);
-        border: 2px solid rgba(255, 255, 255, 0.5);
-        position: relative;
-        z-index: 3;
-    }
-
-    .hero-text {
-        flex: 1;
-        backdrop-filter: blur(8px) saturate(1.1);
-        background: rgba(255, 255, 255, 0.08);
-        border-radius: 8px;
-        padding: 16px;
-        border: 1px solid rgba(255, 255, 255, 0.4);
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
-        position: relative;
-        z-index: 2;
-    }
-
-    .hero-text h1 {
-        font-size: 32px;
-        font-weight: 700;
-        margin-bottom: 8px;
-        color: #ffffff;
-        text-shadow: 0 1px 2px rgba(0,0,0,0.8);
-        overflow: hidden;
-        border-right: 3px solid #ffffff;
-        white-space: nowrap;
-        animation: typing 3.5s steps(40, end), blink-caret 0.75s step-end infinite;
-    }
-
-    .hero-text p {
-        font-size: 16px;
-        opacity: 0.9;
-        margin-bottom: 16px;
-        line-height: 1.5;
-        color: #cccccc;
-    }
-
-    .hero-stats {
-        display: flex;
-        align-items: center;
-        gap: 16px;
-        backdrop-filter: blur(3px);
-    }
-
-    .hero-stat {
-        background: rgba(255,255,255,0.1);
-        backdrop-filter: blur(12px) saturate(1.3);
-        padding: 8px 16px;
-        border-radius: 20px;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        font-size: 14px;
-        font-weight: 600;
-        color: #003366;
-        border: 1px solid rgba(255, 255, 255, 0.4);
-        box-shadow: 0 8px 32px rgba(0,0,0,0.15);
-        position: relative;
-        z-index: 2;
-    }
-
-    /* Typewriter Effect */
-    @keyframes typing {
-        from { width: 0 }
-        to { width: 100% }
-    }
-
-    @keyframes blink-caret {
-        from, to { border-color: transparent }
-        50% { border-color: #ffffff; }
-    }
-
-    /* Mobile Hero Section */
-    @media (max-width: 768px) {
-        .hero-section {
-            padding: 24px 20px;
-            margin-bottom: 24px;
-        }
-
-        .hero-content {
-            flex-direction: column;
-            text-align: center;
-            gap: 20px;
-        }
-
-        .hero-avatar {
-            width: 60px;
-            height: 60px;
-            font-size: 20px;
-        }
-
-        .hero-text h1 {
-            font-size: 24px;
-        }
-
-        .hero-text p {
-            font-size: 14px;
-            margin-bottom: 12px;
-        }
-
-        .hero-stats {
-            justify-content: center;
-        }
-    }
-
-    /* Mobile Menu Toggle */
-    .mobile-menu-toggle {
-        display: none;
-        position: fixed;
-        top: 16px;
-        left: 16px;
-        z-index: 1001;
-        background: transparent;
-        border: none;
-        padding: 12px;
-        cursor: pointer;
-        width: 48px;
-        height: 48px;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        gap: 4px;
-    }
-
-    .mobile-menu-toggle span {
-        display: block;
-        width: 100%;
-        height: 4px;
-        background: #ffffff;
-        border-radius: 3px;
-        transition: all 0.3s ease;
-        margin: 0;
-    }
-
-    .mobile-menu-toggle:hover span:nth-child(1) {
-        transform: translateY(-1px);
-    }
-
-    .mobile-menu-toggle:hover span:nth-child(3) {
-        transform: translateY(1px);
-    }
-
-    /* Show hamburger only on mobile */
-    @media (max-width: 768px) {
-        body .mobile-menu-toggle {
-            display: flex !important;
-            align-items: center;
-            justify-content: center;
-        }
-    }
-
         :root {
-            --ms-primary: #0078d4;
-            --ms-primary-dark: #106ebe;
-            --ms-secondary: #6264a7;
-            --ms-success: #107c10;
-            --ms-warning: #ff8c00;
-            --ms-error: #d83b01;
-            --ms-neutral-light: #f3f2f1;
-            --ms-neutral: #edebe9;
-            --ms-neutral-dark: #605e5c;
-            --ms-text-primary: #323130;
-            --ms-text-secondary: #605e5c;
-            --ms-border: #d2d0ce;
-            --ms-shadow-light: 0 1.6px 3.6px rgba(0, 0, 0, 0.132), 0 0.3px 0.9px rgba(0, 0, 0, 0.108);
-            --ms-shadow-medium: 0 6.4px 14.4px rgba(0, 0, 0, 0.132), 0 1.2px 3.6px rgba(0, 0, 0, 0.108);
+            --primary-color: #1a73e8;
+            --secondary-color: #5f6368;
+            --bg-color: #f8f9fa;
+            --card-bg: #f8f9fa;
+            --sidebar-width: 256px;
+            --header-height: 64px;
+            --primary-orange: #FF6B35;
+            --primary-gold: #FFD700;
+            --text-color: #202124;
+            --border-color: #e8eaed;
+            --form-border-color: #dadce0;
+            --card-hover-bg: #f8f9fa;
         }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        
+        .dark-mode {
+            --bg-color: #1a1a1a;
+            --card-bg: #1a1a1a;
+            --text-color: #e8eaed;
+            --border-color: #2a2a2a;
+            --form-border-color: #2a2a2a;
+            --card-hover-bg: #252525;
         }
-
+        
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #000000;
-            color: #ffffff;
-            line-height: 1.6;
+            background: var(--bg-color);
+            font-family: 'Google Sans', 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 14px;
+            color: var(--text-color);
+            transition: background 0.3s ease, color 0.3s ease;
         }
-
-        /* Sidebar Styles */
-        .sidebar {
-            position: fixed;
-            left: 0;
+        
+        .header {
+            position: fixed !important;
             top: 0;
-            width: 220px;
-            height: 100vh;
-            background: #1a1a1a;
-            box-shadow: 2px 0 8px rgba(0, 0, 0, 0.3);
-            z-index: 1000;
-            transition: transform 0.3s ease;
-        }
-
-        .sidebar-header {
-            padding: 24px;
-            border-bottom: 1px solid #333333;
-        }
-
-        .sidebar-header h3 {
-            background: linear-gradient(45deg, #FFD700, #FFA500);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            color: transparent;
-            font-size: 20px;
-            font-weight: 600;
-            margin-bottom: 4px;
-        }
-
-        .sidebar-header p {
-            color: #cccccc;
-            font-size: 12px;
-        }
-
-        .sidebar-menu {
-            padding: 16px 0;
-        }
-
-        .menu-item {
+            left: 0;
+            right: 0;
+            height: var(--header-height);
+            background: var(--card-bg);
+            border-bottom: 1px solid var(--border-color);
             display: flex;
             align-items: center;
-            padding: 12px 24px;
-            color: #ffffff;
+            padding: 0 24px;
+            z-index: 1000;
+            transition: background 0.3s ease, border-color 0.3s ease;
+        }
+        
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        
+        .menu-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 12px;
+            border-radius: 50%;
+            color: var(--secondary-color);
+            transition: background 0.2s;
+        }
+        
+        .menu-btn:hover {
+            background: #f1f3f4;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 18px;
+            font-weight: 400;
+            color: var(--text-color);
+        }
+        
+        .logo i {
+            color: var(--primary-orange);
+        }
+        
+        .header-right {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--primary-orange);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 500;
+            font-size: 14px;
+        }
+        
+        .sidebar {
+            position: fixed;
+            top: var(--header-height);
+            left: 0;
+            width: var(--sidebar-width);
+            height: calc(100vh - var(--header-height));
+            background: var(--bg-color);
+            border-right: 1px solid var(--border-color);
+            overflow-y: auto;
+            transition: transform 0.3s ease, background 0.3s ease, border-color 0.3s ease;
+            z-index: 999;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+        
+        .sidebar::-webkit-scrollbar {
+            display: none;
+        }
+        
+        .sidebar.collapsed {
+            transform: translateX(-256px);
+        }
+        
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 10px 24px;
+            color: var(--secondary-color);
             text-decoration: none;
-            transition: all 0.167s cubic-bezier(0.1, 0.9, 0.2, 1);
+            transition: background 0.2s;
             border: none;
             background: none;
             width: 100%;
             text-align: left;
-            font-size: 14px;
             cursor: pointer;
-        }
-
-        .menu-item:hover {
-            background: #333333;
-            color: #0078D4;
-        }
-
-        .menu-item.active {
-            background: rgba(0, 120, 212, 0.1);
-            color: #0078D4;
-            border-right: 3px solid #0078D4;
-        }
-
-        .menu-item i {
-            width: 20px;
-            margin-right: 12px;
-            font-size: 16px;
-        }
-
-        /* Main Content */
-        .main-content {
-            margin-left: 220px;
-            padding: 24px;
-            background: #000000;
-            min-height: 100vh;
-        }
-
-        /* Header */
-        .header {
-            background: #1a1a1a;
-            border-radius: 4px;
-            padding: 24px 32px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-            margin-bottom: 32px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border: 1px solid #333333;
-        }
-
-        .header h1 {
-            font-size: 24px;
-            font-weight: 600;
-            color: #ffffff;
-            letter-spacing: -0.02em;
-            margin-bottom: 4px;
-        }
-
-        .header p {
-            color: #cccccc;
             font-size: 14px;
-            font-weight: 400;
         }
-
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 12px;
+        
+        .nav-link:hover {
+            background: #f1f3f4;
         }
-
-        .user-avatar {
-            width: 40px;
-            height: 40px;
+        
+        .dark-mode .nav-link:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        .nav-link.active {
+            background: #e8f0fe;
+            color: var(--primary-color);
+        }
+        
+        .dark-mode .nav-link.active {
+            background: rgba(26, 115, 232, 0.2);
+            color: #8ab4f8;
+        }
+        
+        .nav-link i {
+            margin-right: 12px;
+            font-size: 18px;
+            width: 24px;
+            text-align: center;
+            color: #FF6B35;
+        }
+        
+        .nav-link.active i {
+            color: var(--primary-color);
+        }
+        
+        .dark-mode .nav-link.active i {
+            color: #8ab4f8;
+        }
+        
+        .dark-mode-toggle {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 12px;
             border-radius: 50%;
-            background: linear-gradient(45deg, #FFD700, #FFA500);
+            color: var(--secondary-color);
+            transition: background 0.2s;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
-            font-weight: 600;
-            font-size: 16px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-        }
-
-        /* Card Styles */
-        .card {
-            background: #1a1a1a;
-            border-radius: 4px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-            margin-bottom: 24px;
-            border: 1px solid #333333;
-        }
-
-        .card-header {
-            padding: 24px 32px;
-            border-bottom: 1px solid #333333;
-        }
-
-        .card-title {
             font-size: 18px;
-            font-weight: 600;
-            color: #ffffff;
         }
-
-        .card-body {
-            padding: 32px;
+        
+        .dark-mode-toggle:hover {
+            background: rgba(255, 255, 255, 0.1);
         }
-
-        /* Settings Form */
-        .settings-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-            gap: 32px;
+        
+        .dark-mode .dark-mode-toggle {
+            color: var(--text-color);
         }
-
-        .settings-section {
-            border: 1px solid #333333;
-            border-radius: 4px;
+        
+        .dark-mode .dark-mode-toggle:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .main-content {
+            margin-left: var(--sidebar-width);
+            margin-top: var(--header-height);
             padding: 24px;
-            background: #1a1a1a;
+            transition: margin-left 0.3s ease;
         }
-
-        .settings-section h3 {
-            font-size: 16px;
-            font-weight: 600;
-            color: #ffffff;
-            margin-bottom: 16px;
+        
+        .main-content.expanded {
+            margin-left: 0;
+        }
+        
+        .page-title {
+            font-size: 22px;
+            font-weight: 400;
+            color: var(--text-color);
+            margin-bottom: 24px;
+        }
+        
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 24px;
+            margin-bottom: 24px;
+            transition: background 0.3s ease, border-color 0.3s ease;
+        }
+        
+        .card-header {
+            background: transparent;
+            padding: 20px 25px;
+            border-bottom: 1px solid var(--border-color);
             display: flex;
+            justify-content: space-between;
             align-items: center;
-            gap: 8px;
         }
-
-        .settings-section h3 i {
-            color: #FFD700;
+        
+        .card-header h2 {
+            font-size: 20px;
+            font-weight: 500;
+            color: var(--text-color);
         }
-
+        
+        .card-body {
+            padding: 25px;
+            background: var(--card-bg);
+            transition: background 0.3s ease;
+        }
+        
         .form-group {
             margin-bottom: 20px;
         }
-
+        
         .form-group label {
             display: block;
-            font-weight: 600;
-            color: #ffffff;
             margin-bottom: 8px;
-            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-color);
         }
-
-        .form-group select,
-        .form-group input {
+        
+        .form-control {
             width: 100%;
-            padding: 12px 16px;
-            border: 1px solid #333333;
-            border-radius: 4px;
+            padding: 12px;
+            border: 1px solid var(--form-border-color);
+            border-radius: 25px;
             font-size: 14px;
-            transition: all 0.167s cubic-bezier(0.1, 0.9, 0.2, 1);
-            background: #1a1a1a;
-            color: #ffffff;
+            background: var(--card-bg);
+            color: var(--text-color);
+            transition: border-color 0.2s;
         }
-
-        .form-group select:focus,
-        .form-group input:focus {
+        
+        .form-control:focus {
             outline: none;
-            border-color: #0078D4;
-            box-shadow: 0 0 0 2px rgba(0, 120, 212, 0.1);
+            border-color: var(--primary-color);
         }
-
-        /* Toggle Switch */
-        .toggle-group {
+        
+        .form-check {
             display: flex;
             align-items: center;
-            justify-content: space-between;
+            gap: 12px;
             margin-bottom: 16px;
         }
-
-        .toggle-label {
-            font-weight: 500;
-            color: #ffffff;
-            font-size: 14px;
-        }
-
-        .toggle-switch {
-            position: relative;
-            width: 48px;
-            height: 24px;
-            background: #333333;
-            border-radius: 12px;
+        
+        .form-check-input {
+            width: 20px;
+            height: 20px;
             cursor: pointer;
-            transition: background 0.167s cubic-bezier(0.1, 0.9, 0.2, 1);
         }
-
-        .toggle-switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
+        
+        .form-check-label {
+            cursor: pointer;
+            color: var(--text-color);
         }
-
-        .toggle-slider {
-            position: absolute;
-            top: 2px;
-            left: 2px;
-            right: 2px;
-            bottom: 2px;
-            background: white;
-            border-radius: 10px;
-            transition: transform 0.167s cubic-bezier(0.1, 0.9, 0.2, 1);
-        }
-
-        .toggle-switch input:checked + .toggle-slider {
-            transform: translateX(24px);
-        }
-
-        .toggle-switch input:checked ~ .toggle-switch {
-            background: var(--ms-success);
-        }
-
-        /* Button Styles */
+        
         .btn {
-            padding: 12px 24px;
+            padding: 10px 24px;
             border: none;
-            border-radius: 4px;
-            font-size: 14px;
-            font-weight: 600;
+            border-radius: 25px;
             cursor: pointer;
-            transition: all 0.167s cubic-bezier(0.1, 0.9, 0.2, 1);
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
             text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
+            display: inline-block;
         }
-
+        
         .btn-primary {
-            background: #000000;
-            color: #ffffff;
-            border: 1px solid #ffffff;
-        }
-
-        .btn-primary:hover {
-            background: #333333;
-            border-color: #ffffff;
-            box-shadow: 0 2px 8px rgba(255, 255, 255, 0.3);
-        }
-
-        .btn-outline {
-            background: #000000;
-            color: #ffffff;
-            border: 1px solid #ffffff;
-        }
-
-        .btn-outline:hover {
-            background: #333333;
-            border-color: #ffffff;
-        }
-
-        .btn-danger {
-            background: var(--ms-error);
+            background: var(--primary-orange);
             color: white;
         }
-
-        .btn-danger:hover {
-            background: #b32b01;
+        
+        .btn-primary:hover {
+            background: #e55a2b;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 107, 53, 0.4);
         }
-
-        .form-actions {
-            display: flex;
-            gap: 12px;
-            justify-content: flex-end;
-            padding-top: 24px;
-            border-top: 1px solid #333333;
-            margin-top: 24px;
+        
+        .btn-secondary {
+            background: var(--card-hover-bg);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
         }
-
-        /* Alert Styles */
+        
+        .btn-secondary:hover {
+            background: #e8eaed;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
         .alert {
-            padding: 16px;
-            border-radius: 4px;
-            margin-bottom: 24px;
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .alert-success {
+            background: #e6f4ea;
+            color: #137333;
+            border: 1px solid #c8e6c9;
+        }
+        
+        .alert-danger {
+            background: #fce8e6;
+            color: #c5221f;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .settings-section {
+            margin-bottom: 32px;
+        }
+        
+        .settings-section h3 {
+            font-size: 18px;
+            font-weight: 500;
+            color: var(--text-color);
+            margin-bottom: 16px;
+        }
+        
+        .settings-description {
+            color: var(--secondary-color);
+            margin-bottom: 20px;
             font-size: 14px;
         }
-
-        .alert-success {
-            background: rgba(16, 124, 16, 0.1);
-            border: 1px solid var(--ms-success);
-            color: var(--ms-success);
-        }
-
-        .alert-error {
-            background: rgba(196, 43, 28, 0.1);
-            border: 1px solid var(--ms-error);
-            color: var(--ms-error);
-        }
-
-        /* Mobile Responsive */
+        
         @media (max-width: 768px) {
             .sidebar {
-                transform: translateX(-100%);
+                transform: translateX(-256px);
             }
             
-            .sidebar.active {
+            .sidebar.show {
                 transform: translateX(0);
             }
             
             .main-content {
                 margin-left: 0;
                 padding: 16px;
-            }
-            
-            .header {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 16px;
-            }
-            
-            .settings-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .form-actions {
-                flex-direction: column;
-            }
-            
-            .btn {
-                width: 100%;
-                justify-content: center;
-            }
-        }
-
-        .mobile-menu-toggle {
-            display: none;
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            z-index: 1001;
-            background: transparent;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            padding: 12px;
-            cursor: pointer;
-            font-size: 18px;
-        }
-
-        @media (max-width: 768px) {
-            .mobile-menu-toggle {
-                display: block;
+                padding-top: calc(var(--header-height) + 16px);
             }
         }
     </style>
 </head>
-<body>
-    <!-- Custom Header -->
-    <div class="custom-header">
-        <div class="custom-header-content">
-            <div class="custom-logo">
-                <div style="width: 50px; height: 50px; background: var(--primary-gold); border: 3px solid var(--primary-orange); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 2px;">
-                    <span style="font-weight: bold; font-size: 24px;">
-                        <span style="color: var(--primary-orange); font-size: 28px;">K</span><span style="color: #008000; font-size: 24px;">E</span>
+<body class="<?php echo $dark_mode_class; ?>">
+    <!-- Header -->
+    <header class="header">
+        <div class="header-left">
+            <button class="menu-btn" onclick="toggleSidebar()">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="logo">
+                <div style="width: 40px; height: 40px; background: var(--primary-gold); border: 3px solid var(--primary-orange); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 0;">
+                    <span style="font-weight: bold; font-size: 20px;">
+                        <span style="color: var(--primary-orange); font-size: 24px;">K</span><span style="color: #008000; font-size: 20px;">E</span>
                     </span>
                 </div>
-                <span class="brand-name"><span style="color: var(--primary-orange);">Kenya</span> <span style="color: #008000;">EduHub</span></span>
+                <span style="color: var(--primary-orange); font-weight: bold;">Kenya</span> <span style="color: #008000; font-weight: bold;">EduHub</span>
             </div>
-                    </div>
-    </div>
-
-    <!-- Mobile Menu Toggle -->
-    <button class="mobile-menu-toggle" onclick="toggleSidebar()">
-        <span></span>
-        <span></span>
-        <span></span>
-    </button>
-
+        </div>
+        <div class="header-right">
+            <button class="dark-mode-toggle" onclick="toggleDarkMode()" title="Toggle Dark Mode">
+                <i class="fas fa-moon"></i>
+            </button>
+            <div class="user-avatar">
+                <?php echo strtoupper(substr($user['name'] ?? 'A', 0, 1)); ?>
+            </div>
+        </div>
+    </header>
+    
     <!-- Sidebar -->
     <aside class="sidebar" id="sidebar">
-        <div class="sidebar-header">
-            <div style="display: flex; align-items: center; gap: 8px;">
-            <div style="width: 50px; height: 50px; background: var(--primary-gold); border: 3px solid var(--primary-orange); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 2px;">
-                <span style="font-weight: bold; font-size: 24px;">
-                    <span style="color: var(--primary-orange); font-size: 28px;">K</span><span style="color: #008000; font-size: 24px;">E</span>
-                </span>
-            </div>
-            <h3 style="margin: 0;"><span style="color: var(--primary-orange);">Kenya</span> <span style="color: #008000;">EduHub</span></h3>
-        </div>
-            <p>Educational Resources Platform</p>
-        </div>
-        <nav class="sidebar-menu">
-            <a href="index.php" class="menu-item">
-                <i class="fas fa-dashboard"></i> Dashboard
-            </a>
-            <a href="index.php#resourcesSection" class="menu-item">
-                <i class="fas fa-book"></i> My Resources
-            </a>
-            <a href="index.php#uploadSection" class="menu-item">
-                <i class="fas fa-upload"></i> Upload Resource
-            </a>
-                        <a href="profile.php" class="menu-item">
-                <i class="fas fa-user"></i> Profile
-            </a>
-            <a href="settings.php" class="menu-item active">
-                <i class="fas fa-cog"></i> Settings
-            </a>
-            <a href="../auth/logout.php" class="menu-item">
-                <i class="fas fa-sign-out-alt"></i> Logout
-            </a>
-        </nav>
+        <a class="nav-link" href="dashboard">
+            <i class="fas fa-tachometer-alt"></i> Dashboard
+        </a>
+        <a class="nav-link" href="resources">
+            <i class="fas fa-book"></i> My Resources
+        </a>
+        <a class="nav-link" href="upload">
+            <i class="fas fa-upload"></i> Upload Resource
+        </a>
+        <a class="nav-link" href="https://sites.google.com/view/noteselectricalengineering/home" target="_blank">
+            <i class="fas fa-external-link-alt"></i> More Resources
+        </a>
+        <a class="nav-link" href="profile">
+            <i class="fas fa-user"></i> Profile
+        </a>
+        <a class="nav-link active" href="settings">
+            <i class="fas fa-cog"></i> Settings
+        </a>
+        <a class="nav-link" href="../auth/logout">
+            <i class="fas fa-sign-out-alt"></i> Logout
+        </a>
     </aside>
-
+    
     <!-- Main Content -->
-    <main class="main-content">
-        <!-- Professional Hero Section -->
-        <div class="hero-section fade-in">
-            <div class="hero-content">
-                <div class="hero-avatar">
-                    <?php echo strtoupper(substr($user['name'] ?? $user['full_name'] ?? 'U', 0, 1)); ?>
-                </div>
-                <div class="hero-text">
-                    <h1>Settings Management</h1>
-                    <p>Configure your account preferences and system settings</p>
-                    <div class="hero-stats">
-                        <span class="hero-stat">
-                            <i class="fas fa-cog"></i>
-                            Settings
-                        </span>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Header -->
-        <header class="header">
-            <div>
-                <h1>Settings</h1>
-                <p class="text-muted mb-0">Manage your application preferences and account settings</p>
-            </div>
-            <div class="user-info">
-                <div class="user-avatar">
-                    <?php echo strtoupper(substr($user['name'] ?? 'U', 0, 1)); ?>
-                </div>
-                <div>
-                    <div class="fw-bold"><?php echo htmlspecialchars($user['name'] ?? 'User'); ?></div>
-                    <div class="text-muted small"><?php echo htmlspecialchars($user['email']); ?></div>
-                </div>
-            </div>
-        </header>
-
-        <?php if (isset($success)): ?>
-            <div class="alert alert-success">
-                <i class="fas fa-check-circle"></i> <?php echo $success; ?>
+    <main class="main-content" id="mainContent">
+        <h1 class="page-title">Settings</h1>
+        
+        <?php if (isset($error)): ?>
+            <div class="alert alert-danger">
+                <?php echo htmlspecialchars($error); ?>
             </div>
         <?php endif; ?>
         
-        <?php if (isset($error)): ?>
-            <div class="alert alert-error">
-                <i class="fas fa-exclamation-circle"></i> <?php echo $error; ?>
+        <?php if (isset($success)): ?>
+            <div class="alert alert-success">
+                <?php echo htmlspecialchars($success); ?>
             </div>
         <?php endif; ?>
-
-        <!-- Settings Grid -->
-        <div class="settings-grid">
-            <!-- Notification Settings -->
-            <div class="settings-section">
-                <h3><i class="fas fa-bell"></i> Notification Settings</h3>
-                
-                <div class="toggle-group">
-                    <span class="toggle-label">Push Notifications</span>
-                    <label class="toggle-switch">
-                        <input type="checkbox" name="notifications">
-                        <span class="toggle-slider"></span>
-                    </label>
-                </div>
-                
-                <div class="toggle-group">
-                    <span class="toggle-label">Email Notifications</span>
-                    <label class="toggle-switch">
-                        <input type="checkbox" name="email_notifications">
-                        <span class="toggle-slider"></span>
-                    </label>
-                </div>
-            </div>
-
-            <!-- Appearance Settings -->
-            <div class="settings-section">
-                <h3><i class="fas fa-palette"></i> Appearance</h3>
-                
-                <div class="form-group">
-                    <label for="theme">Theme</label>
-                    <select id="theme" name="theme">
-                        <option value="light">Light</option>
-                        <option value="dark">Dark</option>
-                        <option value="auto">Auto (System)</option>
-                    </select>
-                </div>
-            </div>
-
-            <!-- Language Settings -->
-            <div class="settings-section">
-                <h3><i class="fas fa-language"></i> Language & Region</h3>
-                
-                <div class="form-group">
-                    <label for="language">Language</label>
-                    <select id="language" name="language">
-                        <option value="en">English</option>
-                        <option value="sw">Swahili</option>
-                    </select>
-                </div>
-            </div>
-
+        
+        <form method="POST">
             <!-- Account Settings -->
-            <div class="settings-section">
-                <h3><i class="fas fa-shield-alt"></i> Account Security</h3>
-                
-                <div class="form-group">
-                    <label>Two-Factor Authentication</label>
-                    <div style="display: flex; align-items: center; gap: 12px;">
-                        <span style="color: var(--ms-text-secondary); font-size: 14px;">Not enabled</span>
-                        <button type="button" class="btn btn-outline" style="padding: 8px 16px; font-size: 12px;">
-                            <i class="fas fa-plus"></i> Enable
-                        </button>
-                    </div>
+            <div class="card">
+                <div class="card-header">
+                    <h2>Account Settings</h2>
                 </div>
-                
-                <div class="form-group">
-                    <label>Password</label>
-                    <div style="display: flex; align-items: center; gap: 12px;">
-                        <span style="color: var(--ms-text-secondary); font-size: 14px;">Last changed: Never</span>
-                        <a href="profile.php#password" class="btn btn-outline" style="padding: 8px 16px; font-size: 12px;">
-                            <i class="fas fa-key"></i> Change
-                        </a>
+                <div class="card-body">
+                    <div class="settings-section">
+                        <h3>Email Notifications</h3>
+                        <p class="settings-description">Choose which email notifications you want to receive.</p>
+
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="email_uploads" name="email_uploads" <?php echo ($user_settings['email_uploads'] ?? 1) ? 'checked' : ''; ?>>
+                            <label class="form-check-label" for="email_uploads">
+                                Notify me when my resources are downloaded
+                            </label>
+                        </div>
+
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="email_comments" name="email_comments" <?php echo ($user_settings['email_comments'] ?? 1) ? 'checked' : ''; ?>>
+                            <label class="form-check-label" for="email_comments">
+                                Notify me of new comments on my resources
+                            </label>
+                        </div>
+
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="email_updates" name="email_updates" <?php echo ($user_settings['email_updates'] ?? 0) ? 'checked' : ''; ?>>
+                            <label class="form-check-label" for="email_updates">
+                                Notify me about platform updates and new features
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="settings-section">
+                        <h3>Privacy Settings</h3>
+                        <p class="settings-description">Control your privacy preferences.</p>
+
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="show_profile" name="show_profile" <?php echo ($user_settings['show_profile'] ?? 1) ? 'checked' : ''; ?>>
+                            <label class="form-check-label" for="show_profile">
+                                Make my profile visible to other users
+                            </label>
+                        </div>
+
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="show_email" name="show_email" <?php echo ($user_settings['show_email'] ?? 0) ? 'checked' : ''; ?>>
+                            <label class="form-check-label" for="show_email">
+                                Show my email address on my profile
+                            </label>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Data & Privacy -->
-            <div class="settings-section">
-                <h3><i class="fas fa-database"></i> Data & Privacy</h3>
-                
-                <div class="form-group">
-                    <label>Data Management</label>
-                    <div style="display: flex; flex-direction: column; gap: 8px;">
-                        <button type="button" class="btn btn-outline" style="padding: 8px 16px; font-size: 12px; justify-content: flex-start;">
-                            <i class="fas fa-download"></i> Download My Data
-                        </button>
-                        <button type="button" class="btn btn-danger" style="padding: 8px 16px; font-size: 12px; justify-content: flex-start;">
-                            <i class="fas fa-trash"></i> Delete Account
+            <!-- Display Settings -->
+            <div class="card">
+                <div class="card-header">
+                    <h2>Display Settings</h2>
+                </div>
+                <div class="card-body">
+                    <div class="settings-section">
+                        <h3>Theme</h3>
+                        <p class="settings-description">Choose your preferred theme.</p>
+
+                        <div class="form-group">
+                            <label for="theme">Theme Preference</label>
+                            <select class="form-control" id="theme" name="theme">
+                                <option value="light" <?php echo ($user_settings['theme'] ?? 'light') === 'light' ? 'selected' : ''; ?>>Light Mode</option>
+                                <option value="dark" <?php echo ($user_settings['theme'] ?? 'light') === 'dark' ? 'selected' : ''; ?>>Dark Mode</option>
+                                <option value="auto" <?php echo ($user_settings['theme'] ?? 'light') === 'auto' ? 'selected' : ''; ?>>System Default</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="settings-section">
+                        <h3>Language</h3>
+                        <p class="settings-description">Select your preferred language.</p>
+
+                        <div class="form-group">
+                            <label for="language">Language</label>
+                            <select class="form-control" id="language" name="language">
+                                <option value="en" <?php echo ($user_settings['language'] ?? 'en') === 'en' ? 'selected' : ''; ?>>English</option>
+                                <option value="sw" <?php echo ($user_settings['language'] ?? 'en') === 'sw' ? 'selected' : ''; ?>>Kiswahili</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Danger Zone -->
+            <div class="card" style="border-color: #fce8e6;">
+                <div class="card-header">
+                    <h2 style="color: #c5221f;">Danger Zone</h2>
+                </div>
+                <div class="card-body">
+                    <div class="settings-section">
+                        <h3 style="color: #c5221f;">Delete Account</h3>
+                        <p class="settings-description">
+                            Once you delete your account, all your data will be archived for 30 days before permanent deletion. Please be certain.
+                        </p>
+
+                        <button class="btn btn-secondary" style="color: #c5221f; border-color: #c5221f;" type="button" id="openDeleteModalBtn">
+                            <i class="fas fa-trash"></i> Delete My Account
                         </button>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Save Button -->
-        <div class="card">
-            <div class="card-body">
-                <form method="POST" id="settingsForm">
-                    <div class="form-actions">
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-save"></i> Save Settings
-                        </button>
-                        <button type="reset" class="btn btn-outline">
-                            <i class="fas fa-times"></i> Cancel
-                        </button>
+            <!-- Save Button -->
+            <div style="text-align: right; margin-top: 24px;">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Save Settings
+                </button>
+            </div>
+        </form>
+    </main>
+
+    <!-- Custom Delete Account Modal (Google Search Console Style) -->
+    <div id="deleteAccountModal" class="gsc-modal-overlay" style="display: none;">
+        <div class="gsc-modal">
+            <div class="gsc-modal-header">
+                <h2 class="gsc-modal-title">Delete Account</h2>
+                <button class="gsc-modal-close" id="closeDeleteModalBtn">&times;</button>
+            </div>
+            <div class="gsc-modal-body">
+                <div class="gsc-modal-warning">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <div>
+                        <strong>Warning:</strong> This action cannot be undone. Your account and all associated data will be deleted.
+                    </div>
+                </div>
+                
+                <form id="deleteAccountForm" method="POST">
+                    <input type="hidden" name="action" value="delete_account">
+                    <input type="hidden" name="csrf_token" value="<?php echo generateCSRFLite(); ?>">
+                    
+                    <div class="gsc-form-group">
+                        <label for="confirm_email" class="gsc-form-label">Confirm your email address</label>
+                        <input type="email" class="gsc-form-input" id="confirm_email" name="confirm_email" required placeholder="<?php echo htmlspecialchars($user['email']); ?>">
+                        <small class="gsc-form-hint">This is to prevent accidental deletion</small>
+                    </div>
+                    
+                    <div class="gsc-form-group">
+                        <label for="deletion_reason" class="gsc-form-label">Reason for deletion (optional)</label>
+                        <textarea class="gsc-form-input gsc-form-textarea" id="deletion_reason" name="deletion_reason" rows="3" placeholder="Why are you leaving?"></textarea>
+                    </div>
+                    
+                    <div class="gsc-form-group">
+                        <label class="gsc-checkbox-label">
+                            <input type="checkbox" id="confirmDelete" required class="gsc-checkbox">
+                            <span class="gsc-checkbox-text">I understand that my account will be deleted and this action cannot be undone</span>
+                        </label>
                     </div>
                 </form>
             </div>
-        </div>
-    </main>
-
-    
-    <!-- Professional Footer -->
-    <footer role="contentinfo">
-        <div class="footer-content">
-            <div class="footer-grid">
-                <!-- Brand Column -->
-                <div class="footer-brand">
-                    <a href="index.php" class="footer-logo">
-                        <div style="width: 50px; height: 50px; background: var(--primary-gold); border: 3px solid var(--primary-orange); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 2px;">
-                            <span style="font-weight: bold; font-size: 24px;">
-                                <span style="color: var(--primary-orange); font-size: 28px;">K</span><span style="color: #008000; font-size: 24px;">E</span>
-                            </span>
-                        </div>
-                        <span style="color: var(--primary-orange);">Kenya</span> <span style="color: #008000;">EduHub</span>
-                    </a>
-                    <div class="footer-description">
-                        <span class="text-white">East Africa's</span> <span class="text-orange">premier</span> <span class="text-white">educational platform, providing quality</span> <span class="text-golden">learning resources</span> <span class="text-white">and collaborative tools for students and educators across</span> <span class="text-orange">Kenya</span> <span class="text-white">and beyond.</span>
-                    </div>
-                    <div class="footer-contact">
-                        <div class="footer-contact-item">
-                            <i class="fas fa-phone"></i>
-                            <span>+254 717 016 902</span>
-                        </div>
-                        <div class="footer-contact-item">
-                            <i class="fas fa-envelope"></i>
-                            <span>otienobrian029@gmail.com</span>
-                        </div>
-                        <div class="footer-contact-item">
-                            <i class="fas fa-map-marker-alt"></i>
-                            <span>Nairobi, Kenya</span>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Services Column -->
-                <div class="footer-column">
-                    <h3><span class="text-golden">Services</span></h3>
-                    <div class="footer-links">
-                        <a href="auth/login.php"><span class="text-white">Resource</span> <span class="text-orange">Library</span></a>
-                        <a href="auth/login.php"><span class="text-white">Study</span> <span class="text-golden">Materials</span></a>
-                        <a href="auth/login.php"><span class="text-orange">Past</span> <span class="text-white">Papers</span></a>
-                        <a href="auth/login.php"><span class="text-white">Research</span> <span class="text-golden">Papers</span></a>
-                        <a href="auth/login.php"><span class="text-white">Teaching</span> <span class="text-orange">Guides</span></a>
-                    </div>
-                </div>
-                
-                <!-- Company Column -->
-                <div class="footer-column">
-                    <h3><span class="text-orange">Platform</span></h3>
-                    <div class="footer-links">
-                        <a href="#features"><span class="text-golden">Features</span></a>
-                        <a href="#resources"><span class="text-white">Resources</span></a>
-                        <a href="#"><span class="text-white">About</span> <span class="text-orange">Us</span></a>
-                        <a href="#"><span class="text-white">Our</span> <span class="text-golden">Team</span></a>
-                        <a href="#"><span class="text-orange">Contact</span></a>
-                        <p><span class="text-golden">Empowering</span> <span class="text-white">education across</span> <span class="text-orange">Kenya</span></p>
-                    </div>
-                </div>
-                
-                <!-- Legal Column -->
-                <div class="footer-column">
-                    <h3><span class="text-white">Legal</span></h3>
-                    <div class="footer-links">
-                        <a href="#"><span class="text-white">Privacy</span> <span class="text-golden">Policy</span></a>
-                        <a href="#"><span class="text-white">Terms of</span> <span class="text-orange">Service</span></a>
-                        <a href="#"><span class="text-white">Usage</span> <span class="text-golden">Guidelines</span></a>
-                        <a href="#"><span class="text-white">Copyright</span> <span class="text-orange">Policy</span></a>
-                        <a href="#"><span class="text-white">Cookie</span> <span class="text-golden">Policy</span></a>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="footer-bottom">
-                <div>
-                    <p><span class="text-white">&copy; 2026</span> <span class="text-orange">Kenya</span> <span class="text-golden">EduHub</span><span class="text-white">. All rights reserved.</span></p>
-                </div>
+            <div class="gsc-modal-footer">
+                <button class="gsc-btn gsc-btn-secondary" id="cancelDeleteBtn">Cancel</button>
+                <button class="gsc-btn gsc-btn-danger" id="confirmDeleteBtn">
+                    <i class="fas fa-trash"></i> Delete Account
+                </button>
             </div>
         </div>
-    </footer>
+    </div>
 
-    <script>
-        // Toggle Sidebar
-        function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            sidebar.classList.toggle('active');
-        }
-
-        // Close sidebar when clicking outside on mobile
-        document.addEventListener('click', function(event) {
-            const sidebar = document.getElementById('sidebar');
-            const toggle = document.querySelector('.mobile-menu-toggle');
-            
-            if (window.innerWidth <= 768 && 
-                !sidebar.contains(event.target) && 
-                !toggle.contains(event.target)) {
-                sidebar.classList.remove('active');
-            }
-        });
-
-        // Typewriter effect for hero heading
-        document.addEventListener('DOMContentLoaded', function() {
-            const heroHeading = document.querySelector('.hero-text h1');
-            if (heroHeading) {
-                const originalText = heroHeading.textContent;
-                heroHeading.textContent = '';
-                heroHeading.style.width = '0';
-                
-                setTimeout(() => {
-                    typeWriter(heroHeading, originalText, 0);
-                }, 500);
-            }
-        });
-
-        function typeWriter(element, text, index) {
-            if (index < text.length) {
-                element.textContent += text.charAt(index);
-                element.style.width = 'auto';
-                setTimeout(() => {
-                    typeWriter(element, text, index + 1);
-                }, 50);
-            } else {
-                // Remove the blinking cursor after typing is complete
-                setTimeout(() => {
-                    element.style.borderRight = 'none';
-                }, 1000);
-            }
-        }
-
-        // Handle toggle switches
-        document.addEventListener('DOMContentLoaded', function() {
-            const toggleSwitches = document.querySelectorAll('.toggle-switch input');
-            
-            toggleSwitches.forEach(function(toggle) {
-                toggle.addEventListener('change', function() {
-                    // Auto-save when toggle changes
-                    document.getElementById('settingsForm').submit();
-                });
-            });
-        });
-
-        // Theme preview
-        document.getElementById('theme').addEventListener('change', function() {
-            const theme = this.value;
-            // You could implement live theme preview here
-            console.log('Theme changed to:', theme);
-        });
-
-        // Language change
-        document.getElementById('language').addEventListener('change', function() {
-            const language = this.value;
-            // You could implement language change logic here
-            console.log('Language changed to:', language);
-        });
-    </script>
-    
-    <!-- Footer Styles -->
+    <!-- Custom Modal Styles -->
     <style>
-        /* Footer */
-        footer {
-            background: #000000;
-            color: white;
-            padding: 4rem 2rem 2rem 242px;
-            margin-top: 4rem;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        footer::before {
-            content: '';
-            position: absolute;
+        .gsc-modal-overlay {
+            position: fixed;
             top: 0;
             left: 0;
             right: 0;
             bottom: 0;
-            background: linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.1), transparent);
-        }
-        
-        .footer-content {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-        
-        .footer-grid {
-            display: grid;
-            grid-template-columns: 2fr 1fr 1fr 1fr;
-            gap: 3rem;
-            margin-bottom: 2rem;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            padding-bottom: 2rem;
-        }
-        
-        .footer-brand {
-            grid-column: 1;
-        }
-        
-        .footer-logo {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            color: white;
-            font-size: 1.5rem;
-            font-weight: bold;
-            text-decoration: none;
-            margin-bottom: 1rem;
-            transition: all 0.3s ease;
-            background: linear-gradient(45deg, #FFD700, #FFA500);
-            padding: 8px 16px;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(255, 215, 0, 0.4);
-            border: 2px solid rgba(255, 255, 255, 0.3);
-        }
-        
-        .footer-logo:hover {
-            color: #0078D4;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0, 120, 212, 0.3);
-        }
-        
-        .footer-description {
-            color: #b0b0b0;
-            line-height: 1.7;
-            margin-bottom: 1.5rem;
-            font-size: 0.95rem;
-        }
-        
-        .footer-contact {
-            display: flex;
-            flex-direction: column;
-            gap: 0.75rem;
-        }
-        
-        .footer-contact-item {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            color: #b0b0b0;
-            text-decoration: none;
-            transition: color 0.3s ease;
-        }
-        
-        .footer-contact-item:hover {
-            color: #0078D4;
-        }
-        
-        .footer-contact-item i {
-            width: 20px;
-            text-align: center;
-        }
-        
-        .footer-column h3 {
-            font-size: 1.1rem;
-            font-weight: 600;
-            margin-bottom: 1.5rem;
-            color: white;
-            position: relative;
-        }
-        
-        .footer-column h3::after {
-            content: '';
-            position: absolute;
-            bottom: -8px;
-            left: 0;
-            width: 40px;
-            height: 3px;
-            background: linear-gradient(135deg, #0078D4 0%, #106EBE 100%);
-        }
-        
-        .footer-links {
-            display: flex;
-            flex-direction: column;
-            gap: 0.75rem;
-        }
-
-        .footer-links a {
-            color: #b0b0b0;
-            text-decoration: none;
-            transition: all 0.3s ease;
-            position: relative;
-            padding-left: 0;
-        }
-        
-        .footer-links a::before {
-            content: '';
-            position: absolute;
-            left: -15px;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 0;
-            height: 1px;
-            background: #667eea;
-            opacity: 0;
-            transition: all 0.3s ease;
-        }
-        
-        .footer-links a:hover {
-            color: #0078D4;
-            padding-left: 10px;
-        }
-        
-        .footer-links a:hover::before {
-            opacity: 1;
-        }
-        
-        .footer-social {
-            display: flex;
-            gap: 1rem;
-            margin-top: 1.5rem;
-        }
-        
-        .footer-social a {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.1);
-            color: #b0b0b0;
+            background: rgba(0, 0, 0, 0.5);
             display: flex;
             align-items: center;
             justify-content: center;
-            text-decoration: none;
-            transition: all 0.3s ease;
+            z-index: 9999;
+            animation: gscFadeIn 0.2s ease-out;
         }
-        
-        .footer-social a:hover {
-            background: linear-gradient(135deg, #0078D4 0%, #106EBE 100%);
-            color: white;
-            transform: translateY(-3px);
-            box-shadow: 0 5px 15px rgba(0, 120, 212, 0.3);
+
+        @keyframes gscFadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
-        
-        .footer-bottom {
+
+        .gsc-modal {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 10px 20px rgba(0, 0, 0, 0.19);
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: gscSlideUp 0.3s ease-out;
+        }
+
+        @keyframes gscSlideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .gsc-modal-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding-top: 2rem;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            font-size: 0.85rem;
-        }
-        
-        .footer-bottom-links {
-            display: flex;
-            gap: 2rem;
-        }
-        
-        .footer-bottom-links a {
-            color: #808080;
-            text-decoration: none;
-            transition: color 0.3s ease;
-            font-size: 0.85rem;
-        }
-        
-        .footer-bottom-links a:hover {
-            color: #667eea;
+            padding: 20px 24px;
+            border-bottom: 1px solid #e8eaed;
         }
 
-        @media (max-width: 768px) {
-            footer {
-                padding: 4rem 2rem 2rem;
-            }
-            
-            .footer-grid {
-                grid-template-columns: 1fr;
-                gap: 2rem;
-                text-align: center;
-            }
-            
-            .footer-brand {
-                text-align: center;
-            }
-            
-            .footer-logo {
-                justify-content: center;
-            }
-            
-            .footer-contact {
-                align-items: center;
-            }
-            
-            .footer-bottom {
-                flex-direction: column;
-                gap: 1rem;
-                text-align: center;
-            }
-            
-            .footer-bottom-links {
-                justify-content: center;
-                flex-wrap: wrap;
-            }
-        }
-
-        /* Homepage color accents */
-        :root {
-            --primary-orange: #FF6B35;
-            --primary-gold: #FFD700;
-        }
-
-        .text-orange {
-            color: var(--primary-orange) !important;
-        }
-
-        .text-golden {
-            color: var(--primary-gold) !important;
-        }
-
-        .text-white {
-            color: #ffffff !important;
-        }
-
-        .custom-header {
-            background: #000000;
-            border-bottom-color: var(--primary-gold);
-        }
-
-        .custom-logo {
-            color: #ffffff;
-        }
-
-        .custom-logo .brand-name,
-        .custom-logo .brand-name span {
-            background: transparent;
-            width: auto;
-            height: auto;
-            border: 0;
-            border-radius: 0;
-            box-shadow: none;
-            display: inline;
-            font-size: inherit;
+        .gsc-modal-title {
+            font-size: 20px;
+            font-weight: 500;
+            color: #202124;
             margin: 0;
+        }
+
+        .gsc-modal-close {
+            background: none;
+            border: none;
+            font-size: 28px;
+            color: #5f6368;
+            cursor: pointer;
             padding: 0;
-            text-shadow: none;
-        }
-
-        .sidebar-header h3 {
-            background: transparent !important;
-            -webkit-background-clip: border-box !important;
-            background-clip: border-box !important;
-            -webkit-text-fill-color: currentColor !important;
-            color: #ffffff !important;
-        }
-
-        .header h1,
-        .hero-text h1 {
-            color: #ffffff;
-        }
-
-        .header h1::first-letter,
-        .hero-text h1::first-letter,
-        .card-title::first-letter,
-        .settings-section h3::first-letter {
-            color: var(--primary-orange);
-        }
-
-        .header p,
-        .hero-text p,
-        .sidebar-header p,
-        .form-group label,
-        .toggle-label {
-            color: #ffffff;
-        }
-
-        .card-title,
-        .settings-section h3 {
-            color: var(--primary-gold);
-        }
-
-        .stat-value,
-        .hero-stat-number {
-            color: var(--primary-gold);
-        }
-
-        .stat-label,
-        .hero-stat-label {
-            color: #ffffff;
-        }
-
-        .menu-item i,
-        .settings-section h3 i {
-            color: var(--primary-orange);
-        }
-
-        .menu-item:hover,
-        .menu-item.active {
-            color: var(--primary-gold);
-        }
-
-        /* Homepage footer styling */
-        footer {
-            --primary-orange: #FF6B35;
-            --primary-gold: #FFD700;
-            background: #000000;
-            color: white;
-            padding: 4rem 2rem 2rem;
-            margin-top: 4rem;
-            position: relative;
-            overflow: hidden;
-        }
-
-        footer .text-orange {
-            color: var(--primary-orange) !important;
-        }
-
-        footer .text-golden {
-            color: var(--primary-gold) !important;
-        }
-
-        footer .text-white {
-            color: #ffffff !important;
-        }
-
-        @media (min-width: 769px) {
-            footer {
-                margin-left: 220px;
-            }
-        }
-
-        footer::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: auto;
-            height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-        }
-
-        .footer-grid {
-            grid-template-columns: 2fr 1fr 1fr 1fr;
-            gap: 2rem;
-            margin-bottom: 3rem;
-            padding-bottom: 3rem;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            text-align: left;
-        }
-
-        .footer-logo {
-            color: white;
-            background: transparent;
-            padding: 0;
-            border: 0;
-            border-radius: 0;
-            box-shadow: none;
-            margin-bottom: 0;
-        }
-
-        .footer-logo:hover {
-            color: var(--primary-orange);
-            transform: translateY(-2px);
-            box-shadow: none;
-        }
-
-        .footer-description {
-            max-width: 400px;
-        }
-
-        .footer-contact-item {
-            font-size: 0.9rem;
-        }
-
-        .footer-contact-item:hover {
-            color: #667eea;
-        }
-
-        .footer-column h3 {
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .footer-column h3::after {
-            width: 30px;
-            height: 2px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        }
-
-        .footer-links a {
-            font-weight: 400;
-            font-size: 0.9rem;
-        }
-
-        .footer-links a::before {
-            width: 6px;
-            height: 6px;
-            background: #667eea;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             border-radius: 50%;
+            transition: background 0.2s;
         }
 
-        .footer-links a:hover {
-            color: #667eea;
+        .gsc-modal-close:hover {
+            background: #f1f3f4;
         }
 
-        .footer-social a {
-            border: 1px solid rgba(255, 255, 255, 0.2);
+        .gsc-modal-body {
+            padding: 24px;
         }
 
-        .footer-social a:hover {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        .gsc-modal-warning {
+            display: flex;
+            gap: 12px;
+            padding: 16px;
+            background: #fce8e6;
+            border-radius: 4px;
+            margin-bottom: 24px;
+            color: #c5221f;
+            font-size: 14px;
         }
 
-        .footer-bottom {
-            border-top: 1px solid rgba(255, 255, 255, 0.05);
-            color: #808080;
+        .gsc-modal-warning i {
+            font-size: 20px;
+            flex-shrink: 0;
         }
 
-        @media (max-width: 768px) {
-            footer {
-                margin-left: 0;
-            }
-
-            .footer-grid {
-                grid-template-columns: 1fr 1fr;
-                gap: 2rem;
-                text-align: left;
-            }
-
-            .footer-brand {
-                grid-column: 1 / -1;
-                text-align: left;
-                padding-left: 0;
-            }
-
-            .footer-logo {
-                justify-content: flex-start;
-            }
-
-            .footer-description {
-                display: none;
-            }
-
-            .footer-contact {
-                align-items: stretch;
-                justify-content: flex-start;
-            }
-
-            .footer-bottom {
-                flex-direction: column;
-                text-align: center;
-                gap: 1rem;
-            }
+        .gsc-form-group {
+            margin-bottom: 20px;
         }
 
-        @media (max-width: 480px) {
-            .footer-grid {
-                grid-template-columns: 1fr;
-                gap: 1.5rem;
-            }
+        .gsc-form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: #202124;
+            margin-bottom: 8px;
+        }
+
+        .gsc-form-input {
+            width: 100%;
+            padding: 12px 16px;
+            font-size: 14px;
+            border: 1px solid #dadce0;
+            border-radius: 4px;
+            font-family: inherit;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            box-sizing: border-box;
+        }
+
+        .gsc-form-input:focus {
+            outline: none;
+            border-color: #1a73e8;
+            box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.2);
+        }
+
+        .gsc-form-textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .gsc-form-hint {
+            display: block;
+            margin-top: 4px;
+            font-size: 12px;
+            color: #5f6368;
+        }
+
+        .gsc-checkbox-label {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            cursor: pointer;
+        }
+
+        .gsc-checkbox {
+            margin-top: 2px;
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .gsc-checkbox-text {
+            font-size: 14px;
+            color: #202124;
+            line-height: 1.5;
+        }
+
+        .gsc-modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            padding: 16px 24px;
+            border-top: 1px solid #e8eaed;
+            background: #f8f9fa;
+        }
+
+        .gsc-btn {
+            padding: 10px 24px;
+            font-size: 14px;
+            font-weight: 500;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: inherit;
+            transition: background 0.2s;
+        }
+
+        .gsc-btn-secondary {
+            background: white;
+            color: #5f6368;
+            border: 1px solid #dadce0;
+        }
+
+        .gsc-btn-secondary:hover {
+            background: #f1f3f4;
+        }
+
+        .gsc-btn-danger {
+            background: #c5221f;
+            color: white;
+        }
+
+        .gsc-btn-danger:hover {
+            background: #b41520;
+        }
+
+        .dark-mode .gsc-modal {
+            background: #1a1a1a;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3), 0 10px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        .dark-mode .gsc-modal-header {
+            border-bottom-color: #2a2a2a;
+        }
+
+        .dark-mode .gsc-modal-title {
+            color: #e8eaed;
+        }
+
+        .dark-mode .gsc-modal-close {
+            color: #9aa0a6;
+        }
+
+        .dark-mode .gsc-modal-close:hover {
+            background: #2a2a2a;
+        }
+
+        .dark-mode .gsc-form-label {
+            color: #e8eaed;
+        }
+
+        .dark-mode .gsc-form-input {
+            background: #252525;
+            border-color: #3a3a3a;
+            color: #e8eaed;
+        }
+
+        .dark-mode .gsc-form-input:focus {
+            border-color: #8ab4f8;
+            box-shadow: 0 0 0 2px rgba(138, 180, 248, 0.2);
+        }
+
+        .dark-mode .gsc-form-hint {
+            color: #9aa0a6;
+        }
+
+        .dark-mode .gsc-checkbox-text {
+            color: #e8eaed;
+        }
+
+        .dark-mode .gsc-modal-footer {
+            background: #1a1a1a;
+            border-top-color: #2a2a2a;
+        }
+
+        .dark-mode .gsc-btn-secondary {
+            background: #252525;
+            color: #e8eaed;
+            border-color: #3a3a3a;
+        }
+
+        .dark-mode .gsc-btn-secondary:hover {
+            background: #2a2a2a;
         }
     </style>
+
+    <!-- Footer -->
+    <footer style="background: transparent; color: var(--secondary-color); padding: 2rem; text-align: center; border-top: 1px solid var(--border-color); margin-top: 40px;">
+        <p style="margin: 0;">
+            <span style="color: #FF6B35;">&copy; 2026</span>
+            <span style="color: #FF6B35;">Kenya</span>
+            <span style="color: #008000;">EduHub</span>
+            <span style="color: var(--secondary-color);">. All rights reserved.</span>
+        </p>
+    </footer>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Custom Modal Handlers
+            const openDeleteModalBtn = document.getElementById('openDeleteModalBtn');
+            const closeDeleteModalBtn = document.getElementById('closeDeleteModalBtn');
+            const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
+            const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+            const deleteAccountModal = document.getElementById('deleteAccountModal');
+            const deleteAccountForm = document.getElementById('deleteAccountForm');
+
+            // Open modal
+            if (openDeleteModalBtn) {
+                openDeleteModalBtn.addEventListener('click', function() {
+                    deleteAccountModal.style.display = 'flex';
+                    document.body.style.overflow = 'hidden';
+                });
+            }
+
+            // Close modal functions
+            function closeModal() {
+                deleteAccountModal.style.display = 'none';
+                document.body.style.overflow = '';
+                // Reset form
+                deleteAccountForm.reset();
+            }
+
+            // Close button
+            if (closeDeleteModalBtn) {
+                closeDeleteModalBtn.addEventListener('click', closeModal);
+            }
+
+            // Cancel button
+            if (cancelDeleteBtn) {
+                cancelDeleteBtn.addEventListener('click', closeModal);
+            }
+
+            // Close on overlay click
+            deleteAccountModal.addEventListener('click', function(e) {
+                if (e.target === deleteAccountModal) {
+                    closeModal();
+                }
+            });
+
+            // Close on Escape key
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && deleteAccountModal.style.display === 'flex') {
+                    closeModal();
+                }
+            });
+
+            // Confirm delete button
+            if (confirmDeleteBtn) {
+                confirmDeleteBtn.addEventListener('click', function() {
+                    const confirmEmail = document.getElementById('confirm_email').value;
+                    const confirmCheckbox = document.getElementById('confirmDelete');
+                    
+                    if (!confirmCheckbox.checked) {
+                        alert('Please confirm that you understand this action cannot be undone.');
+                        return;
+                    }
+                    
+                    if (!confirmEmail) {
+                        alert('Please enter your email address to confirm deletion.');
+                        return;
+                    }
+                    
+                    // Submit the form
+                    deleteAccountForm.submit();
+                });
+            }
+        });
+
+        // Dark Mode Toggle
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+            const toggleBtn = document.querySelector('.dark-mode-toggle i');
+            const themeSelect = document.getElementById('theme');
+            
+            if (document.body.classList.contains('dark-mode')) {
+                toggleBtn.classList.remove('fa-moon');
+                toggleBtn.classList.add('fa-sun');
+                localStorage.setItem('darkMode', 'enabled');
+                if (themeSelect) themeSelect.value = 'dark';
+                
+                // Update user preference in database
+                fetch('update_theme.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: 'theme=dark'
+                });
+            } else {
+                toggleBtn.classList.remove('fa-sun');
+                toggleBtn.classList.add('fa-moon');
+                localStorage.setItem('darkMode', 'disabled');
+                if (themeSelect) themeSelect.value = 'light';
+                
+                // Update user preference in database
+                fetch('update_theme.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: 'theme=light'
+                });
+            }
+        }
+        
+        // Check for saved dark mode preference
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedDarkMode = localStorage.getItem('darkMode');
+            const themeSelect = document.getElementById('theme');
+            
+            // Apply user's saved theme from database (already applied via PHP)
+            // Update localStorage to match
+            const currentTheme = themeSelect ? themeSelect.value : 'light';
+            
+            if (currentTheme === 'dark') {
+                document.body.classList.add('dark-mode');
+                const toggleBtn = document.querySelector('.dark-mode-toggle i');
+                if (toggleBtn) {
+                    toggleBtn.classList.remove('fa-moon');
+                    toggleBtn.classList.add('fa-sun');
+                }
+                localStorage.setItem('darkMode', 'enabled');
+            } else if (currentTheme === 'light') {
+                document.body.classList.remove('dark-mode');
+                const toggleBtn = document.querySelector('.dark-mode-toggle i');
+                if (toggleBtn) {
+                    toggleBtn.classList.remove('fa-sun');
+                    toggleBtn.classList.add('fa-moon');
+                }
+                localStorage.setItem('darkMode', 'disabled');
+            } else if (currentTheme === 'auto') {
+                // Check system preference
+                if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                    document.body.classList.add('dark-mode');
+                    const toggleBtn = document.querySelector('.dark-mode-toggle i');
+                    if (toggleBtn) {
+                        toggleBtn.classList.remove('fa-moon');
+                        toggleBtn.classList.add('fa-sun');
+                    }
+                } else {
+                    document.body.classList.remove('dark-mode');
+                    const toggleBtn = document.querySelector('.dark-mode-toggle i');
+                    if (toggleBtn) {
+                        toggleBtn.classList.remove('fa-sun');
+                        toggleBtn.classList.add('fa-moon');
+                    }
+                }
+                localStorage.setItem('darkMode', 'auto');
+            }
+            
+            // Theme select handler
+            if (themeSelect) {
+                themeSelect.addEventListener('change', function() {
+                    const theme = this.value;
+                    if (theme === 'dark') {
+                        document.body.classList.add('dark-mode');
+                        const toggleBtn = document.querySelector('.dark-mode-toggle i');
+                        if (toggleBtn) {
+                            toggleBtn.classList.remove('fa-moon');
+                            toggleBtn.classList.add('fa-sun');
+                        }
+                        localStorage.setItem('darkMode', 'enabled');
+                    } else if (theme === 'light') {
+                        document.body.classList.remove('dark-mode');
+                        const toggleBtn = document.querySelector('.dark-mode-toggle i');
+                        if (toggleBtn) {
+                            toggleBtn.classList.remove('fa-sun');
+                            toggleBtn.classList.add('fa-moon');
+                        }
+                        localStorage.setItem('darkMode', 'disabled');
+                    } else if (theme === 'auto') {
+                        // Check system preference
+                        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                            document.body.classList.add('dark-mode');
+                            const toggleBtn = document.querySelector('.dark-mode-toggle i');
+                            if (toggleBtn) {
+                                toggleBtn.classList.remove('fa-moon');
+                                toggleBtn.classList.add('fa-sun');
+                            }
+                        } else {
+                            document.body.classList.remove('dark-mode');
+                            const toggleBtn = document.querySelector('.dark-mode-toggle i');
+                            if (toggleBtn) {
+                                toggleBtn.classList.remove('fa-sun');
+                                toggleBtn.classList.add('fa-moon');
+                            }
+                        }
+                        localStorage.setItem('darkMode', 'auto');
+                    }
+                });
+            }
+        });
+        
+        // Toggle Sidebar
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('mainContent');
+            
+            if (window.innerWidth <= 768) {
+                sidebar.classList.toggle('show');
+            } else {
+                sidebar.classList.toggle('collapsed');
+                mainContent.classList.toggle('expanded');
+            }
+        }
+    </script>
 </body>
 </html>

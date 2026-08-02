@@ -74,19 +74,152 @@ try {
     $sms_settings = [];
 }
 
+// Get current site settings from database
+$site_settings = [];
+try {
+    // Create table if it doesn't exist
+    $conn->query("CREATE TABLE IF NOT EXISTS admin_site_settings (
+        id INT PRIMARY KEY AUTO_INCREMENT,
+        site_name VARCHAR(255) DEFAULT 'Kenya EduHub',
+        site_description TEXT,
+        admin_email VARCHAR(255),
+        max_file_size INT DEFAULT 10,
+        allowed_extensions VARCHAR(255) DEFAULT 'pdf,doc,docx,ppt,pptx,xls,xlsx,txt',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    )");
+    
+    $stmt = $conn->prepare("SELECT * FROM admin_site_settings LIMIT 1");
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $site_settings = $result->fetch_assoc();
+} catch (Exception $e) {
+    // Table might not exist yet or other error
+    $site_settings = [];
+}
+
+// Get current system settings from database
+$system_settings = [];
+try {
+    // Create table if it doesn't exist
+    $conn->query("CREATE TABLE IF NOT EXISTS admin_system_settings (
+        id INT PRIMARY KEY AUTO_INCREMENT,
+        maintenance_mode INT DEFAULT 0,
+        debug_mode INT DEFAULT 0,
+        session_timeout INT DEFAULT 30,
+        max_login_attempts INT DEFAULT 5,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    )");
+    
+    $stmt = $conn->prepare("SELECT * FROM admin_system_settings LIMIT 1");
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $system_settings = $result->fetch_assoc();
+} catch (Exception $e) {
+    // Table might not exist yet or other error
+    $system_settings = [];
+}
+
+// Get current backup settings from database
+$backup_settings = [];
+try {
+    // Create table if it doesn't exist
+    $conn->query("CREATE TABLE IF NOT EXISTS admin_backup_settings (
+        id INT PRIMARY KEY AUTO_INCREMENT,
+        backup_enabled INT DEFAULT 0,
+        backup_frequency VARCHAR(20) DEFAULT 'daily',
+        backup_path VARCHAR(255),
+        backup_retention_days INT DEFAULT 7,
+        auto_backup INT DEFAULT 0,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    )");
+    
+    $stmt = $conn->prepare("SELECT * FROM admin_backup_settings LIMIT 1");
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $backup_settings = $result->fetch_assoc();
+} catch (Exception $e) {
+    // Table might not exist yet or other error
+    $backup_settings = [];
+}
+
+// Get recent backup files
+$backup_files = [];
+$backup_path = $backup_settings['backup_path'] ?? '../backups';
+$backup_path = rtrim($backup_path, '/');
+
+// Helper function to format bytes
+function formatBytes($bytes) {
+    if ($bytes === 0) return '0 Bytes';
+    $k = 1024;
+    $sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    $i = floor(log($bytes) / log($k));
+    return round($bytes / pow($k, $i), 2) . ' ' . $sizes[$i];
+}
+
+if (is_dir($backup_path)) {
+    $files = glob($backup_path . '/backup_*');
+    foreach ($files as $file) {
+        $backup_files[] = [
+            'name' => basename($file),
+            'size' => filesize($file),
+            'date' => filemtime($file),
+            'path' => $file
+        ];
+    }
+    
+    // Sort by date descending
+    usort($backup_files, function($a, $b) {
+        return $b['date'] - $a['date'];
+    });
+    
+    // Show only last 10 backups
+    $backup_files = array_slice($backup_files, 0, 10);
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['action'])) {
         switch ($_POST['action']) {
             case 'update_site_settings':
                 try {
-                    // Update site settings (this would normally update a database table)
+                    // Update site settings in database
                     $site_name = $_POST['site_name'] ?? 'Kenya EduHub';
                     $site_description = $_POST['site_description'] ?? '';
                     $admin_email = $_POST['admin_email'] ?? '';
-                    $max_file_size = $_POST['max_file_size'] ?? 10;
+                    $max_file_size = intval($_POST['max_file_size'] ?? 10);
                     $allowed_extensions = $_POST['allowed_extensions'] ?? 'pdf,doc,docx,ppt,pptx,xls,xlsx,txt';
                     
-                    // For demo purposes, we'll just show success
+                    // Validate CSRF token
+                    if (!validateCSRFLite($_POST['csrf_token'])) {
+                        throw new Exception("Invalid CSRF token");
+                    }
+                    
+                    // Check if settings exist
+                    $stmt = $conn->prepare("SELECT COUNT(*) as count FROM admin_site_settings");
+                    $stmt->execute();
+                    $result = $stmt->get_result();
+                    $row = $result->fetch_assoc();
+                    
+                    if ($row['count'] > 0) {
+                        // Update existing settings
+                        $stmt = $conn->prepare("UPDATE admin_site_settings SET site_name = ?, site_description = ?, admin_email = ?, max_file_size = ?, allowed_extensions = ? WHERE id = 1");
+                        $stmt->bind_param("sssis", $site_name, $site_description, $admin_email, $max_file_size, $allowed_extensions);
+                        $stmt->execute();
+                    } else {
+                        // Insert new settings
+                        $stmt = $conn->prepare("INSERT INTO admin_site_settings (site_name, site_description, admin_email, max_file_size, allowed_extensions) VALUES (?, ?, ?, ?, ?)");
+                        $stmt->bind_param("sssis", $site_name, $site_description, $admin_email, $max_file_size, $allowed_extensions);
+                        $stmt->execute();
+                    }
+                    
+                    // Refresh settings
+                    $stmt = $conn->prepare("SELECT * FROM admin_site_settings LIMIT 1");
+                    $stmt->execute();
+                    $result = $stmt->get_result();
+                    $site_settings = $result->fetch_assoc();
+                    
                     $success = "Site settings updated successfully!";
                 } catch (Exception $e) {
                     $error = "Error updating site settings: " . $e->getMessage();
@@ -95,14 +228,86 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 
             case 'update_system_settings':
                 try {
-                    $maintenance_mode = $_POST['maintenance_mode'] ?? 'off';
-                    $debug_mode = $_POST['debug_mode'] ?? 'off';
-                    $session_timeout = $_POST['session_timeout'] ?? 30;
-                    $max_login_attempts = $_POST['max_login_attempts'] ?? 5;
+                    $maintenance_mode = isset($_POST['maintenance_mode']) ? 1 : 0;
+                    $debug_mode = isset($_POST['debug_mode']) ? 1 : 0;
+                    $session_timeout = intval($_POST['session_timeout'] ?? 30);
+                    $max_login_attempts = intval($_POST['max_login_attempts'] ?? 5);
+                    
+                    // Validate CSRF token
+                    if (!validateCSRFLite($_POST['csrf_token'])) {
+                        throw new Exception("Invalid CSRF token");
+                    }
+                    
+                    // Check if settings exist
+                    $stmt = $conn->prepare("SELECT COUNT(*) as count FROM admin_system_settings");
+                    $stmt->execute();
+                    $result = $stmt->get_result();
+                    $row = $result->fetch_assoc();
+                    
+                    if ($row['count'] > 0) {
+                        // Update existing settings
+                        $stmt = $conn->prepare("UPDATE admin_system_settings SET maintenance_mode = ?, debug_mode = ?, session_timeout = ?, max_login_attempts = ? WHERE id = 1");
+                        $stmt->bind_param("iiii", $maintenance_mode, $debug_mode, $session_timeout, $max_login_attempts);
+                        $stmt->execute();
+                    } else {
+                        // Insert new settings
+                        $stmt = $conn->prepare("INSERT INTO admin_system_settings (maintenance_mode, debug_mode, session_timeout, max_login_attempts) VALUES (?, ?, ?, ?)");
+                        $stmt->bind_param("iiii", $maintenance_mode, $debug_mode, $session_timeout, $max_login_attempts);
+                        $stmt->execute();
+                    }
+                    
+                    // Refresh settings
+                    $stmt = $conn->prepare("SELECT * FROM admin_system_settings LIMIT 1");
+                    $stmt->execute();
+                    $result = $stmt->get_result();
+                    $system_settings = $result->fetch_assoc();
                     
                     $success = "System settings updated successfully!";
                 } catch (Exception $e) {
                     $error = "Error updating system settings: " . $e->getMessage();
+                }
+                break;
+                
+            case 'update_backup_settings':
+                try {
+                    $backup_enabled = isset($_POST['backup_enabled']) ? 1 : 0;
+                    $backup_frequency = $_POST['backup_frequency'] ?? 'daily';
+                    $backup_path = trim($_POST['backup_path'] ?? '');
+                    $backup_retention_days = intval($_POST['backup_retention_days'] ?? 7);
+                    $auto_backup = isset($_POST['auto_backup']) ? 1 : 0;
+                    
+                    // Validate CSRF token
+                    if (!validateCSRFLite($_POST['csrf_token'])) {
+                        throw new Exception("Invalid CSRF token");
+                    }
+                    
+                    // Check if settings exist
+                    $stmt = $conn->prepare("SELECT COUNT(*) as count FROM admin_backup_settings");
+                    $stmt->execute();
+                    $result = $stmt->get_result();
+                    $row = $result->fetch_assoc();
+                    
+                    if ($row['count'] > 0) {
+                        // Update existing settings
+                        $stmt = $conn->prepare("UPDATE admin_backup_settings SET backup_enabled = ?, backup_frequency = ?, backup_path = ?, backup_retention_days = ?, auto_backup = ? WHERE id = 1");
+                        $stmt->bind_param("issii", $backup_enabled, $backup_frequency, $backup_path, $backup_retention_days, $auto_backup);
+                        $stmt->execute();
+                    } else {
+                        // Insert new settings
+                        $stmt = $conn->prepare("INSERT INTO admin_backup_settings (backup_enabled, backup_frequency, backup_path, backup_retention_days, auto_backup) VALUES (?, ?, ?, ?, ?)");
+                        $stmt->bind_param("issii", $backup_enabled, $backup_frequency, $backup_path, $backup_retention_days, $auto_backup);
+                        $stmt->execute();
+                    }
+                    
+                    // Refresh settings
+                    $stmt = $conn->prepare("SELECT * FROM admin_backup_settings LIMIT 1");
+                    $stmt->execute();
+                    $result = $stmt->get_result();
+                    $backup_settings = $result->fetch_assoc();
+                    
+                    $success = "Backup settings updated successfully!";
+                } catch (Exception $e) {
+                    $error = "Error updating backup settings: " . $e->getMessage();
                 }
                 break;
                 
@@ -743,61 +948,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['ac
     
     <!-- Sidebar -->
     <aside class="sidebar" id="sidebar">
-        <div class="sidebar-section">
-            <div class="sidebar-title" onclick="toggleSidebarSection(this)">
-                Main <i class="fas fa-chevron-down chevron"></i>
-            </div>
-            <div class="sidebar-links">
-                <a class="nav-link" href="dashboard">
-                    <i class="fas fa-tachometer-alt"></i> Dashboard
-                </a>
-                <a class="nav-link" href="schools">
-                    <i class="fas fa-school"></i> Schools
-                </a>
-            </div>
-        </div>
-        
-        <div class="sidebar-section">
-            <div class="sidebar-title" onclick="toggleSidebarSection(this)">
-                Management <i class="fas fa-chevron-down chevron"></i>
-            </div>
-            <div class="sidebar-links">
-                <a class="nav-link" href="users">
-                    <i class="fas fa-users"></i> Users
-                </a>
-                <a class="nav-link" href="resources">
-                    <i class="fas fa-book"></i> Resources
-                </a>
-            </div>
-        </div>
-        
-        <div class="sidebar-section">
-            <div class="sidebar-title" onclick="toggleSidebarSection(this)">
-                Reports <i class="fas fa-chevron-down chevron"></i>
-            </div>
-            <div class="sidebar-links">
-                <a class="nav-link" href="reports">
-                    <i class="fas fa-chart-bar"></i> Reports
-                </a>
-                <a class="nav-link" href="logs">
-                    <i class="fas fa-file-alt"></i> Logs
-                </a>
-            </div>
-        </div>
-        
-        <div class="sidebar-section">
-            <div class="sidebar-title" onclick="toggleSidebarSection(this)">
-                Settings <i class="fas fa-chevron-down chevron"></i>
-            </div>
-            <div class="sidebar-links">
-                <a class="nav-link active" href="settings">
-                    <i class="fas fa-cog"></i> Settings
-                </a>
-                <a class="nav-link" href="logout">
-                    <i class="fas fa-sign-out-alt"></i> Logout
-                </a>
-            </div>
-        </div>
+        <a class="nav-link" href="dashboard">
+            <i class="fas fa-tachometer-alt"></i> Dashboard
+        </a>
+        <a class="nav-link" href="schools">
+            <i class="fas fa-school"></i> Schools
+        </a>
+        <a class="nav-link" href="users">
+            <i class="fas fa-users"></i> Users
+        </a>
+        <a class="nav-link" href="resources">
+            <i class="fas fa-book"></i> Resources
+        </a>
+        <a class="nav-link" href="reports">
+            <i class="fas fa-chart-bar"></i> Reports
+        </a>
+        <a class="nav-link" href="logs">
+            <i class="fas fa-file-alt"></i> Logs
+        </a>
+        <a class="nav-link active" href="settings">
+            <i class="fas fa-cog"></i> Settings
+        </a>
+        <a class="nav-link" href="logout">
+            <i class="fas fa-sign-out-alt"></i> Logout
+        </a>
     </aside>
     
     <!-- Main Content -->
@@ -832,28 +1006,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['ac
                         
                         <div class="mb-3">
                             <label class="form-label">Site Name</label>
-                            <input type="text" class="form-control" id="site_name" name="site_name" value="Kenya EduHub" required>
+                            <input type="text" class="form-control" id="site_name" name="site_name" value="<?php echo htmlspecialchars($site_settings['site_name'] ?? 'Kenya EduHub'); ?>" required>
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label">Site Description</label>
-                            <textarea class="form-control" id="site_description" name="site_description" placeholder="Enter site description...">Educational resource management system for Kenyan schools</textarea>
+                            <textarea class="form-control" id="site_description" name="site_description" placeholder="Enter site description..."><?php echo htmlspecialchars($site_settings['site_description'] ?? 'Educational resource management system for Kenyan schools'); ?></textarea>
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label">Admin Email</label>
-                            <input type="email" class="form-control" id="admin_email" name="admin_email" value="admin@kenyaeduhub.com" required>
+                            <input type="email" class="form-control" id="admin_email" name="admin_email" value="<?php echo htmlspecialchars($site_settings['admin_email'] ?? 'admin@kenyaeduhub.com'); ?>" required>
                         </div>
 
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Max File Size (MB)</label>
-                                <input type="number" class="form-control" id="max_file_size" name="max_file_size" value="10" min="1" max="100">
+                                <input type="number" class="form-control" id="max_file_size" name="max_file_size" value="<?php echo htmlspecialchars($site_settings['max_file_size'] ?? 10); ?>" min="1" max="100">
                             </div>
 
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Allowed Extensions</label>
-                                <input type="text" class="form-control" id="allowed_extensions" name="allowed_extensions" value="pdf,doc,docx,ppt,pptx,xls,xlsx,txt">
+                                <input type="text" class="form-control" id="allowed_extensions" name="allowed_extensions" value="<?php echo htmlspecialchars($site_settings['allowed_extensions'] ?? 'pdf,doc,docx,ppt,pptx,xls,xlsx,txt'); ?>">
                             </div>
                         </div>
 
@@ -876,14 +1050,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['ac
                         
                         <div class="mb-3">
                             <div class="form-check form-switch">
-                                <input class="form-check-input" type="checkbox" id="maintenance_mode" name="maintenance_mode">
+                                <input class="form-check-input" type="checkbox" id="maintenance_mode" name="maintenance_mode" <?php echo ($system_settings['maintenance_mode'] ?? 0) ? 'checked' : ''; ?>>
                                 <label class="form-check-label" for="maintenance_mode">Maintenance Mode</label>
                             </div>
                         </div>
 
                         <div class="mb-3">
                             <div class="form-check form-switch">
-                                <input class="form-check-input" type="checkbox" id="debug_mode" name="debug_mode">
+                                <input class="form-check-input" type="checkbox" id="debug_mode" name="debug_mode" <?php echo ($system_settings['debug_mode'] ?? 0) ? 'checked' : ''; ?>>
                                 <label class="form-check-label" for="debug_mode">Debug Mode</label>
                             </div>
                         </div>
@@ -891,12 +1065,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['ac
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Session Timeout (minutes)</label>
-                                <input type="number" class="form-control" id="session_timeout" name="session_timeout" value="30" min="5" max="120">
+                                <input type="number" class="form-control" id="session_timeout" name="session_timeout" value="<?php echo htmlspecialchars($system_settings['session_timeout'] ?? 30); ?>" min="5" max="120">
                             </div>
 
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Max Login Attempts</label>
-                                <input type="number" class="form-control" id="max_login_attempts" name="max_login_attempts" value="5" min="3" max="10">
+                                <input type="number" class="form-control" id="max_login_attempts" name="max_login_attempts" value="<?php echo htmlspecialchars($system_settings['max_login_attempts'] ?? 5); ?>" min="3" max="10">
                             </div>
                         </div>
 
@@ -904,6 +1078,103 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['ac
                             <i class="fas fa-save me-2"></i> Save Changes
                         </button>
                     </form>
+                </div>
+            </div>
+
+            <!-- Backup Settings -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="fas fa-database me-2"></i> Backup Settings
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        <input type="hidden" name="action" value="update_backup_settings">
+                        <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
+                        
+                        <div class="mb-3">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="backup_enabled" name="backup_enabled" <?php echo ($backup_settings['backup_enabled'] ?? 0) ? 'checked' : ''; ?>>
+                                <label class="form-check-label" for="backup_enabled">Enable Backups</label>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Backup Frequency</label>
+                            <select class="form-select" id="backup_frequency" name="backup_frequency">
+                                <option value="hourly" <?php echo ($backup_settings['backup_frequency'] ?? 'daily') === 'hourly' ? 'selected' : ''; ?>>Hourly</option>
+                                <option value="daily" <?php echo ($backup_settings['backup_frequency'] ?? 'daily') === 'daily' ? 'selected' : ''; ?>>Daily</option>
+                                <option value="weekly" <?php echo ($backup_settings['backup_frequency'] ?? 'daily') === 'weekly' ? 'selected' : ''; ?>>Weekly</option>
+                                <option value="monthly" <?php echo ($backup_settings['backup_frequency'] ?? 'daily') === 'monthly' ? 'selected' : ''; ?>>Monthly</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Backup Path</label>
+                            <input type="text" class="form-control" id="backup_path" name="backup_path" value="<?php echo htmlspecialchars($backup_settings['backup_path'] ?? '../backups'); ?>" placeholder="Enter backup directory path">
+                            <small class="text-muted">Relative or absolute path to store backup files</small>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Retention Period (days)</label>
+                                <input type="number" class="form-control" id="backup_retention_days" name="backup_retention_days" value="<?php echo htmlspecialchars($backup_settings['backup_retention_days'] ?? 7); ?>" min="1" max="365">
+                                <small class="text-muted">How long to keep backup files</small>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">&nbsp;</label>
+                                <div class="form-check form-switch mt-2">
+                                    <input class="form-check-input" type="checkbox" id="auto_backup" name="auto_backup" <?php echo ($backup_settings['auto_backup'] ?? 0) ? 'checked' : ''; ?>>
+                                    <label class="form-check-label" for="auto_backup">Auto Backup</label>
+                                </div>
+                                <small class="text-muted">Automatically create backups on schedule</small>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i> Save Changes
+                        </button>
+                        <button type="button" class="btn btn-success ms-2" onclick="triggerBackup()">
+                            <i class="fas fa-download me-2"></i> Backup Now
+                        </button>
+                    </form>
+                    
+                    <!-- Recent Backups -->
+                    <?php if (!empty($backup_files)): ?>
+                    <div class="mt-4">
+                        <h6 class="mb-3">Recent Backups</h6>
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>File Name</th>
+                                        <th>Size</th>
+                                        <th>Date</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php foreach ($backup_files as $file): ?>
+                                    <tr>
+                                        <td><?php echo htmlspecialchars($file['name']); ?></td>
+                                        <td><?php echo formatBytes($file['size']); ?></td>
+                                        <td><?php echo date('Y-m-d H:i:s', $file['date']); ?></td>
+                                        <td>
+                                            <a href="<?php echo htmlspecialchars($backup_path . '/' . $file['name']); ?>" class="btn btn-sm btn-outline-primary" download>
+                                                <i class="fas fa-download"></i> Download
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <?php else: ?>
+                    <div class="mt-4">
+                        <p class="text-muted">No backups found. Click "Backup Now" to create your first backup.</p>
+                    </div>
+                    <?php endif; ?>
                 </div>
             </div>
 
@@ -1355,6 +1626,47 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['ac
                 iconElement.classList.remove('fa-eye-slash');
                 iconElement.classList.add('fa-eye');
             }
+        }
+        
+        function triggerBackup() {
+            if (!confirm('Are you sure you want to create a database backup now?')) {
+                return;
+            }
+            
+            const btn = event.target;
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Creating Backup...';
+            btn.disabled = true;
+            
+            fetch('backup.php?ajax=1', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Backup created successfully!\n\nFile: ' + data.backup_file + '\nSize: ' + formatBytes(data.size) + '\nOld backups deleted: ' + data.deleted_count);
+                } else {
+                    alert('Backup failed: ' + (data.error || 'Unknown error'));
+                }
+            })
+            .catch(error => {
+                alert('Backup failed: ' + error.message);
+            })
+            .finally(() => {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            });
+        }
+        
+        function formatBytes(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
         }
         
         function selectSmsProvider(provider) {

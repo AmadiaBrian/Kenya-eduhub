@@ -36,6 +36,7 @@ $businessQuery->close();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#FF6B35">
     <title>B2C Payment - Send Money to Customers</title>
     <style>
         * {

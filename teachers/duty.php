@@ -139,6 +139,7 @@ try {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#FF6B35">
     <title>My Duties - <?php echo htmlspecialchars($teacher_name); ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -230,33 +231,31 @@ try {
             left: 0;
             width: var(--sidebar-width);
             height: calc(100vh - var(--header-height));
-            background: var(--card-bg);
-            border-right: 1px solid #e8eaed;
+            background: var(--bg-color);
             overflow-y: auto;
-            transition: transform 0.3s ease;
+            transition: transform 0.3s ease, margin-left 0.3s ease;
             z-index: 999;
+            scrollbar-width: none; /* Firefox */
+            -ms-overflow-style: none; /* IE and Edge */
+        }
+
+        .sidebar::-webkit-scrollbar {
+            display: none; /* Chrome, Safari, Opera */
         }
         
         .sidebar.collapsed {
-            transform: translateX(-100%);
-        }
-        
-        .sidebar h6 {
-            font-size: 12px;
-            font-weight: 500;
-            color: #5f6368;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            transform: translateX(-256px);
         }
         
         .nav-link {
             display: flex;
             align-items: center;
-            padding: 10px 24px;
+            padding: 12px 24px;
             color: #202124;
             text-decoration: none;
             font-size: 14px;
             transition: background 0.2s;
+            border-bottom: 1px solid #f1f3f4;
         }
         
         .nav-link:hover {
@@ -280,6 +279,7 @@ try {
             margin-left: var(--sidebar-width);
             margin-top: var(--header-height);
             padding: 24px;
+            padding-bottom: 80px;
             transition: margin-left 0.3s ease;
         }
         
@@ -638,6 +638,82 @@ try {
                 margin: 20mm;
             }
         }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-256px);
+                z-index: 9999;
+            }
+            
+            .sidebar.show {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+                padding: 16px;
+                padding-bottom: 80px;
+            }
+            
+            .header {
+                padding: 0 16px;
+            }
+            
+            .logo {
+                font-size: 14px;
+            }
+            
+            .page-title {
+                font-size: 18px;
+                margin-bottom: 16px;
+            }
+            
+            .card {
+                padding: 16px;
+            }
+            
+            .duty-grid {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+            
+            .btn {
+                padding: 8px 16px;
+                font-size: 14px;
+            }
+            
+            .table-responsive {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+            
+            .table {
+                font-size: 11px;
+            }
+            
+            .table th,
+            .table td {
+                padding: 8px 6px;
+            }
+            
+            .chit-preview.a4 {
+                padding: 10px;
+                font-size: 10px;
+            }
+            
+            .chit-preview.a4 .header-info {
+                font-size: 10px;
+            }
+            
+            .chit-preview.a4 .chit-title {
+                font-size: 14px;
+            }
+            
+            .chit-preview.a4 .info-row {
+                font-size: 10px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -663,44 +739,51 @@ try {
     </header>
     
     <aside class="sidebar" id="sidebar">
-        <div class="p-3">
-            <h6 class="mb-3">Teacher Menu</h6>
-            <ul class="nav flex-column">
-                <li class="nav-item mb-2">
-                    <a class="nav-link" href="dashboard"><i class="fas fa-home me-2"></i>Dashboard</a>
-                </li>
-                <li class="nav-item mb-2">
-                    <a class="nav-link" href="timetable"><i class="fas fa-calendar-alt me-2"></i>Timetable</a>
-                </li>
-                <li class="nav-item mb-2">
-                    <a class="nav-link" href="attendance"><i class="fas fa-calendar-check me-2"></i>Attendance</a>
-                </li>
-                <li class="nav-item mb-2">
-                    <a class="nav-link" href="calendar"><i class="fas fa-calendar me-2"></i>Calendar</a>
-                </li>
-                <li class="nav-item mb-2">
-                    <a class="nav-link" href="fees"><i class="fas fa-money-bill-wave me-2"></i>Fee Payments</a>
-                </li>
-                <li class="nav-item mb-2">
-                    <a class="nav-link" href="performance"><i class="fas fa-chart-line me-2"></i>Performance</a>
-                </li>
-                <li class="nav-item mb-2">
-                    <a class="nav-link" href="students"><i class="fas fa-user-graduate me-2"></i>Students</a>
-                </li>
-                <li class="nav-item mb-2">
-                    <a class="nav-link" href="parents"><i class="fas fa-users me-2"></i>Parents</a>
-                </li>
-                <li class="nav-item mb-2">
-                    <a class="nav-link active" href="duty"><i class="fas fa-clipboard-list me-2"></i>My Duties</a>
-                </li>
-                <li class="nav-item mb-2">
-                    <a class="nav-link" href="profile"><i class="fas fa-user me-2"></i>Profile</a>
-                </li>
-                <li class="nav-item mb-2">
-                    <a class="nav-link text-danger" href="logout"><i class="fas fa-sign-out-alt me-2"></i>Logout</a>
-                </li>
-            </ul>
-        </div>
+        <a class="nav-link" href="dashboard">
+            <i class="fas fa-home"></i> Dashboard
+        </a>
+        <a class="nav-link" href="timetable">
+            <i class="fas fa-calendar-alt"></i> Timetable
+        </a>
+        <a class="nav-link" href="attendance">
+            <i class="fas fa-calendar-check"></i> Attendance
+        </a>
+        <a class="nav-link" href="calendar">
+            <i class="fas fa-calendar-alt"></i> Calendar
+        </a>
+        <a class="nav-link" href="performance">
+            <i class="fas fa-chart-line"></i> Performance
+        </a>
+        <a class="nav-link" href="results">
+            <i class="fas fa-award"></i> Results
+        </a>
+        <a class="nav-link" href="students">
+            <i class="fas fa-user-graduate"></i> Students
+        </a>
+        <a class="nav-link" href="student-subjects">
+            <i class="fas fa-book"></i> Student Subjects
+        </a>
+        <a class="nav-link" href="assignments">
+            <i class="fas fa-tasks"></i> Assignments
+        </a>
+        <a class="nav-link" href="parents">
+            <i class="fas fa-user-friends"></i> Parents
+        </a>
+        <a class="nav-link active" href="duty">
+            <i class="fas fa-clipboard-list"></i> My Duties
+        </a>
+        <a class="nav-link" href="fees">
+            <i class="fas fa-money-bill-wave"></i> Fee Payments
+        </a>
+        <a class="nav-link" href="profile">
+            <i class="fas fa-user"></i> Profile
+        </a>
+        <a class="nav-link" href="settings">
+            <i class="fas fa-cog"></i> Settings
+        </a>
+        <a class="nav-link" href="logout">
+            <i class="fas fa-sign-out-alt"></i> Logout
+        </a>
     </aside>
     
     <main class="main-content" id="mainContent">
@@ -924,12 +1007,13 @@ try {
         <?php endif; ?>
     </main>
     
-    <footer class="footer">
+    <!-- Footer -->
+    <footer style="position: fixed; bottom: 0; left: 0; right: 0; background: var(--bg-color); color: #5f6368; padding: 20px 0; text-align: center; border-top: 1px solid #e8eaed; z-index: 1000;">
         <p style="margin: 0;">
             <span style="color: #FF6B35;">&copy; 2026</span> 
             <span style="color: #FF6B35;">Kenya</span> 
             <span style="color: #008000;">EduHub</span>
-            <span style="color: #008000;">. All rights reserved.</span>
+            <span style="color: #5f6368;">. All rights reserved.</span>
         </p>
     </footer>
     
@@ -938,8 +1022,16 @@ try {
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
             const mainContent = document.getElementById('mainContent');
-            sidebar.classList.toggle('collapsed');
-            mainContent.classList.toggle('expanded');
+            
+            // Check if we're on mobile
+            if (window.innerWidth <= 768) {
+                // Mobile: toggle the 'show' class
+                sidebar.classList.toggle('show');
+            } else {
+                // Desktop: toggle the 'collapsed' and 'expanded' classes
+                sidebar.classList.toggle('collapsed');
+                mainContent.classList.toggle('expanded');
+            }
         }
         
         function printExistingChit(button) {

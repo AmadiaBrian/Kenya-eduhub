@@ -84,6 +84,24 @@ try {
     
     error_log("Found fine ID: {$fine['id']}, Current status: {$fine['status']}, Current amount_paid: {$fine['amount_paid']}, Fine amount: {$fine['amount']}");
     
+    // Get student/teacher name for SMS notification
+    $user_name = 'Student';
+    if ($fine['user_type'] === 'student') {
+        $getStudent = $pdo->prepare("SELECT first_name, last_name FROM students WHERE id = ?");
+        $getStudent->execute([$fine['user_id']]);
+        $student = $getStudent->fetch();
+        if ($student) {
+            $user_name = trim($student['first_name'] . ' ' . $student['last_name']);
+        }
+    } elseif ($fine['user_type'] === 'teacher') {
+        $getTeacher = $pdo->prepare("SELECT first_name, last_name FROM teachers WHERE id = ?");
+        $getTeacher->execute([$fine['user_id']]);
+        $teacher = $getTeacher->fetch();
+        if ($teacher) {
+            $user_name = trim($teacher['first_name'] . ' ' . $teacher['last_name']);
+        }
+    }
+    
     if ($ResultCode === 0) {
         // Payment successful - update fine status and school balance
         $new_amount_paid = $fine['amount_paid'] + $Amount;
@@ -139,11 +157,7 @@ try {
                     $admin_sms = $getSmsSettings->fetch();
                     
                     if ($admin_sms && !empty($admin_sms['sms_enabled'])) {
-                        // Use user information from fine record if available, otherwise use generic
-                        $user_name = 'User';
-                        if (!empty($fine['user_name'])) {
-                            $user_name = $fine['user_name'];
-                        }
+                        // Use the student name we retrieved earlier
                         $book_title = $book ? $book['title'] : 'Book';
                         
                         // Create SMS message in M-Pesa format

@@ -1,15 +1,15 @@
 RewriteEngine On
 
-# Hide .php extension from URLs
-RewriteCond %{THE_REQUEST} \s/([^\.]+)\.php[\s?] [NC]
-RewriteRule ^ /%1 [R=301,L]
-
-# Internally rewrite to .php file
-RewriteCond %{REQUEST_FILENAME} !-d
+# Remove index.php from URL
 RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME}.php -f
-RewriteRule ^([^\.]+)$ $1.php [L]
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^([^/]+)$ index.php?route=$1 [L,QSA]
 
-# Prevent access to .php files directly
-RewriteCond %{THE_REQUEST} \.php[\s?] [NC]
-RewriteRule ^ - [F]
+# Route specific paths
+RewriteRule ^login$ index.php?route=login [L,QSA]
+RewriteRule ^register$ index.php?route=register [L,QSA]
+RewriteRule ^restore$ index.php?route=restore [L,QSA]
+RewriteRule ^forgot_password$ index.php?route=forgot_password [L,QSA]
+RewriteRule ^reset_password$ index.php?route=reset_password [L,QSA]
+RewriteRule ^verify$ index.php?route=verify [L,QSA]
+RewriteRule ^verify-code$ index.php?route=verify-code [L,QSA]

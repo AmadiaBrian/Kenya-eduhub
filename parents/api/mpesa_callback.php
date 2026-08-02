@@ -1,6 +1,7 @@
 <?php
 // M-Pesa Callback Handler - Records to transactions, then updates fee_payments based on transaction status
 require_once __DIR__ . '/../../config.php';
+require_once __DIR__ . '/../../includes/transaction_fees.php';
 
 header("Content-Type: application/json");
 

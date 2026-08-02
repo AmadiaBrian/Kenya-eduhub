@@ -1,0 +1,12 @@
+RewriteEngine On
+
+# Remove index.php from URL
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^([^/]+)$ index.php?route=$1 [L,QSA]
+
+# Route specific paths
+RewriteRule ^dashboard$ index.php?route=dashboard [L,QSA]
+RewriteRule ^profile$ index.php?route=profile [L,QSA]
+RewriteRule ^settings$ index.php?route=settings [L,QSA]
+RewriteRule ^maintenance$ index.php?route=maintenance [L,QSA]

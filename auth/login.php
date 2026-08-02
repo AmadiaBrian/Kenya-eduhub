@@ -4,47 +4,64 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-session_start();
+// Session is already started by the router (auth/index.php)
 
 // Include MINIMAL security (won't break anything)
 require_once '../includes/security_lite.php';
 
 require_once '../config.php';
+require_once '../includes/helpers.php';
 
 // Log page access
 logActivity('PAGE_ACCESS', 'Visited login page');
 
 // Check if user is being logged out (session destroyed)
 if (!isset($_SESSION['user_id']) && isset($_GET['logout']) && $_GET['logout'] === 'true') {
-    // Log logout activity if user was logged in
-    if (isset($_SESSION['user_id'])) {
-        logActivity('USER_LOGOUT', 'User logged out', [
-            'user_id' => $_SESSION['user_id'],
-            'user_email' => $_SESSION['user_email'] ?? 'Unknown'
-        ]);
-    }
-    
     // Clear any remaining session data
     $_SESSION = array();
     
-    // Redirect to homepage
-    header("Location: ../");
+    // Redirect to homepage via logout route
+    header("Location: logout");
     exit();
 }
 
-// If user is already logged in, redirect to dashboard
+// If user is already logged in, redirect to appropriate dashboard
 if (isset($_SESSION['user_id'])) {
-    header("Location: ../dashboard/");
-    exit();
+    // Check if user is admin, redirect to admin dashboard
+    $stmt = $conn->prepare("SELECT role FROM users WHERE id = ?");
+    $stmt->bind_param("i", $_SESSION['user_id']);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $user = $result->fetch_assoc();
+    
+    if ($user && $user['role'] === 'admin') {
+        header("Location: ../admin");
+        exit;
+    } else {
+        header("Location: ../dashboard");
+        exit;
+    }
 }
 
 // Include database connection and helpers
 require_once '../config.php';
-require_once '../includes/helpers.php';  
+// helpers.php already included above  
 
 // Check for remember me cookie first
 if (!isset($_SESSION['user_id']) && validateRememberCookie($conn)) {
-    header("Location: ../dashboard/");
+    // Check if the remembered user is admin for proper redirect
+    $stmt = $conn->prepare("SELECT role FROM users WHERE id = ?");
+    $stmt->bind_param("i", $_SESSION['user_id']);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $user = $result->fetch_assoc();
+    
+    if ($user && $user['role'] === 'admin') {
+        header("Location: ../admin");
+        exit;
+    }
+    
+    header("Location: ../dashboard");
     exit();
 }
 
@@ -76,56 +93,118 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         if (empty($errors)) {
-        error_log("Auth Login - Original style authentication for: " . $email);
-        
-        // Use original MySQLi approach (unchanged)
-        $stmt = $conn->prepare("SELECT * FROM users WHERE email = ?");
-        $stmt->bind_param("s", $email);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        
-        if ($result->num_rows > 0) {
-            $user = $result->fetch_assoc();
-            error_log("Auth Login - User found: " . $user['email']);
+            // Check if this email belongs to an admin user - if so, skip login attempt tracking
+            $check_admin_stmt = $conn->prepare("SELECT role FROM users WHERE email = ?");
+            $check_admin_stmt->bind_param("s", $email);
+            $check_admin_stmt->execute();
+            $admin_result = $check_admin_stmt->get_result();
             
-            if (password_verify($password, $user['password'])) {
-                error_log("Auth Login - Password verified, login successful");
-                
-                // Set session like original (unchanged)
-                $_SESSION['user_id'] = $user['id'];
-                $_SESSION['user_email'] = $user['email'];
-                $_SESSION['user_name'] = $user['name'] ?? $user['full_name'];
-                $_SESSION['user_role'] = $user['role'] ?? 'user';
-                
-                // Update last login (unchanged)
-                try {
-                    $updateStmt = $conn->prepare("UPDATE users SET last_login = NOW() WHERE id = ?");
-                    $updateStmt->bind_param("i", $user['id']);
-                    $updateStmt->execute();
-                } catch (Exception $e) {
-                    error_log("Failed to update last login: " . $e->getMessage());
-                }
-                
-                // Handle remember me (unchanged)
-                if ($remember) {
-                    setRememberCookie($user['id'], $conn);
-                } else {
-                    deleteRememberCookie($user['id'], $conn);
-                }
-                
-                header("Location: ../dashboard/");
-                exit();
-            } else {
-                error_log("Auth Login - Invalid password");
-                $errors[] = "Invalid password";
+            $is_admin = false;
+            if ($admin_result->num_rows > 0) {
+                $admin_user = $admin_result->fetch_assoc();
+                $is_admin = ($admin_user['role'] === 'admin');
             }
-        } else {
-            error_log("Auth Login - User not found");
-            $errors[] = "Email not found";
+            
+            // Check login attempts (only for non-admin users)
+            if (!$is_admin) {
+                $login_check = checkLoginAttempts($conn, $email);
+                
+                if (!$login_check['can_login']) {
+                    if ($login_check['locked']) {
+                        $locked_time = strtotime($login_check['locked_until']);
+                        $current_time = time();
+                        $remaining_minutes = ceil(($locked_time - $current_time) / 60);
+                        $errors[] = "Account is locked due to too many failed attempts. Please try again in {$remaining_minutes} minutes.";
+                    } else {
+                        $errors[] = "Too many failed login attempts. Please try again later.";
+                    }
+                }
+            }
+            
+            if (empty($errors)) {
+                error_log("Auth Login - Original style authentication for: " . $email);
+                
+                // Use original MySQLi approach (unchanged)
+                $stmt = $conn->prepare("SELECT * FROM users WHERE email = ?");
+                $stmt->bind_param("s", $email);
+                $stmt->execute();
+                $result = $stmt->get_result();
+                
+                if ($result->num_rows > 0) {
+                    $user = $result->fetch_assoc();
+                    error_log("Auth Login - User found: " . $user['email']);
+                    
+                    if (password_verify($password, $user['password'])) {
+                        error_log("Auth Login - Password verified, login successful");
+                        
+                        // Record successful login (only for non-admin users)
+                        if (!$is_admin) {
+                            recordLoginAttempt($conn, $email, true);
+                        }
+                        
+                        // Set session like original (unchanged)
+                        $_SESSION['user_id'] = $user['id'];
+                        $_SESSION['user_email'] = $user['email'];
+                        $_SESSION['user_name'] = $user['name'] ?? $user['full_name'];
+                        $_SESSION['user_role'] = $user['role'] ?? 'user';
+                        
+                        // Apply session timeout (admins get extended timeout)
+                        if ($is_admin) {
+                            $_SESSION['session_timeout'] = 480; // 8 hours for admins
+                        } else {
+                            $session_timeout = getSessionTimeout($conn);
+                            $_SESSION['session_timeout'] = $session_timeout;
+                        }
+                        $_SESSION['last_activity'] = time();
+                        
+                        // Update last login (unchanged)
+                        try {
+                            $updateStmt = $conn->prepare("UPDATE users SET last_login = NOW() WHERE id = ?");
+                            $updateStmt->bind_param("i", $user['id']);
+                            $updateStmt->execute();
+                        } catch (Exception $e) {
+                            error_log("Failed to update last login: " . $e->getMessage());
+                        }
+                        
+                        // Handle remember me (unchanged)
+                        if ($remember) {
+                            setRememberCookie($user['id'], $conn);
+                        } else {
+                            deleteRememberCookie($user['id'], $conn);
+                        }
+                        
+                        // Redirect based on user role
+                        if ($user['role'] === 'admin') {
+                            header("Location: ../admin");
+                        } else {
+                            header("Location: ../dashboard");
+                        }
+                        exit();
+                    } else {
+                        error_log("Auth Login - Invalid password");
+                        // Record failed login attempt (only for non-admin users)
+                        if (!$is_admin) {
+                            recordLoginAttempt($conn, $email, false);
+                            
+                            $login_check = checkLoginAttempts($conn, $email);
+                            $remaining_attempts = getMaxLoginAttempts($conn) - $login_check['attempts'];
+                            $errors[] = "Invalid password. {$remaining_attempts} attempts remaining.";
+                        } else {
+                            $errors[] = "Invalid password";
+                        }
+                    }
+                } else {
+                    error_log("Auth Login - User not found");
+                    // Record failed login attempt (only for non-admin users)
+                    if (!$is_admin) {
+                        recordLoginAttempt($conn, $email, false);
+                    }
+                    $errors[] = "Email not found";
+                }
+                
+                $stmt->close();
+            }
         }
-        
-        $stmt->close();
-    }
     } // Close CSRF else block
 }
 ?>
@@ -135,334 +214,227 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#FF6B35">
     <title>Login - Free Educational Resources in Kenya</title>
      <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="../assets/css/auth-animations.css">
     <style>
-        /* Base */
-        body {
-            background: #000000 !important;
-            background-image: none !important;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            min-height: 100vh;
+        * {
             margin: 0;
             padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: #ffffff;
+            min-height: 100vh;
             display: flex;
-            justify-content: center;
             align-items: center;
-            color: #fff;
+            justify-content: center;
+            font-family: 'Google Sans', 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #202124;
         }
-
-        body::before,
-        body::after {
-            display: none !important;
-        }
-
-        html {
-            background: #000000 !important;
-            background-image: none !important;
-        }
-
-
-        /* Card */
+        
         .login-card {
-            background: #000000;
-            max-width: 420px;
             width: 100%;
-            padding: 3rem 2.5rem 2.5rem;
-            border-radius: 0;
-            box-shadow: none;
-            border: none;
-            animation: none;
-            user-select: none;
-            will-change: auto;
-            transform: none;
-            contain: layout style paint;
-            position: relative;
-            overflow: hidden;
-            transition: none;
+            max-width: 450px;
+            padding: 48px 40px 36px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
-
-        .login-card::before {
-            display: none;
+        
+        .auth-brand-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #202124;
+            margin-bottom: 8px;
+            margin-top: -10px;
         }
-
-        .login-card:hover {
-            transform: none;
-            box-shadow: none;
-            background: #000000;
-            border: none;
+        
+        .auth-brand-logo .logo-circle {
+            width: 50px;
+            height: 50px;
+            background: #FFD700;
+            border: 3px solid #FF6B35;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 2px;
+            flex-shrink: 0;
         }
-
+        
+        .auth-brand-logo .logo-circle span {
+            font-weight: bold;
+            font-size: 24px;
+        }
+        
         .login-card h3 {
-            font-weight: 700;
-            color: #666;
-            margin-bottom: 1.75rem;
+            font-size: 24px;
+            font-weight: 400;
+            color: #202124;
+            margin-bottom: 8px;
             text-align: center;
-            text-shadow: none;
         }
-
-        /* Form inputs */
-        input.form-control {
-            height: 48px;
-            font-size: 1rem;
-            border-radius: 0;
-            border: 2px solid #fff;
-            background: #000;
-            color: #fff !important;
-            transition: none;
-            will-change: auto;
+        
+        .login-form {
+            width: 100%;
         }
-
-        input.form-control::placeholder {
-            color: #888 !important;
-            opacity: 1;
+        
+        .form-group {
+            margin-bottom: 24px;
         }
-
-        input.form-control:-webkit-autofill,
-        input.form-control:-webkit-autofill:hover,
-        input.form-control:-webkit-autofill:focus {
-            -webkit-text-fill-color: #fff !important;
-            -webkit-box-shadow: 0 0 0 1000px #000 inset;
-            transition: background-color 5000s ease-in-out 0s;
+        
+        .form-group label {
+            display: block;
+            font-size: 12px;
+            font-weight: 500;
+            color: #5f6368;
+            margin-bottom: 8px;
+            letter-spacing: 0.3px;
         }
-
-        input.form-control:focus {
-            border: 2px solid #333;
-            box-shadow: none;
+        
+        .form-control {
+            width: 100%;
+            padding: 13px 15px;
+            font-size: 16px;
+            border: 1px solid #dadce0;
+            border-radius: 25px;
             outline: none;
-            transform: none;
-            background: #000;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            font-family: inherit;
         }
-
-        /* Password toggle button */
+        
+        .form-control:focus {
+            border-color: #FF6B35;
+            box-shadow: 0 0 0 2px rgba(255, 107, 53, 0.2);
+        }
+        
+        .form-control::placeholder {
+            color: #9aa0a6;
+        }
+        
+        .btn-primary {
+            width: 100%;
+            padding: 12px 24px;
+            background: #FF6B35;
+            color: white;
+            border: 2px solid #FF6B35;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: inherit;
+            margin-top: 8px;
+        }
+        
+        .btn-primary:hover {
+            background: #e55a2b;
+            border-color: #e55a2b;
+            color: white;
+        }
+        
+        .alert-error {
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+            font-size: 14px;
+            font-weight: 500;
+            background: #fce8e6;
+            color: #c5221f;
+            border: 1px solid #fce8e6;
+        }
+        
+        .alert-success {
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+            font-size: 14px;
+            font-weight: 500;
+            background: #e6f4ea;
+            color: #137333;
+            border: 1px solid #e6f4ea;
+        }
+        
+        .form-check {
+            display: flex;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+        
+        .form-check-input {
+            width: 18px;
+            height: 18px;
+            border: 2px solid #dadce0;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 8px;
+        }
+        
+        .form-check-label {
+            font-size: 14px;
+            color: #5f6368;
+            cursor: pointer;
+        }
+        
         .password-toggle {
             position: absolute;
-            right: 12px;
+            right: 15px;
             top: 50%;
             transform: translateY(-50%);
             background: none;
             border: none;
-            color: #666;
+            color: #5f6368;
             cursor: pointer;
             padding: 4px;
-            border-radius: 0;
-            transition: none;
+            border-radius: 4px;
+            transition: color 0.2s;
             z-index: 10;
         }
-
+        
         .password-toggle:hover {
-            color: #888;
-            background-color: #000;
+            color: #FF6B35;
         }
-
-        .password-toggle:focus {
-            outline: none;
+        
+        .login-links {
+            text-align: center;
+            margin-top: 24px;
         }
-
-        /* Button */
-        button.btn-primary {
-            width: 100%;
-            height: 48px;
-            font-weight: 700;
-            font-size: 1.125rem;
-            border-radius: 0;
-            background: #000;
-            border: 1px solid #333;
-            color: #fff;
-            transition: none;
-            box-shadow: none;
-            user-select: none;
-            will-change: auto;
-            position: relative;
-            overflow: hidden;
-        }
-
-        button.btn-primary:hover,
-        button.btn-primary:focus-visible {
-            background: #111;
-            transform: none;
-            box-shadow: none;
-            outline: none;
-            border: 1px solid #444;
-        }
-
-        /* Link styling */
-        p.text-center small {
-            color: #666;
-            user-select: none;
-        }
-
-        p.text-center small a {
-            color: #888;
+        
+        .login-links a {
+            color: #FF6B35;
             text-decoration: none;
-            font-weight: 600;
-            transition: none;
+            font-size: 14px;
+            font-weight: 500;
         }
-
-        p.text-center small a:hover,
-        p.text-center small a:focus-visible {
-            color: #aaa;
+        
+        .login-links a:hover {
             text-decoration: underline;
-            outline: none;
         }
-
-        /* Error Message */
-        .alert-error {
-            background-color: #000;
-            color: #ff0000;
-            border: 1px solid #ff0000;
-            border-radius: 0;
-            padding: 0.9rem 1rem;
-            margin-bottom: 1.5rem;
-            text-align: center;
-            font-weight: 600;
-            box-shadow: none;
-            user-select: none;
-            animation: none;
-        }
-
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-5px); }
-            75% { transform: translateX(5px); }
-        }
-
-        /* Success Message */
-        .alert-success {
-            background-color: #000;
-            color: #666;
-            border: 1px solid #333;
-            border-radius: 0;
-            padding: 0.9rem 1rem;
-            margin-bottom: 1.5rem;
-            text-align: center;
-            font-weight: 600;
-            box-shadow: none;
-            user-select: none;
-            animation: none;
-        }
-
-        @keyframes slideDown {
-            from {
-                opacity: 0;
-                transform: translateY(-10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* Animations */
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(40px) translateZ(0);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0) translateZ(0);
-            }
-        }
-
-        /* Logo */
-        .logo-img {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin-bottom: 1.5rem;
-        }
-
-        .logo-img img {
-            max-width: 120px;
-            height: auto;
-            filter: drop-shadow(0 0 6px rgba(0, 0, 0, 0.2));
-            will-change: transform;
-            transform: translateZ(0);
-        }
-
-        /* Responsive */
+        
         @media (max-width: 480px) {
             .login-card {
-                padding: 2rem 1.5rem 2rem;
+                padding: 32px 24px 24px;
             }
-            button.btn-primary {
-                font-size: 1rem;
-                height: 44px;
-            }
-        }
-
-        /* Reduced motion support */
-        @media (prefers-reduced-motion: reduce) {
-            .login-card {
-                animation: none;
-            }
-            
-            .login-card:hover {
-                transform: none;
-            }
-            
-            .alert-error {
-                animation: none;
-            }
-            
-            .alert-success {
-                animation: none;
-            }
-        }
-
-        /* Focus indicators */
-        .form-control:focus-visible,
-        .btn-primary:focus-visible,
-        .password-toggle:focus-visible {
-            outline: 3px solid #4ea1ff;
-            outline-offset: 2px;
-        }
-        :root {
-            --primary-orange: #FF6B35;
-            --primary-gold: #FFD700;
-        }
-
-        .auth-brand-logo {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.75rem;
-            color: white;
-            text-decoration: none;
-            font-size: 1.5rem;
-            font-weight: bold;
-            margin-bottom: 1.5rem;
-        }
-
-        .auth-brand-logo .brand-text {
-            line-height: 1;
-        }
-
-        .login-card h3 {
-            color: #ffffff;
-        }
-
-        .login-card h3::first-letter {
-            color: var(--primary-orange);
         }
     </style>
 </head>
 <body>
     <main class="login-card" role="main" aria-label="User Login Form">
-        <div class="logo-img">
-            <div class="auth-brand-logo" aria-label="Kenya EduHub Logo">
-                <div style="width: 50px; height: 50px; background: var(--primary-gold); border: 3px solid var(--primary-orange); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 2px;">
-                    <span style="font-weight: bold; font-size: 24px;">
-                        <span style="color: var(--primary-orange); font-size: 28px;">K</span><span style="color: #008000; font-size: 24px;">E</span>
-                    </span>
-                </div>
-                <span class="brand-text"><span style="color: var(--primary-orange);">Kenya</span> <span style="color: #008000;">EduHub</span></span>
+        <div class="auth-brand-logo" aria-label="Kenya EduHub Logo">
+            <div class="logo-circle">
+                <span style="color: #FF6B35; font-size: 28px;">K</span><span style="color: #008000; font-size: 24px;">E</span>
             </div>
+            <span class="brand-text"><span style="color: #FF6B35;">Kenya</span> <span style="color: #008000;">EduHub</span></span>
         </div>
+        
         <h3>Login to Your Account</h3>
 
         <?php if (!empty($errors)): ?>
@@ -479,9 +451,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
         <?php endif; ?>
 
-        <form method="POST" novalidate>
+        <?php if (isset($_SESSION['restore_success'])): ?>
+            <div class="alert-success" role="alert">
+                <p><?php echo sanitizeOutput($_SESSION['restore_success']); unset($_SESSION['restore_success']); ?></p>
+            </div>
+        <?php endif; ?>
+
+        <form method="POST" novalidate class="login-form">
             <input type="hidden" name="csrf_token" value="<?php echo generateCSRFLite(); ?>">
-            
+
             <div class="mb-4">
                 <label for="email" class="visually-hidden">Email address</label>
                 <input
@@ -519,18 +497,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </form>
 
         <p class="text-center mt-4 small">
-            <a href="forgot_password.php" class="forgot-password-link">Forgot Password?</a>
+            <a href="forgot_password" class="forgot-password-link">Forgot Password?</a>
         </p>
 
         <p class="text-center small mt-3">
-            Need to verify your email? <a href="verify-code.php" aria-label="Verify email address">Verify Email</a>
+            Need to verify your email? <a href="verify" aria-label="Verify email address">Verify Email</a>
         </p>
 
         <p class="text-center small mt-3">
-            Don't have an account? <a href="register.php" aria-label="Create new account">Register here</a>
-        </p>        
-        <p class="text-center small mt-3">
-            <a href="?logout=true" aria-label="Logout from any account">Logout</a>
+            Don't have an account? <a href="register" aria-label="Create new account">Register here</a>
         </p>
 
         <!-- Google Login Divider -->

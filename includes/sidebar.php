@@ -119,7 +119,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
             </li>
             
             <li class="nav-item">
-                <a class="nav-link text-danger" href="logout.php">
+                <a class="nav-link text-danger" href="../auth/logout">
                     <i class="fas fa-sign-out-alt me-2"></i>
                     Logout
                 </a>

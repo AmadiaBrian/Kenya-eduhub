@@ -128,6 +128,7 @@ if ($teacher) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#FF6B35">
     <title>Results - <?php echo htmlspecialchars($teacher_name); ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -237,6 +238,12 @@ if ($teacher) {
             overflow-y: auto;
             transition: transform 0.3s ease;
             z-index: 999;
+            scrollbar-width: none; /* Firefox */
+            -ms-overflow-style: none; /* IE and Edge */
+        }
+
+        .sidebar::-webkit-scrollbar {
+            display: none; /* Chrome, Safari, Opera */
         }
         
         .sidebar.collapsed {
@@ -509,6 +516,12 @@ if ($teacher) {
             </a>
             <a class="nav-link" href="parents">
                 <i class="fas fa-users"></i> Parents
+            </a>
+            <a class="nav-link" href="duty">
+                <i class="fas fa-clipboard-list"></i> Duty
+            </a>
+            <a class="nav-link" href="fees">
+                <i class="fas fa-money-bill-wave"></i> Fees
             </a>
         </div>
         <div class="sidebar-section">
@@ -1208,5 +1221,15 @@ if ($teacher) {
             populateFilters();
         });
     </script>
+    
+    <!-- Footer -->
+    <footer style="position: fixed; bottom: 0; left: 0; right: 0; background: var(--bg-color); color: #5f6368; padding: 1rem; text-align: center; border-top: 1px solid #e8eaed; z-index: 1000;">
+        <p style="margin: 0;">
+            <span style="color: #FF6B35;">&copy; 2026</span> 
+            <span style="color: #FF6B35;">Kenya</span> 
+            <span style="color: #008000;">EduHub</span>
+            <span style="color: #008000;">. All rights reserved.</span>
+        </p>
+    </footer>
 </body>
 </html>

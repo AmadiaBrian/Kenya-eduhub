@@ -1,5 +1,5 @@
 <?php
-session_start();
+// Session is already started by the router (auth/index.php)
 require_once '../config.php';
 
 $email = $_SESSION['pending_user_email'] ?? null;
@@ -51,7 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $conn->query("UPDATE users SET is_verified = 1, verification_code = NULL WHERE email = '$email'");
             unset($_SESSION['pending_user_email']);
             $_SESSION['login_success'] = "✅ Your account has been verified. Please log in.";
-            header("Location: login.php");
+            header("Location: login");
             exit();
         } else {
             $message = "Incorrect code.";
@@ -65,6 +65,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#FF6B35">
     <title>Verify Code - Kenya EduHub</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -72,15 +73,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <style>
         /* Base */
         body {
-            background: #000000 !important;
-            background-image: none !important;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #ffffff;
             min-height: 100vh;
             display: flex;
-            justify-content: center;
             align-items: center;
-            padding: 1rem;
-            color: #fff;
+            justify-content: center;
+            font-family: 'Google Sans', 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #202124;
         }
 
         body::before,
@@ -89,239 +88,171 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         html {
-            background: #000000 !important;
-            background-image: none !important;
+            background: #ffffff;
         }
 
-        /* Card */
         .login-card {
-            background: #000000;
-            max-width: 420px;
             width: 100%;
-            padding: 3rem 2.5rem 2.5rem;
-            border-radius: 0;
-            box-shadow: none;
-            border: none;
-            animation: none;
-            user-select: none;
-            will-change: auto;
-            transform: none;
-            contain: layout style paint;
-            position: relative;
-            overflow: hidden;
-            transition: none;
-        }
-
-        .login-card::before {
-            display: none;
-        }
-
-        .login-card:hover {
-            transform: none;
-            box-shadow: none;
-            background: #000000;
-            border: none;
+            max-width: 450px;
+            padding: 48px 40px 36px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
         .login-card h3 {
-            font-weight: 700;
-            color: #666;
-            margin-bottom: 1.75rem;
+            font-size: 24px;
+            font-weight: 400;
+            color: #202124;
+            margin-bottom: 8px;
             text-align: center;
-            text-shadow: none;
         }
 
-        /* Form inputs */
-        input.form-control {
-            height: 48px;
-            font-size: 1rem;
-            border-radius: 0;
-            border: 2px solid #fff;
-            background: #000;
-            color: #fff !important;
-            transition: none;
-            will-change: auto;
-        }
-
-        input.form-control::placeholder {
-            color: #888 !important;
-            opacity: 1;
-        }
-
-        input.form-control:-webkit-autofill,
-        input.form-control:-webkit-autofill:hover,
-        input.form-control:-webkit-autofill:focus {
-            -webkit-text-fill-color: #fff !important;
-            -webkit-box-shadow: 0 0 0 1000px #000 inset;
-            transition: background-color 5000s ease-in-out 0s;
-        }
-
-        input.form-control:focus {
-            border: 2px solid #333;
-            box-shadow: none;
-            outline: none;
-            transform: none;
-            background: #000;
-        }
-
-        
-        /* Button */
-        button.btn-primary {
+        .login-form {
             width: 100%;
-            height: 48px;
-            font-weight: 700;
-            font-size: 1.125rem;
-            border-radius: 0;
-            background: #000;
-            border: 1px solid #333;
-            color: #fff;
-            transition: none;
-            box-shadow: none;
-            user-select: none;
-            will-change: auto;
-            position: relative;
-            overflow: hidden;
         }
 
-        button.btn-primary:hover,
-        button.btn-primary:focus-visible {
-            background: #111;
-            transform: none;
-            box-shadow: none;
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 12px;
+            font-weight: 500;
+            color: #5f6368;
+            margin-bottom: 8px;
+            letter-spacing: 0.3px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 13px 15px;
+            font-size: 16px;
+            border: 1px solid #dadce0;
+            border-radius: 25px;
             outline: none;
-            border: 1px solid #444;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            font-family: inherit;
         }
 
-        /* Link styling */
-        p.text-center small {
-            color: #495057;
-            user-select: none;
+        .form-control:focus {
+            border-color: #FF6B35;
+            box-shadow: 0 0 0 2px rgba(255, 107, 53, 0.2);
         }
 
-        p.text-center small a {
-            color: #4ea1ff;
-            text-decoration: none;
+        .form-control::placeholder {
+            color: #9aa0a6;
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 12px 24px;
+            background: #FF6B35;
+            color: white;
+            border: 2px solid #FF6B35;
+            border-radius: 25px;
+            font-size: 14px;
             font-weight: 600;
-            transition: color 0.25s ease;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: inherit;
+            margin-top: 8px;
         }
 
-        p.text-center small a:hover,
-        p.text-center small a:focus-visible {
-            color: #1e3c72;
-            text-decoration: underline;
-            outline-offset: 2px;
-            outline: 2px solid #1e3c72;
+        .btn-primary:hover {
+            background: #e55a2b;
+            border-color: #e55a2b;
+            color: white;
         }
 
-        /* Alert styling */
         .alert {
-            background-color: #000;
-            border-radius: 0;
-            padding: 0.9rem 1rem;
-            margin-bottom: 1.5rem;
-            text-align: center;
-            font-weight: 600;
-            box-shadow: none;
-            user-select: none;
-            animation: none;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+            font-size: 14px;
+            font-weight: 500;
         }
 
         .alert-warning {
-            background-color: #000;
-            color: #ff0000;
-            border: 1px solid #ff0000;
+            background: #fef7e0;
+            color: #b06000;
+            border: 1px solid #fef7e0;
         }
 
         .alert-error {
-            background-color: #000;
-            color: #ff0000;
-            border: 1px solid #ff0000;
+            background: #fce8e6;
+            color: #c5221f;
+            border: 1px solid #fce8e6;
         }
 
-        /* Animations */
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(40px) translateZ(0);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0) translateZ(0);
-            }
+        .login-links {
+            text-align: center;
+            margin-top: 24px;
         }
 
-        /* Responsive */
-        @media (max-width: 480px) {
-            .login-card {
-                padding: 2rem 1.5rem 2rem;
-            }
-            button.btn-primary {
-                font-size: 1rem;
-                height: 44px;
-            }
+        .login-links a {
+            color: #FF6B35;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
         }
 
-        /* Reduced motion support */
-        @media (prefers-reduced-motion: reduce) {
-            .login-card {
-                animation: none;
-            }
-            
-            button.btn-primary:hover,
-            button.btn-primary:focus-visible {
-                transform: none;
-            }
-        }
-        :root {
-            --primary-orange: #FF6B35;
-            --primary-gold: #FFD700;
+        .login-links a:hover {
+            text-decoration: underline;
         }
 
         .auth-brand-logo {
-            display: inline-flex;
+            display: flex;
             align-items: center;
-            justify-content: center;
             gap: 0.75rem;
-            color: white;
-            text-decoration: none;
             font-size: 1.5rem;
             font-weight: bold;
-            margin-bottom: 1.5rem;
+            color: #202124;
+            margin-bottom: 8px;
         }
 
-        .auth-brand-logo .brand-text {
-            line-height: 1;
+        .auth-brand-logo .logo-circle {
+            width: 50px;
+            height: 50px;
+            background: #FFD700;
+            border: 3px solid #FF6B35;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 2px;
+            flex-shrink: 0;
         }
 
-        .login-card h3 {
-            color: #ffffff;
+        .auth-brand-logo .logo-circle span {
+            font-weight: bold;
+            font-size: 24px;
         }
 
-        .login-card h3::first-letter {
-            color: var(--primary-orange);
+        @media (max-width: 480px) {
+            .login-card {
+                padding: 32px 24px 24px;
+            }
         }
     </style>
 </head>
 <body>
 <main class="login-card" role="main" aria-label="Email Verification Form">
-    <div class="text-center mb-4">
-        <div class="auth-brand-logo" aria-label="Kenya EduHub Logo">
-            <div style="width: 50px; height: 50px; background: var(--primary-gold); border: 3px solid var(--primary-orange); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 2px;">
-                <span style="font-weight: bold; font-size: 24px;">
-                    <span style="color: var(--primary-orange); font-size: 28px;">K</span><span style="color: #008000; font-size: 24px;">E</span>
-                </span>
-            </div>
-            <span class="brand-text"><span style="color: var(--primary-orange);">Kenya</span> <span style="color: #008000;">EduHub</span></span>
+    <div class="auth-brand-logo" aria-label="Kenya EduHub Logo">
+        <div class="logo-circle">
+            <span style="color: #FF6B35; font-size: 28px;">K</span><span style="color: #008000; font-size: 24px;">E</span>
         </div>
+        <span class="brand-text"><span style="color: #FF6B35;">Kenya</span> <span style="color: #008000;">EduHub</span></span>
     </div>
     <?php if ($step === 1): ?>
         <h3>Verify Email</h3>
         <?php if (!empty($message)): ?>
             <div class="alert alert-warning" role="alert" aria-live="assertive"><?= $message ?></div>
         <?php endif; ?>
-        <form method="post">
-            <div class="mb-4">
-                <label for="email" class="visually-hidden">Email address</label>
+        <form method="post" class="login-form">
+            <div class="form-group">
+                <label for="email">Email address</label>
                 <input
                     type="email"
                     id="email"
@@ -332,7 +263,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     autocomplete="email"
                 />
             </div>
-            <button type="submit" class="btn btn-primary" aria-label="Continue to verification code">
+            <button type="submit" class="btn-primary" aria-label="Continue to verification code">
                 Continue
             </button>
         </form>
@@ -341,9 +272,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <?php if (!empty($message)): ?>
             <div class="alert alert-warning" role="alert" aria-live="assertive"><?= $message ?></div>
         <?php endif; ?>
-        <form method="post">
-            <div class="mb-4">
-                <label for="code" class="visually-hidden">Verification code</label>
+        <form method="post" class="login-form">
+            <div class="form-group">
+                <label for="code">Verification code</label>
                 <input
                     type="text"
                     id="code"
@@ -355,17 +286,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     autocomplete="one-time-code"
                 />
             </div>
-            <button type="submit" class="btn btn-primary" aria-label="Verify email address">
+            <button type="submit" class="btn-primary" aria-label="Verify email address">
                 Verify Code
             </button>
         </form>
-        <div class="text-center mt-4">
-            <p class="small">Wrong email? <a href="?step=1">Change email</a></p>
+        <div class="login-links">
+            <a href="?step=1">Wrong email? Change email</a>
         </div>
     <?php endif; ?>
     
-    <div class="text-center mt-4">
-        <p class="small"><a href="login.php">Back to Login</a></p>
+    <div class="login-links">
+        <a href="login">Back to Login</a>
     </div>
 </main>
 </body>
