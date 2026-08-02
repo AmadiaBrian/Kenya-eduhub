@@ -11,6 +11,7 @@ header("Access-Control-Allow-Credentials: true");
 require_once '../PHPMailer/src/Exception.php';
 require_once '../PHPMailer/src/PHPMailer.php';
 require_once '../PHPMailer/src/SMTP.php';
+require_once '../includes/helpers.php';
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
@@ -52,17 +53,31 @@ if (!empty($data->name) && !empty($data->email) && !empty($data->password)) {
             $email_sent = false;
             
             try {
+                // Get SMTP settings from database
+                $smtp_settings = getSMTPSettings();
+                
+                if (!$smtp_settings) {
+                    throw new Exception("SMTP settings not configured in database");
+                }
+                
+                $smtp_host = $smtp_settings['smtp_host'];
+                $smtp_port = $smtp_settings['smtp_port'];
+                $smtp_username = $smtp_settings['smtp_username'];
+                $smtp_password = $smtp_settings['smtp_password'];
+                $email_from = $smtp_settings['email_from'];
+                $encryption = $smtp_settings['encryption'];
+                
                 // Server settings
                 $mail->isSMTP();
-                $mail->Host       = 'smtp.gmail.com';
-                $mail->SMTPAuth   = true;
-                $mail->Username   = 'otienobrian029@gmail.com'; // Your Gmail
-                $mail->Password   = 'dwuunoftzkodeome';         // App Password
-                $mail->SMTPSecure = 'tls';
-                $mail->Port       = 587;
+                $mail->Host = $smtp_host;
+                $mail->SMTPAuth = true;
+                $mail->Username = $smtp_username;
+                $mail->Password = $smtp_password;
+                $mail->SMTPSecure = $encryption;
+                $mail->Port = $smtp_port;
 
                 // Recipients
-                $mail->setFrom('otienobrian029@gmail.com', 'Kenya EduHub');
+                $mail->setFrom($email_from, 'Kenya EduHub');
                 $mail->addAddress($email);
 
                 // Content

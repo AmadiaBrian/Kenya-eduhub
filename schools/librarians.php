@@ -111,6 +111,7 @@ try {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#FF6B35">
     <title>Librarians - <?php echo htmlspecialchars($school_name); ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -569,79 +570,83 @@ try {
     <aside class="sidebar" id="sidebar">
         <div class="sidebar-section">
             <div class="sidebar-title">Main</div>
-            <a href="dashboard" class="nav-link">
-                <i class="fas fa-home"></i>
-                <span>Dashboard</span>
+            <a class="nav-link" href="dashboard">
+                <i class="fas fa-home"></i> Dashboard
             </a>
-            <a href="students" class="nav-link">
-                <i class="fas fa-user-graduate"></i>
-                <span>Students</span>
+            <a class="nav-link" href="students">
+                <i class="fas fa-user-graduate"></i> Students
             </a>
-            <a href="teachers" class="nav-link">
-                <i class="fas fa-chalkboard-teacher"></i>
-                <span>Teachers</span>
+            <a class="nav-link" href="teachers">
+                <i class="fas fa-chalkboard-teacher"></i> Teachers
             </a>
-            <a href="classes" class="nav-link">
-                <i class="fas fa-chalkboard"></i>
-                <span>Classes</span>
+            <a class="nav-link" href="classes">
+                <i class="fas fa-chalkboard"></i> Classes
             </a>
-            <a href="subjects" class="nav-link">
-                <i class="fas fa-book"></i>
-                <span>Subjects</span>
+            <a class="nav-link" href="streams">
+                <i class="fas fa-layer-group"></i> Streams
             </a>
-            <a href="exam-types" class="nav-link">
-                <i class="fas fa-clipboard-list"></i>
-                <span>Exam Types</span>
+            <a class="nav-link" href="subjects">
+                <i class="fas fa-book"></i> Subjects
             </a>
-            <a href="timetable" class="nav-link">
-                <i class="fas fa-calendar-alt"></i>
-                <span>Timetable</span>
+            <a class="nav-link" href="exam-types">
+                <i class="fas fa-clipboard-list"></i> Exam Types
             </a>
-            <a href="attendance" class="nav-link">
-                <i class="fas fa-clipboard-check"></i>
-                <span>Attendance</span>
+            <a class="nav-link" href="timetable">
+                <i class="fas fa-calendar-alt"></i> Timetable
             </a>
-            <a href="results" class="nav-link">
-                <i class="fas fa-clipboard-list"></i>
-                <span>Results</span>
+            <a class="nav-link" href="grading">
+                <i class="fas fa-chart-bar"></i> Grading
             </a>
-            <a href="fees" class="nav-link">
-                <i class="fas fa-money-bill-wave"></i>
-                <span>Fees</span>
+            <a class="nav-link" href="performance">
+                <i class="fas fa-chart-line"></i> Performance
             </a>
-            <a href="parents" class="nav-link">
-                <i class="fas fa-users"></i>
-                <span>Parents</span>
+            <a class="nav-link" href="results">
+                <i class="fas fa-clipboard-list"></i> Results
             </a>
-            <a href="disciplinary" class="nav-link">
-                <i class="fas fa-shield-alt"></i>
-                <span>Disciplinary</span>
+            <a class="nav-link" href="attendance">
+                <i class="fas fa-calendar-check"></i> Attendance
             </a>
-            <a href="disciplinary-action-types" class="nav-link">
-                <i class="fas fa-list-alt"></i>
-                <span>Disciplinary Types</span>
+            <a class="nav-link" href="calendar">
+                <i class="fas fa-calendar"></i> Calendar
+            </a>
+            <a class="nav-link" href="fees">
+                <i class="fas fa-money-bill-wave"></i> Fees
+            </a>
+            <a class="nav-link" href="invoices">
+                <i class="fas fa-file-invoice-dollar"></i> Invoices
+            </a>
+            <a class="nav-link" href="finance-managers">
+                <i class="fas fa-calculator"></i> Finance Managers
+            </a>
+            <a class="nav-link" href="account">
+                <i class="fas fa-wallet"></i> Account Balance
+            </a>
+            <a class="nav-link" href="parents">
+                <i class="fas fa-users"></i> Parents
+            </a>
+            <a class="nav-link" href="disciplinary">
+                <i class="fas fa-shield-alt"></i> Disciplinary
+            </a>
+            <a class="nav-link" href="disciplinary-action-types">
+                <i class="fas fa-list-alt"></i> Disciplinary Types
+            </a>
+            <a class="nav-link active" href="librarians">
+                <i class="fas fa-book"></i> Librarians
+            </a>
+            <a class="nav-link" href="duty-assignments">
+                <i class="fas fa-clipboard-list"></i> Duty Assignments
+            </a>
+            <a class="nav-link" href="examination-heads">
+                <i class="fas fa-user-tie"></i> Examination Heads
             </a>
         </div>
         <div class="sidebar-section">
-            <div class="sidebar-title">Management</div>
-            <a href="finance-managers" class="nav-link">
-                <i class="fas fa-calculator"></i>
-                <span>Finance Managers</span>
+            <div class="sidebar-title">Settings</div>
+            <a class="nav-link" href="settings">
+                <i class="fas fa-cog"></i> Settings
             </a>
-            <a href="librarians" class="nav-link active">
-                <i class="fas fa-book"></i>
-                <span>Librarians</span>
-            </a>
-        </div>
-        <div class="sidebar-section">
-            <div class="sidebar-title">Account</div>
-            <a href="settings" class="nav-link">
-                <i class="fas fa-cog"></i>
-                <span>Settings</span>
-            </a>
-            <a href="logout" class="nav-link">
-                <i class="fas fa-sign-out-alt"></i>
-                <span>Logout</span>
+            <a class="nav-link" href="logout">
+                <i class="fas fa-sign-out-alt"></i> Logout
             </a>
         </div>
     </aside>

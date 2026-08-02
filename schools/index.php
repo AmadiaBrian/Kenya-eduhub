@@ -20,6 +20,8 @@ $allowed_routes = [
     'disciplinary_view',
     'duty-assignments',
     'exam-types',
+    'examination-heads',
+    'examiners',
     'fees',
     'finance-managers',
     'grading',
@@ -68,6 +70,7 @@ if ($route === 'login') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#FF6B35">
     <title>Kenya EduHub - Schools Portal</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -179,7 +182,7 @@ if ($route === 'login') {
         }
         
         .feature-list li i {
-            color: #1a73e8;
+            color: #FF6B35;
             margin-right: 12px;
             font-size: 16px;
         }
@@ -214,8 +217,8 @@ if ($route === 'login') {
         }
         
         .auth-tab.active {
-            color: #1a73e8;
-            border-bottom-color: #1a73e8;
+            color: #FF6B35;
+            border-bottom-color: #FF6B35;
         }
         
         .auth-form h2 {
@@ -301,7 +304,7 @@ if ($route === 'login') {
             display: inline-block;
             margin-top: 8px;
             font-size: 14px;
-            color: #1a73e8;
+            color: #FF6B35;
             text-decoration: none;
         }
         
@@ -343,16 +346,72 @@ if ($route === 'login') {
             }
         }
         
-        @media (max-width: 480px) {
+        @media (max-width: 768px) {
             .auth-container {
                 padding: 24px 20px;
                 gap: 24px;
+            }
+            
+            .auth-info h1 {
+                font-size: 20px;
+            }
+            
+            .auth-info h2 {
+                font-size: 16px;
+            }
+            
+            .feature-list li {
+                font-size: 13px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .auth-container {
+                padding: 20px 16px;
+                gap: 20px;
             }
             
             .auth-info > div:first-child {
                 font-size: 1.25rem;
                 gap: 0.5rem;
             }
+            
+            .auth-info h1 {
+                font-size: 18px;
+            }
+            
+            .auth-info h2 {
+                font-size: 14px;
+            }
+            
+            .auth-info p {
+                font-size: 13px;
+            }
+            
+            .feature-list li {
+                font-size: 12px;
+                padding: 6px 0;
+            }
+            
+            .form-control {
+                padding: 12px 14px;
+                font-size: 15px;
+            }
+            
+            .btn-primary {
+                padding: 11px 20px;
+                font-size: 13px;
+            }
+            
+            .auth-tabs {
+                gap: 12px;
+            }
+            
+            .auth-tab {
+                padding: 10px 12px;
+                font-size: 13px;
+            }
+        }
             
             .auth-info > div:first-child > div:first-child {
                 width: 40px;

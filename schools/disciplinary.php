@@ -112,6 +112,7 @@ try {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#FF6B35">
     <title>Disciplinary Management - <?php echo htmlspecialchars($school_name); ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -610,10 +611,25 @@ try {
         
         /* Card container styling */
         .card {
-            background: white;
-            border-radius: 8px;
-            padding: 24px;
-            margin-bottom: 24px;
+            background: var(--card-bg);
+            border: none;
+            border-radius: 12px;
+            box-shadow: none;
+            margin-bottom: 20px;
+        }
+        
+        .card-header {
+            background: var(--card-bg);
+            border-bottom: 1px solid rgba(0,0,0,0.04);
+            padding: 16px 20px;
+            font-weight: 500;
+            color: var(--secondary-color);
+            border-radius: 12px;
+        }
+        
+        .card-body {
+            padding: 20px;
+            border-radius: 12px;
         }
         
         .card-title {
@@ -621,6 +637,163 @@ try {
             font-weight: 500;
             color: #202124;
             margin-bottom: 16px;
+        }
+        
+        /* Form */
+        .form-control {
+            width: 100%;
+            padding: 10px 12px;
+            font-size: 14px;
+            border: 1px solid #dadce0;
+            border-radius: 8px;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.2);
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 4px;
+            font-weight: 500;
+            color: var(--secondary-color);
+        }
+        
+        /* Buttons */
+        .btn {
+            padding: 10px 24px;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 500;
+            border: none;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .btn-primary {
+            background: #FF6B35;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #e55a2b;
+        }
+        
+        .btn-secondary {
+            background: var(--secondary-color);
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #3c4043;
+        }
+        
+        .btn-sm {
+            padding: 4px 8px;
+            font-size: 12px;
+        }
+        
+        /* Table */
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border: 1px solid #000;
+            margin: 0;
+        }
+        
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+        }
+        
+        .table thead {
+            background: #f0f0f0;
+            border-bottom: 2px solid #000;
+        }
+        
+        .table th {
+            text-align: left;
+            padding: 12px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #000;
+            border: 1px solid #000;
+            border-bottom: 2px solid #000;
+        }
+        
+        .table td {
+            padding: 12px;
+            font-size: 13px;
+            color: #000;
+            border: 1px solid #000;
+        }
+        
+        .table tbody tr:nth-child(even) {
+            background: #f9f9f9;
+        }
+        
+        .table tbody tr:hover {
+            background: #f0f0f0;
+        }
+        
+        /* Badge */
+        .badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+        
+        .badge-expulsion { 
+            background: #fce8e6; 
+            color: #c5221f; 
+        }
+        .badge-suspension { 
+            background: #fff8e1; 
+            color: #f57c00; 
+        }
+        .badge-warning { 
+            background: #e3f2fd; 
+            color: #1976d2; 
+        }
+        .badge-probation { 
+            background: #fce8e6; 
+            color: #c5221f; 
+        }
+        .badge-pending { 
+            background: #f1f3f4; 
+            color: #5f6368; 
+        }
+        .badge-active { 
+            background: #e6f4ea; 
+            color: #137333; 
+        }
+        .badge-resolved { 
+            background: #e8f0fe; 
+            color: #1a73e8; 
+        }
+        
+        /* Alert */
+        .alert {
+            padding: 12px 16px;
+            border-radius: 4px;
+            margin-bottom: 16px;
+        }
+        
+        .alert-success {
+            background: #e6f4ea;
+            color: #137333;
+            border: 1px solid rgba(19, 115, 51, 0.1);
+        }
+        
+        .alert-danger {
+            background: #fce8e6;
+            color: #c5221f;
+            border: 1px solid rgba(197, 34, 31, 0.1);
         }
         
         .modal .btn-secondary {
@@ -722,123 +895,91 @@ try {
             </div>
         </div>
         <div class="header-right">
-            <div class="user-avatar">
-                <?php echo strtoupper(substr($school_name, 0, 1)); ?>
-            </div>
         </div>
     </header>
     
     <!-- Sidebar -->
     <aside class="sidebar" id="sidebar">
         <div class="sidebar-section">
-            <div class="sidebar-title" onclick="toggleSidebarSection(this)">
-                Main <i class="fas fa-chevron-down chevron"></i>
-            </div>
-            <div class="sidebar-links">
-                <a class="nav-link" href="dashboard">
-                    <i class="fas fa-home"></i> Dashboard
-                </a>
-            </div>
+            <div class="sidebar-title">Main</div>
+            <a class="nav-link" href="dashboard">
+                <i class="fas fa-home"></i> Dashboard
+            </a>
+            <a class="nav-link" href="students">
+                <i class="fas fa-user-graduate"></i> Students
+            </a>
+            <a class="nav-link" href="teachers">
+                <i class="fas fa-chalkboard-teacher"></i> Teachers
+            </a>
+            <a class="nav-link" href="classes">
+                <i class="fas fa-chalkboard"></i> Classes
+            </a>
+            <a class="nav-link" href="streams">
+                <i class="fas fa-layer-group"></i> Streams
+            </a>
+            <a class="nav-link" href="subjects">
+                <i class="fas fa-book"></i> Subjects
+            </a>
+            <a class="nav-link" href="exam-types">
+                <i class="fas fa-clipboard-list"></i> Exam Types
+            </a>
+            <a class="nav-link" href="timetable">
+                <i class="fas fa-calendar-alt"></i> Timetable
+            </a>
+            <a class="nav-link" href="grading">
+                <i class="fas fa-chart-bar"></i> Grading
+            </a>
+            <a class="nav-link" href="performance">
+                <i class="fas fa-chart-line"></i> Performance
+            </a>
+            <a class="nav-link" href="results">
+                <i class="fas fa-clipboard-list"></i> Results
+            </a>
+            <a class="nav-link" href="attendance">
+                <i class="fas fa-calendar-check"></i> Attendance
+            </a>
+            <a class="nav-link" href="calendar">
+                <i class="fas fa-calendar"></i> Calendar
+            </a>
+            <a class="nav-link" href="fees">
+                <i class="fas fa-money-bill-wave"></i> Fees
+            </a>
+            <a class="nav-link" href="invoices">
+                <i class="fas fa-file-invoice-dollar"></i> Invoices
+            </a>
+            <a class="nav-link" href="finance-managers">
+                <i class="fas fa-user-tie"></i> Finance Managers
+            </a>
+            <a class="nav-link" href="account">
+                <i class="fas fa-wallet"></i> Account Balance
+            </a>
+            <a class="nav-link" href="parents">
+                <i class="fas fa-users"></i> Parents
+            </a>
+            <a class="nav-link active" href="disciplinary">
+                <i class="fas fa-shield-alt"></i> Disciplinary
+            </a>
+            <a class="nav-link" href="disciplinary-action-types">
+                <i class="fas fa-list-alt"></i> Disciplinary Types
+            </a>
+            <a class="nav-link" href="librarians">
+                <i class="fas fa-book-reader"></i> Librarians
+            </a>
+            <a class="nav-link" href="duty-assignments">
+                <i class="fas fa-clipboard-list"></i> Duty Assignments
+            </a>
+            <a class="nav-link" href="examination-heads">
+                <i class="fas fa-user-tie"></i> Examination Heads
+            </a>
         </div>
-        
         <div class="sidebar-section">
-            <div class="sidebar-title" onclick="toggleSidebarSection(this)">
-                Academic <i class="fas fa-chevron-down chevron"></i>
-            </div>
-            <div class="sidebar-links">
-                <a class="nav-link" href="students">
-                    <i class="fas fa-user-graduate"></i> Students
-                </a>
-                <a class="nav-link" href="teachers">
-                    <i class="fas fa-chalkboard-teacher"></i> Teachers
-                </a>
-                <a class="nav-link" href="classes">
-                    <i class="fas fa-chalkboard"></i> Classes
-                </a>
-                <a class="nav-link" href="streams">
-                    <i class="fas fa-layer-group"></i> Streams
-                </a>
-                <a class="nav-link" href="subjects">
-                    <i class="fas fa-book"></i> Subjects
-                </a>
-                <a class="nav-link" href="exam-types">
-                    <i class="fas fa-clipboard-list"></i> Exam Types
-                </a>
-                <a class="nav-link" href="timetable">
-                    <i class="fas fa-calendar-alt"></i> Timetable
-                </a>
-                <a class="nav-link" href="grading">
-                    <i class="fas fa-chart-bar"></i> Grading
-                </a>
-            </div>
-        </div>
-        
-        <div class="sidebar-section">
-            <div class="sidebar-title" onclick="toggleSidebarSection(this)">
-                Academic Records <i class="fas fa-chevron-down chevron"></i>
-            </div>
-            <div class="sidebar-links">
-                <a class="nav-link" href="performance">
-                    <i class="fas fa-chart-line"></i> Performance
-                </a>
-                <a class="nav-link" href="results">
-                    <i class="fas fa-clipboard-list"></i> Results
-                </a>
-                <a class="nav-link" href="attendance">
-                    <i class="fas fa-calendar-check"></i> Attendance
-                </a>
-            </div>
-        </div>
-        
-        <div class="sidebar-section">
-            <div class="sidebar-title" onclick="toggleSidebarSection(this)">
-                Financial <i class="fas fa-chevron-down chevron"></i>
-            </div>
-            <div class="sidebar-links">
-                <a class="nav-link" href="fees">
-                    <i class="fas fa-money-bill-wave"></i> Fees
-                </a>
-                <a class="nav-link" href="invoices">
-                    <i class="fas fa-file-invoice-dollar"></i> Invoices
-                </a>
-                <a class="nav-link" href="finance-managers">
-                    <i class="fas fa-user-tie"></i> Finance Managers
-                </a>
-            </div>
-        </div>
-        
-        <div class="sidebar-section">
-            <div class="sidebar-title" onclick="toggleSidebarSection(this)">
-                Administrative <i class="fas fa-chevron-down chevron"></i>
-            </div>
-            <div class="sidebar-links">
-                <a class="nav-link" href="parents">
-                    <i class="fas fa-users"></i> Parents
-                </a>
-                <a class="nav-link active" href="disciplinary">
-                    <i class="fas fa-shield-alt"></i> Disciplinary
-                </a>
-                <a class="nav-link" href="disciplinary-action-types">
-                    <i class="fas fa-list-alt"></i> Disciplinary Types
-                </a>
-                <a class="nav-link" href="librarians">
-                    <i class="fas fa-book-reader"></i> Librarians
-                </a>
-            </div>
-        </div>
-        
-        <div class="sidebar-section">
-            <div class="sidebar-title" onclick="toggleSidebarSection(this)">
-                Settings <i class="fas fa-chevron-down chevron"></i>
-            </div>
-            <div class="sidebar-links">
-                <a class="nav-link" href="settings">
-                    <i class="fas fa-cog"></i> Settings
-                </a>
-                <a class="nav-link" href="logout">
-                    <i class="fas fa-sign-out-alt"></i> Logout
-                </a>
-            </div>
+            <div class="sidebar-title">Settings</div>
+            <a class="nav-link" href="settings">
+                <i class="fas fa-cog"></i> Settings
+            </a>
+            <a class="nav-link" href="logout">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
         </div>
     </aside>
     

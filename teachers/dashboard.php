@@ -120,6 +120,7 @@ try {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#FF6B35">
     <title>Dashboard - <?php echo htmlspecialchars($teacher_name); ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -223,8 +224,14 @@ try {
             height: calc(100vh - var(--header-height));
             background: var(--bg-color);
             overflow-y: auto;
-            transition: transform 0.3s ease;
+            transition: transform 0.3s ease, margin-left 0.3s ease;
             z-index: 999;
+            scrollbar-width: none; /* Firefox */
+            -ms-overflow-style: none; /* IE and Edge */
+        }
+
+        .sidebar::-webkit-scrollbar {
+            display: none; /* Chrome, Safari, Opera */
         }
         
         .sidebar.collapsed {
@@ -281,6 +288,7 @@ try {
             margin-left: var(--sidebar-width);
             margin-top: var(--header-height);
             padding: 24px;
+            padding-bottom: 80px;
             transition: margin-left 0.3s ease;
         }
         
@@ -487,6 +495,7 @@ try {
         @media (max-width: 768px) {
             .sidebar {
                 transform: translateX(-256px);
+                z-index: 9999;
             }
             
             .sidebar.show {
@@ -495,23 +504,62 @@ try {
             
             .main-content {
                 margin-left: 0;
+                padding: 16px;
+                padding-bottom: 80px;
             }
             
             .stats-grid {
-                grid-template-columns: repeat(2, 1fr);
+                grid-template-columns: 1fr;
+                gap: 12px;
             }
             
             .dashboard-grid {
-                grid-template-columns: repeat(2, 1fr);
+                grid-template-columns: 1fr;
+                gap: 12px;
             }
             
             .quick-actions {
                 flex-direction: column;
+                gap: 12px;
             }
             
             .action-btn {
                 width: 100%;
                 justify-content: center;
+                padding: 12px 16px;
+            }
+            
+            .header {
+                padding: 0 16px;
+            }
+            
+            .logo {
+                font-size: 14px;
+            }
+            
+            .page-title {
+                font-size: 18px;
+                margin-bottom: 16px;
+            }
+            
+            .card {
+                padding: 16px;
+            }
+            
+            .stat-card {
+                padding: 16px;
+            }
+            
+            .stat-value {
+                font-size: 24px;
+            }
+            
+            footer {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                margin-top: 0;
             }
         }
     </style>
@@ -557,6 +605,9 @@ try {
             </a>
             <a class="nav-link" href="performance">
                 <i class="fas fa-chart-line"></i> Performance
+            </a>
+            <a class="nav-link" href="results">
+                <i class="fas fa-award"></i> Results
             </a>
             <a class="nav-link" href="students">
                 <i class="fas fa-user-graduate"></i> Students
@@ -759,20 +810,27 @@ try {
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
             const mainContent = document.getElementById('mainContent');
-            sidebar.classList.toggle('collapsed');
-            sidebar.classList.toggle('show');
-            mainContent.classList.toggle('expanded');
+            
+            // Check if we're on mobile
+            if (window.innerWidth <= 768) {
+                // Mobile: toggle the 'show' class
+                sidebar.classList.toggle('show');
+            } else {
+                // Desktop: toggle the 'collapsed' and 'expanded' classes
+                sidebar.classList.toggle('collapsed');
+                mainContent.classList.toggle('expanded');
+            }
         }
     </script>
     <script src="../assets/js/notifications.js"></script>
     
     <!-- Footer -->
-    <footer style="background: transparent; color: white; padding: 2rem; text-align: center; border-top: 1px solid rgba(255, 255, 255, 0.1);">
+    <footer style="position: fixed; bottom: 0; left: 0; right: 0; background: var(--bg-color); color: #5f6368; padding: 20px 0; text-align: center; border-top: 1px solid #e8eaed; z-index: 1000;">
         <p style="margin: 0;">
             <span style="color: #FF6B35;">&copy; 2026</span> 
             <span style="color: #FF6B35;">Kenya</span> 
             <span style="color: #008000;">EduHub</span>
-            <span style="color: #008000;">. All rights reserved.</span>
+            <span style="color: #5f6368;">. All rights reserved.</span>
         </p>
     </footer>
 </body>

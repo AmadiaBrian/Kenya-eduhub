@@ -67,6 +67,7 @@ if (isset($_GET['delete'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#FF6B35">
     <title>Disciplinary Action Types - <?php echo htmlspecialchars($school_name); ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -240,19 +241,177 @@ if (isset($_GET['delete'])) {
         }
         
         .card {
-            background: white;
-            border: 1px solid #e8eaed;
-            border-radius: 8px;
-            padding: 24px;
-            margin-bottom: 24px;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+            background: var(--card-bg);
+            border: none;
+            border-radius: 12px;
+            box-shadow: none;
+            margin-bottom: 20px;
+        }
+        
+        .card-header {
+            background: var(--card-bg);
+            border-bottom: 1px solid rgba(0,0,0,0.04);
+            padding: 16px 20px;
+            font-weight: 500;
+            color: var(--secondary-color);
+            border-radius: 12px;
+        }
+        
+        .card-body {
+            padding: 20px;
+            border-radius: 12px;
         }
         
         .card-title {
             font-size: 18px;
             font-weight: 500;
             color: #202124;
-            margin-bottom: 20px;
+            margin-bottom: 16px;
+        }
+        
+        /* Form */
+        .form-control {
+            width: 100%;
+            padding: 10px 12px;
+            font-size: 14px;
+            border: 1px solid #dadce0;
+            border-radius: 8px;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.2);
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 4px;
+            font-weight: 500;
+            color: var(--secondary-color);
+        }
+        
+        /* Buttons */
+        .btn {
+            padding: 10px 24px;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 500;
+            border: none;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .btn-primary {
+            background: #FF6B35;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #e55a2b;
+        }
+        
+        .btn-secondary {
+            background: var(--secondary-color);
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #3c4043;
+        }
+        
+        .btn-sm {
+            padding: 4px 8px;
+            font-size: 12px;
+        }
+        
+        /* Table */
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border: 1px solid #000;
+            margin: 0;
+        }
+        
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+        }
+        
+        .table thead {
+            background: #f0f0f0;
+            border-bottom: 2px solid #000;
+        }
+        
+        .table th {
+            text-align: left;
+            padding: 12px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #000;
+            border: 1px solid #000;
+            border-bottom: 2px solid #000;
+        }
+        
+        .table td {
+            padding: 12px;
+            font-size: 13px;
+            color: #000;
+            border: 1px solid #000;
+        }
+        
+        .table tbody tr:nth-child(even) {
+            background: #f9f9f9;
+        }
+        
+        .table tbody tr:hover {
+            background: #f0f0f0;
+        }
+        
+        /* Badge */
+        .badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+        
+        .badge-minor { 
+            background: #e3f2fd; 
+            color: #1976d2; 
+        }
+        .badge-moderate { 
+            background: #fff8e1; 
+            color: #f57c00; 
+        }
+        .badge-severe { 
+            background: #fce8e6; 
+            color: #c5221f; 
+        }
+        .badge-critical { 
+            background: #c5221f; 
+            color: white; 
+        }
+        
+        /* Alert */
+        .alert {
+            padding: 12px 16px;
+            border-radius: 4px;
+            margin-bottom: 16px;
+        }
+        
+        .alert-success {
+            background: #e6f4ea;
+            color: #137333;
+            border: 1px solid rgba(19, 115, 51, 0.1);
+        }
+        
+        .alert-danger {
+            background: #fce8e6;
+            color: #c5221f;
+            border: 1px solid rgba(197, 34, 31, 0.1);
         }
         
         .form-grid {
@@ -437,9 +596,6 @@ if (isset($_GET['delete'])) {
             </div>
         </div>
         <div class="header-right">
-            <div class="user-avatar">
-                <?php echo strtoupper(substr($school_name, 0, 1)); ?>
-            </div>
         </div>
     </header>
     
@@ -459,17 +615,62 @@ if (isset($_GET['delete'])) {
             <a class="nav-link" href="classes">
                 <i class="fas fa-school"></i> Classes
             </a>
+            <a class="nav-link" href="streams">
+                <i class="fas fa-layer-group"></i> Streams
+            </a>
             <a class="nav-link" href="subjects">
                 <i class="fas fa-book"></i> Subjects
             </a>
             <a class="nav-link" href="exam-types">
                 <i class="fas fa-clipboard-list"></i> Exam Types
             </a>
+            <a class="nav-link" href="timetable">
+                <i class="fas fa-calendar-alt"></i> Timetable
+            </a>
+            <a class="nav-link" href="grading">
+                <i class="fas fa-chart-bar"></i> Grading
+            </a>
+            <a class="nav-link" href="performance">
+                <i class="fas fa-chart-line"></i> Performance
+            </a>
+            <a class="nav-link" href="results">
+                <i class="fas fa-clipboard-list"></i> Results
+            </a>
+            <a class="nav-link" href="attendance">
+                <i class="fas fa-calendar-check"></i> Attendance
+            </a>
+            <a class="nav-link" href="calendar">
+                <i class="fas fa-calendar"></i> Calendar
+            </a>
             <a class="nav-link" href="fees">
                 <i class="fas fa-file-invoice-dollar"></i> Fee Management
             </a>
-            <a class="nav-link active" href="disciplinary">
+            <a class="nav-link" href="invoices">
+                <i class="fas fa-file-invoice-dollar"></i> Invoices
+            </a>
+            <a class="nav-link" href="finance-managers">
+                <i class="fas fa-user-tie"></i> Finance Managers
+            </a>
+            <a class="nav-link" href="account">
+                <i class="fas fa-wallet"></i> Account Balance
+            </a>
+            <a class="nav-link" href="parents">
+                <i class="fas fa-users"></i> Parents
+            </a>
+            <a class="nav-link" href="disciplinary">
                 <i class="fas fa-exclamation-triangle"></i> Disciplinary
+            </a>
+            <a class="nav-link active" href="disciplinary-action-types">
+                <i class="fas fa-list-alt"></i> Disciplinary Types
+            </a>
+            <a class="nav-link" href="librarians">
+                <i class="fas fa-book-reader"></i> Librarians
+            </a>
+            <a class="nav-link" href="duty-assignments">
+                <i class="fas fa-clipboard-list"></i> Duty Assignments
+            </a>
+            <a class="nav-link" href="examination-heads">
+                <i class="fas fa-user-tie"></i> Examination Heads
             </a>
         </div>
         <div class="sidebar-section">
@@ -495,84 +696,92 @@ if (isset($_GET['delete'])) {
         
         <!-- Add New Action Type -->
         <div class="card">
-            <div class="card-title">Add New Action Type</div>
-            <form method="POST">
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label>Action Type (code)</label>
-                        <input type="text" class="form-control" name="action_type" placeholder="e.g., warning, suspension" required>
+            <div class="card-header">
+                <i class="fas fa-plus me-2"></i>Add New Action Type
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 16px;">
+                        <div>
+                            <label class="form-label">Action Type (code)</label>
+                            <input type="text" class="form-control" name="action_type" placeholder="e.g., warning, suspension" required>
+                        </div>
+                        <div>
+                            <label class="form-label">Action Name (display)</label>
+                            <input type="text" class="form-control" name="action_name" placeholder="e.g., Warning, Suspension" required>
+                        </div>
+                        <div>
+                            <label class="form-label">Severity</label>
+                            <select class="form-control" name="severity">
+                                <option value="minor">Minor</option>
+                                <option value="moderate" selected>Moderate</option>
+                                <option value="severe">Severe</option>
+                                <option value="critical">Critical</option>
+                            </select>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label>Action Name (display)</label>
-                        <input type="text" class="form-control" name="action_name" placeholder="e.g., Warning, Suspension" required>
+                    <div style="margin-bottom: 16px;">
+                        <label class="form-label">Description</label>
+                        <textarea class="form-control" name="description" rows="3"></textarea>
                     </div>
-                    <div class="form-group">
-                        <label>Severity</label>
-                        <select class="form-control" name="severity">
-                            <option value="minor">Minor</option>
-                            <option value="moderate" selected>Moderate</option>
-                            <option value="severe">Severe</option>
-                            <option value="critical">Critical</option>
-                        </select>
+                    <div style="display: flex; gap: 12px;">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-plus me-2"></i>Add Action Type
+                        </button>
+                        <button type="button" class="btn btn-secondary" onclick="window.location.href='disciplinary'">
+                            <i class="fas fa-arrow-left me-2"></i>Back to Disciplinary
+                        </button>
                     </div>
-                </div>
-                <div class="form-group">
-                    <label>Description</label>
-                    <textarea class="form-control" name="description" rows="3"></textarea>
-                </div>
-                <div class="form-actions">
-                    <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-plus"></i> Add Action Type
-                    </button>
-                    <button type="button" class="btn btn-secondary" onclick="window.location.href='disciplinary'">
-                        <i class="fas fa-arrow-left"></i> Back to Disciplinary
-                    </button>
-                </div>
-            </form>
+                </form>
+            </div>
         </div>
         
         <!-- Existing Action Types -->
         <div class="card">
-            <div class="card-title">Existing Action Types</div>
-            <div class="table-responsive">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Action Type</th>
-                            <th>Action Name</th>
-                            <th>Description</th>
-                            <th>Severity</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php if (empty($action_types)): ?>
+            <div class="card-header">
+                <i class="fas fa-list me-2"></i>Existing Action Types
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
                             <tr>
-                                <td colspan="5" style="text-align: center; padding: 40px; color: #5f6368;">
-                                    No action types found. Add your first action type above.
-                                </td>
+                                <th>Action Type</th>
+                                <th>Action Name</th>
+                                <th>Description</th>
+                                <th>Severity</th>
+                                <th>Actions</th>
                             </tr>
-                        <?php else: ?>
-                            <?php foreach ($action_types as $type): ?>
+                        </thead>
+                        <tbody>
+                            <?php if (empty($action_types)): ?>
                                 <tr>
-                                    <td><code><?php echo htmlspecialchars($type['action_type']); ?></code></td>
-                                    <td><?php echo htmlspecialchars($type['action_name']); ?></td>
-                                    <td><?php echo htmlspecialchars($type['description'] ?? '-'); ?></td>
-                                    <td>
-                                        <span class="badge badge-<?php echo $type['severity']; ?>">
-                                            <?php echo ucfirst($type['severity']); ?>
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <a href="?delete=<?php echo $type['id']; ?>" class="btn btn-action btn-sm" onclick="return confirm('Are you sure you want to delete this action type?');">
-                                            <i class="fas fa-trash"></i> Delete
-                                        </a>
+                                    <td colspan="5" style="text-align: center; padding: 40px; color: #5f6368;">
+                                        No action types found. Add your first action type above.
                                     </td>
                                 </tr>
-                            <?php endforeach; ?>
-                        <?php endif; ?>
-                    </tbody>
-                </table>
+                            <?php else: ?>
+                                <?php foreach ($action_types as $type): ?>
+                                    <tr>
+                                        <td><code><?php echo htmlspecialchars($type['action_type']); ?></code></td>
+                                        <td><?php echo htmlspecialchars($type['action_name']); ?></td>
+                                        <td><?php echo htmlspecialchars($type['description'] ?? '-'); ?></td>
+                                        <td>
+                                            <span class="badge badge-<?php echo $type['severity']; ?>">
+                                                <?php echo ucfirst($type['severity']); ?>
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <a href="?delete=<?php echo $type['id']; ?>" class="btn btn-sm btn-secondary" onclick="return confirm('Are you sure you want to delete this action type?');">
+                                                <i class="fas fa-trash"></i> Delete
+                                            </a>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </main>

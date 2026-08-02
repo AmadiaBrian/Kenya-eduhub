@@ -1,16 +1,12 @@
 RewriteEngine On
 
-# Set the directory index
-DirectoryIndex index.php
-
-# Allow direct access to api directories
-RewriteRule ^api/ - [L]
-RewriteRule ^schools/api/ - [L]
-
-# Handle root directory request (redirect to dashboard)
-RewriteRule ^$ index.php?route=dashboard [L,QSA]
-
-# Route all other requests to index.php for routing
+# Remove index.php from URL
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^(.*)$ index.php?route=$1 [L,QSA]
+RewriteRule ^([^/]+)$ index.php?route=$1 [L,QSA]
+
+# Route specific paths
+RewriteRule ^dashboard$ index.php?route=dashboard [L,QSA]
+RewriteRule ^settings$ index.php?route=settings [L,QSA]
+RewriteRule ^users$ index.php?route=users [L,QSA]
+RewriteRule ^schools$ index.php?route=schools [L,QSA]

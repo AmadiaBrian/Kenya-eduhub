@@ -29,3 +29,27 @@
 2026-07-27 22:29:10 - B2C Result withdrawal not found. ConversationID: , OriginatorConversationID: 
 2026-07-27 22:29:46 - B2C Result: 
 2026-07-27 22:29:46 - B2C Result withdrawal not found. ConversationID: , OriginatorConversationID: 
+2026-07-28 13:53:46 - B2C Result: {"Body":{"stkCallback":{"MerchantRequestID":"test-merchant","CheckoutRequestID":"test-checkout","ResultCode":0,"ResultDesc":"Test successful callback","CallbackMetadata":{"Item":[{"Name":"Amount","Value":10},{"Name":"MpesaReceiptNumber","Value":"TEST123"},{"Name":"TransactionDate","Value":20260728145300},{"Name":"PhoneNumber","Value":254708374149}]}}}}
+2026-07-28 13:53:47 - B2C Result withdrawal not found. ConversationID: , OriginatorConversationID: 
+2026-07-28 14:02:48 - B2C Result: {"Result":{"ResultType":0,"ResultCode":0,"ResultDesc":"Success","OriginatorConversationID":"b8a0-4b73-8c6c-70a18412423218383","ConversationID":"AG_20260728_010010030w5xf04rpc5q","TransactionID":"TST12345678","ReceiptNumber":"TEST123","TransactionDate":"20260728150100","Amount":10,"B2CRecipientIsRegisteredCustomer":"Y","B2CChargesPaidAccount":"MSISDN","TransactionReason":"SalaryPayment","DebitAccountChargedAmount":10.5,"DebitAccountCharged":600997,"DebitAccountReference":"test-ref","KESAccountBalance":1000,"UtilityAccountBalance":0,"B2CRecipientAccount":"254708374149","B2CUtilityAccountAvailableBalance":0,"B2CWorkingAccountAvailableBalance":0},"OriginatorConversationID":"b8a0-4b73-8c6c-70a18412423218383","ConversationID":"AG_20260728_010010030w5xf04rpc5q","ResponseCode":"0","ResponseDescription":"Success"}
+2026-07-28 14:02:48 - B2C Success: Ksh 10.00 sent to , TransactionID: TST12345678, WithdrawalID: 123
+2026-07-28 14:02:49 - SMS sent via Mobitech: Array
+(
+    [success] => 1
+    [message_id] => 31417863
+    [response] => Array
+        (
+            [status_code] => 1000
+            [status_desc] => Success
+            [message_id] => 31417863
+            [mobile_number] => 254745959757
+            [network_id] => 1
+            [message_cost] => 0.35
+            [credit_balance] => 12.75
+        )
+
+    [cost] => 
+)
+
+2026-07-30 05:42:22 - B2C Result: 
+2026-07-30 05:42:22 - B2C Result withdrawal not found. ConversationID: , OriginatorConversationID: 

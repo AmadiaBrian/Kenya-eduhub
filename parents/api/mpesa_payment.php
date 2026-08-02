@@ -166,7 +166,7 @@ try {
     $accountnumber = "FEE:$payment_id|STUDENT:$student_id|AMOUNT:$amount|TERM:$term|YEAR:$year|TYPE:$fee_type";
     
     // Callback URL using configured base URL
-    $callbackurl = $base_url . '/kenyaeduhub/parents/api/mpesa_callback.php';
+    $callbackurl = MPESA_CALLBACK_BASE_URL . MPESA_PARENTS_CALLBACK_PATH;
     
     $stkpushheader = ['Content-Type:application/json', 'Authorization:Bearer ' . $access_token];
     

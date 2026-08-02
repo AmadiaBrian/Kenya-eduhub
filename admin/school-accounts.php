@@ -1078,77 +1078,30 @@ $total_schools = count($schools);
     
     <!-- Sidebar -->
     <aside class="sidebar" id="sidebar">
-        <div class="sidebar-section">
-            <div class="sidebar-title" onclick="toggleSidebarSection(this)">
-                Dashboard <i class="fas fa-chevron-down chevron"></i>
-            </div>
-            <div class="sidebar-links">
-                <a class="nav-link" href="dashboard">
-                    <i class="fas fa-home"></i> Dashboard
-                </a>
-            </div>
-        </div>
-        
-        <div class="sidebar-section">
-            <div class="sidebar-title" onclick="toggleSidebarSection(this)">
-                Schools <i class="fas fa-chevron-down chevron"></i>
-            </div>
-            <div class="sidebar-links">
-                <a class="nav-link" href="schools">
-                    <i class="fas fa-school"></i> All Schools
-                </a>
-                <a class="nav-link active" href="school-accounts">
-                    <i class="fas fa-wallet"></i> School Accounts
-                </a>
-            </div>
-        </div>
-        
-        <div class="sidebar-section">
-            <div class="sidebar-title" onclick="toggleSidebarSection(this)">
-                Users <i class="fas fa-chevron-down chevron"></i>
-            </div>
-            <div class="sidebar-links">
-                <a class="nav-link" href="users">
-                    <i class="fas fa-users"></i> All Users
-                </a>
-            </div>
-        </div>
-        
-        <div class="sidebar-section">
-            <div class="sidebar-title" onclick="toggleSidebarSection(this)">
-                Resources <i class="fas fa-chevron-down chevron"></i>
-            </div>
-            <div class="sidebar-links">
-                <a class="nav-link" href="resources">
-                    <i class="fas fa-folder"></i> Resources
-                </a>
-            </div>
-        </div>
-        
-        <div class="sidebar-section">
-            <div class="sidebar-title" onclick="toggleSidebarSection(this)">
-                Reports <i class="fas fa-chevron-down chevron"></i>
-            </div>
-            <div class="sidebar-links">
-                <a class="nav-link" href="reports">
-                    <i class="fas fa-chart-bar"></i> Reports
-                </a>
-                <a class="nav-link" href="logs">
-                    <i class="fas fa-history"></i> Activity Logs
-                </a>
-            </div>
-        </div>
-        
-        <div class="sidebar-section">
-            <div class="sidebar-title" onclick="toggleSidebarSection(this)">
-                Settings <i class="fas fa-chevron-down chevron"></i>
-            </div>
-            <div class="sidebar-links">
-                <a class="nav-link" href="settings">
-                    <i class="fas fa-cog"></i> Settings
-                </a>
-            </div>
-        </div>
+        <a class="nav-link" href="dashboard">
+            <i class="fas fa-home"></i> Dashboard
+        </a>
+        <a class="nav-link" href="schools">
+            <i class="fas fa-school"></i> All Schools
+        </a>
+        <a class="nav-link active" href="school-accounts">
+            <i class="fas fa-wallet"></i> School Accounts
+        </a>
+        <a class="nav-link" href="users">
+            <i class="fas fa-users"></i> All Users
+        </a>
+        <a class="nav-link" href="resources">
+            <i class="fas fa-folder"></i> Resources
+        </a>
+        <a class="nav-link" href="reports">
+            <i class="fas fa-chart-bar"></i> Reports
+        </a>
+        <a class="nav-link" href="logs">
+            <i class="fas fa-history"></i> Activity Logs
+        </a>
+        <a class="nav-link" href="settings">
+            <i class="fas fa-cog"></i> Settings
+        </a>
     </aside>
 
     <!-- Main Content -->

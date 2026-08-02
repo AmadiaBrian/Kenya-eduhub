@@ -106,6 +106,7 @@ foreach ($duty_assignments as $assignment) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#FF6B35">
     <title>Duty Assignments - <?php echo htmlspecialchars($school_name); ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -200,7 +201,7 @@ foreach ($duty_assignments as $assignment) {
             background: var(--bg-color);
             border-right: 1px solid #e8eaed;
             overflow-y: auto;
-            transition: transform 0.3s ease;
+            transition: transform 0.3s ease, margin-left 0.3s ease;
             z-index: 999;
             scrollbar-width: none; /* Firefox */
             -ms-overflow-style: none; /* IE and Edge */
@@ -211,25 +212,18 @@ foreach ($duty_assignments as $assignment) {
         }
         
         .sidebar.collapsed {
-            transform: translateX(-100%);
-        }
-        
-        .sidebar h6 {
-            font-size: 12px;
-            font-weight: 500;
-            color: #5f6368;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            transform: translateX(-256px);
         }
         
         .nav-link {
             display: flex;
             align-items: center;
-            padding: 10px 24px;
+            padding: 12px 24px;
             color: #202124;
             text-decoration: none;
             font-size: 14px;
             transition: background 0.2s;
+            border-bottom: 1px solid #f1f3f4;
         }
         
         .nav-link:hover {
@@ -253,11 +247,26 @@ foreach ($duty_assignments as $assignment) {
             margin-left: var(--sidebar-width);
             margin-top: var(--header-height);
             padding: 24px;
+            padding-bottom: 80px;
             transition: margin-left 0.3s ease;
         }
         
         .main-content.expanded {
             margin-left: 0;
+        }
+        
+        .sidebar-title {
+            font-size: 12px;
+            font-weight: 500;
+            color: #5f6368;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 8px 24px;
+        }
+        
+        .sidebar-section {
+            padding: 12px 0;
+            border-bottom: 1px solid #f1f3f4;
         }
         
         .card {
@@ -404,6 +413,36 @@ foreach ($duty_assignments as $assignment) {
             color: #e8eaed;
             margin-bottom: 16px;
         }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-256px);
+                z-index: 9999;
+            }
+            
+            .sidebar.show {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+                padding: 16px;
+                padding-bottom: 80px;
+            }
+            
+            .menu-btn {
+                display: block !important;
+            }
+            
+            .card {
+                padding: 16px;
+            }
+            
+            .schedule-grid {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 </head>
 <body>
@@ -429,50 +468,84 @@ foreach ($duty_assignments as $assignment) {
     </header>
     
     <aside class="sidebar" id="sidebar">
-        <div class="p-3">
-            <h6 class="mb-3">School Menu</h6>
-            <ul class="nav flex-column">
-                <li class="nav-item mb-2">
-                    <a class="nav-link" href="dashboard"><i class="fas fa-home me-2"></i>Dashboard</a>
-                </li>
-                <li class="nav-item mb-2">
-                    <a class="nav-link" href="students"><i class="fas fa-user-graduate me-2"></i>Students</a>
-                </li>
-                <li class="nav-item mb-2">
-                    <a class="nav-link" href="teachers"><i class="fas fa-chalkboard-teacher me-2"></i>Teachers</a>
-                </li>
-                <li class="nav-item mb-2">
-                    <a class="nav-link" href="subjects"><i class="fas fa-book me-2"></i>Subjects</a>
-                </li>
-                <li class="nav-item mb-2">
-                    <a class="nav-link" href="exam-types"><i class="fas fa-clipboard-list me-2"></i>Exam Types</a>
-                </li>
-                <li class="nav-item mb-2">
-                    <a class="nav-link active" href="duty-assignments"><i class="fas fa-clipboard-list me-2"></i>Duty Assignments</a>
-                </li>
-                <li class="nav-item mb-2">
-                    <a class="nav-link" href="disciplinary"><i class="fas fa-exclamation-triangle me-2"></i>Disciplinary</a>
-                </li>
-                <li class="nav-item mb-2">
-                    <a class="nav-link" href="attendance"><i class="fas fa-calendar-check me-2"></i>Attendance</a>
-                </li>
-                <li class="nav-item mb-2">
-                    <a class="nav-link" href="fees"><i class="fas fa-money-bill-wave me-2"></i>Fees</a>
-                </li>
-                <li class="nav-item mb-2">
-                    <a class="nav-link" href="performance"><i class="fas fa-chart-line me-2"></i>Performance</a>
-                </li>
-                <li class="nav-item mb-2">
-                    <a class="nav-link" href="settings"><i class="fas fa-cog me-2"></i>Settings</a>
-                </li>
-                <li class="nav-item mb-2">
-                    <a class="nav-link" href="profile"><i class="fas fa-user me-2"></i>Profile</a>
-                </li>
-                <li class="nav-item mb-2">
-                    <a class="nav-link text-danger" href="logout"><i class="fas fa-sign-out-alt me-2"></i>Logout</a>
-                </li>
-            </ul>
-        </div>
+        <a class="nav-link" href="dashboard">
+            <i class="fas fa-home"></i> Dashboard
+        </a>
+        <a class="nav-link" href="students">
+            <i class="fas fa-user-graduate"></i> Students
+        </a>
+        <a class="nav-link" href="teachers">
+            <i class="fas fa-chalkboard-teacher"></i> Teachers
+        </a>
+        <a class="nav-link" href="classes">
+            <i class="fas fa-chalkboard"></i> Classes
+        </a>
+        <a class="nav-link" href="streams">
+            <i class="fas fa-layer-group"></i> Streams
+        </a>
+        <a class="nav-link" href="subjects">
+            <i class="fas fa-book"></i> Subjects
+        </a>
+        <a class="nav-link" href="exam-types">
+            <i class="fas fa-clipboard-list"></i> Exam Types
+        </a>
+        <a class="nav-link" href="timetable">
+            <i class="fas fa-calendar-alt"></i> Timetable
+        </a>
+        <a class="nav-link" href="grading">
+            <i class="fas fa-chart-bar"></i> Grading
+        </a>
+        <a class="nav-link" href="performance">
+            <i class="fas fa-chart-line"></i> Performance
+        </a>
+        <a class="nav-link" href="results">
+            <i class="fas fa-clipboard-list"></i> Results
+        </a>
+        <a class="nav-link" href="attendance">
+            <i class="fas fa-calendar-check"></i> Attendance
+        </a>
+        <a class="nav-link" href="calendar">
+            <i class="fas fa-calendar-alt"></i> Calendar
+        </a>
+        <a class="nav-link" href="fees">
+            <i class="fas fa-money-bill-wave"></i> Fees
+        </a>
+        <a class="nav-link" href="invoices">
+            <i class="fas fa-file-invoice-dollar"></i> Invoices
+        </a>
+        <a class="nav-link" href="account">
+            <i class="fas fa-wallet"></i> Account Balance
+        </a>
+        <a class="nav-link" href="finance-managers">
+            <i class="fas fa-user-tie"></i> Finance Managers
+        </a>
+        <a class="nav-link" href="librarians">
+            <i class="fas fa-book-reader"></i> Librarians
+        </a>
+        <a class="nav-link" href="parents">
+            <i class="fas fa-user-friends"></i> Parents
+        </a>
+        <a class="nav-link" href="disciplinary">
+            <i class="fas fa-exclamation-triangle"></i> Disciplinary
+        </a>
+        <a class="nav-link" href="disciplinary-action-types">
+            <i class="fas fa-list-alt"></i> Disciplinary Types
+        </a>
+        <a class="nav-link active" href="duty-assignments">
+            <i class="fas fa-clipboard-list"></i> Duty Assignments
+        </a>
+        <a class="nav-link" href="examination-heads">
+            <i class="fas fa-user-tie"></i> Examination Heads
+        </a>
+        <a class="nav-link" href="profile">
+            <i class="fas fa-user"></i> Profile
+        </a>
+        <a class="nav-link" href="settings">
+            <i class="fas fa-cog"></i> Settings
+        </a>
+        <a class="nav-link" href="logout">
+            <i class="fas fa-sign-out-alt"></i> Logout
+        </a>
     </aside>
     
     <main class="main-content" id="mainContent">
@@ -559,12 +632,12 @@ foreach ($duty_assignments as $assignment) {
         </div>
     </main>
     
-    <footer class="footer">
+    <footer class="footer" style="position: fixed; bottom: 0; left: 0; right: 0; background: #f8f9fa; border-top: 1px solid #e8eaed; padding: 20px 0; z-index: 1000;">
         <p style="margin: 0;">
             <span style="color: #FF6B35;">&copy; 2026</span> 
             <span style="color: #FF6B35;">Kenya</span> 
             <span style="color: #008000;">EduHub</span>
-            <span style="color: #008000;">. All rights reserved.</span>
+            <span style="color: #5f6368;">. All rights reserved.</span>
         </p>
     </footer>
     
@@ -573,8 +646,16 @@ foreach ($duty_assignments as $assignment) {
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
             const mainContent = document.getElementById('mainContent');
-            sidebar.classList.toggle('collapsed');
-            mainContent.classList.toggle('expanded');
+            
+            // Check if we're on mobile
+            if (window.innerWidth <= 768) {
+                // Mobile: toggle the 'show' class
+                sidebar.classList.toggle('show');
+            } else {
+                // Desktop: toggle the 'collapsed' and 'expanded' classes
+                sidebar.classList.toggle('collapsed');
+                mainContent.classList.toggle('expanded');
+            }
         }
     </script>
     <script src="../assets/js/notifications.js"></script>

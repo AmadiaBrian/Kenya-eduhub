@@ -38,15 +38,17 @@ try {
 <html lang="en">
 <head>
    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Kenya EduHub - Free Educational Resources, Past Papers & Study Materials | Download KCSE, KCPE Notes</title>
-    <meta name="description" content="Kenya EduHub offers FREE educational resources, past papers, study notes, and learning materials for Kenyan students. Download KCSE, KCPE past papers, revision materials, and educational resources for all levels.">
-    <meta name="keywords" content="free educational resources Kenya, KCSE past papers, KCPE past papers, free study materials Kenya, download past papers, educational notes, Kenya education, learning resources, free textbooks, revision materials, exam papers, Kenyan curriculum, study guides, educational downloads, teaching resources, free learning materials">
+    <title>Kenya EduHub - Free CBC Curriculum Resources, KCSE KCPE Past Papers, School Management System | Best Educational Platform in Kenya</title>
+    <meta name="description" content="Kenya EduHub is Kenya's #1 education platform offering FREE CBC curriculum resources, KCSE KCSE past papers, study materials, and comprehensive school management system. Best school management software for Kenyan schools with student tracking, parent portal, teacher tools, and fee management.">
+    <meta name="keywords" content="free educational resources Kenya, CBC curriculum materials, KCSE past papers free download, KCPE past papers Kenya, CBC grade 1-8 resources, CBC junior secondary, CBC senior secondary, school management system Kenya, best school management software, school administration system, student tracking system, parent portal Kenya, teacher management tools, fee management system, attendance tracking Kenya, education management platform, digital learning Kenya, online school management, CBC assessment materials, free study notes Kenya, revision materials KCSE, revision materials KCPE, educational technology Kenya, school ERP system, LMS Kenya, learning management system, free teaching resources, school software Kenya, academic management system, student information system, school administration software, free educational downloads, Kenya curriculum resources, 8-4-4 system Kenya, CBC competency based curriculum, educational resources for teachers, school digitization Kenya, online education platform Kenya, free exam papers Kenya, school automation system, education technology solutions">
     <meta name="author" content="Kenya EduHub">
     <meta name="robots" content="index, follow">
     <meta name="googlebot" content="index, follow">
     <meta name="language" content="English">
     <meta name="geo.region" content="KE">
     <meta name="geo.placename" content="Kenya">
+    <meta name="geo.position" content="-1.286389; 36.817223">
+    <meta name="ICBM" content="-1.286389, 36.817223">
     <meta name="category" content="Education">
     <meta name="distribution" content="global">
     <meta name="rating" content="general">
@@ -55,24 +57,52 @@ try {
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://kenyaeduhub.kesug.com/">
-    <meta property="og:title" content="Kenya EduHub - Free Educational Resources, Past Papers & Study Materials">
-    <meta property="og:description" content="Download FREE KCSE, KCPE past papers, study notes, and educational resources in Kenya. Access thousands of learning materials for students and teachers.">
+    <meta property="og:title" content="Kenya EduHub - Free CBC Resources, KCSE KCPE Past Papers & School Management System">
+    <meta property="og:description" content="Access FREE CBC curriculum resources, KCSE KCPE past papers, study materials, and Kenya's best school management system. Complete education platform for students, teachers, parents, and schools.">
     <meta property="og:image" content="https://kenyaeduhub.kesug.com/assets/favicon.ico">
     <meta property="og:site_name" content="Kenya EduHub">
     <meta property="og:locale" content="en_KE">
+    <meta property="og:locale:alternate" content="sw_KE">
 
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:url" content="https://kenyaeduhub.kesug.com/">
-    <meta name="twitter:title" content="Kenya EduHub - Free Educational Resources & Past Papers">
-    <meta name="twitter:description" content="Download FREE educational resources, past papers, and study materials for Kenyan students. KCSE, KCPE, revision materials available.">
+    <meta name="twitter:title" content="Kenya EduHub - Free CBC Resources & School Management System">
+    <meta name="twitter:description" content="FREE CBC curriculum resources, KCSE KCPE past papers, and comprehensive school management system for Kenyan education.">
     <meta name="twitter:image" content="https://kenyaeduhub.kesug.com/assets/favicon.ico">
     <meta name="twitter:site" content="@KenyaEduHub">
     <meta name="twitter:creator" content="@KenyaEduHub">
 
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://kenyaeduhub.kesug.com/">
+    
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="https://kenyaeduhub.kesug.com/assets/favicon.ico" />
     <link rel="apple-touch-icon" href="https://kenyaeduhub.kesug.com/assets/favicon.ico">
+    
+    <!-- Additional SEO Meta Tags -->
+    <meta name="subject" content="Education and School Management">
+    <meta name="copyright" content="Kenya EduHub © 2026">
+    <meta name="designer" content="Kenya EduHub">
+    <meta name="reply-to" content="otienobrian029@gmail.com">
+    <meta name="owner" content="Kenya EduHub">
+    <meta name="url" content="https://kenyaeduhub.kesug.com/">
+    <meta name="identifier-URL" content="https://kenyaeduhub.kesug.com/">
+    <meta name="directory" content="submission">
+    <meta name="pagename" content="Kenya EduHub - Education Platform">
+    <meta name="category" content="education">
+    <meta name="coverage" content="Worldwide">
+    <meta name="distribution" content="Global">
+    <meta name="HandheldFriendly" content="true">
+    <meta name="MobileOptimized" content="true">
+    <meta name="target" content="all">
+    <meta name="MobileOptimized" content="true">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="msapplication-TileColor" content="#FF6B35">
+    <meta name="msapplication-TileImage" content="https://kenyaeduhub.kesug.com/assets/favicon.ico">
+    <meta name="theme-color" content="#FF6B35">
     
     <!-- Preconnect to external resources -->
     <link rel="preconnect" href="https://cdnjs.cloudflare.com">
@@ -98,7 +128,7 @@ try {
         "name": "Kenya EduHub",
         "url": "https://kenyaeduhub.kesug.com/",
         "logo": "https://kenyaeduhub.kesug.com/assets/favicon.ico",
-        "description": "Kenya's premier platform for free educational resources, past papers, and study materials",
+        "description": "Kenya's comprehensive education platform offering FREE CBC curriculum resources, KCSE KCPE past papers, and complete school management system for Kenyan schools",
         "address": {
             "@type": "PostalAddress",
             "addressCountry": "Kenya",
@@ -108,17 +138,36 @@ try {
             "@type": "ContactPoint",
             "telephone": "+254 717 016 902",
             "contactType": "customer service",
-            "availableLanguage": "English"
+            "availableLanguage": ["English", "Swahili"]
         },
         "sameAs": [
-            "https://twitter.com/KenyaEduHub"
+            "https://twitter.com/KenyaEduHub",
+            "https://facebook.com/KenyaEduHub",
+            "https://instagram.com/KenyaEduHub"
         ],
-        "offers": {
-            "@type": "Offer",
-            "description": "Free educational resources and study materials",
-            "price": "0",
-            "priceCurrency": "KES"
-        }
+        "offers": [
+            {
+                "@type": "Offer",
+                "description": "Free CBC curriculum educational resources and study materials",
+                "price": "0",
+                "priceCurrency": "KES"
+            },
+            {
+                "@type": "Offer",
+                "description": "School management system for Kenyan educational institutions",
+                "price": "0",
+                "priceCurrency": "KES"
+            }
+        ],
+        "knowsAbout": [
+            "CBC Curriculum",
+            "KCSE Past Papers",
+            "KCPE Past Papers",
+            "School Management System",
+            "Student Information System",
+            "Learning Management System",
+            "Educational Technology"
+        ]
     }
     </script>
     
@@ -128,12 +177,39 @@ try {
         "@type": "WebSite",
         "name": "Kenya EduHub",
         "url": "https://kenyaeduhub.kesug.com/",
-        "description": "Download free educational resources, KCSE past papers, KCPE past papers, study notes, and learning materials in Kenya",
+        "description": "Free CBC curriculum resources, KCSE KCPE past papers, study notes, and best school management system in Kenya",
         "potentialAction": {
             "@type": "SearchAction",
             "target": "https://kenyaeduhub.kesug.com/search?q={search_term_string}",
             "query-input": "required name=search_term_string"
-        }
+        },
+        "keywords": "CBC curriculum, KCSE past papers, KCPE past papers, school management system, educational resources Kenya, student portal, parent portal, teacher tools"
+    }
+    </script>
+    
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "Kenya EduHub School Management System",
+        "applicationCategory": "EducationalApplication",
+        "operatingSystem": "Web",
+        "description": "Comprehensive school management system for Kenyan schools including student tracking, parent portal, teacher tools, fee management, and attendance tracking",
+        "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "KES"
+        },
+        "featureList": [
+            "Student Management",
+            "Parent Portal",
+            "Teacher Tools",
+            "Fee Management",
+            "Attendance Tracking",
+            "Grade Management",
+            "CBC Curriculum Support",
+            "Report Generation"
+        ]
     }
     </script>
     
@@ -145,97 +221,250 @@ try {
         }
 
         :root {
-            /* Professional Color Palette */
+            /* Google Console Color Palette */
+            --google-blue: #1a73e8;
+            --google-blue-dark: #174ea6;
+            --google-blue-light: #e8f0fe;
+            --google-green: #137333;
+            --google-green-light: #e6f4ea;
+            --google-red: #c5221f;
+            --google-red-light: #fce8e6;
+            --google-yellow: #f29900;
+            --google-yellow-light: #fef7e0;
+            --google-gray: #5f6368;
+            --google-gray-light: #f1f3f4;
+            --google-gray-dark: #3c4043;
+            
+            /* Kenya EduHub Brand Colors */
             --primary-orange: #FF6B35;
+            --primary-green: #008000;
             --primary-gold: #FFD700;
-            --primary-gold-dark: #DAA520;
-            --primary-gold-light: #FFF8DC;
-            --text-white: #FFFFFF;
-            --text-cream: #FFF8E7;
             
-            /* Government Official Colors */
-            --gov-primary: #0066cc;
-            --gov-primary-dark: #004d99;
-            --gov-primary-light: #3399ff;
-            --gov-secondary: #003366;
-            --gov-accent: #ff6600;
-            --gov-success: #00875a;
-            --gov-warning: #ff8c00;
-            --gov-danger: #dc3545;
-            
-            /* Neutral Colors */
-            --gov-white: #ffffff;
-            --gov-gray-50: #f8f9fa;
-            --gov-gray-100: #e9ecef;
-            --gov-gray-200: #dee2e6;
-            --gov-gray-300: #ced4da;
-            --gov-gray-400: #adb5bd;
-            --gov-gray-500: #6c757d;
-            --gov-gray-600: #495057;
-            --gov-gray-700: #343a40;
-            --gov-gray-800: #212529;
-            --gov-gray-900: #000814;
-            
-            /* Professional Typography */
-            --font-heading: 'Playfair Display', Georgia, serif;
-            --font-body: 'Poppins', 'Segoe UI', Roboto, sans-serif;
-            --gov-font-primary: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            --gov-font-secondary: 'Playfair Display', Georgia, serif;
+            /* Backgrounds and Text */
+            --bg-color: #f8f9fa;
+            --card-bg: #f8f9fa;
+            --text-color: #202124;
+            --text-secondary: #5f6368;
+            --border-color: #dadce0;
+            --divider-color: #e8eaed;
             
             /* Shadows */
-            --gov-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.12);
-            --gov-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            --gov-shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.15);
-            --gov-shadow-xl: 0 20px 40px rgba(0, 0, 0, 0.2);
+            --shadow-sm: 0 1px 2px 0 rgba(60,64,67,0.3), 0 1px 3px 1px rgba(60,64,67,0.15);
+            --shadow-md: 0 1px 3px 0 rgba(60,64,67,0.3), 0 4px 8px 3px rgba(60,64,67,0.15);
+            --shadow-lg: 0 2px 6px 2px rgba(60,64,67,0.15), 0 8px 24px 4px rgba(60,64,67,0.15);
             
-            /* Borders */
-            --gov-border: 1px solid var(--gov-gray-200);
-            --gov-border-radius: 4px;
-            --gov-border-radius-lg: 8px;
-            
-            /* Spacing */
-            --gov-spacing-xs: 0.25rem;
-            --gov-spacing-sm: 0.5rem;
-            --gov-spacing-md: 1rem;
-            --gov-spacing-lg: 1.5rem;
-            --gov-spacing-xl: 2rem;
-            --gov-spacing-2xl: 3rem;
-            
-            /* Container */
-            --gov-container-max: 1200px;
+            /* Typography */
+            --font-heading: 'Google Sans', 'Roboto', 'Segoe UI', Arial, sans-serif;
+            --font-body: 'Google Sans', 'Roboto', 'Segoe UI', Arial, sans-serif;
+        }
+
+        /* Dark Mode */
+        .dark-mode {
+            --bg-color: #1a1a1a;
+            --card-bg: #1a1a1a;
+            --text-color: #e8eaed;
+            --text-secondary: #9aa0a6;
+            --border-color: #2a2a2a;
+            --divider-color: #3a3a3a;
+        }
+
+        .dark-mode nav {
+            background: #1a1a1a;
+            border-bottom: 1px solid #2a2a2a;
+        }
+
+        .dark-mode .hero {
+            background: #1a1a1a;
+        }
+
+        .dark-mode .hero-stats {
+            background: #2a2a2a;
+            border-color: #3a3a3a;
+        }
+
+        .dark-mode .features {
+            background: #1a1a1a;
+        }
+
+        .dark-mode .feature-card {
+            background: #2a2a2a;
+            border-color: #3a3a3a;
+        }
+
+        .dark-mode .stats {
+            background: #1a1a1a;
+            border-top-color: #2a2a2a;
+        }
+
+        .dark-mode footer {
+            background: #1a1a1a;
+            border-top-color: #2a2a2a;
+        }
+
+        .dark-mode .nav-btn {
+            color: var(--text-color);
+        }
+
+        .dark-mode .nav-btn i {
+            color: var(--primary-orange);
+        }
+
+        .dark-mode .nav-btn:hover {
+            color: var(--primary-orange);
+        }
+
+        .dark-mode .cta-btn.secondary {
+            background: transparent;
+            color: var(--text-color);
+            border-color: #3a3a3a;
+        }
+
+        .dark-mode .cta-btn.secondary:hover {
+            background: #2a2a2a;
+            border-color: var(--primary-orange);
+        }
+
+        .dark-mode .nav-buttons {
+            background: #1a1a1a;
+        }
+
+        .dark-mode .nav-buttons .nav-btn {
+            color: var(--text-color);
+        }
+
+        .dark-mode .nav-buttons .nav-btn i {
+            color: var(--primary-orange);
+        }
+
+        .dark-mode .nav-buttons .nav-btn:hover {
+            background: #3a3a3a;
+            color: var(--primary-orange);
+        }
+
+        .dark-mode .nav-buttons .nav-btn.primary {
+            background: var(--primary-orange);
+            color: white;
+        }
+
+        .dark-mode .nav-buttons .nav-btn.primary:hover {
+            background: #e55a2b;
+            color: white;
+        }
+
+        .dark-mode .nav-buttons .nav-btn.primary i {
+            color: white;
+        }
+
+        .dark-mode .hero-stats {
+            background: #2a2a2a;
+            border-color: #3a3a3a;
+        }
+
+        .dark-mode .stat-item h3 {
+            color: var(--text-color);
+        }
+
+        .dark-mode .stat-item p {
+            color: var(--text-secondary);
+        }
+
+        .dark-mode .footer-contact-item {
+            color: var(--text-secondary);
+        }
+
+        .dark-mode .footer-contact-item:hover {
+            color: var(--primary-orange);
+        }
+
+        .dark-mode .footer-links a {
+            color: var(--text-secondary);
+        }
+
+        .dark-mode .footer-links a:hover {
+            color: var(--primary-orange);
+        }
+
+        .dark-mode .footer-social a {
+            background: #2a2a2a;
+            border-color: #3a3a3a;
+            color: var(--text-secondary);
+        }
+
+        .dark-mode .footer-social a:hover {
+            background: var(--primary-orange);
+            color: white;
+            border-color: var(--primary-orange);
+        }
+
+        .dark-mode .footer-bottom {
+            border-top-color: #2a2a2a;
+        }
+
+        .dark-mode .footer-bottom-links a {
+            color: var(--text-secondary);
+        }
+
+        .dark-mode .footer-bottom-links a:hover {
+            color: var(--primary-orange);
         }
 
         body {
             font-family: var(--font-body);
             line-height: 1.6;
-            color: #ffffff;
-            background: #000000;
+            color: var(--text-color);
+            background: var(--bg-color);
             overflow-x: hidden;
             margin: 0;
             padding: 0;
+            transition: background 0.3s ease, color 0.3s ease;
         }
 
         /* Main Navigation */
         nav {
-            background: #1a1a1a;
-            border-bottom: 1px solid #333333;
-            box-shadow: var(--gov-shadow);
+            background: var(--bg-color);
+            box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
             position: sticky;
             top: 0;
             z-index: 1000;
+            transition: background 0.3s ease;
         }
 
         .nav-container {
-            max-width: var(--gov-container-max);
+            max-width: 1200px;
             margin: 0 auto;
-            padding: 0 var(--gov-spacing-md);
+            padding: 0 16px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            height: 70px;
+            height: 64px;
         }
 
-        /* Mobile Menu Toggle */
+        /* Dark Mode Toggle Button */
+        .dark-mode-toggle {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: var(--primary-orange);
+            transition: all 0.2s ease;
+        }
+
+        .dark-mode-toggle:hover {
+            background: rgba(255, 107, 53, 0.1);
+        }
+
+        .dark-mode .dark-mode-toggle {
+            color: var(--text-color);
+        }
+
+        .dark-mode .dark-mode-toggle:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
         .mobile-menu-toggle {
             display: none;
             background: none;
@@ -249,7 +478,7 @@ try {
             display: block;
             width: 25px;
             height: 3px;
-            background: #ffffff;
+            background: var(--text-color);
             margin: 5px 0;
             transition: all 0.3s ease;
             border-radius: 2px;
@@ -268,19 +497,18 @@ try {
         }
 
         .logo {
-            font-size: 1.75rem;
-            font-weight: 700;
-            color: #ffffff;
+            font-size: 18px;
+            font-weight: 500;
+            color: var(--text-color);
             text-decoration: none;
             display: flex;
             align-items: center;
-            gap: var(--gov-spacing-sm);
-            transition: all 0.3s ease;
+            gap: 8px;
+            transition: all 0.2s ease;
         }
-        
+
         .logo:hover {
-            color: var(--gov-primary);
-            transform: translateY(-2px);
+            color: var(--primary-orange);
         }
         
         .logo img {
@@ -290,61 +518,278 @@ try {
 
         .nav-buttons {
             display: flex;
-            gap: var(--gov-spacing-md);
+            gap: 16px;
             align-items: center;
+        }
+
+        /* Role Dropdown Styles */
+        .role-dropdown {
+            position: relative;
+        }
+
+        .role-dropdown-trigger {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-color);
+            color: var(--primary-orange);
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .role-dropdown-trigger:hover {
+            background: var(--card-bg);
+            border-color: var(--primary-orange);
+            color: var(--primary-orange);
+        }
+
+        .role-dropdown-trigger i {
+            font-size: 16px;
+        }
+
+        .role-dropdown-menu {
+            position: absolute;
+            top: calc(100% + 8px);
+            right: 0;
+            min-width: 250px;
+            background: var(--bg-color);
+            border: none;
+            border-radius: 0;
+            box-shadow: none;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+            z-index: 1000;
+            padding: 8px 0;
+        }
+
+        .role-dropdown:hover .role-dropdown-menu {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .role-dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            color: var(--text-color);
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+
+        .role-dropdown-item i {
+            font-size: 16px;
+            color: var(--primary-orange);
+            width: 20px;
+            text-align: center;
+        }
+
+        .role-dropdown-item:hover {
+            background: var(--bg-color);
+            color: var(--primary-orange);
+            padding-left: 20px;
+        }
+
+        .role-dropdown-item i {
+            font-size: 14px;
+            color: var(--primary-orange);
+            width: 18px;
+            text-align: center;
+        }
+
+        .role-dropdown-item span {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .role-dropdown-item.disabled {
+            color: var(--text-secondary);
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .role-dropdown-item.disabled:hover {
+            background: transparent;
+            color: var(--text-secondary);
+            padding-left: 16px;
+        }
+
+        .role-dropdown-item.disabled i {
+            color: var(--text-secondary);
+        }
+
+        .dark-mode .role-dropdown-btn {
+            background: #2a2a2a;
+            color: var(--text-color);
+            border-color: #3a3a3a;
+        }
+
+        .dark-mode .role-dropdown-btn:hover {
+            background: #3a3a3a;
+            border-color: var(--primary-orange);
+            color: var(--primary-orange);
+        }
+
+        .dark-mode .role-dropdown-menu {
+            background: #1a1a1a;
+        }
+
+
+
+
+
+        .dark-mode .role-dropdown-item {
+            color: var(--text-color);
+        }
+
+        .dark-mode .role-dropdown-item:hover {
+            background: #3a3a3a;
+            color: var(--primary-orange);
+        }
+
+        .dark-mode .role-dropdown-item i {
+            color: var(--primary-orange);
+        }
+
+        /* Mobile-specific styles */
+        .desktop-only {
+            display: block;
+        }
+
+        .mobile-only {
+            display: none;
+        }
+
+        .mobile-role-section {
+            margin-top: 8px;
+            padding: 12px 0;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .mobile-role-title {
+            font-size: 12px;
+            font-weight: 500;
+            color: #5f6368;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+            padding: 8px 24px;
+        }
+
+        .mobile-role-link {
+            display: flex;
+            align-items: center;
+            padding: 10px 24px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: background 0.2s;
+            margin: 0;
+            border-radius: 0;
+            width: 100%;
+        }
+
+        .mobile-role-link:hover {
+            background: #f1f3f4;
+            color: var(--text-color);
+        }
+
+        .mobile-role-link i {
+            margin-right: 12px;
+            font-size: 18px;
+            color: var(--primary-orange);
+            width: 24px;
+            text-align: center;
+        }
+
+        .mobile-role-link span {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .dark-mode .mobile-role-section {
+            border-color: #3a3a3a;
+        }
+
+        .dark-mode .mobile-role-title {
+            color: var(--text-secondary);
+        }
+
+        .dark-mode .mobile-role-link {
+            color: var(--text-color);
+        }
+
+        .dark-mode .mobile-role-link:hover {
+            background: #3a3a3a;
+            color: var(--primary-orange);
+        }
+
+        .dark-mode .mobile-role-link i {
+            color: var(--primary-orange);
         }
 
         .nav-btn {
-            padding: var(--gov-spacing-sm) var(--gov-spacing-lg);
-            border: 2px solid rgba(255, 215, 0, 0.3);
-            background: #000000;
-            color: var(--primary-gold);
-            text-decoration: none;
-            border-radius: var(--gov-border-radius);
-            font-weight: 600;
-            font-size: 0.95rem;
-            transition: all 0.3s ease;
-            cursor: pointer;
             display: flex;
             align-items: center;
-            gap: var(--gov-spacing-xs);
+            gap: 8px;
+            padding: 8px 16px;
+            border: none;
+            background: transparent;
+            color: var(--text-color);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 14px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .nav-btn i {
+            font-size: 14px;
+            color: var(--primary-orange);
         }
 
         .nav-btn:hover {
-            background: rgba(255, 215, 0, 0.1);
             color: var(--primary-orange);
-            border-color: var(--primary-gold);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(255, 215, 0, 0.3);
         }
 
         .nav-btn.primary {
-            background: #000000;
-            color: var(--primary-gold);
-            border-color: rgba(255, 215, 0, 0.5);
+            background: var(--primary-orange);
+            color: white;
+            border-radius: 25px;
         }
 
         .nav-btn.primary:hover {
-            background: rgba(255, 215, 0, 0.15);
-            color: var(--primary-orange);
-            border-color: var(--primary-gold);
+            background: #e55a2b;
+            color: white;
+        }
+
+        .nav-btn.primary i {
+            color: white;
         }
 
         /* Professional Hero Section */
         .hero {
-            background: #000000;
-            color: var(--text-white);
-            padding: var(--gov-spacing-2xl) 0;
+            background: var(--bg-color);
+            color: var(--text-color);
+            padding: 64px 0;
             position: relative;
             overflow: hidden;
+            transition: background 0.3s ease;
         }
 
         .hero-content {
             position: relative;
             z-index: 2;
-            max-width: var(--gov-container-max);
+            max-width: 1200px;
             margin: 0 auto;
-            padding: 0 var(--gov-spacing-md);
+            padding: 0 16px;
             text-align: center;
         }
 
@@ -398,12 +843,12 @@ try {
         .hero-stats {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: var(--gov-spacing-lg);
-            margin: var(--gov-spacing-2xl) 0;
-            padding: var(--gov-spacing-xl);
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: var(--gov-border-radius-lg);
-            backdrop-filter: blur(10px);
+            gap: 24px;
+            margin: 32px 0;
+            padding: 24px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #e8eaed;
         }
 
         .hero-stat {
@@ -412,97 +857,73 @@ try {
         }
 
         .hero-stat-number {
-            font-size: 2.5rem;
-            font-weight: 700;
-            color: var(--primary-gold);
+            font-size: 32px;
+            font-weight: 400;
+            color: var(--primary-orange);
             display: block;
-            margin-bottom: var(--gov-spacing-sm);
-            font-family: var(--font-heading);
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+            margin-bottom: 8px;
+            font-family: var(--font-body);
         }
 
         .hero-stat-label {
-            font-size: 0.9rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            opacity: 0.9;
-            color: var(--text-cream);
-            font-family: var(--font-body);
+            font-size: 14px;
+            color: var(--text-secondary);
             font-weight: 500;
+            font-family: var(--font-body);
         }
 
         .cta-buttons {
             display: flex;
-            gap: var(--gov-spacing-md);
+            gap: 16px;
             justify-content: center;
             flex-wrap: wrap;
             margin-top: var(--gov-spacing-xl);
         }
 
         .cta-btn {
-            padding: var(--gov-spacing-md) var(--gov-spacing-xl);
+            padding: 10px 24px;
             border: none;
-            border-radius: 16px;
-            font-size: 1.1rem;
-            font-weight: 600;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: 500;
             text-decoration: none;
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
             cursor: pointer;
             display: inline-flex;
             align-items: center;
-            gap: 0.75rem;
+            gap: 8px;
             position: relative;
             overflow: hidden;
-        }
-        
-        .cta-btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-            transition: left 0.5s ease;
-        }
-        
-        .cta-btn:hover::before {
-            left: 100%;
+            font-family: var(--font-body);
         }
 
         .cta-btn.primary {
-            background: #000000;
-            color: var(--primary-gold);
-            border: 2px solid rgba(255, 215, 0, 0.3);
-            box-shadow: 0 10px 30px rgba(255, 215, 0, 0.2);
+            background: var(--primary-orange);
+            color: white;
+            border: 1px solid var(--primary-orange);
         }
 
         .cta-btn.primary:hover {
-            transform: translateY(-6px) scale(1.05);
-            box-shadow: 0 20px 50px rgba(255, 215, 0, 0.4);
-            background: rgba(255, 215, 0, 0.1);
-            color: var(--primary-orange);
-            border-color: var(--primary-gold);
+            background: #e55a2b;
+            border-color: #e55a2b;
+            box-shadow: 0 1px 3px 0 rgba(60,64,67,0.3), 0 4px 8px 3px rgba(60,64,67,0.15);
         }
 
         .cta-btn.secondary {
             background: transparent;
-            color: var(--primary-gold);
-            border: 2px solid rgba(255, 215, 0, 0.3);
+            color: var(--primary-orange);
+            border: 1px solid var(--border-color);
         }
 
         .cta-btn.secondary:hover {
-            background: rgba(255, 215, 0, 0.1);
+            background: #f8f9fa;
             border-color: var(--primary-orange);
-            color: var(--primary-orange);
-            transform: translateY(-4px) scale(1.02);
-            box-shadow: 0 15px 35px rgba(255, 215, 0, 0.3);
         }
 
         /* Government Services Section */
         .features {
-            padding: var(--gov-spacing-2xl) 0;
-            background: #000000;
+            padding: 64px 0;
+            background: #f8f9fa;
         }
         
         .section-title {
@@ -525,29 +946,27 @@ try {
         .features-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: var(--gov-spacing-lg);
+            gap: 32px;
         }
 
         .feature-card {
-            background: #1a1a1a;
-            border: 1px solid #333333;
-            border-radius: var(--gov-border-radius-lg);
-            padding: var(--gov-spacing-xl);
+            background: #f8f9fa;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            border-radius: 8px;
+            padding: 32px;
             text-align: center;
-            transition: all 0.3s ease;
-            box-shadow: var(--gov-shadow-sm);
+            transition: all 0.2s ease;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
         }
 
         .feature-card:hover {
-            transform: translateY(-8px) scale(1.02);
-            box-shadow: 0 20px 40px rgba(255, 107, 53, 0.3);
-            border-color: var(--primary-orange);
-            background: #2a2a2a;
+            border-color: rgba(0, 0, 0, 0.08);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
         }
 
         .feature-card:hover .feature-icon {
-            transform: scale(1.1) rotate(5deg);
-            color: var(--primary-gold);
+            transform: scale(1.1);
+            color: var(--primary-orange);
         }
 
         .feature-card:hover h3 {
@@ -556,14 +975,14 @@ try {
         }
 
         .feature-card:hover p {
-            color: #ffffff;
+            color: var(--text-secondary);
         }
 
         .feature-icon {
-            font-size: 3rem;
+            font-size: 32px;
             color: var(--primary-orange);
-            margin-bottom: var(--gov-spacing-md);
-            transition: all 0.3s ease;
+            margin-bottom: 24px;
+            transition: all 0.2s ease;
         }
 
         .feature-card h3 {
@@ -583,15 +1002,16 @@ try {
 
         /* Government Stats Section */
         .stats {
-            background: #000000;
-            color: var(--gov-white);
-            padding: var(--gov-spacing-2xl) 0;
+            background: #ffffff;
+            color: var(--text-color);
+            padding: 64px 0;
+            border-top: 1px solid var(--border-color);
         }
 
         .stats .container {
-            max-width: var(--gov-container-max);
+            max-width: 1200px;
             margin: 0 auto;
-            padding: 0 var(--gov-spacing-md);
+            padding: 0 16px;
         }
 
         .stats .section-title {
@@ -601,8 +1021,8 @@ try {
 
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: var(--gov-spacing-lg);
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 24px;
         }
 
         .stat-item {
@@ -667,21 +1087,16 @@ try {
 
         /* Footer */
         footer {
-            background: #000000;
-            color: white;
-            padding: 4rem 2rem 2rem;
+            background: #f8f9fa;
+            color: var(--text-color);
+            padding: 48px 16px 24px;
             position: relative;
             overflow: hidden;
+            border-top: 1px solid var(--border-color);
         }
         
         footer::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            display: none;
         }
         
         .footer-content {
@@ -695,7 +1110,7 @@ try {
             gap: 2rem;
             margin-bottom: 3rem;
             padding-bottom: 3rem;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            border-bottom: 1px solid var(--border-color);
         }
         
         .footer-brand {
@@ -705,25 +1120,24 @@ try {
         .footer-logo {
             display: flex;
             align-items: center;
-            gap: 0.75rem;
-            color: white;
+            gap: 8px;
+            color: var(--text-color);
             text-decoration: none;
-            font-size: 1.5rem;
-            font-weight: bold;
-            transition: all 0.3s ease;
+            font-size: 18px;
+            font-weight: 500;
+            transition: all 0.2s ease;
         }
-        
+
         .footer-logo:hover {
             color: var(--primary-orange);
-            transform: translateY(-2px);
         }
         
         .footer-description {
-            color: #b0b0b0;
+            color: var(--text-secondary);
             line-height: 1.7;
             margin-bottom: 1.5rem;
             max-width: 400px;
-            font-size: 0.95rem;
+            font-size: 14px;
         }
         
         .footer-contact {
@@ -736,13 +1150,13 @@ try {
             display: flex;
             align-items: center;
             gap: 0.75rem;
-            color: #b0b0b0;
-            font-size: 0.9rem;
-            transition: color 0.3s ease;
+            color: var(--text-secondary);
+            font-size: 14px;
+            transition: color 0.2s ease;
         }
         
         .footer-contact-item:hover {
-            color: #667eea;
+            color: var(--primary-orange);
         }
         
         .footer-contact-item i {
@@ -751,23 +1165,17 @@ try {
         }
         
         .footer-column h3 {
-            font-size: 1.1rem;
-            font-weight: 600;
-            margin-bottom: 1.5rem;
-            color: white;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 1rem;
+            color: var(--text-color);
+            text-transform: none;
+            letter-spacing: 0;
             position: relative;
         }
         
         .footer-column h3::after {
-            content: '';
-            position: absolute;
-            bottom: -8px;
-            left: 0;
-            width: 30px;
-            height: 2px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: none;
         }
         
         .footer-links {
@@ -777,36 +1185,32 @@ try {
         }
 
         .footer-links a {
-            color: #b0b0b0;
+            color: var(--text-secondary);
             text-decoration: none;
-            transition: all 0.3s ease;
+            transition: color 0.2s ease;
             font-weight: 400;
-            font-size: 0.9rem;
+            font-size: 14px;
             position: relative;
             padding-left: 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
         
-        .footer-links a::before {
-            content: '';
-            position: absolute;
-            left: -15px;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 6px;
-            height: 6px;
-            background: #667eea;
-            border-radius: 50%;
-            opacity: 0;
-            transition: all 0.3s ease;
+        .footer-links a i {
+            color: var(--primary-orange);
+            font-size: 14px;
+            width: 16px;
+            text-align: center;
         }
 
         .footer-links a:hover {
-            color: #667eea;
-            padding-left: 10px;
+            color: var(--primary-orange);
+            padding-left: 0;
         }
         
-        .footer-links a:hover::before {
-            opacity: 1;
+        .footer-links a:hover i {
+            color: var(--primary-orange);
         }
         
         .footer-social {
@@ -816,34 +1220,37 @@ try {
         }
         
         .footer-social a {
-            width: 40px;
-            height: 40px;
+            width: 36px;
+            height: 36px;
             border-radius: 50%;
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: #f8f9fa;
+            border: 1px solid var(--border-color);
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #b0b0b0;
+            color: var(--primary-orange);
             text-decoration: none;
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
+        }
+        
+        .footer-social a i {
+            font-size: 16px;
         }
         
         .footer-social a:hover {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: var(--primary-orange);
             color: white;
-            transform: translateY(-3px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+            border-color: var(--primary-orange);
         }
         
         .footer-bottom {
             display: flex;
-            justify-content: space-between;
+            justify-content: center;
             align-items: center;
             padding-top: 2rem;
-            border-top: 1px solid rgba(255, 255, 255, 0.05);
-            color: #808080;
-            font-size: 0.85rem;
+            border-top: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            font-size: 12px;
         }
         
         .footer-bottom-links {
@@ -852,14 +1259,14 @@ try {
         }
         
         .footer-bottom-links a {
-            color: #808080;
+            color: var(--text-secondary);
             text-decoration: none;
-            transition: color 0.3s ease;
-            font-size: 0.85rem;
+            transition: color 0.2s ease;
+            font-size: 12px;
         }
         
         .footer-bottom-links a:hover {
-            color: #667eea;
+            color: var(--primary-orange);
         }
 
         
@@ -967,79 +1374,90 @@ try {
             .mobile-menu-toggle {
                 display: block;
             }
-            
+
+            .desktop-only {
+                display: none;
+            }
+
+            .mobile-only {
+                display: block;
+            }
+
             .nav-buttons {
                 position: fixed;
-                top: 0;
-                left: -180px;
-                width: 180px;
-                height: 100vh;
-                background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%);
+                top: 64px;
+                left: -256px;
+                width: 256px;
+                height: calc(100vh - 64px);
+                background: var(--bg-color);
                 flex-direction: column;
-                padding: var(--gov-spacing-xs);
-                padding-top: 80px;
-                box-shadow: var(--gov-shadow-lg);
-                transform: translateX(0);
-                opacity: 1;
-                visibility: visible;
+                padding: 16px;
+                padding-top: 16px;
+                box-shadow: none;
+                border-right: 1px solid var(--border-color);
+                opacity: 0;
+                visibility: hidden;
                 transition: all 0.3s ease;
                 z-index: 1000;
+                overflow-y: auto;
             }
             
             .nav-buttons.active {
-                transform: translateX(180px);
+                transform: translateX(256px);
                 opacity: 1;
                 visibility: visible;
             }
             
             .nav-buttons .nav-btn {
-                color: var(--primary-gold);
-                background: #000000;
-                border: 1px solid rgba(255, 215, 0, 0.3);
-                padding: 10px 16px;
-                margin: 5px 0;
-                border-radius: 4px;
-                text-align: center;
-                transition: all 0.3s ease;
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                padding: 10px 24px;
+                color: var(--text-secondary);
+                background: transparent;
+                border: none;
+                text-align: left;
+                transition: background 0.2s;
                 font-size: 14px;
-            }
-            
-            .nav-buttons .nav-btn:hover {
-                background: rgba(255, 215, 0, 0.1);
-                border-color: var(--primary-gold);
-                color: var(--primary-orange);
-                transform: translateX(5px);
-            }
-            
-            .nav-buttons .nav-btn.primary {
-                background: #000000;
-                border-color: rgba(255, 215, 0, 0.5);
-                color: var(--primary-gold);
-            }
-            
-            .nav-buttons .nav-btn.primary:hover {
-                background: rgba(255, 215, 0, 0.15);
-                border-color: var(--primary-gold);
-                color: var(--primary-orange);
-            }
-            
-            /* Overlay for sidebar */
-            .overlay {
-                position: fixed;
-                top: 0;
-                left: 0;
+                font-weight: 500;
+                margin: 0;
+                border-radius: 0;
                 width: 100%;
-                height: 100%;
-                background: rgba(0, 0, 0, 0.5);
-                z-index: 999;
-                opacity: 0;
-                visibility: hidden;
-                transition: all 0.3s ease;
+            }
+
+            .nav-buttons .nav-btn i {
+                font-size: 18px;
+                color: var(--primary-orange);
+                width: 24px;
+                text-align: center;
+            }
+
+            .nav-buttons .nav-btn:hover {
+                background: #f1f3f4;
+                color: var(--text-color);
+            }
+
+            .nav-buttons .nav-btn.primary {
+                background: var(--primary-orange);
+                color: white;
+                justify-content: center;
+                padding: 10px 24px;
+                border-radius: 4px;
+                margin-top: 8px;
+            }
+
+            .nav-buttons .nav-btn.primary:hover {
+                background: #e55a2b;
+                color: white;
+            }
+
+            .nav-buttons .nav-btn.primary i {
+                color: white;
             }
             
-            .overlay.active {
-                opacity: 1;
-                visibility: visible;
+            /* Overlay for sidebar - Removed to match schools dashboard style */
+            .overlay {
+                display: none;
             }
             
             .hero h1 {
@@ -1096,15 +1514,16 @@ try {
             
             .features-grid {
                 grid-template-columns: 1fr;
-                gap: 1.5rem;
+                gap: 24px;
             }
             
             .feature-card {
-                padding: 1.5rem;
+                padding: 24px;
             }
             
             .feature-icon {
-                font-size: 2.5rem;
+                font-size: 28px;
+                margin-bottom: 20px;
             }
             
             .feature-card h3 {
@@ -1197,17 +1616,17 @@ try {
         }
     </style>
 </head>
-<body itemscope itemtype="https://schema.org/EducationalOrganization">
+<body itemscope itemtype="https://schema.org/EducationalOrganization" class="light-mode">
     <!-- Navigation -->
     <nav role="navigation" aria-label="Main Navigation">
         <div class="nav-container">
-            <a href="index.php" class="logo" itemprop="url">
-                <div style="width: 50px; height: 50px; background: var(--primary-gold); border: 3px solid var(--primary-orange); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 2px;">
-                    <span style="font-weight: bold; font-size: 24px;">
-                        <span style="color: var(--primary-orange); font-size: 28px;">K</span><span style="color: #008000; font-size: 24px;">E</span>
+            <a href="./" class="logo" itemprop="url">
+                <div style="width: 40px; height: 40px; background: var(--primary-gold); border: 3px solid var(--primary-orange); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 0;">
+                    <span style="font-weight: 700; font-size: 20px;">
+                        <span style="color: var(--primary-orange); font-size: 24px;">K</span><span style="color: #008000; font-size: 20px;">E</span>
                     </span>
                 </div>
-                <span itemprop="name"><span style="color: var(--primary-orange);">Kenya</span> <span style="color: #008000;">EduHub</span></span>
+                <span itemprop="name"><span style="color: var(--primary-orange); font-weight: 600;">Kenya</span> <span style="color: #008000; font-weight: 600;">EduHub</span></span>
             </a>
             <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Toggle mobile menu">
                 <span></span>
@@ -1215,48 +1634,116 @@ try {
                 <span></span>
             </button>
             <div class="nav-buttons" id="navButtons">
-                <a href="#features" class="nav-btn">Features</a>
-                <a href="#resources" class="nav-btn">Resources</a>
-                <a href="auth/login.php" class="nav-btn">Login</a>
-                <a href="auth/register.php" class="nav-btn primary">Get Started</a>
+                <button class="dark-mode-toggle" onclick="toggleDarkMode()" title="Toggle Dark Mode" style="background: none; border: none; cursor: pointer; padding: 8px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; color: var(--primary-orange);">
+                    <i class="fas fa-moon"></i>
+                </button>
+
+                <!-- Role Access Hover Menu (Desktop) -->
+                <div class="role-dropdown desktop-only">
+                    <div class="role-dropdown-trigger">
+                        <i class="fas fa-user-circle"></i>
+                        <span>Sign in</span>
+                    </div>
+                    <div class="role-dropdown-menu" id="roleDropdownMenu">
+                        <a href="schools/" class="role-dropdown-item">
+                            <i class="fas fa-school"></i>
+                            <span>School</span>
+                        </a>
+                        <a href="teachers/" class="role-dropdown-item">
+                            <i class="fas fa-chalkboard-teacher"></i>
+                            <span>Teacher</span>
+                        </a>
+                        <a href="parents/" class="role-dropdown-item">
+                            <i class="fas fa-user-friends"></i>
+                            <span>Parent</span>
+                        </a>
+                        <a href="auth/login" class="role-dropdown-item">
+                            <i class="fas fa-user-graduate"></i>
+                            <span>Student</span>
+                        </a>
+                        <a href="auth/register" class="role-dropdown-item">
+                            <i class="fas fa-user-plus"></i>
+                            <span>Register Free</span>
+                        </a>
+                    </div>
+                </div>
+
+                <a href="#features" class="nav-btn">
+                    <i class="fas fa-star"></i>
+                    <span>Features</span>
+                </a>
+                <a href="#users" class="nav-btn">
+                    <i class="fas fa-users"></i>
+                    <span>For You</span>
+                </a>
+                <a href="#resources" class="nav-btn">
+                    <i class="fas fa-book"></i>
+                    <span>Resources</span>
+                </a>
+                <a href="auth/register.php" class="nav-btn primary">
+                    <i class="fas fa-rocket"></i>
+                    <span>Get Started</span>
+                </a>
+
+                <!-- Mobile Role Access Section -->
+                <div class="mobile-role-section mobile-only">
+                    <div class="mobile-role-title">Login as:</div>
+                    <a href="schools/" class="mobile-role-link">
+                        <i class="fas fa-school"></i>
+                        <span>School</span>
+                    </a>
+                    <a href="teachers/" class="mobile-role-link">
+                        <i class="fas fa-chalkboard-teacher"></i>
+                        <span>Teacher</span>
+                    </a>
+                    <a href="parents/" class="mobile-role-link">
+                        <i class="fas fa-user-friends"></i>
+                        <span>Parent</span>
+                    </a>
+                    <a href="auth/login" class="mobile-role-link">
+                        <i class="fas fa-user-graduate"></i>
+                        <span>Student</span>
+                    </a>
+                    <a href="auth/register" class="mobile-role-link">
+                        <i class="fas fa-user-plus"></i>
+                        <span>Register Free</span>
+                    </a>
+                </div>
             </div>
         </div>
     </nav>
-    
-    <!-- Overlay for sidebar -->
-    <div class="overlay" id="overlay"></div>
 
     <!-- Hero Section -->
     <header class="hero" role="banner">
         <div class="hero-content">
-            <h1 itemprop="description"><span class="text-white">Free</span> <span class="text-orange">Educational</span> <span class="text-golden">Resources</span> & <span class="text-white">Past Papers</span> <span class="text-orange">in Kenya</span></h1>
-            <p class="hero-subtitle"><span class="text-golden">Download</span> <span class="text-orange">FREE</span> <span class="text-white">KCSE past papers, KCPE past papers, study notes, and educational materials.</span> <span class="text-golden">Kenya's</span> <span class="text-orange">trusted platform</span> <span class="text-white">for students and teachers seeking quality learning resources.</span></p>
+            <h1 itemprop="description" style="font-size: 36px; font-weight: 400; color: var(--text-color); margin-bottom: 16px;">Kenya's Complete Education Management Platform</h1>
+            <p class="hero-subtitle" style="font-size: 16px; color: var(--text-secondary); margin-bottom: 32px;">Connecting schools, students, parents, and teachers with comprehensive management tools and free educational resources for academic excellence.</p>
             
             <div class="hero-stats">
                 <div class="hero-stat">
                     <span class="hero-stat-number"><?php echo $total_users; ?>+</span>
-                    <span class="hero-stat-label"><span class="text-orange">Active</span> <span class="text-white">Students</span></span>
+                    <span class="hero-stat-label">Active Students</span>
                 </div>
                 <div class="hero-stat">
                     <span class="hero-stat-number"><?php echo $total_resources; ?>+</span>
-                    <span class="hero-stat-label"><span class="text-golden">Learning</span> <span class="text-white">Resources</span></span>
+                    <span class="hero-stat-label">Learning Resources</span>
                 </div>
                 <div class="hero-stat">
                     <span class="hero-stat-number"><?php echo $total_downloads; ?>+</span>
-                    <span class="hero-stat-label"><span class="text-orange">Downloads</span></span>
+                    <span class="hero-stat-label">Downloads</span>
                 </div>
                 <div class="hero-stat">
                     <span class="hero-stat-number">50+</span>
-                    <span class="hero-stat-label"><span class="text-golden">Institutions</span></span>
+                    <span class="hero-stat-label">Institutions</span>
                 </div>
             </div>
             
             <div class="cta-buttons">
-                <a href="auth/register.php" class="cta-btn primary">
+                <a href="auth/register" class="cta-btn primary">
                     <i class="fas fa-download"></i>
                     Download Free Resources
                 </a>
-                <a href="auth/login.php" class="cta-btn secondary">
+                <a href="auth/login" class="cta-btn secondary">
                     <i class="fas fa-search"></i>
                     Browse Past Papers
                 </a>
@@ -1268,50 +1755,130 @@ try {
     <main>
         <section class="features" id="features" aria-labelledby="features-heading">
             <div class="container">
-                <h2 id="features-heading" class="section-title"><span class="text-white">Free</span> <span class="text-orange">Educational</span> <span class="text-golden">Resources</span> & <span class="text-white">Study Materials</span></h2>
-                <p class="section-subtitle"><span class="text-golden">Access</span> <span class="text-orange">thousands</span> <span class="text-white">of free KCSE past papers, KCPE past papers, study notes, and educational resources for Kenyan students</span></p>
+                <h2 id="features-heading" class="section-title" style="font-size: 28px; font-weight: 400; color: var(--text-color); margin-bottom: 8px;">Comprehensive Education Platform for Schools, Students, Parents & Teachers</h2>
+                <p class="section-subtitle" style="font-size: 16px; color: var(--text-secondary); margin-bottom: 48px;">Kenya EduHub connects the entire education ecosystem - from school management to free educational resources, student progress tracking to parent-teacher communication</p>
             <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-school"></i>
+                    </div>
+                    <h3 style="font-size: 18px; font-weight: 500; color: var(--text-color); margin-bottom: 8px;">School Management</h3>
+                    <p style="font-size: 14px; color: var(--text-secondary); line-height: 1.5;">Complete school administration system - student enrollment, attendance tracking, fee management, and staff coordination.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-user-graduate"></i>
+                    </div>
+                    <h3 style="font-size: 18px; font-weight: 500; color: var(--text-color); margin-bottom: 8px;">Student Portal</h3>
+                    <p style="font-size: 14px; color: var(--text-secondary); line-height: 1.5;">Personalized student dashboard with progress tracking, assignment submissions, and access to learning materials.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h3 style="font-size: 18px; font-weight: 500; color: var(--text-color); margin-bottom: 8px;">Parent Portal</h3>
+                    <p style="font-size: 14px; color: var(--text-secondary); line-height: 1.5;">Real-time access to child's academic progress, attendance records, fees, and direct communication with teachers.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-chalkboard-teacher"></i>
+                    </div>
+                    <h3 style="font-size: 18px; font-weight: 500; color: var(--text-color); margin-bottom: 8px;">Teacher Tools</h3>
+                    <p style="font-size: 14px; color: var(--text-secondary); line-height: 1.5;">Lesson planning, grade management, assignment creation, and comprehensive student performance analytics.</p>
+                </div>
                 <div class="feature-card">
                     <div class="feature-icon">
                         <i class="fas fa-file-alt"></i>
                     </div>
-                    <h3><span class="text-white">Free</span> <span class="text-orange">KCSE</span> <span class="text-golden">Past Papers</span></h3>
-                    <p><span class="text-white">Download KCSE past papers from 2005 to 2024 for all subjects.</span> <span class="text-orange">Free access</span> <span class="text-white">to previous exam papers for revision and practice.</span></p>
+                    <h3 style="font-size: 18px; font-weight: 500; color: var(--text-color); margin-bottom: 8px;">Free KCSE Past Papers</h3>
+                    <p style="font-size: 14px; color: var(--text-secondary); line-height: 1.5;">Download KCSE past papers from 2005 to 2024 for all subjects. Free access to previous exam papers for revision and practice.</p>
                 </div>
                 <div class="feature-card">
                     <div class="feature-icon">
                         <i class="fas fa-book"></i>
                     </div>
-                    <h3><span class="text-white">Free</span> <span class="text-orange">KCPE</span> <span class="text-golden">Past Papers</span></h3>
-                    <p><span class="text-white">Access KCPE past papers and</span> <span class="text-golden">revision materials</span> <span class="text-white">for primary school students preparing for national examinations.</span></p>
+                    <h3 style="font-size: 18px; font-weight: 500; color: var(--text-color); margin-bottom: 8px;">Free KCPE Past Papers</h3>
+                    <p style="font-size: 14px; color: var(--text-secondary); line-height: 1.5;">Access KCPE past papers and revision materials for primary school students preparing for national examinations.</p>
                 </div>
                 <div class="feature-card">
                     <div class="feature-icon">
                         <i class="fas fa-sticky-note"></i>
                     </div>
-                    <h3><span class="text-orange">Study</span> <span class="text-golden">Notes</span> <span class="text-white">& Guides</span></h3>
-                    <p><span class="text-orange">Comprehensive</span> <span class="text-white">study notes, revision guides, and learning materials for all subjects and education levels in Kenya.</span></p>
+                    <h3 style="font-size: 18px; font-weight: 500; color: var(--text-color); margin-bottom: 8px;">Study Notes & Guides</h3>
+                    <p style="font-size: 14px; color: var(--text-secondary); line-height: 1.5;">Comprehensive study notes, revision guides, and learning materials for all subjects and education levels in Kenya.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-comments"></i>
+                    </div>
+                    <h3 style="font-size: 18px; font-weight: 500; color: var(--text-color); margin-bottom: 8px;">Parent-Teacher Communication</h3>
+                    <p style="font-size: 14px; color: var(--text-secondary); line-height: 1.5;">Direct messaging system between parents and teachers, progress updates, and meeting scheduling.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h3 style="font-size: 18px; font-weight: 500; color: var(--text-color); margin-bottom: 8px;">Progress Tracking</h3>
+                    <p style="font-size: 14px; color: var(--text-secondary); line-height: 1.5;">Detailed academic performance tracking, attendance analytics, and personalized learning recommendations.</p>
                 </div>
                 <div class="feature-card">
                     <div class="feature-icon">
                         <i class="fas fa-search"></i>
                     </div>
-                    <h3><span class="text-golden">Smart</span> <span class="text-white">Search</span></h3>
-                    <p><span class="text-white">Find exactly what you need with our powerful search functionality.</span> <span class="text-orange">Filter</span> <span class="text-white">by subject, level, and resource type.</span></p>
+                    <h3 style="font-size: 18px; font-weight: 500; color: var(--text-color); margin-bottom: 8px;">Smart Search</h3>
+                    <p style="font-size: 14px; color: var(--text-secondary); line-height: 1.5;">Find exactly what you need with our powerful search functionality. Filter by subject, level, and resource type.</p>
                 </div>
                 <div class="feature-card">
                     <div class="feature-icon">
                         <i class="fas fa-download"></i>
                     </div>
-                    <h3><span class="text-orange">Free</span> <span class="text-golden">Downloads</span></h3>
-                    <p><span class="text-white">Unlimited free downloads of educational resources.</span> <span class="text-golden">No registration</span> <span class="text-white">required for basic access to learning materials.</span></p>
+                    <h3 style="font-size: 18px; font-weight: 500; color: var(--text-color); margin-bottom: 8px;">Free Downloads</h3>
+                    <p style="font-size: 14px; color: var(--text-secondary); line-height: 1.5;">Unlimited free downloads of educational resources. No registration required for basic access to learning materials.</p>
                 </div>
                 <div class="feature-card">
                     <div class="feature-icon">
                         <i class="fas fa-mobile-alt"></i>
                     </div>
-                    <h3><span class="text-golden">Mobile</span> <span class="text-white">Friendly</span></h3>
-                    <p><span class="text-white">Access Kenya EduHub from any device.</span> <span class="text-orange">Our responsive design</span> <span class="text-white">ensures a great experience on phones, tablets, and desktops.</span></p>
+                    <h3 style="font-size: 18px; font-weight: 500; color: var(--text-color); margin-bottom: 8px;">Mobile Friendly</h3>
+                    <p style="font-size: 14px; color: var(--text-secondary); line-height: 1.5;">Access Kenya EduHub from any device. Our responsive design ensures a great experience on phones, tablets, and desktops.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- User Types Section -->
+    <section class="features" id="users" aria-labelledby="users-heading">
+        <div class="container">
+            <h2 id="users-heading" class="section-title" style="font-size: 28px; font-weight: 400; color: var(--text-color); margin-bottom: 8px;">Tailored Solutions for Every Education Stakeholder</h2>
+            <p class="section-subtitle" style="font-size: 16px; color: var(--text-secondary); margin-bottom: 48px;">Whether you're a school administrator, student, parent, or teacher, Kenya EduHub has the tools you need</p>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-user-tie"></i>
+                    </div>
+                    <h3 style="font-size: 18px; font-weight: 500; color: var(--text-color); margin-bottom: 8px;">For School Administrators</h3>
+                    <p style="font-size: 14px; color: var(--text-secondary); line-height: 1.5;">Complete school management system including student enrollment, staff management, fee collection, attendance tracking, and comprehensive reporting.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-user-graduate"></i>
+                    </div>
+                    <h3 style="font-size: 18px; font-weight: 500; color: var(--text-color); margin-bottom: 8px;">For Students</h3>
+                    <p style="font-size: 14px; color: var(--text-secondary); line-height: 1.5;">Access free educational resources, track academic progress, submit assignments, communicate with teachers, and prepare for national exams.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-user-friends"></i>
+                    </div>
+                    <h3 style="font-size: 18px; font-weight: 500; color: var(--text-color); margin-bottom: 8px;">For Parents</h3>
+                    <p style="font-size: 14px; color: var(--text-secondary); line-height: 1.5;">Monitor child's academic progress, attendance records, fee payments, communicate directly with teachers, and stay informed about school activities.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-chalkboard-teacher"></i>
+                    </div>
+                    <h3 style="font-size: 18px; font-weight: 500; color: var(--text-color); margin-bottom: 8px;">For Teachers</h3>
+                    <p style="font-size: 14px; color: var(--text-secondary); line-height: 1.5;">Manage classes, create assignments, grade submissions, track student performance, communicate with parents, and access teaching resources.</p>
                 </div>
             </div>
         </div>
@@ -1320,23 +1887,31 @@ try {
     <!-- Stats Section -->
     <section class="stats" id="resources" aria-labelledby="stats-heading">
         <div class="container">
-            <h2 id="stats-heading" class="section-title"><span class="text-white">Free</span> <span class="text-orange">Educational</span> <span class="text-golden">Resources</span> <span class="text-white">Statistics</span></h2>
+            <h2 id="stats-heading" class="section-title" style="font-size: 28px; font-weight: 400; color: var(--text-color); margin-bottom: 8px;">Platform Impact & Reach</h2>
             <div class="stats-grid">
                 <div class="stat-item">
                     <h3><?php echo $total_users; ?>+</h3>
-                    <p><span class="text-orange">Active</span> <span class="text-white">Students</span></p>
+                    <p>Active Users</p>
                 </div>
                 <div class="stat-item">
                     <h3><?php echo $total_resources; ?>+</h3>
-                    <p><span class="text-golden">Free</span> <span class="text-white">Resources</span></p>
+                    <p>Free Resources</p>
                 </div>
                 <div class="stat-item">
                     <h3><?php echo $total_downloads; ?>+</h3>
-                    <p><span class="text-golden">Free</span> <span class="text-white">Downloads</span></p>
+                    <p>Resource Downloads</p>
                 </div>
                 <div class="stat-item">
                     <h3>50+</h3>
-                    <p><span class="text-golden">Schools</span> <span class="text-white">Covered</span></p>
+                    <p>Schools Connected</p>
+                </div>
+                <div class="stat-item">
+                    <h3>200+</h3>
+                    <p>Teachers Active</p>
+                </div>
+                <div class="stat-item">
+                    <h3>1000+</h3>
+                    <p>Parents Engaged</p>
                 </div>
             </div>
         </div>
@@ -1349,16 +1924,16 @@ try {
             <div class="footer-grid">
                 <!-- Brand Column -->
                 <div class="footer-brand">
-                    <a href="index.php" class="footer-logo">
-                        <div style="width: 50px; height: 50px; background: var(--primary-gold); border: 3px solid var(--primary-orange); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 2px;">
-                            <span style="font-weight: bold; font-size: 24px;">
-                                <span style="color: var(--primary-orange); font-size: 28px;">K</span><span style="color: #008000; font-size: 24px;">E</span>
+                    <a href="./" class="footer-logo">
+                        <div style="width: 40px; height: 40px; background: var(--primary-gold); border: 3px solid var(--primary-orange); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 0;">
+                            <span style="font-weight: 700; font-size: 20px;">
+                                <span style="color: var(--primary-orange); font-size: 24px;">K</span><span style="color: #008000; font-size: 20px;">E</span>
                             </span>
                         </div>
-                        <span style="color: var(--primary-orange);">Kenya</span> <span style="color: #008000;">EduHub</span>
+                        <span style="color: var(--primary-orange); font-weight: 600;">Kenya</span> <span style="color: #008000; font-weight: 600;">EduHub</span>
                     </a>
                     <div class="footer-description">
-                        <span class="text-white">East Africa's</span> <span class="text-orange">premier</span> <span class="text-white">educational platform, providing quality</span> <span class="text-golden">learning resources</span> <span class="text-white">and collaborative tools for students and educators across</span> <span class="text-orange">Kenya</span> <span class="text-white">and beyond.</span>
+                        Kenya's comprehensive education management platform connecting schools, students, parents, and teachers with powerful tools and free educational resources for academic excellence.
                     </div>
                     <div class="footer-contact">
                         <div class="footer-contact-item">
@@ -1374,49 +1949,60 @@ try {
                             <span>Nairobi, Kenya</span>
                         </div>
                     </div>
+                    
+                    <div class="footer-social">
+                        <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                        <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                        <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                    </div>
                 </div>
                 
                 <!-- Services Column -->
                 <div class="footer-column">
-                    <h3><span class="text-golden">Services</span></h3>
+                    <h3>Services</h3>
                     <div class="footer-links">
-                        <a href="auth/login.php"><span class="text-white">Resource</span> <span class="text-orange">Library</span></a>
-                        <a href="auth/login.php"><span class="text-white">Study</span> <span class="text-golden">Materials</span></a>
-                        <a href="auth/login.php"><span class="text-orange">Past</span> <span class="text-white">Papers</span></a>
-                        <a href="auth/login.php"><span class="text-white">Research</span> <span class="text-golden">Papers</span></a>
-                        <a href="auth/login.php"><span class="text-white">Teaching</span> <span class="text-orange">Guides</span></a>
+                        <a href="auth/login"><i class="fas fa-book-open"></i> Resource Library</a>
+                        <a href="auth/login"><i class="fas fa-file-alt"></i> Study Materials</a>
+                        <a href="auth/login"><i class="fas fa-clipboard-list"></i> Past Papers</a>
+                        <a href="auth/login"><i class="fas fa-graduation-cap"></i> Research Papers</a>
+                        <a href="auth/login"><i class="fas fa-chalkboard-teacher"></i> Teaching Guides</a>
                     </div>
                 </div>
                 
                 <!-- Company Column -->
                 <div class="footer-column">
-                    <h3><span class="text-orange">Platform</span></h3>
+                    <h3>Platform</h3>
                     <div class="footer-links">
-                        <a href="#features"><span class="text-golden">Features</span></a>
-                        <a href="#resources"><span class="text-white">Resources</span></a>
-                        <a href="#"><span class="text-white">About</span> <span class="text-orange">Us</span></a>
-                        <a href="#"><span class="text-white">Our</span> <span class="text-golden">Team</span></a>
-                        <a href="#"><span class="text-orange">Contact</span></a>
-                        <p><span class="text-golden">Empowering</span> <span class="text-white">education across</span> <span class="text-orange">Kenya</span></p>
+                        <a href="#features"><i class="fas fa-star"></i> Features</a>
+                        <a href="#resources"><i class="fas fa-database"></i> Resources</a>
+                        <a href="#"><i class="fas fa-info-circle"></i> About Us</a>
+                        <a href="#"><i class="fas fa-users"></i> Our Team</a>
+                        <a href="#"><i class="fas fa-envelope"></i> Contact</a>
                     </div>
                 </div>
                 
                 <!-- Legal Column -->
                 <div class="footer-column">
-                    <h3><span class="text-white">Legal</span></h3>
+                    <h3>Legal</h3>
                     <div class="footer-links">
-                        <a href="#"><span class="text-white">Privacy</span> <span class="text-golden">Policy</span></a>
-                        <a href="#"><span class="text-white">Terms of</span> <span class="text-orange">Service</span></a>
-                        <a href="#"><span class="text-white">Usage</span> <span class="text-golden">Guidelines</span></a>
-                        <a href="#"><span class="text-white">Copyright</span> <span class="text-orange">Policy</span></a>
-                        <a href="#"><span class="text-white">Cookie</span> <span class="text-golden">Policy</span></a>
+                        <a href="#"><i class="fas fa-shield-alt"></i> Privacy Policy</a>
+                        <a href="#"><i class="fas fa-file-contract"></i> Terms of Service</a>
+                        <a href="#"><i class="fas fa-book"></i> Usage Guidelines</a>
+                        <a href="#"><i class="fas fa-copyright"></i> Copyright Policy</a>
+                        <a href="#"><i class="fas fa-cookie-bite"></i> Cookie Policy</a>
                     </div>
                 </div>
             </div>
             
             <div class="footer-bottom">
-                <div>
-                    <p><span class="text-white">&copy; 2026</span> <span class="text-orange">Kenya</span> <span class="text-golden">EduHub</span><span class="text-white">. All rights reserved.</span></p>
+                <div style="text-align: center; width: 100%;">
+                    <p style="margin: 0;">
+                        <span style="color: #FF6B35;">&copy; 2026</span>
+                        <span style="color: #FF6B35;">Kenya</span>
+                        <span style="color: #008000;">EduHub</span>
+                        <span style="color: var(--text-secondary);">. All rights reserved.</span>
+                    </p>
                 </div>
             </div>
         </div>
@@ -1426,13 +2012,11 @@ try {
         // Add mobile menu functionality
         const mobileMenuToggle = document.getElementById('mobileMenuToggle');
         const navButtons = document.getElementById('navButtons');
-        const overlay = document.getElementById('overlay');
         
-        if (mobileMenuToggle && navButtons && overlay) {
+        if (mobileMenuToggle && navButtons) {
             mobileMenuToggle.addEventListener('click', function() {
                 this.classList.toggle('active');
                 navButtons.classList.toggle('active');
-                overlay.classList.toggle('active');
             });
             
             // Close menu when clicking outside
@@ -1440,15 +2024,7 @@ try {
                 if (!mobileMenuToggle.contains(event.target) && !navButtons.contains(event.target)) {
                     mobileMenuToggle.classList.remove('active');
                     navButtons.classList.remove('active');
-                    overlay.classList.remove('active');
                 }
-            });
-            
-            // Close menu when clicking on overlay
-            overlay.addEventListener('click', function() {
-                mobileMenuToggle.classList.remove('active');
-                navButtons.classList.remove('active');
-                overlay.classList.remove('active');
             });
         }
         
@@ -1458,8 +2034,47 @@ try {
             link.addEventListener('click', function() {
                 mobileMenuToggle.classList.remove('active');
                 navButtons.classList.remove('active');
-                overlay.classList.remove('active');
             });
+        });
+
+        // Close menu when clicking on mobile role links
+        const mobileRoleLinks = document.querySelectorAll('.mobile-role-link');
+        mobileRoleLinks.forEach(link => {
+            link.addEventListener('click', function() {
+                mobileMenuToggle.classList.remove('active');
+                navButtons.classList.remove('active');
+            });
+        });
+
+        // Dark Mode Toggle
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+            document.body.classList.toggle('light-mode');
+            const toggleBtn = document.querySelector('.dark-mode-toggle i');
+
+            if (document.body.classList.contains('dark-mode')) {
+                toggleBtn.classList.remove('fa-moon');
+                toggleBtn.classList.add('fa-sun');
+                localStorage.setItem('darkMode', 'enabled');
+            } else {
+                toggleBtn.classList.remove('fa-sun');
+                toggleBtn.classList.add('fa-moon');
+                localStorage.setItem('darkMode', 'disabled');
+            }
+        }
+
+        // Check for saved dark mode preference
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedDarkMode = localStorage.getItem('darkMode');
+            if (savedDarkMode === 'enabled') {
+                document.body.classList.add('dark-mode');
+                document.body.classList.remove('light-mode');
+                const toggleBtn = document.querySelector('.dark-mode-toggle i');
+                if (toggleBtn) {
+                    toggleBtn.classList.remove('fa-moon');
+                    toggleBtn.classList.add('fa-sun');
+                }
+            }
         });
         
         // Add smooth scroll behavior for navigation

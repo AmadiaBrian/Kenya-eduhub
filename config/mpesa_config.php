@@ -15,7 +15,7 @@ define('MPESA_ENVIRONMENT', 'sandbox');
 // Base URL for M-Pesa callbacks
 // For local testing, use a tunneling service like ngrok
 // For production, use your actual domain with HTTPS
-define('MPESA_CALLBACK_BASE_URL', 'https://2d4a-129-222-187-199.ngrok-free.app');
+define('MPESA_CALLBACK_BASE_URL', 'https://scratch-states-begin-beast.trycloudflare.com');
 
 // M-Pesa API Credentials
 // Sandbox credentials (for testing)
@@ -60,5 +60,17 @@ define('MPESA_TIMEOUT', 30); // seconds
 
 // Callback URL paths (relative to base URL)
 // These paths work on both localhost (with ngrok) and live hosting
-define('MPESA_B2C_TIMEOUT_PATH', '/kenyaeduhub/schools/payments/b2c/b2c_timeout.php');
-define('MPESA_B2C_RESULT_PATH', '/kenyaeduhub/schools/payments/b2c/b2c_result.php');
+
+// Parents STK Push callback
+define('MPESA_PARENTS_CALLBACK_PATH', '/kenyaeduhub/parents/api/mpesa_callback.php');
+
+// Librarians fine payment callback
+define('MPESA_LIBRARIANS_CALLBACK_PATH', '/kenyaeduhub/librarians/api/mpesa_fine_callback.php');
+
+// Schools B2C callbacks
+define('MPESA_SCHOOLS_B2C_TIMEOUT_PATH', '/kenyaeduhub/schools/payments/b2c/b2c_timeout.php');
+define('MPESA_SCHOOLS_B2C_RESULT_PATH', '/kenyaeduhub/schools/payments/b2c/b2c_result.php');
+
+// Finance Managers B2C callbacks
+define('MPESA_FINANCE_B2C_TIMEOUT_PATH', '/kenyaeduhub/finance-managers/b2c/b2c_timeout.php');
+define('MPESA_FINANCE_B2C_RESULT_PATH', '/kenyaeduhub/finance-managers/b2c/b2c_result.php');

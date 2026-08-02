@@ -43,6 +43,7 @@ if ($teacher && $teacher['teacher_type'] === 'subject_teacher') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#FF6B35">
     <title>Attendance - <?php echo htmlspecialchars($teacher_name); ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -148,6 +149,12 @@ if ($teacher && $teacher['teacher_type'] === 'subject_teacher') {
             overflow-y: auto;
             transition: transform 0.3s ease;
             z-index: 999;
+            scrollbar-width: none; /* Firefox */
+            -ms-overflow-style: none; /* IE and Edge */
+        }
+
+        .sidebar::-webkit-scrollbar {
+            display: none; /* Chrome, Safari, Opera */
         }
         
         .sidebar.collapsed {
@@ -416,14 +423,26 @@ if ($teacher && $teacher['teacher_type'] === 'subject_teacher') {
             <a class="nav-link" href="performance">
                 <i class="fas fa-chart-line"></i> Performance
             </a>
+            <a class="nav-link" href="results">
+                <i class="fas fa-award"></i> Results
+            </a>
             <a class="nav-link" href="students">
                 <i class="fas fa-user-graduate"></i> Students
+            </a>
+            <a class="nav-link" href="student-subjects">
+                <i class="fas fa-book"></i> Student Subjects
             </a>
             <a class="nav-link" href="assignments">
                 <i class="fas fa-tasks"></i> Assignments
             </a>
             <a class="nav-link" href="parents">
                 <i class="fas fa-users"></i> Parents
+            </a>
+            <a class="nav-link" href="duty">
+                <i class="fas fa-clipboard-list"></i> Duty
+            </a>
+            <a class="nav-link" href="fees">
+                <i class="fas fa-money-bill-wave"></i> Fees
             </a>
         </div>
         <div class="sidebar-section">
@@ -946,7 +965,7 @@ if ($teacher && $teacher['teacher_type'] === 'subject_teacher') {
     <script src="../assets/js/notifications.js"></script>
     
     <!-- Footer -->
-    <footer style="background: transparent; color: white; padding: 2rem; text-align: center; border-top: 1px solid rgba(255, 255, 255, 0.1);">
+    <footer style="position: fixed; bottom: 0; left: 0; right: 0; background: var(--bg-color); color: #5f6368; padding: 1rem; text-align: center; border-top: 1px solid #e8eaed; z-index: 1000;">
         <p style="margin: 0;">
             <span style="color: #FF6B35;">&copy; 2026</span> 
             <span style="color: #FF6B35;">Kenya</span> 

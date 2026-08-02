@@ -48,7 +48,8 @@ try {
                     'publisher' => '',
                     'publish_year' => $book_data['publish_date'] ?? '',
                     'description' => ''
-                ];
+                ]
+            ];
             
             // Extract authors
             if (isset($book_data['authors'])) {
@@ -86,11 +87,19 @@ try {
         if (isset($data['items']) && !empty($data['items'])) {
             $volume_info = $data['items'][0]['volumeInfo'];
             
+            // Extract authors from Google Books format
+            $authors = [];
+            if (isset($volume_info['authors'])) {
+                foreach ($volume_info['authors'] as $author) {
+                    $authors[] = $author;
+                }
+            }
+            
             $result = [
                 'success' => true,
                 'data' => [
                     'title' => $volume_info['title'] ?? '',
-                    'authors' => $volume_info['authors'] ?? [],
+                    'authors' => $authors,
                     'publisher' => $volume_info['publisher'] ?? '',
                     'publish_year' => isset($volume_info['publishedDate']) ? substr($volume_info['publishedDate'], 0, 4) : '',
                     'description' => isset($volume_info['description']) ? strip_tags($volume_info['description']) : ''

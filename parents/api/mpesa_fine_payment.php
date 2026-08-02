@@ -95,9 +95,9 @@ try {
     
     // Set fine to pending status WITHOUT changing amount_paid yet
     $stmt = $pdo->prepare("UPDATE library_fines 
-                          SET status = 'pending', payment_method = 'mpesa' 
+                          SET status = 'pending', payment_method = 'mpesa', parent_id = ? 
                           WHERE id = ?");
-    $stmt->execute([$fine_id]);
+    $stmt->execute([$parent_id, $fine_id]);
     
     // Log the payment initiation
     $stmt = $pdo->prepare("INSERT INTO book_history (book_id, school_id, action, user_id, user_type, details) VALUES (?, ?, 'fine_payment_initiated', ?, 'parent', ?)");
@@ -128,7 +128,9 @@ try {
     $accountnumber = "FINE:$fine_id|BOOK:{$fine['book_id']}|AMOUNT:$amount|USER:{$fine['user_id']}";
     
     // Callback URL using configured base URL
-    $callbackurl = $base_url . '/Kenyaeduhub/parents/api/mpesa_fine_callback.php';
+    $callbackurl = $base_url . '/kenyaeduhub/parents/api/mpesa_fine_callback.php';
+    
+    error_log("M-Pesa Callback URL: " . $callbackurl);
     
     $stkpushheader = ['Content-Type:application/json', 'Authorization:Bearer ' . $access_token];
     

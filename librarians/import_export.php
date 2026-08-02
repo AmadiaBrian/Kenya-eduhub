@@ -111,6 +111,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['import'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#FF6B35">
     <title>Import/Export Books - <?php echo htmlspecialchars($librarian_name); ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -188,7 +189,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['import'])) {
             height: calc(100vh - var(--header-height));
             background: var(--bg-color);
             overflow-y: auto;
-            transition: transform 0.3s ease;
+            transition: transform 0.3s ease, margin-left 0.3s ease;
             z-index: 999;
         }
         
@@ -232,6 +233,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['import'])) {
             margin-left: var(--sidebar-width);
             margin-top: var(--header-height);
             padding: 24px;
+            padding-bottom: 80px;
             transition: margin-left 0.3s;
         }
         
@@ -416,6 +418,73 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['import'])) {
         .file-remove-btn:hover {
             background: #fad2cf;
         }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-256px);
+                z-index: 9999;
+            }
+            
+            .sidebar.show {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+                padding: 16px;
+                padding-bottom: 80px;
+            }
+            
+            .header {
+                padding: 0 16px;
+            }
+            
+            .logo {
+                font-size: 14px;
+            }
+            
+            .page-title {
+                font-size: 18px;
+                margin-bottom: 16px;
+            }
+            
+            .card {
+                padding: 16px;
+            }
+            
+            .upload-section {
+                flex-direction: column;
+                gap: 12px;
+            }
+            
+            .upload-area {
+                padding: 20px;
+            }
+            
+            .btn {
+                padding: 8px 16px;
+                font-size: 14px;
+            }
+            
+            .table-responsive {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+            
+            .table {
+                font-size: 11px;
+            }
+            
+            .table th,
+            .table td {
+                padding: 8px 6px;
+            }
+            
+            .file-list {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 </head>
 <body>
@@ -558,14 +627,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['import'])) {
         </div>
     </div>
     
+    <!-- Footer -->
+    <footer style="position: fixed; bottom: 0; left: 0; right: 0; background: #f8f9fa; border-top: 1px solid #e8eaed; padding: 20px 0; z-index: 1000;">
+        <div style="text-align: center;">
+            <p style="margin: 0; color: #5f6368; font-size: 14px;">
+                <span style="color: #FF6B35;">&copy; 2026</span>
+                <span style="color: #FF6B35;">Kenya</span>
+                <span style="color: #008000;">EduHub</span>
+                <span style="color: #5f6368;">. All rights reserved.</span>
+            </p>
+        </div>
+    </footer>
+    
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
             const mainContent = document.getElementById('mainContent');
-            sidebar.classList.toggle('collapsed');
-            sidebar.classList.toggle('show');
-            mainContent.classList.toggle('expanded');
+            
+            // Check if we're on mobile
+            if (window.innerWidth <= 768) {
+                // Mobile: toggle the 'show' class
+                sidebar.classList.toggle('show');
+            } else {
+                // Desktop: toggle the 'collapsed' and 'expanded' classes
+                sidebar.classList.toggle('collapsed');
+                mainContent.classList.toggle('expanded');
+            }
         }
         
         function logout() {

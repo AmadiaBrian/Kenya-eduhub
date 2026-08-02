@@ -328,18 +328,17 @@ try {
     
     error_log("Access Token obtained (first 20 chars): " . substr($access_token, 0, 20) . "...");
 
-    $baseUrl = getPublicBaseUrl();
-    $queueTimeoutUrl = $baseUrl . MPESA_B2C_TIMEOUT_PATH;
-    $resultUrl = $baseUrl . MPESA_B2C_RESULT_PATH;
+    require_once __DIR__ . '/../../../config/mpesa_config.php';
+    $baseUrl = MPESA_CALLBACK_BASE_URL;
+    $queueTimeoutUrl = $baseUrl . MPESA_SCHOOLS_B2C_TIMEOUT_PATH;
+    $resultUrl = $baseUrl . MPESA_SCHOOLS_B2C_RESULT_PATH;
     
     error_log("=== Callback URLs ===");
-    error_log("Base URL from config: " . MPESA_CALLBACK_BASE_URL);
-    error_log("Base URL after getPublicBaseUrl(): $baseUrl");
-    error_log("Timeout Path from config: " . MPESA_B2C_TIMEOUT_PATH);
-    error_log("Result Path from config: " . MPESA_B2C_RESULT_PATH);
+    error_log("Base URL: $baseUrl");
+    error_log("Timeout Path: " . MPESA_SCHOOLS_B2C_TIMEOUT_PATH);
+    error_log("Result Path: " . MPESA_SCHOOLS_B2C_RESULT_PATH);
     error_log("Final Queue Timeout URL: $queueTimeoutUrl");
     error_log("Final Result URL: $resultUrl");
-    error_log("Full B2C callback URL being sent to Safaricom: $resultUrl");
 
     $b2cData = [
         'InitiatorName' => $initiatorName,

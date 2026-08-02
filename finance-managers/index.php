@@ -68,6 +68,7 @@ $allowed_routes = [
     'fees',
     'invoices',
     'reports',
+    'settings',
     'reminders'
 ];
 

@@ -1,4 +1,8 @@
 <?php
+// Disable error reporting for API responses
+error_reporting(0);
+ini_set('display_errors', 0);
+
 header("Content-Type: application/json");
 
 // Allow all origins for local development
@@ -16,8 +20,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
 
 include_once '../config.php';
 
-// Start session
-session_start();
+// Start session only if not already active
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
 // Test database connection
 if (!$conn) {

@@ -362,6 +362,14 @@ function validateRememberCookie($conn) {
                 $_SESSION['user_email'] = $user['email'];
                 $_SESSION['user_name'] = $user['full_name'];
                 
+                // Get user role
+                $role_stmt = $conn->prepare("SELECT role FROM users WHERE id = ?");
+                $role_stmt->bind_param("i", $user['user_id']);
+                $role_stmt->execute();
+                $role_result = $role_stmt->get_result();
+                $role_data = $role_result->fetch_assoc();
+                $_SESSION['user_role'] = $role_data['role'] ?? 'user';
+                
                 return true;
             }
         } else {
@@ -390,5 +398,311 @@ function validateRememberCookie($conn) {
     }
     
     return false;
+}
+
+// User Settings functions
+function getUserSettings($conn, $user_id) {
+    try {
+        // Check if table exists
+        $table_check = $conn->query("SHOW TABLES LIKE 'user_settings'");
+        if ($table_check->num_rows == 0) {
+            // Return default settings if table doesn't exist
+            return [
+                'email_uploads' => 1,
+                'email_comments' => 1,
+                'email_updates' => 0,
+                'show_profile' => 1,
+                'show_email' => 0,
+                'theme' => 'light',
+                'language' => 'en'
+            ];
+        }
+
+        $stmt = $conn->prepare("SELECT * FROM user_settings WHERE user_id = ?");
+        $stmt->bind_param("i", $user_id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        if ($result->num_rows > 0) {
+            return $result->fetch_assoc();
+        } else {
+            // Return default settings without auto-inserting
+            // The settings will be created when user saves their preferences
+            return [
+                'email_uploads' => 1,
+                'email_comments' => 1,
+                'email_updates' => 0,
+                'show_profile' => 1,
+                'show_email' => 0,
+                'theme' => 'light',
+                'language' => 'en'
+            ];
+        }
+    } catch (Exception $e) {
+        // Return default settings on error
+        return [
+            'email_uploads' => 1,
+            'email_comments' => 1,
+            'email_updates' => 0,
+            'show_profile' => 1,
+            'show_email' => 0,
+            'theme' => 'light',
+            'language' => 'en'
+        ];
+    }
+}
+
+function applyUserTheme($theme) {
+    $dark_mode_class = '';
+    
+    switch ($theme) {
+        case 'dark':
+            $dark_mode_class = 'dark-mode';
+            break;
+        case 'auto':
+            // Check system preference
+            if (isset($_SERVER['HTTP_USER_AGENT']) && 
+                preg_match('/(win|mac|linux|android|iphone|ipad)/i', $_SERVER['HTTP_USER_AGENT'])) {
+                // This is a basic check - in production you'd use JavaScript
+                // For now, default to light for auto
+                $dark_mode_class = '';
+            }
+            break;
+        case 'light':
+        default:
+            $dark_mode_class = '';
+            break;
+    }
+    
+    return $dark_mode_class;
+}
+
+// System Settings functions
+function getSystemSettings($conn) {
+    try {
+        // Check if table exists
+        $table_check = $conn->query("SHOW TABLES LIKE 'admin_system_settings'");
+        if ($table_check->num_rows == 0) {
+            // Return default settings if table doesn't exist
+            return [
+                'maintenance_mode' => 0,
+                'debug_mode' => 0,
+                'session_timeout' => 30,
+                'max_login_attempts' => 5
+            ];
+        }
+        
+        $stmt = $conn->prepare("SELECT * FROM admin_system_settings LIMIT 1");
+        $stmt->execute();
+        $result = $stmt->get_result();
+        
+        if ($result->num_rows > 0) {
+            return $result->fetch_assoc();
+        } else {
+            // Insert default settings
+            $default_settings_stmt = $conn->prepare("INSERT INTO admin_system_settings (maintenance_mode, debug_mode, session_timeout, max_login_attempts) VALUES (0, 0, 30, 5)");
+            $default_settings_stmt->execute();
+            
+            // Get the newly created settings
+            $stmt->execute();
+            $result = $stmt->get_result();
+            return $result->fetch_assoc();
+        }
+    } catch (Exception $e) {
+        // Return default settings on error
+        return [
+            'maintenance_mode' => 0,
+            'debug_mode' => 0,
+            'session_timeout' => 30,
+            'max_login_attempts' => 5
+        ];
+    }
+}
+
+function isMaintenanceMode($conn) {
+    $system_settings = getSystemSettings($conn);
+    return ($system_settings['maintenance_mode'] ?? 0) == 1;
+}
+
+function getSessionTimeout($conn) {
+    $system_settings = getSystemSettings($conn);
+    return $system_settings['session_timeout'] ?? 30; // default 30 minutes
+}
+
+function getMaxLoginAttempts($conn) {
+    $system_settings = getSystemSettings($conn);
+    return $system_settings['max_login_attempts'] ?? 5; // default 5 attempts
+}
+
+function checkLoginAttempts($conn, $email) {
+    try {
+        // Check if login_attempts table exists
+        $table_check = $conn->query("SHOW TABLES LIKE 'login_attempts'");
+        if ($table_check->num_rows == 0) {
+            // Create table if it doesn't exist
+            $conn->query("CREATE TABLE IF NOT EXISTS login_attempts (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                email VARCHAR(255) NOT NULL,
+                attempt_count INT DEFAULT 1,
+                last_attempt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                locked_until TIMESTAMP NULL,
+                INDEX idx_email (email)
+            )");
+            return ['can_login' => true, 'attempts' => 0, 'locked' => false];
+        }
+        
+        $max_attempts = getMaxLoginAttempts($conn);
+        
+        // Check for existing attempts
+        $stmt = $conn->prepare("SELECT * FROM login_attempts WHERE email = ?");
+        $stmt->bind_param("s", $email);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        
+        if ($result->num_rows > 0) {
+            $attempts = $result->fetch_assoc();
+            
+            // Check if account is locked
+            if ($attempts['locked_until'] && strtotime($attempts['locked_until']) > time()) {
+                return [
+                    'can_login' => false, 
+                    'attempts' => $attempts['attempt_count'], 
+                    'locked' => true,
+                    'locked_until' => $attempts['locked_until']
+                ];
+            }
+            
+            // Reset if lock time has passed
+            if ($attempts['locked_until'] && strtotime($attempts['locked_until']) <= time()) {
+                $reset_stmt = $conn->prepare("UPDATE login_attempts SET attempt_count = 0, locked_until = NULL WHERE email = ?");
+                $reset_stmt->bind_param("s", $email);
+                $reset_stmt->execute();
+                return ['can_login' => true, 'attempts' => 0, 'locked' => false];
+            }
+            
+            // Check if attempts exceed maximum
+            if ($attempts['attempt_count'] >= $max_attempts) {
+                // Lock account for 30 minutes
+                $lock_time = date('Y-m-d H:i:s', time() + 1800);
+                $lock_stmt = $conn->prepare("UPDATE login_attempts SET locked_until = ? WHERE email = ?");
+                $lock_stmt->bind_param("ss", $lock_time, $email);
+                $lock_stmt->execute();
+                
+                return [
+                    'can_login' => false, 
+                    'attempts' => $attempts['attempt_count'], 
+                    'locked' => true,
+                    'locked_until' => $lock_time
+                ];
+            }
+            
+            return ['can_login' => true, 'attempts' => $attempts['attempt_count'], 'locked' => false];
+        }
+        
+        return ['can_login' => true, 'attempts' => 0, 'locked' => false];
+    } catch (Exception $e) {
+        // On error, allow login
+        return ['can_login' => true, 'attempts' => 0, 'locked' => false];
+    }
+}
+
+function recordLoginAttempt($conn, $email, $success = false) {
+    try {
+        // Check if table exists
+        $table_check = $conn->query("SHOW TABLES LIKE 'login_attempts'");
+        if ($table_check->num_rows == 0) {
+            $conn->query("CREATE TABLE IF NOT EXISTS login_attempts (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                email VARCHAR(255) NOT NULL,
+                attempt_count INT DEFAULT 1,
+                last_attempt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                locked_until TIMESTAMP NULL,
+                INDEX idx_email (email)
+            )");
+        }
+        
+        if ($success) {
+            // Reset attempts on successful login
+            $reset_stmt = $conn->prepare("UPDATE login_attempts SET attempt_count = 0, locked_until = NULL WHERE email = ?");
+            $reset_stmt->bind_param("s", $email);
+            $reset_stmt->execute();
+        } else {
+            // Increment failed attempts
+            $check_stmt = $conn->prepare("SELECT * FROM login_attempts WHERE email = ?");
+            $check_stmt->bind_param("s", $email);
+            $check_stmt->execute();
+            $result = $check_stmt->get_result();
+            
+            if ($result->num_rows > 0) {
+                $update_stmt = $conn->prepare("UPDATE login_attempts SET attempt_count = attempt_count + 1, last_attempt = NOW() WHERE email = ?");
+                $update_stmt->bind_param("s", $email);
+                $update_stmt->execute();
+            } else {
+                $insert_stmt = $conn->prepare("INSERT INTO login_attempts (email, attempt_count) VALUES (?, 1)");
+                $insert_stmt->bind_param("s", $email);
+                $insert_stmt->execute();
+            }
+        }
+    } catch (Exception $e) {
+        error_log("Login attempt recording error: " . $e->getMessage());
+    }
+}
+
+function checkSessionTimeout($conn) {
+    if (!isset($_SESSION['user_id'])) {
+        return false;
+    }
+    
+    $session_timeout = getSessionTimeout($conn) * 60; // Convert to seconds
+    
+    if (isset($_SESSION['last_activity'])) {
+        $inactive_time = time() - $_SESSION['last_activity'];
+        
+        if ($inactive_time > $session_timeout) {
+            // Session expired
+            session_destroy();
+            return false;
+        }
+    }
+    
+    // Update last activity
+    $_SESSION['last_activity'] = time();
+    return true;
+}
+
+function getSMTPSettings($conn = null) {
+    // Get SMTP settings from database
+    $smtp_settings = [];
+    try {
+        // Handle both $conn (MySQLi) and $pdo (PDO) connections
+        $connection = $conn ?? $GLOBALS['conn'] ?? $GLOBALS['pdo'] ?? null;
+        
+        if (!$connection) {
+            throw new Exception("No database connection available");
+        }
+        
+        // Check if it's PDO or MySQLi
+        if ($connection instanceof PDO) {
+            $stmt = $connection->prepare("SELECT * FROM admin_smtp_settings LIMIT 1");
+            $stmt->execute();
+            $smtp_settings = $stmt->fetch(PDO::FETCH_ASSOC);
+        } else {
+            // Assume MySQLi
+            $stmt = $connection->prepare("SELECT * FROM admin_smtp_settings LIMIT 1");
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $smtp_settings = $result->fetch_assoc();
+        }
+        
+        // Check if we got valid settings
+        if (empty($smtp_settings) || empty($smtp_settings['smtp_host']) || empty($smtp_settings['smtp_username']) || empty($smtp_settings['smtp_password'])) {
+            throw new Exception("SMTP settings not properly configured in database");
+        }
+    } catch (Exception $e) {
+        // Table might not exist yet or settings not configured
+        error_log("Failed to load SMTP settings: " . $e->getMessage());
+        return null; // Return null instead of empty array to indicate failure
+    }
+    return $smtp_settings;
 }
 ?>

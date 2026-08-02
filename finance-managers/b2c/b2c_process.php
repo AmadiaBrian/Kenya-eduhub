@@ -333,12 +333,11 @@ try {
     
     error_log("Access Token obtained (first 20 chars): " . substr($access_token, 0, 20) . "...");
 
-    $baseUrl = getPublicBaseUrl();
-    $queueTimeoutUrl = $baseUrl . '/Kenyaeduhub/finance-managers/b2c/b2c_timeout.php';
-    $resultUrl = $baseUrl . '/Kenyaeduhub/finance-managers/b2c/b2c_result.php';
+    // Callback URLs using configured base URL
+    $queueTimeoutUrl = MPESA_CALLBACK_BASE_URL . MPESA_FINANCE_B2C_TIMEOUT_PATH;
+    $resultUrl = MPESA_CALLBACK_BASE_URL . MPESA_FINANCE_B2C_RESULT_PATH;
     
     error_log("=== Callback URLs ===");
-    error_log("Base URL: $baseUrl");
     error_log("Queue Timeout URL: $queueTimeoutUrl");
     error_log("Result URL: $resultUrl");
 

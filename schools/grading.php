@@ -388,6 +388,7 @@ if (isset($_GET['delete_aggregate']) && isset($_GET['aggregate_id'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#FF6B35">
     <title>Grading System - <?php echo htmlspecialchars($school_name); ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -920,6 +921,12 @@ if (isset($_GET['delete_aggregate']) && isset($_GET['aggregate_id'])) {
             <a class="nav-link" href="dashboard">
                 <i class="fas fa-home"></i> Dashboard
             </a>
+            <a class="nav-link" href="students">
+                <i class="fas fa-user-graduate"></i> Students
+            </a>
+            <a class="nav-link" href="teachers">
+                <i class="fas fa-chalkboard-teacher"></i> Teachers
+            </a>
             <a class="nav-link" href="classes">
                 <i class="fas fa-chalkboard"></i> Classes
             </a>
@@ -938,8 +945,29 @@ if (isset($_GET['delete_aggregate']) && isset($_GET['aggregate_id'])) {
             <a class="nav-link active" href="grading">
                 <i class="fas fa-chart-bar"></i> Grading System
             </a>
-            <a class="nav-link" href="students">
-                <i class="fas fa-user-graduate"></i> Students
+            <a class="nav-link" href="performance">
+                <i class="fas fa-chart-line"></i> Performance
+            </a>
+            <a class="nav-link" href="results">
+                <i class="fas fa-clipboard-list"></i> Results
+            </a>
+            <a class="nav-link" href="attendance">
+                <i class="fas fa-calendar-check"></i> Attendance
+            </a>
+            <a class="nav-link" href="calendar">
+                <i class="fas fa-calendar"></i> Calendar
+            </a>
+            <a class="nav-link" href="fees">
+                <i class="fas fa-dollar-sign"></i> Fees
+            </a>
+            <a class="nav-link" href="invoices">
+                <i class="fas fa-file-invoice-dollar"></i> Invoices
+            </a>
+            <a class="nav-link" href="finance-managers">
+                <i class="fas fa-user-tie"></i> Finance Managers
+            </a>
+            <a class="nav-link" href="account">
+                <i class="fas fa-wallet"></i> Account Balance
             </a>
             <a class="nav-link" href="parents">
                 <i class="fas fa-users"></i> Parents
@@ -950,27 +978,21 @@ if (isset($_GET['delete_aggregate']) && isset($_GET['aggregate_id'])) {
             <a class="nav-link" href="disciplinary-action-types">
                 <i class="fas fa-list-alt"></i> Disciplinary Types
             </a>
-            <a class="nav-link" href="teachers">
-                <i class="fas fa-chalkboard-teacher"></i> Teachers
+            <a class="nav-link" href="librarians">
+                <i class="fas fa-book-reader"></i> Librarians
             </a>
-            <a class="nav-link" href="attendance">
-                <i class="fas fa-calendar-check"></i> Attendance
+            <a class="nav-link" href="duty-assignments">
+                <i class="fas fa-clipboard-list"></i> Duty Assignments
             </a>
-            <a class="nav-link" href="performance">
-                <i class="fas fa-chart-line"></i> Performance
-            </a>
-            <a class="nav-link" href="results">
-                <i class="fas fa-clipboard-list"></i> Results
-            </a>
-            <a class="nav-link" href="fees">
-                <i class="fas fa-dollar-sign"></i> Fees
-            </a>
-            <a class="nav-link" href="settings">
-                <i class="fas fa-cog"></i> Settings
+            <a class="nav-link" href="examination-heads">
+                <i class="fas fa-user-tie"></i> Examination Heads
             </a>
         </div>
         <div class="sidebar-section">
-            <div class="sidebar-title">Account</div>
+            <div class="sidebar-title">Settings</div>
+            <a class="nav-link" href="settings">
+                <i class="fas fa-cog"></i> Settings
+            </a>
             <a class="nav-link" href="logout">
                 <i class="fas fa-sign-out-alt"></i> Logout
             </a>

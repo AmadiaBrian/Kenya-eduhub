@@ -21,7 +21,7 @@ if (!isset($_SESSION['user_id']) && isset($_GET['logout']) && $_GET['logout'] ==
 
 // If user is already logged in, redirect to dashboard
 if (isset($_SESSION['user_id'])) {
-    header("Location: ../dashboard/");
+    header("Location: ../dashboard/dashboard");
     exit();
 }
 
@@ -31,7 +31,7 @@ require_once '../includes/helpers.php';
 
 // Check for remember me cookie first
 if (!isset($_SESSION['user_id']) && validateRememberCookie($conn)) {
-    header("Location: ../dashboard/");
+    header("Location: ../dashboard/dashboard");
     exit();
 }
 
@@ -99,7 +99,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         }
                         
                         logSecurityEvent("LOGIN_SUCCESS", ["email" => $email]);
-                        header("Location: ../dashboard/");
+                        header("Location: ../dashboard/dashboard");
                         exit();
                     } else {
                         logSecurityEvent("LOGIN_FAILED", ["email" => $email, "reason" => "invalid_password"]);

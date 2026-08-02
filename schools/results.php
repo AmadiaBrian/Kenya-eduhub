@@ -163,6 +163,7 @@ try {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#FF6B35">
     <title>Results - <?php echo htmlspecialchars($school_name); ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -333,6 +334,7 @@ try {
             margin-left: var(--sidebar-width);
             margin-top: var(--header-height);
             padding: 24px;
+            padding-bottom: 80px;
             transition: margin-left 0.3s ease;
         }
         
@@ -441,6 +443,7 @@ try {
         @media (max-width: 768px) {
             .sidebar {
                 transform: translateX(-256px);
+                z-index: 9999;
             }
             
             .sidebar.show {
@@ -450,6 +453,7 @@ try {
             .main-content {
                 margin-left: 0;
                 padding: 16px;
+                padding-bottom: 80px;
             }
             
             .menu-btn {
@@ -631,7 +635,7 @@ try {
             <a class="nav-link" href="settings">
                 <i class="fas fa-cog"></i> Settings
             </a>
-            <a class="nav-link" href="index.php?route=logout">
+            <a class="nav-link" href="logout">
                 <i class="fas fa-sign-out-alt"></i> Logout
             </a>
         </div>
@@ -734,6 +738,18 @@ try {
         </div>
     </main>
     
+    <!-- Footer -->
+    <footer style="position: fixed; bottom: 0; left: 0; right: 0; background: #f8f9fa; border-top: 1px solid #e8eaed; padding: 20px 0; margin-top: 40px; z-index: 1000;">
+        <div style="text-align: center;">
+            <p style="margin: 0; color: #5f6368; font-size: 14px;">
+                <span style="color: #FF6B35;">&copy; 2026</span>
+                <span style="color: #FF6B35;">Kenya</span>
+                <span style="color: #008000;">EduHub</span>
+                <span style="color: #5f6368;">. All rights reserved.</span>
+            </p>
+        </div>
+    </footer>
+    
     <div class="notification" id="notification"></div>
     
     <script src="../assets/js/notifications.js"></script>
@@ -751,8 +767,31 @@ try {
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
             const mainContent = document.getElementById('mainContent');
-            sidebar.classList.toggle('collapsed');
-            mainContent.classList.toggle('expanded');
+            
+            // Check if we're on mobile
+            if (window.innerWidth <= 768) {
+                // Mobile: toggle the 'show' class
+                sidebar.classList.toggle('show');
+                
+                // Add or remove backdrop
+                let backdrop = document.querySelector('.sidebar-backdrop');
+                if (sidebar.classList.contains('show')) {
+                    if (!backdrop) {
+                        backdrop = document.createElement('div');
+                        backdrop.className = 'sidebar-backdrop';
+                        backdrop.onclick = toggleSidebar;
+                        document.body.appendChild(backdrop);
+                    }
+                } else {
+                    if (backdrop) {
+                        backdrop.remove();
+                    }
+                }
+            } else {
+                // Desktop: toggle the 'collapsed' and 'expanded' classes
+                sidebar.classList.toggle('collapsed');
+                mainContent.classList.toggle('expanded');
+            }
         }
         
         function showNotification(message, type = 'info') {

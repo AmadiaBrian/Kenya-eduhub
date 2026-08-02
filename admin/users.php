@@ -515,61 +515,30 @@ $total_active_users = $stats['active'];
     
     <!-- Sidebar -->
     <aside class="sidebar" id="sidebar">
-        <div class="sidebar-section">
-            <div class="sidebar-title" onclick="toggleSidebarSection(this)">
-                Main <i class="fas fa-chevron-down chevron"></i>
-            </div>
-            <div class="sidebar-links">
-                <a class="nav-link" href="dashboard">
-                    <i class="fas fa-tachometer-alt"></i> Dashboard
-                </a>
-                <a class="nav-link active" href="users">
-                    <i class="fas fa-users"></i> Users
-                </a>
-                <a class="nav-link" href="schools">
-                    <i class="fas fa-school"></i> Schools
-                </a>
-            </div>
-        </div>
-        
-        <div class="sidebar-section">
-            <div class="sidebar-title" onclick="toggleSidebarSection(this)">
-                Management <i class="fas fa-chevron-down chevron"></i>
-            </div>
-            <div class="sidebar-links">
-                <a class="nav-link" href="resources">
-                    <i class="fas fa-book"></i> Resources
-                </a>
-            </div>
-        </div>
-        
-        <div class="sidebar-section">
-            <div class="sidebar-title" onclick="toggleSidebarSection(this)">
-                Reports <i class="fas fa-chevron-down chevron"></i>
-            </div>
-            <div class="sidebar-links">
-                <a class="nav-link" href="reports">
-                    <i class="fas fa-chart-bar"></i> Reports
-                </a>
-                <a class="nav-link" href="logs">
-                    <i class="fas fa-file-alt"></i> Logs
-                </a>
-            </div>
-        </div>
-        
-        <div class="sidebar-section">
-            <div class="sidebar-title" onclick="toggleSidebarSection(this)">
-                Settings <i class="fas fa-chevron-down chevron"></i>
-            </div>
-            <div class="sidebar-links">
-                <a class="nav-link" href="settings">
-                    <i class="fas fa-cog"></i> Settings
-                </a>
-                <a class="nav-link" href="logout">
-                    <i class="fas fa-sign-out-alt"></i> Logout
-                </a>
-            </div>
-        </div>
+        <a class="nav-link" href="dashboard">
+            <i class="fas fa-tachometer-alt"></i> Dashboard
+        </a>
+        <a class="nav-link active" href="users">
+            <i class="fas fa-users"></i> Users
+        </a>
+        <a class="nav-link" href="schools">
+            <i class="fas fa-school"></i> Schools
+        </a>
+        <a class="nav-link" href="resources">
+            <i class="fas fa-book"></i> Resources
+        </a>
+        <a class="nav-link" href="reports">
+            <i class="fas fa-chart-bar"></i> Reports
+        </a>
+        <a class="nav-link" href="logs">
+            <i class="fas fa-file-alt"></i> Logs
+        </a>
+        <a class="nav-link" href="settings">
+            <i class="fas fa-cog"></i> Settings
+        </a>
+        <a class="nav-link" href="logout">
+            <i class="fas fa-sign-out-alt"></i> Logout
+        </a>
     </aside>
     
     <!-- Main Content -->
