@@ -15,7 +15,7 @@ define('MPESA_ENVIRONMENT', 'sandbox');
 // Base URL for M-Pesa callbacks
 // For local testing, use a tunneling service like ngrok
 // For production, use your actual domain with HTTPS
-define('MPESA_CALLBACK_BASE_URL', 'https://scratch-states-begin-beast.trycloudflare.com');
+define('MPESA_CALLBACK_BASE_URL', 'https://30d0-2c0f-fe38-21a8-1be2-b1aa-3f3d-6971-164f.ngrok-free.app');
 
 // M-Pesa API Credentials
 // Sandbox credentials (for testing)

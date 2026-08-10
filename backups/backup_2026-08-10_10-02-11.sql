@@ -1,5 +1,5 @@
 -- Kenya EduHub Database Backup
--- Generated: 2026-08-02 22:11:15
+-- Generated: 2026-08-10 10:02:11
 -- Database: users_db
 
 -- Table structure for `academic_performance`
@@ -239,10 +239,11 @@ CREATE TABLE `assignments` (
   CONSTRAINT `assignments_ibfk_2` FOREIGN KEY (`school_id`) REFERENCES `schools` (`id`) ON DELETE CASCADE,
   CONSTRAINT `assignments_ibfk_3` FOREIGN KEY (`class_id`) REFERENCES `classes` (`id`) ON DELETE CASCADE,
   CONSTRAINT `assignments_ibfk_4` FOREIGN KEY (`subject_id`) REFERENCES `subjects` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 INSERT INTO `assignments` VALUES ("4","1","1","1","","chemisry asinment","this is chemistry asinment","holiday","6a5d7c0521615_1784511493.pdf","Automated_Garden_Watering_System..pdf","2026-08-01","2026-07-20 04:38:13","2026-07-20 04:38:13");
 INSERT INTO `assignments` VALUES ("6","1","1","1","","physiscs asinment","this si test for physics asinment","notes","6a5d7d0d7c2e3_1784511757.docx","LINKS.docx","2026-08-08","2026-07-20 04:42:37","2026-07-20 04:42:37");
+INSERT INTO `assignments` VALUES ("8","1","1","1","","Testing app upload","Jsjshskssnhsjsjsnsijss","holiday","6a7077f2d6aaa_1785755634.pdf","6a6b3db1cc796_invoices_report_2026-07-28.pdf","2026-09-11","2026-08-03 14:13:54","2026-08-03 14:13:54");
 
 
 -- Table structure for `attendance`
@@ -334,7 +335,7 @@ CREATE TABLE `book_history` (
   KEY `idx_book_history_school_id` (`school_id`),
   CONSTRAINT `book_history_ibfk_1` FOREIGN KEY (`book_id`) REFERENCES `books` (`id`) ON DELETE CASCADE,
   CONSTRAINT `book_history_ibfk_2` FOREIGN KEY (`school_id`) REFERENCES `schools` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=178 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=179 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 INSERT INTO `book_history` VALUES ("6","4","1","","0","","Fine issued: 50 for overdue borrowing ID: 3","2026-07-22 19:03:14");
 INSERT INTO `book_history` VALUES ("8","4","1","","1","librarian","MPESA payment initiated: 1 for fine ID: 6","2026-07-22 19:13:33");
@@ -507,6 +508,7 @@ INSERT INTO `book_history` VALUES ("174","4","1","","2","","MPESA payment initia
 INSERT INTO `book_history` VALUES ("175","4","1","","0","","MPESA payment successful: 1, Receipt: UH2N81MACX for fine ID: 28","2026-08-02 18:45:06");
 INSERT INTO `book_history` VALUES ("176","4","1","","1","librarian","MPESA payment initiated: 1 for fine ID: 28","2026-08-02 18:48:31");
 INSERT INTO `book_history` VALUES ("177","4","1","","0","","MPESA payment successful: 1, Receipt: UH2N81MEDX for fine ID: 28","2026-08-02 18:48:41");
+INSERT INTO `book_history` VALUES ("178","4","1","","2","","MPESA payment initiated: 1 for fine ID: 28","2026-08-02 23:29:54");
 
 
 -- Table structure for `book_reservations`
@@ -901,7 +903,7 @@ CREATE TABLE `fee_payments` (
   KEY `idx_fee_type` (`fee_type`),
   KEY `school_id` (`school_id`),
   CONSTRAINT `fk_payment_student` FOREIGN KEY (`student_id`) REFERENCES `students` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=141 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=152 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 INSERT INTO `fee_payments` VALUES ("1","1","4","10000.00","2026-07-04","Cash","completed","","Term 1","2026","Tuition","RCP5387B24511","2026-07-04 19:22:10");
 INSERT INTO `fee_payments` VALUES ("4","1","4","10000.00","2026-07-06","M-Pesa","pending","ws_CO_06072026161947741745959757","Term 1","2026","Tuition","FEE-6A4BAB718842E-4","2026-07-06 16:19:45");
@@ -997,6 +999,12 @@ INSERT INTO `fee_payments` VALUES ("137","0","4","1.00","2026-08-02","M-Pesa","p
 INSERT INTO `fee_payments` VALUES ("138","0","4","1.00","2026-08-02","M-Pesa","completed","ws_CO_020820261807145745959757","Term 1","2026","RMADIAL","UH2N81M9AK","2026-08-02 18:07:12");
 INSERT INTO `fee_payments` VALUES ("139","0","4","1.00","2026-08-02","M-Pesa","completed","ws_CO_020820261812020745959757","Term 1","2026","RMADIAL","UH2N81M5EY","2026-08-02 18:11:59");
 INSERT INTO `fee_payments` VALUES ("140","0","4","1.00","2026-08-02","M-Pesa","completed","ws_CO_020820262248314745959757","Term 2","2026","Tuition","UH2N81NJPH","2026-08-02 22:48:27");
+INSERT INTO `fee_payments` VALUES ("145","0","4","1.00","2026-08-03","M-Pesa","completed","ws_CO_030820261406372745959757","Term 1","2026","RMADIAL","UH3N81PAYE","2026-08-03 14:06:31");
+INSERT INTO `fee_payments` VALUES ("147","0","4","1.00","2026-08-07","M-Pesa","completed","ws_CO_070820261207019745959757","Term 1","2026","RMADIAL","UH7N825T86","2026-08-07 12:06:57");
+INSERT INTO `fee_payments` VALUES ("148","0","4","1.00","2026-08-07","M-Pesa","pending","ws_CO_070820261208283745959757","Term 1","2026","RMADIAL","FEE-6A75A08B5AAD6-4","2026-08-07 12:08:27");
+INSERT INTO `fee_payments` VALUES ("149","0","4","1.00","2026-08-07","M-Pesa","pending","","Term 1","2026","RMADIAL","FEE-6A75A1264F9E1-4","2026-08-07 12:11:02");
+INSERT INTO `fee_payments` VALUES ("150","0","4","1.00","2026-08-10","M-Pesa","pending","ws_CO_100820261050220745959757","Term 1","2026","RMADIAL","FEE-6A7982BE3D32A-4","2026-08-10 10:50:22");
+INSERT INTO `fee_payments` VALUES ("151","0","4","1.00","2026-08-10","M-Pesa","completed","ws_CO_100820261053549745959757","Term 1","2026","RMADIAL","UHAN82HTEI","2026-08-10 10:53:30");
 
 
 -- Table structure for `fee_structure`
@@ -1504,7 +1512,7 @@ CREATE TABLE `library_fines` (
   CONSTRAINT `library_fines_ibfk_2` FOREIGN KEY (`book_id`) REFERENCES `books` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=29 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-INSERT INTO `library_fines` VALUES ("28","1","4","8","4","student","125.00","62.00","partial","2026-07-24 21:27:47","2026-08-23 21:27:47","damaged","2026-08-02 18:48:41","mpesa","ws_CO_020820261848324745959757","2","UH2N81MEDX","","","");
+INSERT INTO `library_fines` VALUES ("28","1","4","8","4","student","125.00","62.00","pending","2026-07-24 21:27:47","2026-08-23 21:27:47","damaged","2026-08-02 18:48:41","mpesa","ws_CO_020820262329572745959757","2","UH2N81MEDX","","","");
 
 
 -- Table structure for `login_attempts`
@@ -1554,7 +1562,7 @@ CREATE TABLE `parent_sessions` (
   KEY `idx_parent_id` (`parent_id`),
   KEY `idx_expires` (`expires_at`),
   CONSTRAINT `fk_parent_session_parent` FOREIGN KEY (`parent_id`) REFERENCES `parents` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=91 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=95 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 INSERT INTO `parent_sessions` VALUES ("1","2","848eaf5f4f5f0a59fea47c75a5a63343ce3f062b06e47e0ee46980784ac94f95","2026-07-05 18:11:05","2026-07-05 11:11:05");
 INSERT INTO `parent_sessions` VALUES ("2","2","ab6a1861ac59d8b61cebdb816193c756fb9fbe1fbf1e91b9d128b7ab45fc1830","2026-07-05 18:16:15","2026-07-05 11:16:15");
@@ -1644,6 +1652,10 @@ INSERT INTO `parent_sessions` VALUES ("87","2","34108bb08bccefbb2470736f8c178692
 INSERT INTO `parent_sessions` VALUES ("88","2","9228d87b6223f258d755bb49e850e4ddca640a93865d725d247818555e2268c0","2026-08-03 05:38:16","2026-08-02 22:38:16");
 INSERT INTO `parent_sessions` VALUES ("89","2","89f4e9c04f2596458dd472b7e2a334818f596614b0ce7b1bdea8b5a1a95a53da","2026-08-03 05:39:42","2026-08-02 22:39:42");
 INSERT INTO `parent_sessions` VALUES ("90","2","d76058eb051d004fa633bc459cd47cb80b4960132f5fdd059ad321a8a70b1b6d","2026-08-03 05:41:04","2026-08-02 22:41:04");
+INSERT INTO `parent_sessions` VALUES ("91","2","700238efdb3b6fdcc381b5db6abeb727539cd3c8f89db40a31d816d71c8188a1","2026-08-03 06:28:27","2026-08-02 23:28:27");
+INSERT INTO `parent_sessions` VALUES ("92","2","375403a3e7ef3e6bf5f6cdf658ab45f43034e717b25a44c621da1c238455a68a","2026-08-06 02:49:04","2026-08-05 19:49:04");
+INSERT INTO `parent_sessions` VALUES ("93","2","57f3ec9cac1f3a69952ad0210cbce5aa58dbf35d817d7b8267de7e9e4854955b","2026-08-07 19:02:32","2026-08-07 12:02:32");
+INSERT INTO `parent_sessions` VALUES ("94","2","68a7f945f31c91a6bafaea3ed96becd68d6a6488e420f7d943f149ef5cf30d96","2026-08-10 17:47:57","2026-08-10 10:47:57");
 
 
 -- Table structure for `parents`
@@ -1860,7 +1872,7 @@ CREATE TABLE `school_balances` (
   CONSTRAINT `fk_school_balances_school` FOREIGN KEY (`school_id`) REFERENCES `schools` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='School account balances';
 
-INSERT INTO `school_balances` VALUES ("1","519.00","2026-07-08 00:25:30","2026-08-02 22:48:44");
+INSERT INTO `school_balances` VALUES ("1","522.00","2026-07-08 00:25:30","2026-08-10 10:54:08");
 
 
 -- Table structure for `school_breaks`
@@ -1919,7 +1931,7 @@ CREATE TABLE `school_sessions` (
   KEY `idx_school_id` (`school_id`),
   KEY `idx_expires` (`expires_at`),
   CONSTRAINT `fk_session_school` FOREIGN KEY (`school_id`) REFERENCES `schools` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=49 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=54 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 INSERT INTO `school_sessions` VALUES ("1","1","79a554b89d7faa5497e5366a948b63e1ebafddcac6592013dbf4bc38916883ca","2026-07-05 17:07:26","2026-07-04 18:07:26");
 INSERT INTO `school_sessions` VALUES ("2","1","0b32a4c367bb6dde86aeb1b5539bc4f29534d1a09a0e32ea4a9b61b4873492d2","2026-07-05 20:30:53","2026-07-04 21:30:53");
@@ -1969,6 +1981,11 @@ INSERT INTO `school_sessions` VALUES ("45","1","448b92e45a9f464835b8dceb4bf12d38
 INSERT INTO `school_sessions` VALUES ("46","1","4a2337b7f9267059d7f0ca92d0ae6d8f731cc5bd258bc75b8368f522bde0ddbf","2026-08-02 17:28:54","2026-08-01 18:28:54");
 INSERT INTO `school_sessions` VALUES ("47","1","1cbf7c4aec102030fc6195f85b679ff3169167a3695128a1dda5d692035f63a5","2026-08-03 09:58:44","2026-08-02 10:58:44");
 INSERT INTO `school_sessions` VALUES ("48","1","240b7bd036c0fd8ec06aea0c51ce01faad309aa4f981e55bd2543ed93a72235d","2026-08-03 14:26:32","2026-08-02 15:26:32");
+INSERT INTO `school_sessions` VALUES ("49","1","7ecc4a1e23f3e986b10fa35a2f247315e652c8402e576d0dbeeda2f84207c0c8","2026-08-04 21:07:14","2026-08-03 22:07:14");
+INSERT INTO `school_sessions` VALUES ("50","2","50250aefe925172ce0a892b4398ed068ba64294376ac53fa675818016af2643e","2026-08-04 21:10:32","2026-08-03 22:10:32");
+INSERT INTO `school_sessions` VALUES ("51","1","8618c258d80781e934fcf56bd32f23781b3d66d5fd7d436c4d2a2ce1922d7270","2026-08-04 21:14:00","2026-08-03 22:14:00");
+INSERT INTO `school_sessions` VALUES ("52","1","c14767861c850a2491eac66c95722f6a8c67f15af4e74fb2e4b1a1e1d0eea177","2026-08-05 21:59:42","2026-08-04 22:59:42");
+INSERT INTO `school_sessions` VALUES ("53","1","339a697d1ba864edf88d631a3d5d9c56ddf5e58e3faf9091a0e7dc1d26873dd4","2026-08-07 13:09:46","2026-08-06 14:09:46");
 
 
 -- Table structure for `school_withdrawals`
@@ -2460,7 +2477,7 @@ CREATE TABLE `teacher_sessions` (
   KEY `idx_teacher_id` (`teacher_id`),
   KEY `idx_expires` (`expires_at`),
   CONSTRAINT `fk_teacher_session_teacher` FOREIGN KEY (`teacher_id`) REFERENCES `teachers` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=42 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=48 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 INSERT INTO `teacher_sessions` VALUES ("1","1","e8fd7e9d0472afeb0228de31d5c9dfc2b697116120ffa3be7d56981f9464d469","2026-07-05 02:47:25","2026-07-04 19:47:25");
 INSERT INTO `teacher_sessions` VALUES ("2","1","2718252a48e0315d61eb0de28882649c592ec250459ce787633607d1bb31b340","2026-07-05 05:27:34","2026-07-04 22:27:34");
@@ -2497,6 +2514,12 @@ INSERT INTO `teacher_sessions` VALUES ("37","1","7f7f5b38c86fc91e7c162ea8e6a44cc
 INSERT INTO `teacher_sessions` VALUES ("38","1","a6db5690d171e299bcb5570f396cbc1d69acc8df3cd860e0149d6a9f3a6c43fa","2026-07-29 15:35:26","2026-07-29 08:35:26");
 INSERT INTO `teacher_sessions` VALUES ("40","1","27c5c2526544a1f9955b2053d64ec4645d71e13f9e0876b1e1e28fd6bbde91a4","2026-07-31 19:17:45","2026-07-31 12:17:45");
 INSERT INTO `teacher_sessions` VALUES ("41","1","2cef93a653280a5da6083ec1ea1684afdca8923183aa8cc5607b425b8116220a","2026-08-01 21:15:14","2026-08-01 14:15:14");
+INSERT INTO `teacher_sessions` VALUES ("42","1","b0f07cc53e683e0002c104495c40b24ea65f7fcde88516f42748a3f113d19455","2026-08-03 17:52:42","2026-08-03 10:52:42");
+INSERT INTO `teacher_sessions` VALUES ("43","1","fbee67c2769c3c249abcc118c674eb3820947afdff5f7a53eb442dced783434e","2026-08-03 18:32:52","2026-08-03 11:32:52");
+INSERT INTO `teacher_sessions` VALUES ("44","1","89f3ef55f850a96a48fb0cf0d89e3b03d7966c2fee6a921357e4d237a4dbb9f7","2026-08-04 00:56:44","2026-08-03 17:56:44");
+INSERT INTO `teacher_sessions` VALUES ("45","1","33333a0f14e653c1c8ae11a74409986dd4e24a52167c38f14fa0a717a26cc339","2026-08-04 02:21:14","2026-08-03 19:21:14");
+INSERT INTO `teacher_sessions` VALUES ("46","1","95e90fe53beffa9fa22bd57ef59092d1dd6ea9dc066a4b679d7de9241bb65e78","2026-08-04 05:50:51","2026-08-03 22:50:51");
+INSERT INTO `teacher_sessions` VALUES ("47","1","ba8d3e229bd4a38977d1e552214e195635ee370564222c82deadd8702dedb378","2026-08-04 06:00:15","2026-08-03 23:00:15");
 
 
 -- Table structure for `teacher_subjects`
@@ -2713,7 +2736,7 @@ CREATE TABLE `transactions` (
   KEY `idx_checkout_request_id` (`CheckoutRequestID`),
   KEY `idx_user_id` (`user_id`),
   KEY `idx_phone` (`PhoneNumber`)
-) ENGINE=InnoDB AUTO_INCREMENT=250 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=258 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 INSERT INTO `transactions` VALUES ("1","TEST-1777658383-1","ws_CO_1777658383_123456","0","","100","TEST123456","254745959757","1","2026-05-01 20:59:43");
 INSERT INTO `transactions` VALUES ("2","TEST-1777658408-1","ws_CO_1777658408_123456","0","","100","TEST123456","254745959757","1","2026-05-01 21:00:08");
@@ -2964,6 +2987,14 @@ INSERT INTO `transactions` VALUES ("246","TEST-1785685457","ws_CO_02082026183844
 INSERT INTO `transactions` VALUES ("247","9f5f-48fc-bbdc-e469ab55200c62633","ws_CO_020820261844571745959757","0","The service request is processed successfully.","1","UH2N81MACX","254745959757","0","2026-08-02 18:45:06");
 INSERT INTO `transactions` VALUES ("248","4eb4-451f-ae34-bbe27460f2b4130267","ws_CO_020820261848324745959757","0","The service request is processed successfully.","1","UH2N81MEDX","254745959757","0","2026-08-02 18:48:41");
 INSERT INTO `transactions` VALUES ("249","4eb4-451f-ae34-bbe27460f2b4141352","ws_CO_020820262248314745959757","0","The service request is processed successfully.","1","UH2N81NJPH","254745959757","0","2026-08-02 22:48:44");
+INSERT INTO `transactions` VALUES ("250","a024-43c9-8656-726b763154402706","ws_CO_030820261402299745959757","1037","No response from user.","0","","","0","2026-08-03 14:02:56");
+INSERT INTO `transactions` VALUES ("251","341c-4aee-9c3b-154942c6a0542977","ws_CO_030820261403188745959757","1037","No response from user.","0","","","0","2026-08-03 14:03:45");
+INSERT INTO `transactions` VALUES ("252","9f5f-48fc-bbdc-e469ab55200c117125","ws_CO_030820261404052745959757","1037","No response from user.","0","","","0","2026-08-03 14:04:32");
+INSERT INTO `transactions` VALUES ("253","4025-4dae-ada9-3f004705342021611","ws_CO_030820261405233745959757","1037","No response from user.","0","","","0","2026-08-03 14:05:49");
+INSERT INTO `transactions` VALUES ("254","a024-43c9-8656-726b763154402796","ws_CO_030820261406372745959757","0","The service request is processed successfully.","1","UH3N81PAYE","254745959757","0","2026-08-03 14:06:56");
+INSERT INTO `transactions` VALUES ("255","3f54-4cca-b96d-f37279f00e86138059","ws_CO_070820261206027745959757","1032","Request Cancelled by user.","0","","","0","2026-08-07 12:06:12");
+INSERT INTO `transactions` VALUES ("256","ba7f-4bb7-acb7-f6802c6f71cd43426","ws_CO_070820261207019745959757","0","The service request is processed successfully.","1","UH7N825T86","254745959757","0","2026-08-07 12:07:16");
+INSERT INTO `transactions` VALUES ("257","bfd4-4e63-b66b-9ab68f18837f76114","ws_CO_100820261053549745959757","0","The service request is processed successfully.","1","UHAN82HTEI","254745959757","0","2026-08-10 10:54:08");
 
 
 -- Table structure for `user_settings`
@@ -2985,7 +3016,7 @@ CREATE TABLE `user_settings` (
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 INSERT INTO `user_settings` VALUES ("1","1","1","1","0","1","0","dark","en","2026-07-30 15:31:53","2026-07-31 00:25:10");
-INSERT INTO `user_settings` VALUES ("3","30","1","1","1","1","1","light","en","2026-07-31 21:25:18","2026-08-01 13:22:49");
+INSERT INTO `user_settings` VALUES ("3","30","1","1","1","1","1","dark","en","2026-07-31 21:25:18","2026-08-06 14:08:45");
 
 
 -- Table structure for `users`
@@ -3011,7 +3042,7 @@ CREATE TABLE `users` (
 ) ENGINE=MyISAM AUTO_INCREMENT=31 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 INSERT INTO `users` VALUES ("1","Brian Onyango","otienobrian029@gmail.com","$2y$10$mbbgZh98BWWdD0JAGo98a.cRm7s/szNj2kBid3ceJc8Mq2Ms6a.em","admin","","2025-07-12 13:10:16","1","086722","2026-07-31 09:08:33","","","0","2026-07-31 15:27:02","");
-INSERT INTO `users` VALUES ("30","Brian Onyango","otisbrian46@gmail.com","$2y$10$iHhlx4AMUtvHb.tsieA9oO9fY5.2ahVKmuLzVqDZUFgyW.dv4Qps6","","","","1","","","","","0","2026-07-31 15:27:02","2026-08-01 13:21:14");
+INSERT INTO `users` VALUES ("30","Brian Onyango","otisbrian46@gmail.com","$2y$10$iHhlx4AMUtvHb.tsieA9oO9fY5.2ahVKmuLzVqDZUFgyW.dv4Qps6","","","","1","","","","","0","2026-07-31 15:27:02","2026-08-05 19:36:40");
 INSERT INTO `users` VALUES ("3","omar","omarwaraka10@gmail.com","$2y$10$gbcQq8JsJc.Fw1x3HyPn4einwXC.NV063kKBKK4Ttsq93tK5G1EWO","user","","","1","","","","","0","2026-07-31 15:27:02","");
 INSERT INTO `users` VALUES ("5","stanley juma","stareen258@gmail.com","$2y$10$8/7D1lCSHZF463hPmiouo.uN5q40NVg.4mb6sCnT343akQvaHeT7m","user","","","1","","","","","0","2026-07-31 15:27:02","");
 INSERT INTO `users` VALUES ("6","William Steve Odhiambo","williamsteve10699@gmail.com","$2y$10$9ILMPtccH2Om9d7sVFacGedBVGTVUg.wKL/xChXBP9GgmQmH58vH6","user","","","1","","","","","0","2026-07-31 15:27:02","");

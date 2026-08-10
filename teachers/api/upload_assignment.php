@@ -1,18 +1,52 @@
 <?php
 // Assignment Upload API
-session_start();
-require_once __DIR__ . '/../../config.php';
-
 header('Content-Type: application/json');
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: POST, OPTIONS');
+header('Access-Control-Allow-Headers: Content-Type, Authorization');
 
-// Check authentication
-if (!isset($_SESSION['teacher_id'])) {
-    echo json_encode(['success' => false, 'error' => 'Unauthorized']);
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
     exit;
 }
 
-$teacher_id = $_SESSION['teacher_id'];
-$school_id = $_SESSION['school_id'];
+require_once '../../config.php';
+
+// Enable error reporting for debugging
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
+// Get session token from header
+$headers = getallheaders();
+$session_token = $headers['Authorization'] ?? '';
+
+if (empty($session_token)) {
+    echo json_encode(['success' => false, 'error' => 'No session token provided']);
+    exit;
+}
+
+try {
+    // Verify session token
+    $stmt = $pdo->prepare("SELECT ts.*, t.*, s.school_name 
+                          FROM teacher_sessions ts
+                          JOIN teachers t ON ts.teacher_id = t.id
+                          JOIN schools s ON t.school_id = s.id
+                          WHERE ts.session_token = ? AND ts.expires_at > NOW()");
+    $stmt->execute([$session_token]);
+    $session = $stmt->fetch();
+
+    if (!$session) {
+        echo json_encode(['success' => false, 'error' => 'Invalid or expired session']);
+        exit;
+    }
+
+    $teacher_id = $session['teacher_id'];
+    $school_id = $session['school_id'];
+
+} catch (PDOException $e) {
+    echo json_encode(['success' => false, 'error' => 'Database error']);
+    exit;
+}
 
 // Only allow POST requests
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
