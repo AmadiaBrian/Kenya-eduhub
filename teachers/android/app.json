@@ -1,0 +1,48 @@
+{
+  "expo": {
+    "name": "Kenya EduHub Teachers",
+    "slug": "kenya-eduhub-teachers",
+    "scheme": "kenya-eduhub-teachers",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/app-icon.png",
+    "userInterfaceStyle": "automatic",
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#FFD700",
+        "foregroundImage": "./assets/images/app-icon.png"
+      },
+      "package": "com.amadia.kenyaeduhub.teachers",
+      "permissions": [
+        "INTERNET",
+        "ACCESS_NETWORK_STATE",
+        "VIBRATE"
+      ]
+    },
+    "web": {
+      "output": "static",
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#FFFFFF",
+          "image": "./assets/images/icon.png",
+          "imageWidth": 200
+        }
+      ],
+      "expo-secure-store"
+    ],
+    "experiments": {
+      "typedRoutes": true
+    },
+    "extra": {
+      "router": {}
+    }
+  }
+}
