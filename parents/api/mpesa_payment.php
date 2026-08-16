@@ -17,18 +17,18 @@ if (!isset($_SESSION['parent_id'])) {
 $parent_id = $_SESSION['parent_id'];
 $school_id = $_SESSION['school_id'];
 
-// Get active term directly from database
-$current_year = date('Y');
+// Get current term based on actual date range from database (not is_active flag)
+$today = date('Y-m-d');
 $active_term = null;
 try {
-    $stmt = $pdo->prepare("SELECT term_name FROM terms WHERE school_id = ? AND year = ? AND is_active = 1");
-    $stmt->execute([$school_id, $current_year]);
+    $stmt = $pdo->prepare("SELECT term_name FROM terms WHERE school_id = ? AND start_date <= ? AND end_date >= ? ORDER BY year DESC, term_number ASC LIMIT 1");
+    $stmt->execute([$school_id, $today, $today]);
     $term = $stmt->fetch();
     if ($term) {
         $active_term = $term['term_name'];
     }
 } catch (PDOException $e) {
-    error_log("Failed to fetch active term: " . $e->getMessage());
+    error_log("Failed to fetch current term: " . $e->getMessage());
 }
 
 // Get terms from database for current year
