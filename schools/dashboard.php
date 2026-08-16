@@ -899,49 +899,49 @@ try {
         
         <!-- Calendar Status -->
         <div style="margin-bottom: 24px;">
-            <?php if ($calendar_status['is_holiday']): ?>
-                <div style="background: #fce8e6; border: 1px solid #c5221f; padding: 16px; border-radius: 8px;">
-                    <div style="display: flex; align-items: center; gap: 12px;">
-                        <i class="fas fa-exclamation-triangle" style="color: #c5221f; font-size: 20px;"></i>
+            <div style="background: #f8f9fa; padding: 16px; border-radius: 8px; border-left: 4px solid <?php echo $calendar_status['is_holiday'] ? '#c5221f' : ($calendar_status['current_term'] ? '#137333' : '#f9ab00'); ?>;">
+                <?php if ($calendar_status['is_holiday']): ?>
+                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+                        <i class="fas fa-umbrella-beach" style="color: #c5221f; font-size: 20px;"></i>
                         <div>
-                            <strong style="color: #c5221f;">School is on Holiday</strong>
-                            <p style="margin: 4px 0 0 0; color: #5f6368; font-size: 14px;">
-                                <?php echo htmlspecialchars($calendar_status['current_holiday']['holiday_name']); ?> 
+                            <p style="color: #c5221f; font-weight: 600; margin: 0; font-size: 16px;">
+                                School is on Holiday
+                            </p>
+                            <p style="color: #5f6368; margin: 4px 0 0 0; font-size: 14px;">
+                                <?php echo htmlspecialchars($calendar_status['current_holiday']['holiday_name']); ?>
                                 (<?php echo date('M j, Y', strtotime($calendar_status['current_holiday']['start_date'])); ?> - 
                                 <?php echo date('M j, Y', strtotime($calendar_status['current_holiday']['end_date'])); ?>)
                             </p>
                         </div>
                     </div>
-                </div>
-            <?php elseif ($calendar_status['school_status'] === 'break'): ?>
-                <div style="background: #fef7e0; border: 1px solid #f9ab00; padding: 16px; border-radius: 8px;">
-                    <div style="display: flex; align-items: center; gap: 12px;">
-                        <i class="fas fa-info-circle" style="color: #f9ab00; font-size: 20px;"></i>
+                <?php elseif ($calendar_status['current_term']): ?>
+                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+                        <i class="fas fa-school" style="color: #137333; font-size: 20px;"></i>
                         <div>
-                            <strong style="color: #b06000;">School is on Break</strong>
-                            <p style="margin: 4px 0 0 0; color: #5f6368; font-size: 14px;">No active term is currently set. Please activate a term in the Calendar.</p>
-                        </div>
-                    </div>
-                </div>
-            <?php else: ?>
-                <div style="background: #e6f4ea; border: 1px solid #137333; padding: 16px; border-radius: 8px;">
-                    <div style="display: flex; align-items: center; gap: 12px;">
-                        <i class="fas fa-check-circle" style="color: #137333; font-size: 20px;"></i>
-                        <div>
-                            <strong style="color: #137333;">School is In Session</strong>
-                            <p style="margin: 4px 0 0 0; color: #5f6368; font-size: 14px;">
-                                <?php if ($calendar_status['current_term']): ?>
-                                    Active Term: <?php echo htmlspecialchars($calendar_status['current_term']['term_name']); ?> 
-                                    (<?php echo date('M j, Y', strtotime($calendar_status['current_term']['start_date'])); ?> - 
-                                    <?php echo date('M j, Y', strtotime($calendar_status['current_term']['end_date'])); ?>)
-                                <?php else: ?>
-                                    Year: <?php echo $calendar_status['current_year']; ?>
-                                <?php endif; ?>
+                            <p style="color: #137333; font-weight: 600; margin: 0; font-size: 16px;">
+                                School is in Session
+                            </p>
+                            <p style="color: #5f6368; margin: 4px 0 0 0; font-size: 14px;">
+                                <?php echo htmlspecialchars($calendar_status['current_term']['term_name']); ?>
+                                (<?php echo date('M j, Y', strtotime($calendar_status['current_term']['start_date'])); ?> - 
+                                <?php echo date('M j, Y', strtotime($calendar_status['current_term']['end_date'])); ?>)
                             </p>
                         </div>
                     </div>
-                </div>
-            <?php endif; ?>
+                <?php else: ?>
+                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+                        <i class="fas fa-calendar-times" style="color: #f9ab00; font-size: 20px;"></i>
+                        <div>
+                            <p style="color: #f9ab00; font-weight: 600; margin: 0; font-size: 16px;">
+                                School is on Break
+                            </p>
+                            <p style="color: #5f6368; margin: 4px 0 0 0; font-size: 14px;">
+                                No active term for current date
+                            </p>
+                        </div>
+                    </div>
+                <?php endif; ?>
+            </div>
         </div>
         
         <!-- Stats Cards -->

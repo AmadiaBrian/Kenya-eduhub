@@ -200,9 +200,9 @@ try {
     $today = date('Y-m-d');
     $current_year = date('Y');
     
-    // Get active term for current year (regardless of date range)
-    $stmt = $pdo->prepare("SELECT * FROM terms WHERE school_id = ? AND year = ? AND is_active = 1");
-    $stmt->execute([$school_id, $current_year]);
+    // Get current term based on actual date range from database (not is_active flag)
+    $stmt = $pdo->prepare("SELECT * FROM terms WHERE school_id = ? AND start_date <= ? AND end_date >= ? ORDER BY year DESC, term_number ASC LIMIT 1");
+    $stmt->execute([$school_id, $today, $today]);
     $current_status['current_term'] = $stmt->fetch();
     
     // Check if today is a holiday
@@ -216,10 +216,10 @@ try {
         // School is closed during holidays
         $current_status['school_status'] = 'holiday';
     } elseif ($current_status['current_term']) {
-        // School is in session if there's an active term and no holiday
+        // School is in session if today falls within a term's date range and no holiday
         $current_status['school_status'] = 'in_session';
     } else {
-        // No active term and no holiday
+        // No term active for today's date and no holiday
         $current_status['school_status'] = 'break';
     }
 } catch (PDOException $e) {
@@ -863,34 +863,62 @@ try {
         <!-- Current Status Card -->
         <div class="card">
             <h2 class="card-title">Current School Status</h2>
-            <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 16px;">
-                <span class="status-badge status-<?php echo $current_status['school_status']; ?>">
+            <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 20px;">
+                <span class="status-badge status-<?php echo $current_status['school_status']; ?>" style="font-size: 14px; padding: 8px 16px;">
                     <?php echo ucfirst(str_replace('_', ' ', $current_status['school_status'])); ?>
                 </span>
-                <span style="color: #5f6368;">
+                <span style="color: #5f6368; font-size: 14px;">
                     <?php echo date('F j, Y'); ?>
                 </span>
             </div>
             
-            <p style="color: #5f6368; margin-bottom: 8px;">
+            <div style="background: #f8f9fa; padding: 16px; border-radius: 8px; border-left: 4px solid <?php echo $current_status['is_holiday'] ? '#c5221f' : '#137333'; ?>;">
+                <?php if ($current_status['is_holiday']): ?>
+                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+                        <i class="fas fa-umbrella-beach" style="color: #c5221f; font-size: 20px;"></i>
+                        <div>
+                            <p style="color: #c5221f; font-weight: 600; margin: 0; font-size: 16px;">
+                                School is on Holiday
+                            </p>
+                            <p style="color: #5f6368; margin: 4px 0 0 0; font-size: 14px;">
+                                <?php echo htmlspecialchars($current_status['current_holiday']['holiday_name']); ?>
+                                (<?php echo date('M j, Y', strtotime($current_status['current_holiday']['start_date'])); ?> - 
+                                <?php echo date('M j, Y', strtotime($current_status['current_holiday']['end_date'])); ?>)
+                            </p>
+                        </div>
+                    </div>
+                <?php elseif ($current_status['current_term']): ?>
+                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+                        <i class="fas fa-school" style="color: #137333; font-size: 20px;"></i>
+                        <div>
+                            <p style="color: #137333; font-weight: 600; margin: 0; font-size: 16px;">
+                                School is in Session
+                            </p>
+                            <p style="color: #5f6368; margin: 4px 0 0 0; font-size: 14px;">
+                                <?php echo htmlspecialchars($current_status['current_term']['term_name']); ?>
+                                (<?php echo date('M j, Y', strtotime($current_status['current_term']['start_date'])); ?> - 
+                                <?php echo date('M j, Y', strtotime($current_status['current_term']['end_date'])); ?>)
+                            </p>
+                        </div>
+                    </div>
+                <?php else: ?>
+                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+                        <i class="fas fa-calendar-times" style="color: #f9ab00; font-size: 20px;"></i>
+                        <div>
+                            <p style="color: #f9ab00; font-weight: 600; margin: 0; font-size: 16px;">
+                                School is on Break
+                            </p>
+                            <p style="color: #5f6368; margin: 4px 0 0 0; font-size: 14px;">
+                                No active term for current date
+                            </p>
+                        </div>
+                    </div>
+                <?php endif; ?>
+            </div>
+            
+            <p style="color: #5f6368; margin-top: 16px; margin-bottom: 8px;">
                 <strong>Current Year:</strong> <?php echo $current_status['current_year']; ?>
             </p>
-            
-            <?php if ($current_status['current_term']): ?>
-                <p style="color: #5f6368; margin-bottom: 8px;">
-                    <strong>Current Term:</strong> <?php echo htmlspecialchars($current_status['current_term']['term_name']); ?>
-                    (<?php echo date('M j, Y', strtotime($current_status['current_term']['start_date'])); ?> - 
-                    <?php echo date('M j, Y', strtotime($current_status['current_term']['end_date'])); ?>)
-                </p>
-            <?php endif; ?>
-            
-            <?php if ($current_status['current_holiday']): ?>
-                <p style="color: #c5221f; margin-bottom: 8px;">
-                    <strong>Holiday:</strong> <?php echo htmlspecialchars($current_status['current_holiday']['holiday_name']); ?>
-                    (<?php echo date('M j, Y', strtotime($current_status['current_holiday']['start_date'])); ?> - 
-                    <?php echo date('M j, Y', strtotime($current_status['current_holiday']['end_date'])); ?>)
-                </p>
-            <?php endif; ?>
         </div>
         
         <!-- Terms -->

@@ -48,9 +48,9 @@ try {
     $today = date('Y-m-d');
     $current_year = date('Y');
     
-    // Get active term for current year
-    $stmt = $pdo->prepare("SELECT * FROM terms WHERE school_id = ? AND year = ? AND is_active = 1");
-    $stmt->execute([$school_id, $current_year]);
+    // Get current term based on actual date range from database (not is_active flag)
+    $stmt = $pdo->prepare("SELECT * FROM terms WHERE school_id = ? AND start_date <= ? AND end_date >= ? ORDER BY year DESC, term_number ASC LIMIT 1");
+    $stmt->execute([$school_id, $today, $today]);
     $current_status['current_term'] = $stmt->fetch();
     
     // Check if today is a holiday
@@ -59,12 +59,14 @@ try {
     $current_status['current_holiday'] = $stmt->fetch();
     $current_status['is_holiday'] = (bool)$current_status['current_holiday'];
     
-    // Determine school status
+    // Determine school status - holidays override term status
     if ($current_status['is_holiday']) {
         $current_status['school_status'] = 'holiday';
     } elseif ($current_status['current_term']) {
+        // School is in session if today falls within a term's date range and no holiday
         $current_status['school_status'] = 'in_session';
     } else {
+        // No term active for today's date and no holiday
         $current_status['school_status'] = 'break';
     }
 } catch (PDOException $e) {
