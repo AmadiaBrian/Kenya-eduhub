@@ -1680,7 +1680,7 @@ try {
                     <i class="fas fa-book"></i>
                     <span>Resources</span>
                 </a>
-                <a href="auth/register.php" class="nav-btn primary">
+                <a href="auth/register" class="nav-btn primary">
                     <i class="fas fa-rocket"></i>
                     <span>Get Started</span>
                 </a>

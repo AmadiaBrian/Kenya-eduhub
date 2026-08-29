@@ -1,5 +1,5 @@
 // API configuration for Parents app
-export const API_BASE_URL = 'https://agitated-silence-02871.pktriot.xyz/kenyaeduhub/parents/api';
+export const API_BASE_URL = 'https://unexplaining-lesli-nonabsolutely.ngrok-free.dev/kenyaeduhub/parents/api';
 
 export interface LoginResponse {
   success: boolean;

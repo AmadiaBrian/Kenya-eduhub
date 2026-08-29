@@ -368,6 +368,19 @@ $csrf_token = generateCSRFLite();
             font-weight: 400;
             color: var(--text-color);
             margin-bottom: 24px;
+            text-align: center;
+        }
+        
+        .dark-mode .page-title {
+            color: #FFD700;
+        }
+        
+        h2 {
+            text-align: center;
+        }
+        
+        .dark-mode h2 {
+            color: #FFD700;
         }
         
         .header {
@@ -503,6 +516,9 @@ $csrf_token = generateCSRFLite();
                 background: var(--card-hover-bg);
                 color: var(--text-color);
                 border: 1px solid #000;
+                width: 100% !important;
+                text-align: center;
+                justify-content: center;
             }
             
             .resource-grid > div .btn-download:hover,
@@ -664,6 +680,7 @@ $csrf_token = generateCSRFLite();
             /* Stat cards mobile optimization */
             .stat-card {
                 padding: 16px !important;
+                text-align: center !important;
             }
             
             .stat-card h3 {
@@ -672,7 +689,7 @@ $csrf_token = generateCSRFLite();
             
             .stat-card > div:first-child {
                 flex-direction: column !important;
-                align-items: flex-start !important;
+                align-items: center !important;
                 gap: 8px !important;
             }
             
@@ -1073,6 +1090,13 @@ $csrf_token = generateCSRFLite();
             margin-bottom: 30px;
         }
         
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 12px !important;
+            }
+        }
+        
         .stat-card {
             background: var(--card-bg);
             border: 1px solid var(--border-color);
@@ -1138,10 +1162,10 @@ $csrf_token = generateCSRFLite();
         <a class="nav-link active" href="dashboard">
             <i class="fas fa-tachometer-alt"></i> Dashboard
         </a>
-        <a class="nav-link" href="resources">
+        <a class="nav-link" href="?section=resources">
             <i class="fas fa-book"></i> My Resources
         </a>
-        <a class="nav-link" href="upload">
+        <a class="nav-link" href="?section=upload">
             <i class="fas fa-upload"></i> Upload Resource
         </a>
         <a class="nav-link" href="https://sites.google.com/view/noteselectricalengineering/home" target="_blank">
@@ -1249,6 +1273,25 @@ $csrf_token = generateCSRFLite();
                     </div>
                 </div>
             </div>
+            <div class="stat-card">
+                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                    <i class="fas fa-star" style="color: #FF6B35; font-size: 24px;"></i>
+                    <div>
+                        <h3><?php echo !empty($all_subject_stats) ? array_key_first($all_subject_stats) : 'N/A'; ?></h3>
+                        <p>Top Subject</p>
+                    </div>
+                </div>
+                <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border-color);">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                        <span style="color: var(--secondary-color); font-size: 12px;">Resources</span>
+                        <span style="color: var(--text-color); font-weight: 500; font-size: 12px;"><?php echo !empty($all_subject_stats) ? $all_subject_stats[array_key_first($all_subject_stats)] : 0; ?></span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <span style="color: var(--secondary-color); font-size: 12px;">Total Subjects</span>
+                        <span style="color: var(--text-color); font-weight: 500; font-size: 12px;"><?php echo count($all_subject_stats); ?></span>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- Quick Links Section -->
@@ -1259,11 +1302,11 @@ $csrf_token = generateCSRFLite();
                     <i class="fas fa-tachometer-alt" style="color: #FF6B35; font-size: 18px;"></i>
                     <span style="font-size: 14px; font-weight: 500;">Dashboard</span>
                 </a>
-                <a href="resources" style="display: flex; align-items: center; gap: 12px; padding: 16px; background: var(--card-hover-bg); border: 1px solid var(--border-color); border-radius: 8px; text-decoration: none; color: var(--text-color); transition: all 0.2s;">
+                <a href="?section=resources" style="display: flex; align-items: center; gap: 12px; padding: 16px; background: var(--card-hover-bg); border: 1px solid var(--border-color); border-radius: 8px; text-decoration: none; color: var(--text-color); transition: all 0.2s;">
                     <i class="fas fa-book" style="color: #FF6B35; font-size: 18px;"></i>
                     <span style="font-size: 14px; font-weight: 500;">My Resources</span>
                 </a>
-                <a href="upload" style="display: flex; align-items: center; gap: 12px; padding: 16px; background: var(--card-hover-bg); border: 1px solid var(--border-color); border-radius: 8px; text-decoration: none; color: var(--text-color); transition: all 0.2s;">
+                <a href="?section=upload" style="display: flex; align-items: center; gap: 12px; padding: 16px; background: var(--card-hover-bg); border: 1px solid var(--border-color); border-radius: 8px; text-decoration: none; color: var(--text-color); transition: all 0.2s;">
                     <i class="fas fa-upload" style="color: #FF6B35; font-size: 18px;"></i>
                     <span style="font-size: 14px; font-weight: 500;">Upload Resource</span>
                 </a>
@@ -1620,7 +1663,7 @@ $csrf_token = generateCSRFLite();
                                     <?php if ($user_upload_count >= 2 || $resource['user_id'] == $user_id): ?>
                                         <a href="#" onclick="downloadResource(<?php echo $resource['id']; ?>, this)" class="btn btn-download">Download</a>
                                     <?php else: ?>
-                                        <button class="btn btn-download" disabled style="background: #f1f3f4; color: #5f6368; border: 1px solid #000; cursor: not-allowed;">
+                                        <button onclick="scrollToUploadSection()" class="btn btn-download" style="background: #f1f3f4; color: #5f6368; border: 1px solid #000;">
                                             <i class="fas fa-lock"></i> Upload 2 resources to unlock
                                         </button>
                                     <?php endif; ?>
@@ -1720,6 +1763,14 @@ $csrf_token = generateCSRFLite();
                 sidebar.classList.remove('show');
             }
         });
+        
+        // Scroll to upload section
+        function scrollToUploadSection() {
+            const uploadSection = document.getElementById('uploadSection');
+            if (uploadSection) {
+                uploadSection.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
         
         // Search and Filter Functionality for My Resources
         const searchMyResources = document.getElementById('searchMyResources');

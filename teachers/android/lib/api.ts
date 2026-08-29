@@ -1,5 +1,5 @@
 // API configuration for Teachers app
-export const API_BASE_URL = 'https://1394-129-222-187-76.ngrok-free.app/kenyaeduhub/teachers/api';
+export const API_BASE_URL = 'https://unexplaining-lesli-nonabsolutely.ngrok-free.dev/kenyaeduhub/teachers/api';
 
 export interface LoginResponse {
   success: boolean;

@@ -9,9 +9,60 @@ $school_name = $_SESSION['school_name'] ?? '';
 // Load calendar helpers
 require_once __DIR__ . '/../includes/calendar_helpers.php';
 
-// Get calendar status to find active term
-$calendar_status = getSchoolCalendarStatus($pdo, $school_id);
-$active_term = $calendar_status['current_term']['term_name'] ?? null;
+// Get active term based on date ranges (ignoring holiday status)
+$today = date('Y-m-d');
+try {
+    $stmt = $pdo->prepare("SELECT term_name FROM terms WHERE school_id = ? AND start_date <= ? AND end_date >= ? ORDER BY year DESC, term_number ASC LIMIT 1");
+    $stmt->execute([$school_id, $today, $today]);
+    $active_term_record = $stmt->fetch();
+    $active_term = $active_term_record['term_name'] ?? null;
+} catch (PDOException $e) {
+    error_log("Failed to get active term by date: " . $e->getMessage());
+    $active_term = null;
+}
+
+// If no active term (likely on holiday), find the nearest term to the holiday
+if (!$active_term) {
+    try {
+        // Get current holiday
+        $stmt = $pdo->prepare("SELECT * FROM holidays WHERE school_id = ? AND start_date <= ? AND end_date >= ? AND is_active = 1");
+        $stmt->execute([$school_id, $today, $today]);
+        $holiday = $stmt->fetch();
+        
+        if ($holiday) {
+            // Find the term that ends closest to the holiday start (term before holiday)
+            $stmt = $pdo->prepare("SELECT term_name, end_date, ABS(DATEDIFF(end_date, ?)) as distance 
+                                   FROM terms 
+                                   WHERE school_id = ? AND end_date <= ? 
+                                   ORDER BY distance ASC 
+                                   LIMIT 1");
+            $stmt->execute([$holiday['start_date'], $school_id, $holiday['start_date']]);
+            $term_before = $stmt->fetch();
+            
+            // Find the term that starts closest to the holiday end (term after holiday)
+            $stmt = $pdo->prepare("SELECT term_name, start_date, ABS(DATEDIFF(start_date, ?)) as distance 
+                                   FROM terms 
+                                   WHERE school_id = ? AND start_date >= ? 
+                                   ORDER BY distance ASC 
+                                   LIMIT 1");
+            $stmt->execute([$holiday['end_date'], $school_id, $holiday['end_date']]);
+            $term_after = $stmt->fetch();
+            
+            // Choose the closer term
+            if ($term_before && $term_after) {
+                $distance_before = abs(strtotime($term_before['end_date']) - strtotime($holiday['start_date']));
+                $distance_after = abs(strtotime($term_after['start_date']) - strtotime($holiday['end_date']));
+                $active_term = ($distance_before < $distance_after) ? $term_before['term_name'] : $term_after['term_name'];
+            } elseif ($term_before) {
+                $active_term = $term_before['term_name'];
+            } elseif ($term_after) {
+                $active_term = $term_after['term_name'];
+            }
+        }
+    } catch (PDOException $e) {
+        error_log("Failed to find nearest term to holiday: " . $e->getMessage());
+    }
+}
 
 // Get terms from database for current year
 $terms = [];
@@ -32,13 +83,43 @@ if (empty($terms)) {
     $terms = ['Term 1', 'Term 2', 'Term 3'];
 }
 
-// Use active term if available, otherwise use first term
+// Use active term from calendar helpers (date-based), otherwise use first term
 $current_term = $active_term ?? ($terms[0] ?? 'Term 1');
 
 $selected_child_id = $_GET['child_id'] ?? null;
 $view_mode = $_GET['view'] ?? 'children'; // 'children' or 'class'
 
-// Get children of this parent (EXACT same query as fees.php)
+// Get exam types for the school
+$exam_types = [];
+try {
+    $stmt = $pdo->prepare("SELECT * FROM exam_types WHERE school_id = ? AND is_active = 1 ORDER BY exam_type_name");
+    $stmt->execute([$school_id]);
+    $exam_types = $stmt->fetchAll();
+} catch (PDOException $e) {
+    error_log("Failed to fetch exam types: " . $e->getMessage());
+}
+
+// Get grading scales for the school
+$grading_scales = [];
+try {
+    $stmt = $pdo->prepare("SELECT gs.*, s.subject_name, s.id as subject_db_id, s.school_id as subject_school_id
+                          FROM grading_scales gs
+                          LEFT JOIN subjects s ON gs.subject_id = s.id
+                          WHERE gs.school_id = ?
+                          ORDER BY gs.subject_id, gs.min_score");
+    $stmt->execute([$school_id]);
+    $grading_scales = $stmt->fetchAll();
+} catch (PDOException $e) {
+    error_log("Failed to fetch grading scales: " . $e->getMessage());
+}
+
+// Get filter parameters
+$filter_term = $_GET['term'] ?? $current_term;
+$filter_year = $_GET['year'] ?? date('Y');
+$filter_exam_type = $_GET['exam_type'] ?? '';
+$filter_child_id = $_GET['child_id'] ?? '';
+
+// Get children of this parent
 try {
     $stmt = $pdo->prepare("SELECT s.*, c.class_name, st.stream_name 
                            FROM students s
@@ -50,31 +131,39 @@ try {
     $stmt->execute([$parent_id]);
     $children = $stmt->fetchAll();
     
-    error_log("Found " . count($children) . " children via student_parents table (same as dashboard)");
-    foreach ($children as $child) {
-        error_log("Child ID: {$child['id']}, Name: {$child['first_name']} {$child['last_name']}");
-    }
+    error_log("Found " . count($children) . " children for parent");
     
-    // Get performance data for all children (same logic as dashboard)
+    // Get performance data based on filters
     $performance_data = [];
-    $current_year = date('Y');
     
     foreach ($children as $child) {
-        error_log("Checking performance for child ID: " . $child['id']);
-        $stmt = $pdo->prepare("SELECT ap.*, et.exam_type_name, et.exam_type_code,
-                                            (SELECT gs.points FROM grading_scales gs
-                                            WHERE gs.school_id = ?
-                                            AND ap.marks BETWEEN gs.min_score AND gs.max_score
-                                            AND UPPER(ap.grade) = UPPER(gs.grade_name)
-                                            LIMIT 1) as grade_points
-                               FROM academic_performance ap
-                               LEFT JOIN exam_types et ON ap.exam_type_id = et.id
-                               WHERE ap.student_id = ? AND ap.term = ? AND ap.year = ?
-                               ORDER BY ap.created_at DESC");
-        $stmt->execute([$school_id, $child['id'], $current_term, $current_year]);
-        $child_performance = $stmt->fetchAll();
+        // Skip if specific child selected and this is not that child
+        if ($filter_child_id && $child['id'] != $filter_child_id) {
+            continue;
+        }
         
-        error_log("Performance records for child {$child['id']}: " . count($child_performance));
+        $query = "SELECT ap.*, et.exam_type_name, et.exam_type_code,
+                            (SELECT gs.points FROM grading_scales gs
+                            WHERE gs.school_id = ?
+                            AND ap.marks BETWEEN gs.min_score AND gs.max_score
+                            AND UPPER(ap.grade) = UPPER(gs.grade_name)
+                            LIMIT 1) as grade_points
+                   FROM academic_performance ap
+                   LEFT JOIN exam_types et ON ap.exam_type_id = et.id
+                   WHERE ap.student_id = ? AND ap.term = ? AND ap.year = ?";
+        
+        $params = [$school_id, $child['id'], $filter_term, $filter_year];
+        
+        if ($filter_exam_type) {
+            $query .= " AND ap.exam_type_id = ?";
+            $params[] = $filter_exam_type;
+        }
+        
+        $query .= " ORDER BY ap.created_at DESC";
+        
+        $stmt = $pdo->prepare($query);
+        $stmt->execute($params);
+        $child_performance = $stmt->fetchAll();
         
         if (!empty($child_performance)) {
             $performance_data[$child['id']] = [
@@ -86,31 +175,10 @@ try {
     
     error_log("Total children with performance: " . count($performance_data));
     
-    // Get class performance if requested
-    $class_performance = [];
-    if ($view_mode === 'class' && !empty($children)) {
-        $class_id = $children[0]['class_id'];
-        if ($class_id) {
-            $stmt = $pdo->prepare("SELECT ap.*, s.first_name, s.last_name, et.exam_type_name, et.exam_type_code,
-                                            (SELECT gs.points FROM grading_scales gs
-                                            WHERE gs.school_id = ?
-                                            AND ap.marks BETWEEN gs.min_score AND gs.max_score
-                                            AND UPPER(ap.grade) = UPPER(gs.grade_name)
-                                            LIMIT 1) as grade_points
-                                   FROM academic_performance ap
-                                   JOIN students s ON ap.student_id = s.id
-                                   LEFT JOIN exam_types et ON ap.exam_type_id = et.id
-                                   WHERE ap.student_id IN (SELECT id FROM students WHERE class_id = ?)
-                                   ORDER BY ap.created_at DESC");
-            $stmt->execute([$school_id, $class_id]);
-            $class_performance = $stmt->fetchAll();
-        }
-    }
 } catch (PDOException $e) {
     error_log("Failed to fetch performance data: " . $e->getMessage());
     $children = [];
     $performance_data = [];
-    $class_performance = [];
 }
 ?>
 <!DOCTYPE html>
@@ -677,14 +745,48 @@ try {
         </p>
         
         <div class="card">
-            <h2 class="card-title">View Options</h2>
-            <div style="display: flex; gap: 16px;">
-                <a href="performance?view=children" class="btn <?php echo $view_mode === 'children' ? 'btn-primary' : 'btn-outline'; ?>">
-                    <i class="fas fa-child"></i> My Children's Results
-                </a>
-                <a href="performance?view=class" class="btn <?php echo $view_mode === 'class' ? 'btn-primary' : 'btn-outline'; ?>">
-                    <i class="fas fa-users"></i> Class Performance
-                </a>
+            <h2 class="card-title">Filter Performance Records</h2>
+            <div class="filters">
+                <div class="filter-group">
+                    <label>Select Child</label>
+                    <select class="form-control" id="childFilter" onchange="applyFilters()">
+                        <option value="">All Children</option>
+                        <?php foreach ($children as $child): ?>
+                            <option value="<?php echo $child['id']; ?>" <?php echo $filter_child_id == $child['id'] ? 'selected' : ''; ?>>
+                                <?php echo htmlspecialchars($child['first_name'] . ' ' . $child['last_name']); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Term</label>
+                    <select class="form-control" id="termFilter" onchange="applyFilters()">
+                        <?php foreach ($terms as $term): ?>
+                            <option value="<?php echo htmlspecialchars($term); ?>" <?php echo $filter_term === $term ? 'selected' : ''; ?>>
+                                <?php echo htmlspecialchars($term); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Year</label>
+                    <select class="form-control" id="yearFilter" onchange="applyFilters()">
+                        <?php for ($y = date('Y'); $y >= date('Y') - 2; $y--): ?>
+                            <option value="<?php echo $y; ?>" <?php echo $filter_year == $y ? 'selected' : ''; ?>><?php echo $y; ?></option>
+                        <?php endfor; ?>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Exam Type</label>
+                    <select class="form-control" id="examTypeFilter" onchange="applyFilters()">
+                        <option value="">All Exam Types</option>
+                        <?php foreach ($exam_types as $exam_type): ?>
+                            <option value="<?php echo $exam_type['id']; ?>" <?php echo $filter_exam_type == $exam_type['id'] ? 'selected' : ''; ?>>
+                                <?php echo htmlspecialchars($exam_type['exam_type_name']); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
             </div>
         </div>
         
@@ -731,24 +833,25 @@ try {
             </div>
         </div>
         
-        <?php if ($view_mode === 'children'): ?>
-            <?php if (empty($performance_data)): ?>
-                <div class="card">
-                    <p class="text-muted">No performance records found for your children.</p>
-                </div>
-            <?php else: ?>
-                <?php foreach ($performance_data as $child_id => $data): ?>
-                    <div class="pdf-document">
-                        <div class="pdf-header">
-                            <div class="pdf-title">Student Performance Report</div>
-                            <div class="pdf-subtitle">
-                                <?php echo htmlspecialchars($data['child']['first_name'] . ' ' . $data['child']['last_name']); ?>
-                            </div>
-                            <div class="pdf-info">
-                                Class: <?php echo htmlspecialchars($data['child']['class_name'] ?? 'No Class'); ?> | 
-                                Year: <?php echo $current_year; ?>
-                            </div>
+        <?php if (empty($performance_data)): ?>
+            <div class="card">
+                <p class="text-muted">No performance records found for your children with the selected filters.</p>
+            </div>
+        <?php else: ?>
+            <?php foreach ($performance_data as $child_id => $data): ?>
+                <div class="pdf-document">
+                    <div class="pdf-header">
+                        <div class="pdf-title">Student Performance Report</div>
+                        <div class="pdf-subtitle">
+                            <?php echo htmlspecialchars($data['child']['first_name'] . ' ' . $data['child']['last_name']); ?>
                         </div>
+                        <div class="pdf-info">
+                            Class: <?php echo htmlspecialchars($data['child']['class_name'] ?? 'No Class'); ?> | 
+                            Stream: <?php echo htmlspecialchars($data['child']['stream_name'] ?? 'No Stream'); ?> | 
+                            Term: <?php echo htmlspecialchars($filter_term); ?> | 
+                            Year: <?php echo htmlspecialchars($filter_year); ?>
+                        </div>
+                    </div>
                         
                         <?php 
                         // Check if there are multiple terms
@@ -860,137 +963,6 @@ try {
                     </div>
                 <?php endforeach; ?>
             <?php endif; ?>
-        <?php else: ?>
-            <?php if (empty($class_performance)): ?>
-                <div class="card">
-                    <p class="text-muted">No class performance records found.</p>
-                </div>
-            <?php else: ?>
-                <div class="pdf-document">
-                    <div class="pdf-header">
-                        <div class="pdf-title">Class Performance Report</div>
-                        <div class="pdf-subtitle">
-                            <?php echo htmlspecialchars($children[0]['class_name'] ?? 'Class'); ?>
-                        </div>
-                        <div class="pdf-info">
-                            Year: <?php echo $current_year; ?>
-                        </div>
-                    </div>
-                    
-                    <?php 
-                    // Check if there are multiple terms
-                    $terms = array_unique(array_column($class_performance, 'term'));
-                    $hasMultipleTerms = count($terms) > 1;
-                    
-                    if ($hasMultipleTerms) {
-                        // Group by term
-                        $groupedByTerm = [];
-                        foreach ($class_performance as $record) {
-                            $term = $record['term'] ?? 'No Term';
-                            if (!isset($groupedByTerm[$term])) {
-                                $groupedByTerm[$term] = [];
-                            }
-                            $groupedByTerm[$term][] = $record;
-                        }
-                        ksort($groupedByTerm); // Sort terms alphabetically
-                    }
-                    ?>
-                    
-                    <?php if ($hasMultipleTerms): ?>
-                        <div style="display: flex; flex-direction: column; gap: 20px;">
-                            <?php foreach ($groupedByTerm as $term => $records): ?>
-                                <div class="card">
-                                    <div class="card-header" style="background-color: #e8f0fe; font-weight: bold;">
-                                        <i class="fas fa-calendar"></i> <?php echo htmlspecialchars($term); ?> (<?php echo count($records); ?> records)
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="table-responsive" style="overflow-x: auto;">
-                                            <table class="table">
-                                                <thead>
-                                                    <tr>
-                                                        <th>Student</th>
-                                                        <th>Subject</th>
-                                                        <th>Exam Type</th>
-                                                        <th>Marks</th>
-                                                        <th>Grade</th>
-                                                        <th>Points</th>
-                                                        <th>Remarks</th>
-                                                        <th>Date</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    <?php foreach ($records as $record): ?>
-                                                        <tr>
-                                                            <td><?php echo htmlspecialchars($record['first_name'] . ' ' . $record['last_name']); ?></td>
-                                                            <td><?php echo htmlspecialchars($record['subject']); ?></td>
-                                                            <td><?php echo htmlspecialchars($record['exam_type_name'] ?? '-'); ?></td>
-                                                            <td><?php echo number_format($record['marks'], 2); ?></td>
-                                                            <td>
-                                                                <span class="grade-badge <?php
-                                                                    $grade = strtoupper($record['grade']);
-                                                                    echo 'grade-' . strtolower($grade);
-                                                                ?>">
-                                                                    <?php echo htmlspecialchars($grade); ?>
-                                                                </span>
-                                                            </td>
-                                                            <td><strong><?php echo $record['grade_points'] ?? '-'; ?></strong></td>
-                                                            <td><?php echo htmlspecialchars($record['remarks'] ?? '-'); ?></td>
-                                                            <td><?php echo date('M d, Y', strtotime($record['created_at'])); ?></td>
-                                                        </tr>
-                                                    <?php endforeach; ?>
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
-                                </div>
-                            <?php endforeach; ?>
-                        </div>
-                    <?php else: ?>
-                        <div class="table-responsive" style="overflow-x: auto;">
-                            <table class="table">
-                                <thead>
-                                    <tr>
-                                        <th>Student</th>
-                                        <th>Subject</th>
-                                        <th>Exam Type</th>
-                                        <th>Marks</th>
-                                        <th>Grade</th>
-                                        <th>Points</th>
-                                        <th>Remarks</th>
-                                        <th>Date</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php foreach ($class_performance as $record): ?>
-                                        <tr>
-                                            <td><?php echo htmlspecialchars($record['first_name'] . ' ' . $record['last_name']); ?></td>
-                                            <td><?php echo htmlspecialchars($record['subject']); ?></td>
-                                            <td><?php echo htmlspecialchars($record['exam_type_name'] ?? '-'); ?></td>
-                                            <td><?php echo number_format($record['marks'], 2); ?></td>
-                                            <td>
-                                                <span class="grade-badge <?php
-                                                    $grade = strtoupper($record['grade']);
-                                                    echo 'grade-' . strtolower($grade);
-                                                ?>">
-                                                    <?php echo htmlspecialchars($grade); ?>
-                                                </span>
-                                            </td>
-                                            <td><strong><?php echo $record['grade_points'] ?? '-'; ?></strong></td>
-                                            <td><?php echo htmlspecialchars($record['remarks'] ?? '-'); ?></td>
-                                            <td><?php echo date('M d, Y', strtotime($record['created_at'])); ?></td>
-                                        </tr>
-                                    <?php endforeach; ?>
-                                </tbody>
-                            </table>
-                        </div>
-                    <?php endif; ?>
-                    
-                    <div class="pdf-footer">
-                        Generated on <?php echo date('F d, Y g:i A'); ?> | Kenya EduHub Performance System
-                    </div>
-                </div>
-            <?php endif; ?>
-        <?php endif; ?>
     </main>
     
     <script>
@@ -1000,6 +972,24 @@ try {
             sidebar.classList.toggle('collapsed');
             sidebar.classList.toggle('show');
             mainContent.classList.toggle('expanded');
+        }
+        
+        function applyFilters() {
+            const childId = document.getElementById('childFilter').value;
+            const term = document.getElementById('termFilter').value;
+            const year = document.getElementById('yearFilter').value;
+            const examType = document.getElementById('examTypeFilter').value;
+            
+            let url = 'performance?';
+            const params = [];
+            
+            if (childId) params.push('child_id=' + encodeURIComponent(childId));
+            if (term) params.push('term=' + encodeURIComponent(term));
+            if (year) params.push('year=' + encodeURIComponent(year));
+            if (examType) params.push('exam_type=' + encodeURIComponent(examType));
+            
+            url += params.join('&');
+            window.location.href = url;
         }
     </script>
     <script src="../assets/js/notifications.js"></script>
