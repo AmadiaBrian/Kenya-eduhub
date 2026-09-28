@@ -1,0 +1,9 @@
+Script started at 2026-09-28 16:48:16
+Request method: POST
+Session school_id: not set
+After session_start
+Config loaded
+PHPMailer loaded
+Authentication passed with school_id: 1
+[28-Sep-2026 16:48:16 Europe/Berlin] Found parent emails: 1
+[28-Sep-2026 16:48:26 Europe/Berlin] Email sending error for otienobrian029@gmail.com: SMTP Error: Could not authenticate.

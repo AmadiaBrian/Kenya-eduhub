@@ -57,6 +57,7 @@ $active_schools = count(array_filter($schools, fn($s) => $s['status'] === 'activ
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#FF6B35">
     <title>Schools Management - Kenya EduHub</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
@@ -64,11 +65,27 @@ $active_schools = count(array_filter($schools, fn($s) => $s['status'] === 'activ
     <style>
         :root {
             --primary-color: #1a73e8;
+            --primary-orange: #FF6B35;
+            --primary-gold: #FFD700;
             --secondary-color: #5f6368;
             --bg-color: #f8f9fa;
-            --card-bg: #ffffff;
+            --card-bg: #f8f9fa;
             --sidebar-width: 256px;
             --header-height: 64px;
+            --text-color: #202124;
+            --border-color: #e8eaed;
+            --form-border-color: #dadce0;
+            --card-hover-bg: #f8f9fa;
+        }
+
+        .dark-mode {
+            --bg-color: #1a1a1a;
+            --card-bg: #1a1a1a;
+            --text-color: #e8eaed;
+            --secondary-color: #ffffff;
+            --border-color: #2a2a2a;
+            --form-border-color: #2a2a2a;
+            --card-hover-bg: #252525;
         }
         
         * {
@@ -81,7 +98,8 @@ $active_schools = count(array_filter($schools, fn($s) => $s['status'] === 'activ
             background: var(--bg-color);
             font-family: 'Google Sans', 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             font-size: 14px;
-            color: #202124;
+            color: var(--text-color);
+            transition: background 0.3s ease, color 0.3s ease;
         }
         
         .sidebar {
@@ -91,8 +109,9 @@ $active_schools = count(array_filter($schools, fn($s) => $s['status'] === 'activ
             width: var(--sidebar-width);
             height: calc(100vh - var(--header-height));
             background: var(--bg-color);
+            border-right: 1px solid var(--border-color);
             overflow-y: auto;
-            transition: transform 0.3s ease;
+            transition: transform 0.3s ease, background 0.3s ease, border-color 0.3s ease;
             z-index: 999;
             scrollbar-width: none;
             -ms-overflow-style: none;
@@ -169,13 +188,30 @@ $active_schools = count(array_filter($schools, fn($s) => $s['status'] === 'activ
             background: #e8f0fe;
             color: var(--primary-color);
         }
+
+        .dark-mode .nav-link:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .dark-mode .nav-link.active {
+            background: rgba(26, 115, 232, 0.2);
+            color: #8ab4f8;
+        }
+
+        .dark-mode .nav-link {
+            color: #ffffff;
+        }
         
         .nav-link i {
             margin-right: 12px;
             font-size: 18px;
             width: 24px;
             text-align: center;
-            color: #FF6B35;
+            color: var(--primary-orange);
+        }
+
+        .nav-link.active i {
+            color: var(--primary-color);
         }
         
         .main-content {
@@ -192,8 +228,9 @@ $active_schools = count(array_filter($schools, fn($s) => $s['status'] === 'activ
         .page-title {
             font-size: 22px;
             font-weight: 400;
-            color: #202124;
+            color: var(--text-color);
             margin-bottom: 24px;
+            text-align: center;
         }
         
         .header {
@@ -224,10 +261,47 @@ $active_schools = count(array_filter($schools, fn($s) => $s['status'] === 'activ
             border-radius: 50%;
             color: #5f6368;
             transition: background 0.2s;
+            font-size: 18px;
         }
-        
+
         .menu-btn:hover {
             background: #f1f3f4;
+        }
+
+        .dark-mode .menu-btn {
+            color: var(--primary-gold);
+            font-size: 22px;
+        }
+
+        .dark-mode .menu-btn:hover {
+            background: rgba(255, 215, 0, 0.1);
+        }
+
+        /* Dark mode toggle button */
+        .dark-mode-toggle {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 12px;
+            border-radius: 50%;
+            color: var(--secondary-color);
+            transition: background 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .dark-mode-toggle:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .dark-mode .dark-mode-toggle {
+            color: var(--primary-gold);
+        }
+
+        .dark-mode .dark-mode-toggle:hover {
+            background: rgba(255, 215, 0, 0.1);
         }
         
         .logo {
@@ -267,11 +341,11 @@ $active_schools = count(array_filter($schools, fn($s) => $s['status'] === 'activ
             .sidebar {
                 transform: translateX(-256px);
             }
-            
+
             .sidebar.show {
                 transform: translateX(0);
             }
-            
+
             .main-content {
                 margin-left: 0;
                 padding: 16px;
@@ -281,50 +355,108 @@ $active_schools = count(array_filter($schools, fn($s) => $s['status'] === 'activ
         
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
         }
-        
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 16px !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .stats-grid {
+                grid-template-columns: 1fr !important;
+                gap: 16px !important;
+            }
+        }
+
         .stat-card {
-            background: transparent;
-            padding: 25px;
+            background: #ffffff;
+            border: 1px solid #dadce0;
             border-radius: 8px;
-            border: 1px solid #e8eaed;
+            padding: 20px;
+            text-align: left;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+            transition: box-shadow 0.3s ease;
         }
-        
+
+        .stat-card:hover {
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+        }
+
         .stat-card h3 {
-            font-size: 36px;
-            font-weight: 400;
-            color: var(--primary-color);
-            margin-bottom: 5px;
+            font-size: 32px;
+            font-weight: 700;
+            color: #202124;
+            margin-bottom: 4px;
         }
-        
+
         .stat-card p {
             font-size: 14px;
-            color: var(--secondary-color);
+            color: #5f6368;
+            margin: 0;
+            font-weight: 500;
+        }
+
+        .stat-card i {
+            color: var(--primary-orange);
+        }
+
+        /* Dark mode stat cards */
+        .dark-mode .stat-card {
+            background: var(--card-bg);
+            border: 1px solid var(--primary-gold);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+        }
+
+        .dark-mode .stat-card:hover {
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
+        }
+
+        .dark-mode .stat-card h3 {
+            color: #ffffff;
+            text-shadow: none;
+        }
+
+        .dark-mode .stat-card p {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .dark-mode .stat-card i {
+            color: var(--primary-orange) !important;
+            filter: none;
         }
         
         .card {
-            background: transparent;
+            background: var(--card-bg);
             border-radius: 8px;
-            border: 1px solid #e8eaed;
+            border: 1px solid var(--border-color);
             overflow: hidden;
+            transition: background 0.3s ease, border-color 0.3s ease;
         }
-        
+
         .card-header {
             background: transparent;
             padding: 20px 25px;
-            border-bottom: 1px solid #e8eaed;
+            border-bottom: 1px solid var(--border-color);
             display: flex;
-            justify-content: space-between;
+            justify-content: center;
             align-items: center;
         }
-        
+
         .card-header h2 {
             font-size: 20px;
             font-weight: 500;
-            color: #202124;
+            color: var(--text-color);
+            text-align: center;
+        }
+
+        .dark-mode .card-header h2 {
+            color: var(--text-color);
         }
         
         .btn {
@@ -334,69 +466,123 @@ $active_schools = count(array_filter($schools, fn($s) => $s['status'] === 'activ
             cursor: pointer;
             font-size: 14px;
             font-weight: 500;
-            transition: background 0.2s;
+            transition: all 0.3s ease;
+            width: 100%;
         }
-        
+
         .btn-primary {
-            background: #FF6B35;
+            background: var(--primary-orange);
             color: white;
         }
-        
+
         .btn-primary:hover {
             background: #e55a2b;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 107, 53, 0.4);
         }
-        
+
         .btn-sm {
             padding: 6px 12px;
             font-size: 12px;
+            width: auto;
         }
-        
+
         .btn-action {
-            background: #f8f9fa;
-            color: #000;
+            background: #f1f3f4;
+            color: #202124;
             border: 1px solid #000;
             cursor: pointer;
+            transition: all 0.3s ease;
         }
-        
+
         .btn-action:hover {
             background: #e9ecef;
+            transform: translateY(-2px);
+        }
+
+        /* Dark mode buttons */
+        .dark-mode .btn-action {
+            background: #252525;
+            color: #ffffff;
+            border: 1px solid var(--primary-gold);
+        }
+
+        .dark-mode .btn-action:hover {
+            background: #3a3a3a;
         }
 
         .table-responsive {
             overflow-x: auto;
         }
-        
+
         table {
             width: 100%;
             border-collapse: collapse;
             background: white;
-            border: 1px solid #000;
+            border: 2px solid #000;
+            font-family: 'Times New Roman', Times, serif;
         }
-        
+
         thead {
             background: #f0f0f0;
             border-bottom: 2px solid #000;
         }
-        
+
         th {
             padding: 12px 15px;
             text-align: left;
-            font-weight: 500;
-            font-size: 13px;
+            font-weight: bold;
+            font-size: 14px;
             color: #000;
             border: 1px solid #000;
             border-bottom: 2px solid #000;
+            background: #f0f0f0;
         }
-        
+
         td {
             padding: 12px 15px;
-            font-size: 13px;
+            font-size: 12px;
             border: 1px solid #000;
             color: #000;
+            font-family: 'Times New Roman', Times, serif;
         }
-        
+
+        tbody tr:nth-child(even) {
+            background: #fafafa;
+        }
+
         tbody tr:hover {
-            background: #f8f9fa;
+            background: #e8e8e8;
+        }
+
+        /* Dark mode PDF table */
+        .dark-mode table {
+            border: 2px solid var(--primary-gold);
+            background: #1a1a1a;
+        }
+
+        .dark-mode thead {
+            background: #252525;
+            border-bottom: 2px solid var(--primary-gold);
+        }
+
+        .dark-mode th {
+            border: 1px solid var(--primary-gold);
+            color: #ffffff;
+            background: #252525;
+        }
+
+        .dark-mode td {
+            border: 1px solid var(--primary-gold);
+            color: #ffffff;
+        }
+
+        .dark-mode tbody tr:nth-child(even) {
+            background: #2a2a2a;
+        }
+
+        .dark-mode tbody tr:hover {
+            background: #3a3a3a;
         }
         
         .status-badge {
@@ -434,85 +620,14 @@ $active_schools = count(array_filter($schools, fn($s) => $s['status'] === 'activ
 </head>
 <body>
     <!-- Header -->
-    <header class="header">
-        <div class="header-left">
-            <button class="menu-btn" onclick="toggleSidebar()">
-                <i class="fas fa-bars"></i>
-            </button>
-            <div class="logo">
-                <div style="width: 40px; height: 40px; background: #FFD700; border: 3px solid #FF6B35; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 0;">
-                    <span style="font-weight: bold; font-size: 20px;">
-                        <span style="color: #FF6B35; font-size: 24px;">K</span><span style="color: #008000; font-size: 20px;">E</span>
-                    </span>
-                </div>
-                <span style="color: #FF6B35; font-weight: bold;">Kenya</span> <span style="color: #008000; font-weight: bold;">EduHub</span>
-            </div>
-        </div>
-        <div class="header-right">
-            <div class="user-avatar">
-                <?php echo strtoupper(substr($user['name'] ?? 'A', 0, 1)); ?>
-            </div>
-        </div>
-    </header>
+    <?php require_once '../includes/header.php'; ?>
     
     <!-- Sidebar -->
-    <aside class="sidebar" id="sidebar">
-        <div class="sidebar-section">
-            <div class="sidebar-title" onclick="toggleSidebarSection(this)">
-                Main <i class="fas fa-chevron-down chevron"></i>
-            </div>
-            <div class="sidebar-links">
-                <a class="nav-link" href="../dashboard">
-                    <i class="fas fa-tachometer-alt"></i> Dashboard
-                </a>
-                <a class="nav-link active" href="../schools">
-                    <i class="fas fa-school"></i> Schools
-                </a>
-            </div>
-        </div>
-        
-        <div class="sidebar-section">
-            <div class="sidebar-title" onclick="toggleSidebarSection(this)">
-                Management <i class="fas fa-chevron-down chevron"></i>
-            </div>
-            <div class="sidebar-links">
-                <a class="nav-link" href="../users">
-                    <i class="fas fa-users"></i> Users
-                </a>
-                <a class="nav-link" href="../resources">
-                    <i class="fas fa-book"></i> Resources
-                </a>
-            </div>
-        </div>
-        
-        <div class="sidebar-section">
-            <div class="sidebar-title" onclick="toggleSidebarSection(this)">
-                Reports <i class="fas fa-chevron-down chevron"></i>
-            </div>
-            <div class="sidebar-links">
-                <a class="nav-link" href="../reports">
-                    <i class="fas fa-chart-bar"></i> Reports
-                </a>
-                <a class="nav-link" href="../logs">
-                    <i class="fas fa-file-alt"></i> Logs
-                </a>
-            </div>
-        </div>
-        
-        <div class="sidebar-section">
-            <div class="sidebar-title" onclick="toggleSidebarSection(this)">
-                Settings <i class="fas fa-chevron-down chevron"></i>
-            </div>
-            <div class="sidebar-links">
-                <a class="nav-link" href="../settings">
-                    <i class="fas fa-cog"></i> Settings
-                </a>
-                <a class="nav-link" href="../logout">
-                    <i class="fas fa-sign-out-alt"></i> Logout
-                </a>
-            </div>
-        </div>
-    </aside>
+    <?php 
+    $active_page = 'schools';
+    $in_subdirectory = true;
+    require_once '../includes/sidebar.php'; 
+    ?>
     
     <!-- Main Content -->
     <main class="main-content" id="mainContent">
@@ -521,20 +636,40 @@ $active_schools = count(array_filter($schools, fn($s) => $s['status'] === 'activ
         <!-- Statistics -->
         <div class="stats-grid">
             <div class="stat-card">
-                <h3><?php echo $total_schools; ?></h3>
-                <p>Total Schools</p>
+                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                    <i class="fas fa-school" style="color: #FF6B35; font-size: 28px;"></i>
+                    <div>
+                        <h3><?php echo $total_schools; ?></h3>
+                        <p>Total Schools</p>
+                    </div>
+                </div>
             </div>
             <div class="stat-card">
-                <h3><?php echo $active_schools; ?></h3>
-                <p>Active Schools</p>
+                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                    <i class="fas fa-check-circle" style="color: #FF6B35; font-size: 28px;"></i>
+                    <div>
+                        <h3><?php echo $active_schools; ?></h3>
+                        <p>Active Schools</p>
+                    </div>
+                </div>
             </div>
             <div class="stat-card">
-                <h3><?php echo $total_students; ?></h3>
-                <p>Total Students</p>
+                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                    <i class="fas fa-user-graduate" style="color: #FF6B35; font-size: 28px;"></i>
+                    <div>
+                        <h3><?php echo $total_students; ?></h3>
+                        <p>Total Students</p>
+                    </div>
+                </div>
             </div>
             <div class="stat-card">
-                <h3><?php echo $total_teachers; ?></h3>
-                <p>Total Teachers</p>
+                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                    <i class="fas fa-chalkboard-teacher" style="color: #FF6B35; font-size: 28px;"></i>
+                    <div>
+                        <h3><?php echo $total_teachers; ?></h3>
+                        <p>Total Teachers</p>
+                    </div>
+                </div>
             </div>
         </div>
         
@@ -616,13 +751,42 @@ $active_schools = count(array_filter($schools, fn($s) => $s['status'] === 'activ
     
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        // Dark mode toggle
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+            const toggleBtn = document.querySelector('.dark-mode-toggle i');
+            if (toggleBtn) {
+                toggleBtn.classList.toggle('fa-moon');
+                toggleBtn.classList.toggle('fa-sun');
+            }
+            localStorage.setItem('darkMode', document.body.classList.contains('dark-mode') ? 'dark' : 'light');
+        }
+
+        // Load saved dark mode preference
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedDarkMode = localStorage.getItem('darkMode');
+            if (savedDarkMode === 'dark') {
+                document.body.classList.add('dark-mode');
+                const toggleBtn = document.querySelector('.dark-mode-toggle i');
+                if (toggleBtn) {
+                    toggleBtn.classList.remove('fa-moon');
+                    toggleBtn.classList.add('fa-sun');
+                }
+            }
+        });
+
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
             const mainContent = document.getElementById('mainContent');
-            sidebar.classList.toggle('collapsed');
-            mainContent.classList.toggle('expanded');
+
+            if (window.innerWidth <= 768) {
+                sidebar.classList.toggle('show');
+            } else {
+                sidebar.classList.toggle('collapsed');
+                mainContent.classList.toggle('expanded');
+            }
         }
-        
+
         function toggleSidebarSection(element) {
             element.classList.toggle('collapsed');
             const links = element.nextElementSibling;
@@ -834,13 +998,6 @@ $active_schools = count(array_filter($schools, fn($s) => $s['status'] === 'activ
     </div>
 
     <!-- Footer -->
-    <footer style="background: transparent; color: #5f6368; padding: 2rem; text-align: center; border-top: 1px solid #e8eaed; margin-top: 40px;">
-        <p style="margin: 0;">
-            <span style="color: #FF6B35;">&copy; 2026</span>
-            <span style="color: #FF6B35;">Kenya</span>
-            <span style="color: #008000;">EduHub</span>
-            <span style="color: #5f6368;">. All rights reserved.</span>
-        </p>
-    </footer>
+    <?php require_once '../../includes/copywrite.php'; ?>
 </body>
 </html>

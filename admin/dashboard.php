@@ -33,6 +33,7 @@ $user_id = $_SESSION['user_id'];
 $total_users = 0;
 $total_resources = 0;
 $total_downloads = 0;
+$recent_uploads = 0;
 $recent_users = [];
 $recent_resources = [];
 $resources = [];
@@ -45,40 +46,48 @@ try {
     $stmt = $conn->prepare("SELECT COUNT(*) as total_users FROM users");
     $stmt->execute();
     $total_users = $stmt->get_result()->fetch_assoc()['total_users'];
-    
+
     // Total resources
     $stmt = $conn->prepare("SELECT COUNT(*) as total_resources FROM resources");
     $stmt->execute();
     $total_resources = $stmt->get_result()->fetch_assoc()['total_resources'];
-    
+
     // Total downloads
     $stmt = $conn->prepare("SELECT SUM(downloads) as total_downloads FROM resources");
     $stmt->execute();
     $total_downloads = $stmt->get_result()->fetch_assoc()['total_downloads'] ?? 0;
-    
+
+    // Recent uploads (last 7 days)
+    $one_week_ago = date('Y-m-d H:i:s', strtotime('-1 week'));
+    $stmt = $conn->prepare("SELECT COUNT(*) as recent_uploads FROM resources WHERE created_at >= ?");
+    $stmt->bind_param("s", $one_week_ago);
+    $stmt->execute();
+    $recent_uploads = $stmt->get_result()->fetch_assoc()['recent_uploads'];
+
     // Recent users (ordered by id since created_at doesn't exist)
     $stmt = $conn->prepare("SELECT * FROM users ORDER BY id DESC LIMIT 5");
     $stmt->execute();
     $recent_users = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
-    
+
     // Recent resources with uploader information
     $stmt = $conn->prepare("SELECT r.*, u.name, u.email FROM resources r LEFT JOIN users u ON r.user_id = u.id ORDER BY r.created_at DESC LIMIT 9");
     $stmt->execute();
     $recent_resources = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
-    
+
     // Get all resources with uploader information for the Recent Resources section
     $stmt = $conn->prepare("SELECT r.*, u.name, u.email FROM resources r LEFT JOIN users u ON r.user_id = u.id ORDER BY r.created_at DESC");
     $stmt->execute();
     $resources = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
-    
+
     // For admin, user_resources will be the same as recent_resources (showing admin's uploads)
     $user_resources = $recent_resources;
-    
+
 } catch (Exception $e) {
     $error = "Error fetching data: " . $e->getMessage();
     // Keep variables as empty arrays/zero values
     $resources = [];
     $user_resources = [];
+    $recent_uploads = 0;
 }
 ?>
 
@@ -99,6 +108,7 @@ try {
         :root {
             --primary-color: #1a73e8;
             --primary-orange: #FF6B35;
+            --primary-gold: #ffc107;
             --secondary-color: #5f6368;
             --bg-color: #f8f9fa;
             --card-bg: #f8f9fa;
@@ -109,11 +119,12 @@ try {
             --form-border-color: #dadce0;
             --card-hover-bg: #f8f9fa;
         }
-        
+
         .dark-mode {
             --bg-color: #1a1a1a;
             --card-bg: #1a1a1a;
             --text-color: #e8eaed;
+            --secondary-color: #ffffff;
             --border-color: #2a2a2a;
             --form-border-color: #2a2a2a;
             --card-hover-bg: #252525;
@@ -235,46 +246,185 @@ try {
         .dark-mode .nav-link:hover {
             background: rgba(255, 255, 255, 0.05);
         }
-        
+
         .dark-mode .nav-link.active {
             background: rgba(26, 115, 232, 0.2);
             color: #8ab4f8;
         }
-        
-        .dark-mode .dark-mode-toggle {
-            color: var(--text-color);
+
+        .dark-mode .nav-link {
+            color: #ffffff;
         }
         
+        .dark-mode .dark-mode-toggle {
+            color: #ffc107;
+        }
+
         .dark-mode .dark-mode-toggle:hover {
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(255, 193, 7, 0.1);
         }
         
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
         }
-        
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 16px !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .stats-grid {
+                grid-template-columns: 1fr !important;
+                gap: 16px !important;
+            }
+        }
+
         .stat-card {
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
+            background: #f5f5f5;
+            border: 1px solid #e0e0e0;
             border-radius: 8px;
-            padding: 24px;
-            text-align: center;
+            padding: 20px;
+            text-align: left;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+            transition: box-shadow 0.3s ease;
         }
-        
+
+        .stat-card:hover {
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+        }
+
         .stat-card h3 {
-            font-size: 36px;
-            font-weight: 400;
-            color: #FF6B35;
-            margin-bottom: 8px;
+            font-size: 32px;
+            font-weight: 700;
+            color: #202124;
+            margin-bottom: 4px;
         }
-        
+
         .stat-card p {
             font-size: 14px;
-            color: var(--secondary-color);
+            color: #5f6368;
             margin: 0;
+            font-weight: 500;
+        }
+
+        .stat-card i {
+            color: var(--primary-orange);
+        }
+
+        .stat-card > div > div span {
+            color: #5f6368 !important;
+        }
+
+        .stat-card > div > div span[style*="font-weight: 500"] {
+            color: #202124 !important;
+        }
+
+        .stat-card > div[style*="border-top"] {
+            border-top: 1px solid #e8eaed !important;
+        }
+
+        .stat-card span[style*="background: rgba(255, 255, 255, 0.2)"] {
+            background: #f1f3f4 !important;
+            color: #202124 !important;
+        }
+
+        /* Dark mode stat cards */
+        .dark-mode .stat-card {
+            background: var(--card-bg);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+        }
+
+        .dark-mode .stat-card:hover {
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
+        }
+
+        .dark-mode .stat-card h3 {
+            color: #ffffff;
+            text-shadow: none;
+        }
+
+        .dark-mode .stat-card p {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .dark-mode .stat-card i {
+            color: var(--primary-orange) !important;
+            filter: none;
+        }
+
+        .dark-mode .stat-card > div > div span {
+            color: rgba(255, 255, 255, 0.7) !important;
+        }
+
+        .dark-mode .stat-card > div > div span[style*="font-weight: 500"] {
+            color: #ffffff !important;
+        }
+
+        .dark-mode .stat-card > div[style*="border-top"] {
+            border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+        }
+
+        .dark-mode .stat-card span[style*="background: rgba(255, 255, 255, 0.2)"] {
+            background: rgba(255, 255, 255, 0.1) !important;
+            color: #ffffff !important;
+        }
+
+        /* Dark mode stat card inline style overrides */
+        .dark-mode .stat-card i[style*="color: #FF6B35"] {
+            color: var(--primary-orange) !important;
+        }
+
+        .dark-mode .stat-card h3 {
+            color: #ffffff !important;
+        }
+
+        .dark-mode .stat-card p {
+            color: rgba(255, 255, 255, 0.8) !important;
+        }
+
+        .dark-mode .stat-card span[style*="color: #5f6368"] {
+            color: rgba(255, 255, 255, 0.7) !important;
+        }
+
+        .dark-mode .stat-card span[style*="color: #202124"] {
+            color: #ffffff !important;
+        }
+
+        .dark-mode .stat-card div[style*="border-top: 1px solid #e8eaed"] {
+            border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+        }
+
+        .dark-mode .stat-card span[style*="background: #f1f3f4"] {
+            background: rgba(255, 255, 255, 0.1) !important;
+            color: #ffffff !important;
+        }
+
+        .dark-mode .stat-card {
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        }
+
+        /* Dark mode stat card inline style overrides for new card */
+        .dark-mode .stat-card i[style*="color: #FF6B35"] {
+            color: var(--primary-orange) !important;
+        }
+
+        .dark-mode .stat-card > div[style*="border-top: 1px solid #e8eaed"] {
+            border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+        }
+
+        .dark-mode .stat-card > div > div span[style*="color: #5f6368"] {
+            color: rgba(255, 255, 255, 0.7) !important;
+        }
+
+        .dark-mode .stat-card > div > div span[style*="color: #202124"] {
+            color: #ffffff !important;
         }
         
         /* Upload form dark mode */
@@ -296,6 +446,22 @@ try {
         textarea:focus {
             border-color: #FF6B35;
             outline: none;
+        }
+
+        .dark-mode input[type="text"],
+        .dark-mode input[type="email"],
+        .dark-mode input[type="password"],
+        .dark-mode select,
+        .dark-mode textarea {
+            border-color: var(--primary-gold);
+        }
+
+        .dark-mode input[type="text"]:focus,
+        .dark-mode input[type="email"]:focus,
+        .dark-mode input[type="password"]:focus,
+        .dark-mode select:focus,
+        .dark-mode textarea:focus {
+            border-color: var(--primary-gold);
         }
         
         #fileUploadArea {
@@ -402,6 +568,7 @@ try {
             font-weight: 400;
             color: var(--text-color);
             margin-bottom: 24px;
+            text-align: center;
         }
         
         .header {
@@ -433,10 +600,20 @@ try {
             border-radius: 50%;
             color: #5f6368;
             transition: background 0.2s;
+            font-size: 18px;
         }
-        
+
         .menu-btn:hover {
             background: #f1f3f4;
+        }
+
+        .dark-mode .menu-btn {
+            color: #ffc107;
+            font-size: 22px;
+        }
+
+        .dark-mode .menu-btn:hover {
+            background: rgba(255, 193, 7, 0.1);
         }
         
         .logo {
@@ -572,7 +749,7 @@ try {
             padding: 20px 25px;
             border-bottom: 1px solid var(--border-color);
             display: flex;
-            justify-content: space-between;
+            justify-content: center;
             align-items: center;
         }
         
@@ -580,6 +757,7 @@ try {
             font-size: 20px;
             font-weight: 500;
             color: var(--text-color);
+            text-align: center;
         }
         
         .card-body {
@@ -595,6 +773,7 @@ try {
             font-size: 14px;
             font-weight: 500;
             transition: all 0.3s ease;
+            width: 100%;
         }
         
         .btn-primary {
@@ -610,24 +789,134 @@ try {
         
         /* Download button specific styling */
         .btn-download {
-            background: var(--card-hover-bg);
-            color: var(--text-color);
-            border: 1px solid var(--border-color);
+            background: #f1f3f4;
+            color: #202124;
+            border: 1px solid #000;
             padding: 8px 16px;
             font-size: 13px;
             transition: all 0.3s ease;
         }
-        
+
         .btn-download:hover {
-            background: #FF6B35;
+            background: var(--primary-orange);
             color: white;
-            border-color: #FF6B35;
+            border-color: #000;
             transform: translateY(-2px) scale(1.05);
             box-shadow: 0 6px 20px rgba(255, 107, 53, 0.5);
         }
-        
+
         .btn-download:active {
             transform: translateY(0) scale(0.98);
+        }
+
+        /* Dark mode download button styling */
+        .dark-mode .btn-download {
+            background: #252525;
+            color: #ffffff;
+            border: 1px solid #ffc107;
+        }
+
+        .dark-mode .btn-download:hover {
+            background: var(--primary-orange);
+            color: white;
+            border-color: var(--primary-gold);
+        }
+
+        /* Upload buttons styling */
+        .upload-buttons-container button[type="submit"] {
+            background: var(--primary-orange);
+            color: white;
+            border: 1px solid var(--primary-orange);
+            padding: 10px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .upload-buttons-container button[type="submit"]:hover {
+            background: #e55a2b;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 107, 53, 0.4);
+        }
+
+        .upload-buttons-container button[type="reset"] {
+            background: #f1f3f4;
+            color: #202124;
+            border: 1px solid #000;
+            padding: 10px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .upload-buttons-container button[type="reset"]:hover {
+            background: #e8eaed;
+            transform: translateY(-2px);
+        }
+
+        .dark-mode .upload-buttons-container button[type="reset"] {
+            background: #252525;
+            color: #ffffff;
+            border: 1px solid #ffc107;
+        }
+
+        .dark-mode .upload-buttons-container button[type="reset"]:hover {
+            background: #3a3a3a;
+        }
+
+        /* Mobile upload buttons */
+        @media (max-width: 768px) {
+            .upload-buttons-container {
+                flex-direction: column !important;
+                gap: 12px !important;
+            }
+
+            .upload-buttons-container button {
+                width: 100% !important;
+                padding: 12px 16px !important;
+                font-size: 14px !important;
+            }
+
+            .upload-buttons-container button[type="submit"] {
+                background: var(--primary-orange) !important;
+                color: white !important;
+                border: 1px solid var(--primary-orange) !important;
+            }
+
+            .upload-buttons-container button[type="reset"] {
+                background: #252525 !important;
+                color: #ffffff !important;
+                border: 1px solid var(--primary-gold) !important;
+            }
+
+            /* Dark mode upload buttons */
+            .dark-mode .upload-buttons-container button[type="submit"] {
+                background: var(--primary-orange) !important;
+                color: white !important;
+                border: 1px solid var(--primary-orange) !important;
+            }
+
+            .dark-mode .upload-buttons-container button[type="reset"] {
+                background: #252525 !important;
+                color: #ffffff !important;
+                border: 1px solid var(--primary-gold) !important;
+            }
+
+            /* View all button mobile */
+            .view-all-button {
+                width: 100% !important;
+                text-align: center;
+            }
+
+            /* Recent resources header mobile */
+            div[style*="justify-content: center"] + div[style*="justify-content: center"] {
+                flex-direction: column !important;
+                gap: 16px !important;
+            }
         }
         
         .btn-secondary {
@@ -678,67 +967,86 @@ try {
         tbody tr:hover {
             background: var(--card-hover-bg);
         }
+
+        /* PDF-style table */
+        .pdf-table {
+            border: 2px solid #000;
+            border-collapse: collapse;
+            background: #ffffff;
+            font-family: 'Times New Roman', Times, serif;
+        }
+
+        .pdf-table thead {
+            background: #f0f0f0;
+            border-bottom: 2px solid #000;
+        }
+
+        .pdf-table th {
+            border: 1px solid #000;
+            padding: 12px 15px;
+            text-align: left;
+            font-weight: bold;
+            font-size: 14px;
+            color: #000;
+            background: #f0f0f0;
+        }
+
+        .pdf-table td {
+            border: 1px solid #000;
+            padding: 12px 15px;
+            font-size: 12px;
+            color: #000;
+            font-family: 'Times New Roman', Times, serif;
+        }
+
+        .pdf-table tbody tr:nth-child(even) {
+            background: #fafafa;
+        }
+
+        .pdf-table tbody tr:hover {
+            background: #e8e8e8;
+        }
+
+        /* Dark mode PDF table */
+        .dark-mode .pdf-table {
+            border: 2px solid var(--primary-gold);
+            background: #1a1a1a;
+        }
+
+        .dark-mode .pdf-table thead {
+            background: #252525;
+            border-bottom: 2px solid var(--primary-gold);
+        }
+
+        .dark-mode .pdf-table th {
+            border: 1px solid #ffc107;
+            color: #ffffff;
+            background: #252525;
+        }
+
+        .dark-mode .pdf-table td {
+            border: 1px solid #ffc107;
+            color: #ffffff;
+        }
+
+        .dark-mode .pdf-table tbody tr:nth-child(even) {
+            background: #2a2a2a;
+        }
+
+        .dark-mode .pdf-table tbody tr:hover {
+            background: #3a3a3a;
+        }
     </style>
 </head>
 <body>
     <!-- Header -->
-    <header class="header">
-        <div class="header-left">
-            <button class="menu-btn" onclick="toggleSidebar()">
-                <i class="fas fa-bars"></i>
-            </button>
-            <div class="logo">
-                <div style="width: 40px; height: 40px; background: #FFD700; border: 3px solid #FF6B35; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 0;">
-                    <span style="font-weight: bold; font-size: 20px;">
-                        <span style="color: #FF6B35; font-size: 24px;">K</span><span style="color: #008000; font-size: 20px;">E</span>
-                    </span>
-                </div>
-                <span style="color: #FF6B35; font-weight: bold;">Kenya</span> <span style="color: #008000; font-weight: bold;">EduHub</span>
-            </div>
-        </div>
-        <div class="header-right">
-            <button class="dark-mode-toggle" onclick="toggleDarkMode()" title="Toggle Dark Mode">
-                <i class="fas fa-moon"></i>
-            </button>
-            <div class="user-avatar">
-                <?php echo strtoupper(substr($user['name'] ?? 'A', 0, 1)); ?>
-            </div>
-        </div>
-    </header>
+    <?php require_once 'includes/header.php'; ?>
     
     <!-- Sidebar -->
-    <aside class="sidebar" id="sidebar">
-        <a class="nav-link active" href="dashboard">
-            <i class="fas fa-tachometer-alt"></i> Dashboard
-        </a>
-        <a class="nav-link" href="schools">
-            <i class="fas fa-school"></i> Schools
-        </a>
-        <a class="nav-link" href="school-accounts">
-            <i class="fas fa-wallet"></i> School Accounts
-        </a>
-        <a class="nav-link" href="users">
-            <i class="fas fa-users"></i> Users
-        </a>
-        <a class="nav-link" href="resources">
-            <i class="fas fa-book"></i> Resources
-        </a>
-        <a class="nav-link" href="transaction-rates">
-            <i class="fas fa-percentage"></i> Transaction Rates
-        </a>
-        <a class="nav-link" href="reports">
-            <i class="fas fa-chart-bar"></i> Reports
-        </a>
-        <a class="nav-link" href="logs">
-            <i class="fas fa-file-alt"></i> Logs
-        </a>
-        <a class="nav-link" href="settings">
-            <i class="fas fa-cog"></i> Settings
-        </a>
-        <a class="nav-link" href="logout">
-            <i class="fas fa-sign-out-alt"></i> Logout
-        </a>
-    </aside>
+    <?php 
+    $active_page = 'dashboard';
+    require_once 'includes/sidebar.php'; 
+    ?>
     
     <!-- Main Content -->
     <main class="main-content" id="mainContent">
@@ -747,16 +1055,46 @@ try {
         <!-- Statistics -->
         <div class="stats-grid">
             <div class="stat-card">
-                <h3><?php echo $total_users; ?></h3>
-                <p>Total Users</p>
+                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                    <i class="fas fa-users" style="color: #FF6B35; font-size: 28px;"></i>
+                    <div>
+                        <h3><?php echo $total_users; ?></h3>
+                        <p>Total Users</p>
+                    </div>
+                </div>
             </div>
             <div class="stat-card">
-                <h3><?php echo $total_resources; ?></h3>
-                <p>Total Resources</p>
+                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                    <i class="fas fa-folder-open" style="color: #FF6B35; font-size: 28px;"></i>
+                    <div>
+                        <h3><?php echo $total_resources; ?></h3>
+                        <p>Total Resources</p>
+                    </div>
+                </div>
             </div>
             <div class="stat-card">
-                <h3><?php echo $total_downloads; ?></h3>
-                <p>Total Downloads</p>
+                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                    <i class="fas fa-download" style="color: #FF6B35; font-size: 28px;"></i>
+                    <div>
+                        <h3><?php echo $total_downloads; ?></h3>
+                        <p>Total Downloads</p>
+                    </div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                    <i class="fas fa-clock" style="color: #FF6B35; font-size: 28px;"></i>
+                    <div>
+                        <h3><?php echo $recent_uploads; ?></h3>
+                        <p>Recent Uploads</p>
+                    </div>
+                </div>
+                <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid #e8eaed;">
+                    <div style="display: flex; justify-content: space-between;">
+                        <span style="color: #5f6368; font-size: 12px;">Last 7 Days</span>
+                        <span style="color: #202124; font-weight: 500; font-size: 12px;">Activity</span>
+                    </div>
+                </div>
             </div>
         </div>
         
@@ -767,7 +1105,7 @@ try {
             </div>
             <div class="card-body">
                 <div class="table-responsive">
-                    <table>
+                    <table class="pdf-table">
                         <thead>
                             <tr>
                                 <th>ID</th>
@@ -799,7 +1137,9 @@ try {
         
         <!-- Upload Section -->
         <div style="margin-top: 30px; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 25px;">
-            <h2 style="font-size: 22px; font-weight: 400; color: var(--text-color); margin-bottom: 24px;">Upload Resource</h2>
+            <div style="display: flex; justify-content: center; margin-bottom: 24px;">
+                <h2 style="font-size: 22px; font-weight: 400; color: var(--text-color);">Upload Resource</h2>
+            </div>
                 <form id="uploadForm" enctype="multipart/form-data">
                     <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
@@ -848,11 +1188,11 @@ try {
                             </div>
                         </div>
                     </div>
-                    <div style="margin-top: 24px; display: flex; gap: 12px;">
+                    <div style="margin-top: 24px; display: flex; gap: 12px;" class="upload-buttons-container">
                         <button type="submit" class="btn btn-primary" id="uploadBtn">
                             <i class="fas fa-upload"></i> Upload Resource
                         </button>
-                        <button type="reset" class="btn btn-secondary" style="background: var(--card-hover-bg); color: var(--text-color); border: 1px solid var(--border-color);">
+                        <button type="reset" class="btn btn-secondary" id="clearBtn">
                             <i class="fas fa-times"></i> Clear
                         </button>
                     </div>
@@ -862,9 +1202,11 @@ try {
         
         <!-- Recent Resources -->
         <div style="margin-top: 30px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+            <div style="display: flex; justify-content: center; align-items: center; margin-bottom: 24px;">
                 <h2 style="font-size: 22px; font-weight: 400; color: var(--text-color);">Recent Resources</h2>
-                <a href="resources" class="btn btn-primary">View All</a>
+            </div>
+            <div style="display: flex; justify-content: center; margin-bottom: 24px;">
+                <a href="resources" class="btn btn-primary view-all-button">View All</a>
             </div>
             <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px;">
                     <?php if (!empty($recent_resources)): ?>
@@ -970,24 +1312,6 @@ try {
                 }
             }
         });
-        
-        function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            const mainContent = document.getElementById('mainContent');
-            
-            if (window.innerWidth <= 768) {
-                sidebar.classList.toggle('show');
-            } else {
-                sidebar.classList.toggle('collapsed');
-                mainContent.classList.toggle('expanded');
-            }
-        }
-
-        function toggleSidebarSection(element) {
-            element.classList.toggle('collapsed');
-            const links = element.nextElementSibling;
-            links.classList.toggle('collapsed');
-        }
 
         // Upload Form Functionality
         document.addEventListener('DOMContentLoaded', function() {
@@ -1202,29 +1526,79 @@ try {
             if (button.disabled || button.classList.contains('btn-loading')) {
                 return;
             }
-            
+
             // Add loading state
             button.classList.add('btn-loading');
             button.disabled = true;
             button.innerHTML = '<i class="fas fa-download"></i> Downloading...';
 
-            // Use the proper API download endpoint
+            // Use fetch to download the file (single call, handles errors properly)
             const downloadUrl = `../api/download.php?id=${resourceId}&download=true`;
-            
-            // Trigger download directly
-            const link = document.createElement('a');
-            link.href = downloadUrl;
-            link.style.display = 'none';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            
-            // Reset button after a short delay
-            setTimeout(() => {
+
+            fetch(downloadUrl, {
+                method: 'GET',
+                credentials: 'include'
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(data => {
+                        throw new Error(data.message || 'Download failed');
+                    });
+                }
+
+                // Get the content disposition header for the filename
+                const contentDisposition = response.headers.get('Content-Disposition');
+                let filename = 'resource_' + resourceId;
+
+                if (contentDisposition) {
+                    const filenameMatch = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+                    if (filenameMatch && filenameMatch[1]) {
+                        filename = filenameMatch[1].replace(/['"]/g, '');
+                    }
+                }
+
+                // Return the blob for successful downloads along with filename
+                return response.blob().then(blob => ({ blob, filename }));
+            })
+            .then(({ blob, filename }) => {
+                // Create a download link and trigger it
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+
+                // Reset button after a short delay
+                setTimeout(() => {
+                    button.classList.remove('btn-loading');
+                    button.innerHTML = '<i class="fas fa-download"></i> Download';
+                    button.disabled = false;
+                }, 2000);
+            })
+            .catch(error => {
+                // Show user-friendly error message in the dashboard
+                const errorDiv = document.createElement('div');
+                errorDiv.style.cssText = 'position: fixed; top: 20px; right: 20px; background: #f44336; color: white; padding: 16px 24px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); z-index: 10000; transition: all 0.3s ease;';
+                errorDiv.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${error.message}`;
+                document.body.appendChild(errorDiv);
+
+                // Reset button state
                 button.classList.remove('btn-loading');
                 button.innerHTML = '<i class="fas fa-download"></i> Download';
                 button.disabled = false;
-            }, 2000);
+
+                // Remove error message after 5 seconds
+                setTimeout(() => {
+                    errorDiv.style.opacity = '0';
+                    errorDiv.style.transform = 'translateX(100%)';
+                    setTimeout(() => {
+                        document.body.removeChild(errorDiv);
+                    }, 300);
+                }, 5000);
+            });
         }
     </script>
 </body>

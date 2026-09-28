@@ -394,6 +394,7 @@ try {
             outline: none;
             transition: border-color 0.2s, box-shadow 0.2s;
             font-family: inherit;
+            background: var(--bg-color);
         }
         
         .form-control:focus {
@@ -525,6 +526,7 @@ try {
             .btn {
                 padding: 10px 16px;
                 font-size: 14px;
+                width: 100%;
             }
             
             .btn-sm {
@@ -536,74 +538,17 @@ try {
 </head>
 <body>
     <!-- Header -->
-    <div class="header">
-        <div class="header-left">
-            <button class="menu-btn" onclick="toggleSidebar()">
-                <i class="fas fa-bars"></i>
-            </button>
-            <div class="logo">
-                <div style="width: 40px; height: 40px; background: #FFD700; border: 3px solid #FF6B35; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 0;">
-                    <span style="font-weight: bold; font-size: 20px;">
-                        <span style="color: #FF6B35; font-size: 24px;">K</span><span style="color: #008000; font-size: 20px;">E</span>
-                    </span>
-                </div>
-                <span style="color: #FF6B35; font-weight: bold;">Kenya</span> <span style="color: #008000; font-weight: bold;">EduHub</span>
-            </div>
-        </div>
-        <div class="header-right">
-            <span style="font-size: 14px; color: #5f6368; font-weight: 500;"><?php echo htmlspecialchars($school_name); ?></span>
-        </div>
-    </div>
+    <?php require_once 'includes/header.php'; ?>
     
     <!-- Sidebar -->
-    <div class="sidebar" id="sidebar">
-        <div class="sidebar-section">
-            <a href="dashboard" class="nav-link">
-                <i class="fas fa-home"></i>
-                <span>Dashboard</span>
-            </a>
-            <a href="children" class="nav-link">
-                <i class="fas fa-child"></i>
-                <span>My Children</span>
-            </a>
-            <a href="fees" class="nav-link">
-                <i class="fas fa-money-bill-wave"></i>
-                <span>School Fees</span>
-            </a>
-            <a href="fines" class="nav-link active">
-                <i class="fas fa-book"></i>
-                <span>Library Fines</span>
-            </a>
-            <a href="performance" class="nav-link">
-                <i class="fas fa-chart-line"></i>
-                <span>Performance</span>
-            </a>
-            <a href="results" class="nav-link">
-                <i class="fas fa-award"></i>
-                <span>Results</span>
-            </a>
-            <a href="assignments" class="nav-link">
-                <i class="fas fa-tasks"></i>
-                <span>Assignments</span>
-            </a>
-            <a href="attendance" class="nav-link">
-                <i class="fas fa-calendar-check"></i>
-                <span>Attendance</span>
-            </a>
-            <a href="profile" class="nav-link">
-                <i class="fas fa-user"></i>
-                <span>Profile</span>
-            </a>
-            <button class="nav-link" onclick="logout()">
-                <i class="fas fa-sign-out-alt"></i>
-                <span>Logout</span>
-            </button>
-        </div>
-    </div>
+    <?php 
+    $active_page = 'fines';
+    require_once 'includes/sidebar.php'; 
+    ?>
     
     <!-- Main Content -->
     <div class="main-content" id="mainContent">
-        <h1 style="margin-bottom: 24px;">Library Fines</h1>
+        <h1 style="margin-bottom: 24px; text-align: center;">Library Fines</h1>
         
         <?php if (isset($success)): ?>
             <div class="alert alert-success">
@@ -782,17 +727,17 @@ try {
                         <input type="hidden" name="fine_id" id="paymentFineId">
                         <div style="margin-bottom: 16px;">
                             <label style="display: block; font-size: 14px; color: #5f6368; margin-bottom: 8px; font-weight: 500;">Payment Method</label>
-                            <select class="form-control" name="payment_method" id="paymentMethod" required style="width: 100%; padding: 10px 14px; font-size: 14px; border: 1px solid #dadce0; border-radius: 8px; outline: none; transition: border-color 0.2s, box-shadow 0.2s; font-family: inherit;">
+                            <select class="form-control" name="payment_method" id="paymentMethod" required style="width: 100%; padding: 10px 14px; font-size: 14px; border: 1px solid #dadce0; border-radius: 8px; outline: none; transition: border-color 0.2s, box-shadow 0.2s; font-family: inherit; background: var(--bg-color);">
                                 <option value="mpesa">MPESA</option>
                             </select>
                         </div>
                         <div style="margin-bottom: 16px;" id="mpesaFields">
                             <label style="display: block; font-size: 14px; color: #5f6368; margin-bottom: 8px; font-weight: 500;">MPESA Phone Number</label>
-                            <input type="text" class="form-control" name="phone" id="mpesaPhone" value="<?php echo htmlspecialchars($parent_phone); ?>" style="width: 100%; padding: 10px 14px; font-size: 14px; border: 1px solid #dadce0; border-radius: 8px; outline: none; transition: border-color 0.2s, box-shadow 0.2s; font-family: inherit;">
+                            <input type="text" class="form-control" name="phone" id="mpesaPhone" value="<?php echo htmlspecialchars($parent_phone); ?>" style="width: 100%; padding: 10px 14px; font-size: 14px; border: 1px solid #dadce0; border-radius: 8px; outline: none; transition: border-color 0.2s, box-shadow 0.2s; font-family: inherit; background: var(--bg-color);">
                         </div>
                         <div style="margin-bottom: 16px;" id="amountField">
                             <label style="display: block; font-size: 14px; color: #5f6368; margin-bottom: 8px; font-weight: 500;">Payment Amount *</label>
-                            <input type="number" class="form-control" name="amount" id="paymentAmount" step="0.01" min="0" style="width: 100%; padding: 10px 14px; font-size: 14px; border: 1px solid #dadce0; border-radius: 8px; outline: none; transition: border-color 0.2s, box-shadow 0.2s; font-family: inherit;">
+                            <input type="number" class="form-control" name="amount" id="paymentAmount" step="0.01" min="0" style="width: 100%; padding: 10px 14px; font-size: 14px; border: 1px solid #dadce0; border-radius: 8px; outline: none; transition: border-color 0.2s, box-shadow 0.2s; font-family: inherit; background: var(--bg-color);">
                         </div>
                         <button type="submit" class="btn btn-primary" id="submitPaymentBtn" style="background: #FF6B35; color: white; border: none; padding: 10px 24px; border-radius: 25px; font-size: 14px; font-weight: 500; letter-spacing: 0.25px; text-transform: uppercase; width: 100%;">
                             Pay Now
@@ -1061,15 +1006,9 @@ try {
         }
     </script>
     <script src="../assets/js/notifications.js"></script>
-    
+    </br>
+    </br>
     <!-- Footer -->
-    <footer style="background: transparent; color: white; padding: 2rem; text-align: center; border-top: 1px solid rgba(255, 255, 255, 0.1);">
-        <p style="margin: 0;">
-            <span style="color: #FF6B35;">&copy; 2026</span> 
-            <span style="color: #FF6B35;">Kenya</span> 
-            <span style="color: #008000;">EduHub</span>
-            <span style="color: #008000;">. All rights reserved.</span>
-        </p>
-    </footer>
+    <?php require_once '../includes/copywrite.php'; ?>
 </body>
 </html>

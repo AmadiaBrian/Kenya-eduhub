@@ -219,12 +219,14 @@ if (!empty($class_ids)) {
             font-weight: 400;
             color: #202124;
             margin-bottom: 8px;
+            text-align: center;
         }
         
         .page-subtitle {
             font-size: 14px;
             color: #5f6368;
             margin-bottom: 24px;
+            text-align: center;
         }
         
         .card {
@@ -241,6 +243,7 @@ if (!empty($class_ids)) {
             font-weight: 500;
             color: #202124;
             margin-bottom: 16px;
+            text-align: center;
         }
         
         .badge {
@@ -435,69 +438,22 @@ if (!empty($class_ids)) {
             .main-content {
                 margin-left: 0;
             }
+            
+            .btn {
+                width: 100%;
+            }
         }
     </style>
 </head>
 <body>
-    <header class="header">
-        <div class="header-left">
-            <button class="menu-btn" onclick="toggleSidebar()">
-                <i class="fas fa-bars"></i>
-            </button>
-            <div class="logo">
-                <div style="width: 40px; height: 40px; background: #FFD700; border: 3px solid #FF6B35; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 0;">
-                    <span style="font-weight: bold; font-size: 20px;">
-                        <span style="color: #FF6B35; font-size: 24px;">K</span><span style="color: #008000; font-size: 20px;">E</span>
-                    </span>
-                </div>
-                <span style="color: #FF6B35; font-weight: bold;">Kenya</span> <span style="color: #008000; font-weight: bold;">EduHub</span>
-            </div>
-        </div>
-        <div class="header-right">
-            <div class="user-avatar">
-                <?php echo strtoupper(substr($parent_name, 0, 1)); ?>
-            </div>
-        </div>
-    </header>
+    <!-- Header -->
+    <?php require_once 'includes/header.php'; ?>
     
-    <aside class="sidebar" id="sidebar">
-        <div class="sidebar-section">
-            <div class="sidebar-title">Main</div>
-            <a class="nav-link" href="dashboard">
-                <i class="fas fa-home"></i> Dashboard
-            </a>
-            <a class="nav-link" href="children">
-                <i class="fas fa-child"></i> My Children
-            </a>
-            <a class="nav-link" href="performance">
-                <i class="fas fa-chart-line"></i> Performance
-            </a>
-            <a class="nav-link" href="results">
-                <i class="fas fa-award"></i> Results
-            </a>
-            <a class="nav-link" href="attendance">
-                <i class="fas fa-calendar-check"></i> Attendance
-            </a>
-            <a class="nav-link active" href="assignments">
-                <i class="fas fa-tasks"></i> Assignments
-            </a>
-            <a class="nav-link" href="fines">
-                <i class="fas fa-book"></i> Library Fines
-            </a>
-            <a class="nav-link" href="fees">
-                <i class="fas fa-money-bill-wave"></i> Fee Payments
-            </a>
-        </div>
-        <div class="sidebar-section">
-            <div class="sidebar-title">Account</div>
-            <a class="nav-link" href="profile">
-                <i class="fas fa-user"></i> Profile
-            </a>
-            <a class="nav-link" href="logout">
-                <i class="fas fa-sign-out-alt"></i> Logout
-            </a>
-        </div>
-    </aside>
+    <!-- Sidebar -->
+    <?php 
+    $active_page = 'assignments';
+    require_once 'includes/sidebar.php'; 
+    ?>
     
     <main class="main-content" id="mainContent">
         <h1 class="page-title">Assignments</h1>
@@ -511,11 +467,11 @@ if (!empty($class_ids)) {
             <!-- Search and Filter -->
             <div style="display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap;">
                 <div style="flex: 1; min-width: 200px;">
-                    <input type="text" id="searchInput" class="form-control" placeholder="Search assignments..." style="width: 100%; padding: 10px; border: 1px solid #dadce0; border-radius: 8px;">
+                    <input type="text" id="searchInput" class="form-control" placeholder="Search assignments..." style="width: 100%; padding: 10px; border: 1px solid #dadce0; border-radius: 8px; background: var(--bg-color);">
                 </div>
                 <?php if (count($children) > 1): ?>
                     <div style="min-width: 150px;">
-                        <select id="filterChild" class="form-control" style="padding: 10px; border: 1px solid #dadce0; border-radius: 8px;">
+                        <select id="filterChild" class="form-control" style="padding: 10px; border: 1px solid #dadce0; border-radius: 8px; background: var(--bg-color);">
                             <option value="">All Children</option>
                             <?php foreach ($children as $child): ?>
                                 <option value="<?php echo $child['class_id']; ?>"><?php echo htmlspecialchars($child['first_name'] . ' ' . $child['last_name']); ?> (<?php echo htmlspecialchars($child['class_name']); ?>)</option>
@@ -761,15 +717,9 @@ if (!empty($class_ids)) {
         }
     </script>
     <script src="../assets/js/notifications.js"></script>
-    
+    </br>
+    </br>
     <!-- Footer -->
-    <footer style="background: transparent; color: white; padding: 2rem; text-align: center; border-top: 1px solid rgba(255, 255, 255, 0.1);">
-        <p style="margin: 0;">
-            <span style="color: #FF6B35;">&copy; 2026</span> 
-            <span style="color: #FF6B35;">Kenya</span> 
-            <span style="color: #008000;">EduHub</span>
-            <span style="color: #008000;">. All rights reserved.</span>
-        </p>
-    </footer>
+    <?php require_once '../includes/copywrite.php'; ?>
 </body>
 </html>

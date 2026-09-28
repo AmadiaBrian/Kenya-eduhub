@@ -161,86 +161,46 @@ try {
         }
         
         body {
-            background: var(--bg-color);
+            background: #f8f9fa;
             font-family: 'Google Sans', 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             font-size: 14px;
             color: #202124;
         }
         
-        .header {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: var(--header-height);
-            background: var(--bg-color);
-            border-bottom: 1px solid #e8eaed;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 24px;
-            z-index: 1000;
+        .page-title {
+            font-size: 22px;
+            font-weight: 400;
+            color: #202124;
+            margin-bottom: 24px;
+            text-align: center;
         }
         
-        .header-left {
-            display: flex;
-            align-items: center;
+        .card {
+            background: #f8f9fa;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 24px;
+            margin-bottom: 24px;
         }
         
-        .header-right {
-            display: flex;
-            align-items: center;
+        .card-title {
+            font-size: 18px;
+            font-weight: 500;
+            color: #202124;
+            margin-bottom: 16px;
+            text-align: center;
         }
         
-        .menu-btn {
-            background: none;
-            border: none;
-            cursor: pointer;
-            padding: 12px;
-            border-radius: 50%;
-            color: #5f6368;
-            transition: background 0.2s;
+        .main-content {
+            margin-left: 256px;
+            margin-top: 64px;
+            padding: 24px;
+            padding-bottom: 80px;
+            transition: margin-left 0.3s ease;
         }
         
-        .menu-btn:hover {
-            background: #f1f3f4;
-        }
-        
-        .logo {
-            display: flex;
-            align-items: center;
-        }
-        
-        .school-avatar {
-            width: 32px;
-            height: 32px;
-            background: #FFD700;
-            border: 2px solid #FF6B35;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            font-size: 14px;
-            color: #FF6B35;
-        }
-        
-        .sidebar {
-            position: fixed;
-            top: var(--header-height);
-            left: 0;
-            width: var(--sidebar-width);
-            height: calc(100vh - var(--header-height));
-            background: var(--bg-color);
-            overflow-y: auto;
-            transition: transform 0.3s ease, margin-left 0.3s ease;
-            z-index: 999;
-            scrollbar-width: none; /* Firefox */
-            -ms-overflow-style: none; /* IE and Edge */
-        }
-
-        .sidebar::-webkit-scrollbar {
-            display: none; /* Chrome, Safari, Opera */
+        .main-content.expanded {
+            margin-left: 0;
         }
         
         .sidebar.collapsed {
@@ -287,19 +247,12 @@ try {
             margin-left: 0;
         }
         
-        .card {
-            background: var(--card-bg);
-            border: 1px solid #e8eaed;
-            border-radius: 8px;
-            padding: 24px;
-            margin-bottom: 24px;
-        }
-        
         .card h4 {
             font-size: 18px;
             font-weight: 500;
             color: #202124;
             margin-bottom: 20px;
+            text-align: center;
         }
         
         .card h5 {
@@ -353,7 +306,7 @@ try {
         
         .duty-card {
             border-left: 4px solid var(--primary-color);
-            background: #ffffff;
+            background: #f8f9fa;
             border-radius: 8px;
             box-shadow: 0 1px 3px rgba(0,0,0,0.1);
             transition: box-shadow 0.2s;
@@ -638,153 +591,11 @@ try {
                 margin: 20mm;
             }
         }
-        
-        /* Responsive */
-        @media (max-width: 768px) {
-            .sidebar {
-                transform: translateX(-256px);
-                z-index: 9999;
-            }
-            
-            .sidebar.show {
-                transform: translateX(0);
-            }
-            
-            .main-content {
-                margin-left: 0;
-                padding: 16px;
-                padding-bottom: 80px;
-            }
-            
-            .header {
-                padding: 0 16px;
-            }
-            
-            .logo {
-                font-size: 14px;
-            }
-            
-            .page-title {
-                font-size: 18px;
-                margin-bottom: 16px;
-            }
-            
-            .card {
-                padding: 16px;
-            }
-            
-            .duty-grid {
-                grid-template-columns: 1fr;
-                gap: 12px;
-            }
-            
-            .btn {
-                padding: 8px 16px;
-                font-size: 14px;
-            }
-            
-            .table-responsive {
-                overflow-x: auto;
-                -webkit-overflow-scrolling: touch;
-            }
-            
-            .table {
-                font-size: 11px;
-            }
-            
-            .table th,
-            .table td {
-                padding: 8px 6px;
-            }
-            
-            .chit-preview.a4 {
-                padding: 10px;
-                font-size: 10px;
-            }
-            
-            .chit-preview.a4 .header-info {
-                font-size: 10px;
-            }
-            
-            .chit-preview.a4 .chit-title {
-                font-size: 14px;
-            }
-            
-            .chit-preview.a4 .info-row {
-                font-size: 10px;
-            }
-        }
     </style>
 </head>
 <body>
-    <header class="header">
-        <div class="header-left">
-            <button class="menu-btn" onclick="toggleSidebar()">
-                <i class="fas fa-bars"></i>
-            </button>
-            <div class="logo">
-                <div style="width: 32px; height: 32px; background: #FFD700; border: 2px solid #FF6B35; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 8px;">
-                    <span style="font-weight: bold; font-size: 16px;">
-                        <span style="color: #FF6B35; font-size: 18px;">K</span><span style="color: #008000; font-size: 16px;">E</span>
-                    </span>
-                </div>
-                <span style="color: #FF6B35; font-weight: bold;">Kenya</span> <span style="color: #008000; font-weight: bold;">EduHub</span>
-            </div>
-        </div>
-        <div class="header-right">
-            <div class="school-avatar">
-                <?php echo strtoupper(substr($teacher_name, 0, 1)); ?>
-            </div>
-        </div>
-    </header>
-    
-    <aside class="sidebar" id="sidebar">
-        <a class="nav-link" href="dashboard">
-            <i class="fas fa-home"></i> Dashboard
-        </a>
-        <a class="nav-link" href="timetable">
-            <i class="fas fa-calendar-alt"></i> Timetable
-        </a>
-        <a class="nav-link" href="attendance">
-            <i class="fas fa-calendar-check"></i> Attendance
-        </a>
-        <a class="nav-link" href="calendar">
-            <i class="fas fa-calendar-alt"></i> Calendar
-        </a>
-        <a class="nav-link" href="performance">
-            <i class="fas fa-chart-line"></i> Performance
-        </a>
-        <a class="nav-link" href="results">
-            <i class="fas fa-award"></i> Results
-        </a>
-        <a class="nav-link" href="students">
-            <i class="fas fa-user-graduate"></i> Students
-        </a>
-        <a class="nav-link" href="student-subjects">
-            <i class="fas fa-book"></i> Student Subjects
-        </a>
-        <a class="nav-link" href="assignments">
-            <i class="fas fa-tasks"></i> Assignments
-        </a>
-        <a class="nav-link" href="parents">
-            <i class="fas fa-user-friends"></i> Parents
-        </a>
-        <a class="nav-link active" href="duty">
-            <i class="fas fa-clipboard-list"></i> My Duties
-        </a>
-        <a class="nav-link" href="fees">
-            <i class="fas fa-money-bill-wave"></i> Fee Payments
-        </a>
-        <a class="nav-link" href="profile">
-            <i class="fas fa-user"></i> Profile
-        </a>
-        <a class="nav-link" href="settings">
-            <i class="fas fa-cog"></i> Settings
-        </a>
-        <a class="nav-link" href="logout">
-            <i class="fas fa-sign-out-alt"></i> Logout
-        </a>
-    </aside>
+    <?php require_once 'includes/header.php'; ?>
+    <?php $active_page = 'duty'; require_once 'includes/sidebar.php'; ?>
     
     <main class="main-content" id="mainContent">
         <?php if ($current_duty): ?>
@@ -1007,23 +818,8 @@ try {
         <?php endif; ?>
     </main>
     
-    <!-- Footer -->
-    <footer style="position: fixed; bottom: 0; left: 0; right: 0; background: var(--bg-color); color: #5f6368; padding: 20px 0; text-align: center; border-top: 1px solid #e8eaed; z-index: 1000;">
-        <p style="margin: 0;">
-            <span style="color: #FF6B35;">&copy; 2026</span> 
-            <span style="color: #FF6B35;">Kenya</span> 
-            <span style="color: #008000;">EduHub</span>
-            <span style="color: #5f6368;">. All rights reserved.</span>
-        </p>
-    </footer>
-    
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            const mainContent = document.getElementById('mainContent');
-            
-            // Check if we're on mobile
             if (window.innerWidth <= 768) {
                 // Mobile: toggle the 'show' class
                 sidebar.classList.toggle('show');
@@ -1149,5 +945,8 @@ try {
         }
     </script>
     <script src="../assets/js/notifications.js"></script>
+    
+    <!-- Footer -->
+    <?php require_once '../includes/copywrite.php'; ?>
 </body>
 </html>

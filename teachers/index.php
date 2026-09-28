@@ -120,7 +120,7 @@ if ($route === 'login') {
         }
         
         body {
-            background: #ffffff;
+            background: var(--card-bg, #f8f9fa);
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -198,6 +198,7 @@ if ($route === 'login') {
             outline: none;
             transition: border-color 0.2s, box-shadow 0.2s;
             font-family: inherit;
+            background: var(--bg-color, #f8f9fa);
         }
         
         .form-control:focus {
@@ -206,7 +207,7 @@ if ($route === 'login') {
         }
         
         .form-control::placeholder {
-            color: #9aa0a6;
+            color: #5f6368;
         }
         
         .btn-primary {
@@ -381,14 +382,11 @@ if ($route === 'login') {
 <body>
     <div class="login-container">
         <div class="logo">
-            <div style="width: 50px; height: 50px; background: #FFD700; border: 3px solid #FF6B35; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 2px;">
-                <span style="font-weight: bold; font-size: 24px;">
-                    <span style="color: #FF6B35; font-size: 28px;">K</span><span style="color: #008000; font-size: 24px;">E</span>
-                </span>
-            </div>
-            <span style="color: #FF6B35;">Kenya</span> <span style="color: #008000;">EduHub</span>
+            <?php require_once '../includes/logo.php'; ?>
         </div>
-        
+
+        <br>
+
         <h1 style="text-align: center; font-size: 24px; font-weight: 400; color: #202124; margin-bottom: 8px;">Teacher Portal</h1>
         <p style="text-align: center; font-size: 16px; color: #5f6368; margin-bottom: 40px;">Kenya EduHub</p>
         
@@ -409,11 +407,11 @@ if ($route === 'login') {
         <form class="login-form" method="POST">
             <div class="form-group">
                 <label for="email">Email</label>
-                <input type="email" class="form-control" id="email" name="email" required autocomplete="email">
+                <input type="email" class="form-control" id="email" name="email" required autocomplete="email" placeholder="Enter your email">
             </div>
             <div class="form-group">
                 <label for="password">Password</label>
-                <input type="password" class="form-control" id="password" name="password" required autocomplete="current-password">
+                <input type="password" class="form-control" id="password" name="password" required autocomplete="current-password" placeholder="Enter your password">
             </div>
             <button type="submit" class="btn-primary">
                 Next
@@ -426,6 +424,9 @@ if ($route === 'login') {
             </a>
         </div>
     </div>
+    
+    <!-- Footer -->
+    <?php require_once '../includes/copywrite.php'; ?>
     
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>

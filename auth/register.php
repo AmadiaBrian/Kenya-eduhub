@@ -172,7 +172,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         body {
-            background: #ffffff;
+            background: var(--card-bg, #f8f9fa);
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -351,11 +351,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <body>
     <main class="register-card" role="main" aria-label="User Registration Form">
         <div class="auth-brand-logo" aria-label="Kenya EduHub Logo">
-            <div class="logo-circle">
-                <span style="color: #FF6B35; font-size: 28px;">K</span><span style="color: #008000; font-size: 24px;">E</span>
-            </div>
-            <span class="brand-text"><span style="color: #FF6B35;">Kenya</span> <span style="color: #008000;">EduHub</span></span>
+            <?php require_once '../includes/logo.php'; ?>
         </div>
+
+        <br>
 
         <h3>Create Your Account</h3>
 
@@ -480,5 +479,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating Account...';
         });
     </script>
+
+    <!-- Footer -->
+    <?php require_once '../includes/copywrite.php'; ?>
 </body>
 </html>

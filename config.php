@@ -19,16 +19,22 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 // Create MySQLi connection (for existing code)
-$conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+try {
+    $conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
 
-// Check MySQLi connection
-if ($conn->connect_error) {
-    error_log("MySQLi connection failed: " . $conn->connect_error);
-    die("Database connection failed. Please check your configuration.");
+    // Check MySQLi connection
+    if ($conn->connect_error) {
+        error_log("MySQLi connection failed: " . $conn->connect_error);
+        throw new Exception("Database connection failed");
+    }
+
+    // Set charset to UTF-8
+    $conn->set_charset("utf8mb4");
+} catch (Exception $e) {
+    error_log("MySQLi connection failed: " . $e->getMessage());
+    require_once __DIR__ . '/error.php';
+    exit;
 }
-
-// Set charset to UTF-8
-$conn->set_charset("utf8mb4");
 
 // Create PDO connection (for existing code)
 try {
@@ -37,7 +43,8 @@ try {
     $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
 } catch(PDOException $e) {
     error_log("PDO connection failed: " . $e->getMessage());
-    die("Database connection failed. Please check your configuration.");
+    require_once __DIR__ . '/error.php';
+    exit;
 }
 
 // Cleanup function for pending withdrawals older than 3 minutes
