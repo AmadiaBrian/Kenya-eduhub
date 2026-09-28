@@ -177,7 +177,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         .logo-circle {
             width: 50px;
             height: 50px;
-            background: #FFD700;
+            background: #ffc107;
             border: 3px solid #FF6B35;
             border-radius: 50%;
             display: flex;
@@ -251,14 +251,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         
         .btn-primary:hover {
-            background: #FFD700;
-            border-color: #FFD700;
+            background: #ffc107;
+            border-color: #ffc107;
             color: #202124;
         }
-        
+
         .btn-primary:active {
-            background: #DAA520;
-            border-color: #DAA520;
+            background: #e0a800;
+            border-color: #e0a800;
         }
         
         .back-link {
@@ -319,7 +319,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         
         .admin-badge {
-            background: #FFD700;
+            background: #ffc107;
             color: #202124;
             padding: 8px 16px;
             border-radius: 25px;
@@ -446,14 +446,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <body>
     <div class="login-container">
         <div class="logo">
-            <div class="logo-circle">
-                <span style="font-weight: bold; font-size: 24px;">
-                    <span style="color: #FF6B35; font-size: 28px;">K</span><span style="color: #008000; font-size: 24px;">E</span>
-                </span>
-            </div>
-            <span style="color: #FF6B35;">Kenya</span> <span style="color: #008000;">EduHub</span>
+            <?php require_once '../includes/logo.php'; ?>
         </div>
-        
+
+        <br>
+
         <?php if ($error): ?>
             <div class="alert alert-danger">
                 <?php echo htmlspecialchars($error); ?>

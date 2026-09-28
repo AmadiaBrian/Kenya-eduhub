@@ -115,6 +115,7 @@ $total_active_users = $stats['active'];
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#FF6B35">
     <title>Users Management - Kenya EduHub</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
@@ -492,54 +493,13 @@ $total_active_users = $stats['active'];
 </head>
 <body>
     <!-- Header -->
-    <header class="header">
-        <div class="header-left">
-            <button class="menu-btn" onclick="toggleSidebar()">
-                <i class="fas fa-bars"></i>
-            </button>
-            <div class="logo">
-                <div style="width: 40px; height: 40px; background: #FFD700; border: 3px solid #FF6B35; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 0;">
-                    <span style="font-weight: bold; font-size: 20px;">
-                        <span style="color: #FF6B35; font-size: 24px;">K</span><span style="color: #008000; font-size: 20px;">E</span>
-                    </span>
-                </div>
-                <span style="color: #FF6B35; font-weight: bold;">Kenya</span> <span style="color: #008000; font-weight: bold;">EduHub</span>
-            </div>
-        </div>
-        <div class="header-right">
-            <div class="user-avatar">
-                <?php echo strtoupper(substr($user['name'] ?? 'A', 0, 1)); ?>
-            </div>
-        </div>
-    </header>
+    <?php require_once 'includes/header.php'; ?>
     
     <!-- Sidebar -->
-    <aside class="sidebar" id="sidebar">
-        <a class="nav-link" href="dashboard">
-            <i class="fas fa-tachometer-alt"></i> Dashboard
-        </a>
-        <a class="nav-link active" href="users">
-            <i class="fas fa-users"></i> Users
-        </a>
-        <a class="nav-link" href="schools">
-            <i class="fas fa-school"></i> Schools
-        </a>
-        <a class="nav-link" href="resources">
-            <i class="fas fa-book"></i> Resources
-        </a>
-        <a class="nav-link" href="reports">
-            <i class="fas fa-chart-bar"></i> Reports
-        </a>
-        <a class="nav-link" href="logs">
-            <i class="fas fa-file-alt"></i> Logs
-        </a>
-        <a class="nav-link" href="settings">
-            <i class="fas fa-cog"></i> Settings
-        </a>
-        <a class="nav-link" href="logout">
-            <i class="fas fa-sign-out-alt"></i> Logout
-        </a>
-    </aside>
+    <?php 
+    $active_page = 'users';
+    require_once 'includes/sidebar.php'; 
+    ?>
     
     <!-- Main Content -->
     <main class="main-content" id="mainContent">
@@ -663,19 +623,6 @@ $total_active_users = $stats['active'];
     
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            const mainContent = document.getElementById('mainContent');
-            sidebar.classList.toggle('collapsed');
-            mainContent.classList.toggle('expanded');
-        }
-        
-        function toggleSidebarSection(element) {
-            element.classList.toggle('collapsed');
-            const links = element.nextElementSibling;
-            links.classList.toggle('collapsed');
-        }
-        
         function toggleUserStatus(id, status) {
             try {
                 console.log('toggleUserStatus called with id:', id, 'status:', status);
@@ -851,13 +798,6 @@ $total_active_users = $stats['active'];
     </div>
 
     <!-- Footer -->
-    <footer style="background: transparent; color: #5f6368; padding: 2rem; text-align: center; border-top: 1px solid #e8eaed; margin-top: 40px;">
-        <p style="margin: 0;">
-            <span style="color: #FF6B35;">&copy; 2026</span>
-            <span style="color: #FF6B35;">Kenya</span>
-            <span style="color: #008000;">EduHub</span>
-            <span style="color: #5f6368;">. All rights reserved.</span>
-        </p>
-    </footer>
+    <?php require_once '../includes/copywrite.php'; ?>
 </body>
 </html>

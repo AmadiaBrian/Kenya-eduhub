@@ -238,7 +238,7 @@ try {
             /* Kenya EduHub Brand Colors */
             --primary-orange: #FF6B35;
             --primary-green: #008000;
-            --primary-gold: #FFD700;
+            --primary-gold: #ffc107;
             
             /* Backgrounds and Text */
             --bg-color: #f8f9fa;
@@ -1621,12 +1621,7 @@ try {
     <nav role="navigation" aria-label="Main Navigation">
         <div class="nav-container">
             <a href="./" class="logo" itemprop="url">
-                <div style="width: 40px; height: 40px; background: var(--primary-gold); border: 3px solid var(--primary-orange); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 0;">
-                    <span style="font-weight: 700; font-size: 20px;">
-                        <span style="color: var(--primary-orange); font-size: 24px;">K</span><span style="color: #008000; font-size: 20px;">E</span>
-                    </span>
-                </div>
-                <span itemprop="name"><span style="color: var(--primary-orange); font-weight: 600;">Kenya</span> <span style="color: #008000; font-weight: 600;">EduHub</span></span>
+                <?php require_once 'includes/logo.php'; ?>
             </a>
             <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Toggle mobile menu">
                 <span></span>
@@ -1925,12 +1920,7 @@ try {
                 <!-- Brand Column -->
                 <div class="footer-brand">
                     <a href="./" class="footer-logo">
-                        <div style="width: 40px; height: 40px; background: var(--primary-gold); border: 3px solid var(--primary-orange); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 0;">
-                            <span style="font-weight: 700; font-size: 20px;">
-                                <span style="color: var(--primary-orange); font-size: 24px;">K</span><span style="color: #008000; font-size: 20px;">E</span>
-                            </span>
-                        </div>
-                        <span style="color: var(--primary-orange); font-weight: 600;">Kenya</span> <span style="color: #008000; font-weight: 600;">EduHub</span>
+                        <?php require_once 'includes/logo.php'; ?>
                     </a>
                     <div class="footer-description">
                         Kenya's comprehensive education management platform connecting schools, students, parents, and teachers with powerful tools and free educational resources for academic excellence.

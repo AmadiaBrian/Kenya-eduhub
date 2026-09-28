@@ -234,7 +234,7 @@ $csrf_token = generateCSRFLite();
             --sidebar-width: 256px;
             --header-height: 64px;
             --primary-orange: #FF6B35;
-            --primary-gold: #FFD700;
+            --primary-gold: #ffc107;
             --text-color: #202124;
             --border-color: #e8eaed;
             --form-border-color: #dadce0;
@@ -245,6 +245,7 @@ $csrf_token = generateCSRFLite();
             --bg-color: #1a1a1a;
             --card-bg: #1a1a1a;
             --text-color: #e8eaed;
+            --secondary-color: #ffffff;
             --border-color: #2a2a2a;
             --form-border-color: #2a2a2a;
             --card-hover-bg: #252525;
@@ -319,11 +320,11 @@ $csrf_token = generateCSRFLite();
         }
         
         .dark-mode .dark-mode-toggle {
-            color: var(--text-color);
+            color: #ffc107;
         }
-        
+
         .dark-mode .dark-mode-toggle:hover {
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(255, 193, 7, 0.1);
         }
         
         .nav-link.active {
@@ -412,10 +413,20 @@ $csrf_token = generateCSRFLite();
             border-radius: 50%;
             color: #5f6368;
             transition: background 0.2s;
+            font-size: 18px;
         }
-        
+
         .menu-btn:hover {
             background: #f1f3f4;
+        }
+
+        .dark-mode .menu-btn {
+            color: #ffc107;
+            font-size: 22px;
+        }
+
+        .dark-mode .menu-btn:hover {
+            background: rgba(255, 193, 7, 0.1);
         }
         
         .logo {
@@ -490,6 +501,11 @@ $csrf_token = generateCSRFLite();
                 line-height: 1.4;
                 margin-bottom: 8px !important;
             }
+
+            .dark-mode .resource-grid > div h3,
+            .dark-mode .resource-card h3 {
+                color: #ffffff !important;
+            }
             
             .resource-grid > div p,
             .resource-card p {
@@ -497,6 +513,11 @@ $csrf_token = generateCSRFLite();
                 margin-bottom: 6px !important;
                 color: var(--secondary-color);
                 line-height: 1.3;
+            }
+
+            .dark-mode .resource-grid > div p,
+            .dark-mode .resource-card p {
+                color: #ffffff !important;
             }
             
             .resource-grid > div i,
@@ -514,7 +535,7 @@ $csrf_token = generateCSRFLite();
             .resource-grid > div .btn-download,
             .resource-card .btn-download {
                 background: var(--card-hover-bg);
-                color: var(--text-color);
+                color: #202124;
                 border: 1px solid #000;
                 width: 100% !important;
                 text-align: center;
@@ -533,14 +554,14 @@ $csrf_token = generateCSRFLite();
             .dark-mode .resource-card .btn-download {
                 background: #252525;
                 color: #ffffff;
-                border: 1px solid #ffffff;
+                border: 1px solid #ffc107;
             }
-            
+
             .dark-mode .resource-grid > div .btn-download:hover,
             .dark-mode .resource-card .btn-download:hover {
                 background: var(--primary-orange);
                 color: white;
-                border-color: #ffffff;
+                border-color: #ffc107;
             }
             
             /* Hide view button on mobile */
@@ -572,12 +593,20 @@ $csrf_token = generateCSRFLite();
                 line-height: 1.4;
                 margin-bottom: 8px !important;
             }
+
+            .dark-mode .main-content > div[style*="repeat(auto-fill, minmax(280px, 1fr))"] > div h3 {
+                color: #ffffff !important;
+            }
             
             .main-content > div[style*="repeat(auto-fill, minmax(280px, 1fr))"] > div p {
                 font-size: 12px !important;
                 margin-bottom: 6px !important;
                 color: var(--secondary-color);
                 line-height: 1.3;
+            }
+
+            .dark-mode .main-content > div[style*="repeat(auto-fill, minmax(280px, 1fr))"] > div p {
+                color: #ffffff !important;
             }
             
             .main-content > div[style*="repeat(auto-fill, minmax(280px, 1fr))"] > div i {
@@ -592,7 +621,7 @@ $csrf_token = generateCSRFLite();
             
             .main-content > div[style*="repeat(auto-fill, minmax(280px, 1fr))"] > div .btn-download {
                 background: var(--card-hover-bg);
-                color: var(--text-color);
+                color: #202124;
                 border: 1px solid #000;
             }
             
@@ -606,13 +635,13 @@ $csrf_token = generateCSRFLite();
             .dark-mode .main-content > div[style*="repeat(auto-fill, minmax(280px, 1fr))"] > div .btn-download {
                 background: #252525;
                 color: #ffffff;
-                border: 1px solid #ffffff;
+                border: 1px solid #ffc107;
             }
-            
+
             .dark-mode .main-content > div[style*="repeat(auto-fill, minmax(280px, 1fr))"] > div .btn-download:hover {
                 background: var(--primary-orange);
                 color: white;
-                border-color: #ffffff;
+                border-color: #ffc107;
             }
         }
             
@@ -653,14 +682,14 @@ $csrf_token = generateCSRFLite();
             .dark-mode .resource-card .btn-download {
                 background: #252525;
                 color: #ffffff;
-                border: 1px solid #ffffff;
+                border: 1px solid #ffc107;
             }
-            
+
             .dark-mode .resource-grid > div .btn-download:hover,
             .dark-mode .resource-card .btn-download:hover {
                 background: var(--primary-orange);
                 color: white;
-                border-color: #ffffff;
+                border-color: #ffc107;
             }
             
             /* Search and filter mobile optimization */
@@ -679,22 +708,32 @@ $csrf_token = generateCSRFLite();
             
             /* Stat cards mobile optimization */
             .stat-card {
-                padding: 16px !important;
+                padding: 20px !important;
                 text-align: center !important;
             }
-            
+
             .stat-card h3 {
-                font-size: 24px !important;
+                font-size: 28px !important;
             }
-            
+
+            .stat-card p {
+                font-size: 13px !important;
+            }
+
             .stat-card > div:first-child {
                 flex-direction: column !important;
                 align-items: center !important;
-                gap: 8px !important;
+                gap: 12px !important;
             }
-            
+
             .stat-card > div:first-child i {
-                font-size: 20px !important;
+                font-size: 28px !important;
+            }
+
+            .stat-card > div > div {
+                flex-direction: column !important;
+                align-items: center !important;
+                gap: 4px !important;
             }
         }
         
@@ -849,13 +888,118 @@ $csrf_token = generateCSRFLite();
         .dark-mode .btn-download {
             background: #252525;
             color: #ffffff;
-            border: 1px solid #ffffff;
+            border: 1px solid #ffc107;
         }
-        
+
         .dark-mode .btn-download:hover {
             background: var(--primary-orange);
             color: white;
-            border-color: #ffffff;
+            border-color: #ffc107;
+        }
+
+        /* Dark mode for locked button */
+        .dark-mode .btn-download[style*="background: #f1f3f4"] {
+            background: #252525 !important;
+            color: #ffffff !important;
+            border: 1px solid var(--primary-gold) !important;
+        }
+
+        .dark-mode .btn-download[style*="background: #f1f3f4"]:hover {
+            border-color: var(--primary-gold) !important;
+        }
+
+        /* Locked button styling */
+        .locked-button {
+            background: #f1f3f4 !important;
+            color: #202124 !important;
+            border: 1px solid #000 !important;
+        }
+
+        .dark-mode .locked-button {
+            background: #252525 !important;
+            color: #ffffff !important;
+            border: 1px solid var(--primary-gold) !important;
+        }
+
+        .dark-mode .locked-button:hover {
+            border-color: var(--primary-gold) !important;
+        }
+
+        /* Resource card content dark mode styling */
+        .dark-mode .resource-card h3 {
+            color: #ffffff !important;
+        }
+
+        .dark-mode .resource-card p {
+            color: #ffffff !important;
+        }
+
+        /* Mobile resource card content positioning */
+        @media (max-width: 768px) {
+            .resource-card {
+                padding: 16px !important;
+            }
+
+            .resource-card h3 {
+                font-size: 15px !important;
+                margin-bottom: 10px !important;
+                line-height: 1.4;
+            }
+
+            .resource-card p {
+                font-size: 12px !important;
+                margin-bottom: 8px !important;
+                line-height: 1.5;
+            }
+
+            .resource-card .fa-folder,
+            .resource-card .fa-user,
+            .resource-card .fa-download {
+                margin-right: 6px !important;
+                font-size: 12px !important;
+            }
+
+            .resource-card .btn-download {
+                margin-top: 8px !important;
+            }
+
+            /* Upload buttons mobile styling */
+            .upload-buttons-container {
+                flex-direction: column !important;
+                gap: 12px !important;
+            }
+
+            .upload-buttons-container button {
+                width: 100% !important;
+                padding: 12px 16px !important;
+                font-size: 14px !important;
+                margin: 0 !important;
+            }
+
+            .upload-buttons-container button[type="submit"] {
+                background: var(--primary-orange) !important;
+                color: white !important;
+                border: 1px solid var(--primary-orange) !important;
+            }
+
+            .upload-buttons-container button[type="reset"] {
+                background: #252525 !important;
+                color: #ffffff !important;
+                border: 1px solid var(--primary-gold) !important;
+            }
+
+            /* Dark mode upload buttons */
+            .dark-mode .upload-buttons-container button[type="submit"] {
+                background: var(--primary-orange) !important;
+                color: white !important;
+                border: 1px solid var(--primary-orange) !important;
+            }
+
+            .dark-mode .upload-buttons-container button[type="reset"] {
+                background: #252525 !important;
+                color: #ffffff !important;
+                border: 1px solid var(--primary-gold) !important;
+            }
         }
         
         /* Search and filter controls styling */
@@ -921,13 +1065,13 @@ $csrf_token = generateCSRFLite();
         .dark-mode .main-content > div[style*="repeat(auto-fill, minmax(280px, 1fr))"] > div .btn-download {
             background: #252525;
             color: #ffffff;
-            border: 1px solid #ffffff;
+            border: 1px solid #ffc107;
         }
-        
+
         .dark-mode .main-content > div[style*="repeat(auto-fill, minmax(280px, 1fr))"] > div .btn-download:hover {
             background: var(--primary-orange);
             color: white;
-            border-color: #ffffff;
+            border-color: #ffc107;
         }
         
         /* Upload form dark mode */
@@ -1010,7 +1154,63 @@ $csrf_token = generateCSRFLite();
             transition: background 0.3s ease;
         }
         
+        /* Upload buttons styling */
+        .upload-buttons-container button[type="submit"] {
+            background: var(--primary-orange);
+            color: white;
+            border: 1px solid var(--primary-orange);
+            padding: 10px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .upload-buttons-container button[type="submit"]:hover {
+            background: #e55a2b;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 107, 53, 0.4);
+        }
+
+        .upload-buttons-container button[type="reset"] {
+            background: #f1f3f4;
+            color: #202124;
+            border: 1px solid #000;
+            padding: 10px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .upload-buttons-container button[type="reset"]:hover {
+            background: #e8eaed;
+            transform: translateY(-2px);
+        }
+
+        .dark-mode .upload-buttons-container button[type="reset"] {
+            background: #252525;
+            color: #ffffff;
+            border: 1px solid #ffc107;
+        }
+
+        .dark-mode .upload-buttons-container button[type="reset"]:hover {
+            background: #3a3a3a;
+            border-color: #ffc107;
+        }
+
         .btn-secondary {
+            background: var(--card-hover-bg);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background: var(--border-color);
+        }
+
             background: #f1f3f4;
             color: #202124;
             border: 1px solid #dadce0;
@@ -1085,37 +1285,322 @@ $csrf_token = generateCSRFLite();
         
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
         }
-        
+
         @media (max-width: 768px) {
             .stats-grid {
                 grid-template-columns: repeat(2, 1fr) !important;
-                gap: 12px !important;
+                gap: 16px !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .stats-grid {
+                grid-template-columns: 1fr !important;
+                gap: 16px !important;
             }
         }
         
         .stat-card {
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
+            background: var(--bg-color, #f8f9fa);
+            border: 1px solid #e0e0e0;
             border-radius: 8px;
             padding: 20px;
             text-align: left;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+            transition: box-shadow 0.3s ease;
         }
-        
+
+        .stat-card:hover {
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+        }
+
         .stat-card h3 {
-            font-size: 28px;
-            font-weight: 400;
-            color: var(--primary-orange);
+            font-size: 32px;
+            font-weight: 700;
+            color: #202124;
             margin-bottom: 4px;
         }
-        
+
         .stat-card p {
             font-size: 14px;
-            color: var(--secondary-color);
+            color: #5f6368;
             margin: 0;
+            font-weight: 500;
+        }
+
+        .stat-card i {
+            color: var(--primary-orange) !important;
+        }
+
+        .stat-card > div > div span {
+            color: #5f6368 !important;
+        }
+
+        .stat-card > div > div span[style*="font-weight: 500"] {
+            color: #202124 !important;
+        }
+
+        .stat-card > div[style*="border-top"] {
+            border-top: 1px solid #e8eaed !important;
+        }
+
+        .stat-card span[style*="background: rgba(255, 255, 255, 0.2)"] {
+            background: #f1f3f4 !important;
+            color: #202124 !important;
+        }
+
+        /* Dark mode stat cards */
+        .dark-mode .stat-card {
+            background: var(--card-bg);
+            border: 1px solid #ffc107;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+        }
+
+        .dark-mode .stat-card:hover {
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
+        }
+
+        .dark-mode .stat-card h3 {
+            color: #ffffff;
+            text-shadow: none;
+        }
+
+        .dark-mode .stat-card p {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .dark-mode .stat-card i {
+            color: var(--primary-orange) !important;
+            filter: none;
+        }
+
+        .dark-mode .stat-card > div > div span {
+            color: rgba(255, 255, 255, 0.7) !important;
+        }
+
+        .dark-mode .stat-card > div > div span[style*="font-weight: 500"] {
+            color: #ffffff !important;
+        }
+
+        .dark-mode .stat-card > div[style*="border-top"] {
+            border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+        }
+
+        .dark-mode .stat-card span[style*="background: rgba(255, 255, 255, 0.2)"] {
+            background: rgba(255, 255, 255, 0.1) !important;
+            color: #ffffff !important;
+        }
+
+        /* Dark mode stat card inline style overrides */
+        .dark-mode .stat-card i[style*="color: #FF6B35"] {
+            color: var(--primary-orange) !important;
+        }
+
+        .dark-mode .stat-card h3 {
+            color: #ffffff !important;
+        }
+
+        .dark-mode .stat-card p {
+            color: rgba(255, 255, 255, 0.8) !important;
+        }
+
+        .dark-mode .stat-card span[style*="color: #5f6368"] {
+            color: rgba(255, 255, 255, 0.7) !important;
+        }
+
+        .dark-mode .stat-card span[style*="color: #202124"] {
+            color: #ffffff !important;
+        }
+
+        .dark-mode .stat-card div[style*="border-top: 1px solid #e8eaed"] {
+            border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+        }
+
+        .dark-mode .stat-card span[style*="background: #f1f3f4"] {
+            background: rgba(255, 255, 255, 0.1) !important;
+            color: #ffffff !important;
+        }
+
+        /* Quick Links styling */
+        .quick-link-card {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px;
+            border-radius: 8px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: 1px solid transparent;
+        }
+
+        .quick-link-card span {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .quick-link-card i {
+            font-size: 18px;
+        }
+
+        /* Light mode quick links colors */
+        .quick-link-card:nth-child(1) {
+            background: #FF6B35;
+            border: none;
+            color: #ffffff;
+            box-shadow: 0 2px 8px rgba(255, 107, 53, 0.3);
+        }
+
+        .quick-link-card:nth-child(1):hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 107, 53, 0.4);
+        }
+
+        .quick-link-card:nth-child(2) {
+            background: #FFD700;
+            border: none;
+            color: #333333;
+            box-shadow: 0 2px 8px rgba(255, 215, 0, 0.3);
+        }
+
+        .quick-link-card:nth-child(2):hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 215, 0, 0.4);
+        }
+
+        .quick-link-card:nth-child(3) {
+            background: #228B22;
+            border: none;
+            color: #ffffff;
+            box-shadow: 0 2px 8px rgba(34, 139, 34, 0.3);
+        }
+
+        .quick-link-card:nth-child(3):hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(34, 139, 34, 0.4);
+        }
+
+        .quick-link-card:nth-child(4) {
+            background: #000000;
+            border: none;
+            color: #ffffff;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .quick-link-card:nth-child(4):hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+        }
+
+        .quick-link-card:nth-child(5) {
+            background: #808080;
+            border: none;
+            color: #ffffff;
+            box-shadow: 0 2px 8px rgba(128, 128, 128, 0.3);
+        }
+
+        .quick-link-card:nth-child(5):hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(128, 128, 128, 0.4);
+        }
+
+        .quick-link-card:nth-child(6) {
+            background: #A9A9A9;
+            border: none;
+            color: #ffffff;
+            box-shadow: 0 2px 8px rgba(169, 169, 169, 0.3);
+        }
+
+        .quick-link-card:nth-child(6):hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(169, 169, 169, 0.4);
+        }
+
+        .quick-link-card i {
+            color: #ffffff;
+        }
+
+        .quick-link-card:nth-child(2) i {
+            color: #333333;
+        }
+
+        /* Dark mode quick links */
+        .dark-mode .quick-link-card:nth-child(1) {
+            background: #FF6B35;
+            border: none;
+            color: #ffffff;
+            box-shadow: 0 2px 8px rgba(255, 107, 53, 0.4);
+        }
+
+        .dark-mode .quick-link-card:nth-child(1):hover {
+            box-shadow: 0 4px 12px rgba(255, 107, 53, 0.5);
+        }
+
+        .dark-mode .quick-link-card:nth-child(2) {
+            background: #FFD700;
+            border: none;
+            color: #333333;
+            box-shadow: 0 2px 8px rgba(255, 215, 0, 0.4);
+        }
+
+        .dark-mode .quick-link-card:nth-child(2):hover {
+            box-shadow: 0 4px 12px rgba(255, 215, 0, 0.5);
+        }
+
+        .dark-mode .quick-link-card:nth-child(3) {
+            background: #228B22;
+            border: none;
+            color: #ffffff;
+            box-shadow: 0 2px 8px rgba(34, 139, 34, 0.4);
+        }
+
+        .dark-mode .quick-link-card:nth-child(3):hover {
+            box-shadow: 0 4px 12px rgba(34, 139, 34, 0.5);
+        }
+
+        .dark-mode .quick-link-card:nth-child(4) {
+            background: #1a1a1a;
+            border: 1px solid #ffffff;
+            color: #ffffff;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+        }
+
+        .dark-mode .quick-link-card:nth-child(4):hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+        }
+
+        .dark-mode .quick-link-card:nth-child(5) {
+            background: #A0A0A0;
+            border: none;
+            color: #ffffff;
+            box-shadow: 0 2px 8px rgba(160, 160, 160, 0.4);
+        }
+
+        .dark-mode .quick-link-card:nth-child(5):hover {
+            box-shadow: 0 4px 12px rgba(160, 160, 160, 0.5);
+        }
+
+        .dark-mode .quick-link-card:nth-child(6) {
+            background: #C0C0C0;
+            border: none;
+            color: #333333;
+            box-shadow: 0 2px 8px rgba(192, 192, 192, 0.4);
+        }
+
+        .dark-mode .quick-link-card:nth-child(6):hover {
+            box-shadow: 0 4px 12px rgba(192, 192, 192, 0.5);
+        }
+
+        .dark-mode .quick-link-card i {
+            color: #ffffff !important;
+        }
+
+        .dark-mode .quick-link-card:nth-child(2) i,
+        .dark-mode .quick-link-card:nth-child(6) i {
+            color: #333333 !important;
         }
         
         .alert {
@@ -1139,12 +1624,7 @@ $csrf_token = generateCSRFLite();
                 <i class="fas fa-bars"></i>
             </button>
             <div class="logo">
-                <div style="width: 40px; height: 40px; background: var(--primary-gold); border: 3px solid var(--primary-orange); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 0;">
-                    <span style="font-weight: bold; font-size: 20px;">
-                        <span style="color: var(--primary-orange); font-size: 24px;">K</span><span style="color: #008000; font-size: 20px;">E</span>
-                    </span>
-                </div>
-                <span style="color: var(--primary-orange); font-weight: bold;">Kenya</span> <span style="color: #008000; font-weight: bold;">EduHub</span>
+                <?php require_once '../includes/logo.php'; ?>
             </div>
         </div>
         <div class="header-right">
@@ -1190,31 +1670,31 @@ $csrf_token = generateCSRFLite();
         <div class="stats-grid">
             <div class="stat-card">
                 <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
-                    <i class="fas fa-folder-open" style="color: #FF6B35; font-size: 24px;"></i>
+                    <i class="fas fa-folder-open" style="color: #FF6B35; font-size: 28px;"></i>
                     <div>
                         <h3><?php echo $user_upload_count; ?></h3>
                         <p>My Resources</p>
                     </div>
                 </div>
-                <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border-color);">
+                <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid #e8eaed;">
                     <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                        <span style="color: var(--secondary-color); font-size: 12px;">Total Downloads</span>
-                        <span style="color: var(--text-color); font-weight: 500; font-size: 12px;"><?php echo $user_total_downloads; ?></span>
+                        <span style="color: #5f6368; font-size: 12px;">Total Downloads</span>
+                        <span style="color: #202124; font-weight: 500; font-size: 12px;"><?php echo $user_total_downloads; ?></span>
                     </div>
                     <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                        <span style="color: var(--secondary-color); font-size: 12px;">Recent (1 week)</span>
-                        <span style="color: var(--text-color); font-weight: 500; font-size: 12px;"><?php echo $user_recent_uploads; ?></span>
+                        <span style="color: #5f6368; font-size: 12px;">Recent (1 week)</span>
+                        <span style="color: #202124; font-weight: 500; font-size: 12px;"><?php echo $user_recent_uploads; ?></span>
                     </div>
                     <div style="display: flex; justify-content: space-between;">
-                        <span style="color: var(--secondary-color); font-size: 12px;">Status</span>
-                        <span style="color: #137333; font-weight: 500; font-size: 12px;"><?php echo $activity_level; ?></span>
+                        <span style="color: #5f6368; font-size: 12px;">Status</span>
+                        <span style="color: #202124; font-weight: 500; font-size: 12px;"><?php echo $activity_level; ?></span>
                     </div>
                     <?php if (!empty($user_file_type_stats)): ?>
-                    <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border-color);">
-                        <span style="color: var(--secondary-color); font-size: 12px; display: block; margin-bottom: 4px;">My File Types:</span>
+                    <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid #e8eaed;">
+                        <span style="color: #5f6368; font-size: 12px; display: block; margin-bottom: 4px;">My File Types:</span>
                         <div style="display: flex; flex-wrap: wrap; gap: 4px;">
                             <?php foreach ($user_file_type_stats as $type => $count): ?>
-                                <span style="background: var(--card-hover-bg); color: var(--text-color); padding: 2px 8px; border-radius: 12px; font-size: 10px; font-weight: 500;"><?php echo $type; ?>: <?php echo $count; ?></span>
+                                <span style="background: #f1f3f4; color: #202124; padding: 2px 8px; border-radius: 12px; font-size: 10px; font-weight: 500;"><?php echo $type; ?>: <?php echo $count; ?></span>
                             <?php endforeach; ?>
                         </div>
                     </div>
@@ -1223,31 +1703,31 @@ $csrf_token = generateCSRFLite();
             </div>
             <div class="stat-card">
                 <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
-                    <i class="fas fa-book" style="color: #FF6B35; font-size: 24px;"></i>
+                    <i class="fas fa-book" style="color: #FF6B35; font-size: 28px;"></i>
                     <div>
                         <h3><?php echo $total_resources; ?></h3>
                         <p>Total Resources</p>
                     </div>
                 </div>
-                <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border-color);">
+                <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid #e8eaed;">
                     <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                        <span style="color: var(--secondary-color); font-size: 12px;">Total Downloads</span>
-                        <span style="color: var(--text-color); font-weight: 500; font-size: 12px;"><?php echo $all_total_downloads; ?></span>
+                        <span style="color: #5f6368; font-size: 12px;">Total Downloads</span>
+                        <span style="color: #202124; font-weight: 500; font-size: 12px;"><?php echo $all_total_downloads; ?></span>
                     </div>
                     <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                        <span style="color: var(--secondary-color); font-size: 12px;">Unique Subjects</span>
-                        <span style="color: var(--text-color); font-weight: 500; font-size: 12px;"><?php echo count($all_subject_stats); ?></span>
+                        <span style="color: #5f6368; font-size: 12px;">Unique Subjects</span>
+                        <span style="color: #202124; font-weight: 500; font-size: 12px;"><?php echo count($all_subject_stats); ?></span>
                     </div>
                     <div style="display: flex; justify-content: space-between;">
-                        <span style="color: var(--secondary-color); font-size: 12px;">File Types</span>
-                        <span style="color: var(--text-color); font-weight: 500; font-size: 12px;"><?php echo count($all_file_type_stats); ?></span>
+                        <span style="color: #5f6368; font-size: 12px;">File Types</span>
+                        <span style="color: #202124; font-weight: 500; font-size: 12px;"><?php echo count($all_file_type_stats); ?></span>
                     </div>
                     <?php if (!empty($all_file_type_stats)): ?>
-                    <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border-color);">
-                        <span style="color: var(--secondary-color); font-size: 12px; display: block; margin-bottom: 4px;">System File Types:</span>
+                    <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid #e8eaed;">
+                        <span style="color: #5f6368; font-size: 12px; display: block; margin-bottom: 4px;">System File Types:</span>
                         <div style="display: flex; flex-wrap: wrap; gap: 4px;">
                             <?php foreach ($all_file_type_stats as $type => $count): ?>
-                                <span style="background: var(--card-hover-bg); color: var(--text-color); padding: 2px 8px; border-radius: 12px; font-size: 10px; font-weight: 500;"><?php echo $type; ?>: <?php echo $count; ?></span>
+                                <span style="background: #f1f3f4; color: #202124; padding: 2px 8px; border-radius: 12px; font-size: 10px; font-weight: 500;"><?php echo $type; ?>: <?php echo $count; ?></span>
                             <?php endforeach; ?>
                         </div>
                     </div>
@@ -1256,39 +1736,39 @@ $csrf_token = generateCSRFLite();
             </div>
             <div class="stat-card">
                 <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
-                    <i class="fas fa-calendar-alt" style="color: #FF6B35; font-size: 24px;"></i>
+                    <i class="fas fa-calendar-alt" style="color: #FF6B35; font-size: 28px;"></i>
                     <div>
                         <h3><?php echo $account_age ?: 'New'; ?></h3>
                         <p>Member Since</p>
                     </div>
                 </div>
-                <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border-color);">
+                <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid #e8eaed;">
                     <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                        <span style="color: var(--secondary-color); font-size: 12px;">Account Type</span>
-                        <span style="color: var(--text-color); font-weight: 500; font-size: 12px;"><?php echo ucfirst($user_role); ?></span>
+                        <span style="color: #5f6368; font-size: 12px;">Account Type</span>
+                        <span style="color: #202124; font-weight: 500; font-size: 12px;"><?php echo ucfirst($user_role); ?></span>
                     </div>
                     <div style="display: flex; justify-content: space-between;">
-                        <span style="color: var(--secondary-color); font-size: 12px;">Email</span>
-                        <span style="color: var(--text-color); font-weight: 500; font-size: 12px; max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"><?php echo htmlspecialchars(substr($user_email, 0, 15)) . (strlen($user_email) > 15 ? '...' : ''); ?></span>
+                        <span style="color: #5f6368; font-size: 12px;">Email</span>
+                        <span style="color: #202124; font-weight: 500; font-size: 12px; max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"><?php echo htmlspecialchars(substr($user_email, 0, 15)) . (strlen($user_email) > 15 ? '...' : ''); ?></span>
                     </div>
                 </div>
             </div>
             <div class="stat-card">
                 <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
-                    <i class="fas fa-star" style="color: #FF6B35; font-size: 24px;"></i>
+                    <i class="fas fa-star" style="color: #FF6B35; font-size: 28px;"></i>
                     <div>
                         <h3><?php echo !empty($all_subject_stats) ? array_key_first($all_subject_stats) : 'N/A'; ?></h3>
                         <p>Top Subject</p>
                     </div>
                 </div>
-                <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border-color);">
+                <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid #e8eaed;">
                     <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                        <span style="color: var(--secondary-color); font-size: 12px;">Resources</span>
-                        <span style="color: var(--text-color); font-weight: 500; font-size: 12px;"><?php echo !empty($all_subject_stats) ? $all_subject_stats[array_key_first($all_subject_stats)] : 0; ?></span>
+                        <span style="color: #5f6368; font-size: 12px;">Resources</span>
+                        <span style="color: #202124; font-weight: 500; font-size: 12px;"><?php echo !empty($all_subject_stats) ? $all_subject_stats[array_key_first($all_subject_stats)] : 0; ?></span>
                     </div>
                     <div style="display: flex; justify-content: space-between;">
-                        <span style="color: var(--secondary-color); font-size: 12px;">Total Subjects</span>
-                        <span style="color: var(--text-color); font-weight: 500; font-size: 12px;"><?php echo count($all_subject_stats); ?></span>
+                        <span style="color: #5f6368; font-size: 12px;">Total Subjects</span>
+                        <span style="color: #202124; font-weight: 500; font-size: 12px;"><?php echo count($all_subject_stats); ?></span>
                     </div>
                 </div>
             </div>
@@ -1298,29 +1778,29 @@ $csrf_token = generateCSRFLite();
         <div id="quickLinksSection" style="background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 24px; margin-bottom: 32px;">
             <h2 style="font-size: 22px; font-weight: 400; color: var(--text-color); margin-bottom: 24px;">Quick Links</h2>
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
-                <a href="dashboard" style="display: flex; align-items: center; gap: 12px; padding: 16px; background: var(--card-hover-bg); border: 1px solid var(--border-color); border-radius: 8px; text-decoration: none; color: var(--text-color); transition: all 0.2s;">
-                    <i class="fas fa-tachometer-alt" style="color: #FF6B35; font-size: 18px;"></i>
-                    <span style="font-size: 14px; font-weight: 500;">Dashboard</span>
+                <a href="dashboard" class="quick-link-card">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>Dashboard</span>
                 </a>
-                <a href="?section=resources" style="display: flex; align-items: center; gap: 12px; padding: 16px; background: var(--card-hover-bg); border: 1px solid var(--border-color); border-radius: 8px; text-decoration: none; color: var(--text-color); transition: all 0.2s;">
-                    <i class="fas fa-book" style="color: #FF6B35; font-size: 18px;"></i>
-                    <span style="font-size: 14px; font-weight: 500;">My Resources</span>
+                <a href="?section=resources" class="quick-link-card">
+                    <i class="fas fa-book"></i>
+                    <span>My Resources</span>
                 </a>
-                <a href="?section=upload" style="display: flex; align-items: center; gap: 12px; padding: 16px; background: var(--card-hover-bg); border: 1px solid var(--border-color); border-radius: 8px; text-decoration: none; color: var(--text-color); transition: all 0.2s;">
-                    <i class="fas fa-upload" style="color: #FF6B35; font-size: 18px;"></i>
-                    <span style="font-size: 14px; font-weight: 500;">Upload Resource</span>
+                <a href="?section=upload" class="quick-link-card">
+                    <i class="fas fa-upload"></i>
+                    <span>Upload Resource</span>
                 </a>
-                <a href="https://sites.google.com/view/noteselectricalengineering/home" target="_blank" style="display: flex; align-items: center; gap: 12px; padding: 16px; background: var(--card-hover-bg); border: 1px solid var(--border-color); border-radius: 8px; text-decoration: none; color: var(--text-color); transition: all 0.2s;">
-                    <i class="fas fa-external-link-alt" style="color: #FF6B35; font-size: 18px;"></i>
-                    <span style="font-size: 14px; font-weight: 500;">More Resources</span>
+                <a href="https://sites.google.com/view/noteselectricalengineering/home" target="_blank" class="quick-link-card">
+                    <i class="fas fa-external-link-alt"></i>
+                    <span>More Resources</span>
                 </a>
-                <a href="profile" style="display: flex; align-items: center; gap: 12px; padding: 16px; background: var(--card-hover-bg); border: 1px solid var(--border-color); border-radius: 8px; text-decoration: none; color: var(--text-color); transition: all 0.2s;">
-                    <i class="fas fa-user" style="color: #FF6B35; font-size: 18px;"></i>
-                    <span style="font-size: 14px; font-weight: 500;">Profile</span>
+                <a href="profile" class="quick-link-card">
+                    <i class="fas fa-user"></i>
+                    <span>Profile</span>
                 </a>
-                <a href="settings" style="display: flex; align-items: center; gap: 12px; padding: 16px; background: var(--card-hover-bg); border: 1px solid var(--border-color); border-radius: 8px; text-decoration: none; color: var(--text-color); transition: all 0.2s;">
-                    <i class="fas fa-cog" style="color: #FF6B35; font-size: 18px;"></i>
-                    <span style="font-size: 14px; font-weight: 500;">Settings</span>
+                <a href="settings" class="quick-link-card">
+                    <i class="fas fa-cog"></i>
+                    <span>Settings</span>
                 </a>
             </div>
         </div>
@@ -1404,11 +1884,11 @@ $csrf_token = generateCSRFLite();
                             </div>
                         </div>
                     </div>
-                    <div style="margin-top: 24px; display: flex; gap: 12px;">
+                    <div style="margin-top: 24px; display: flex; gap: 12px;" class="upload-buttons-container">
                         <button type="submit" class="btn btn-primary" id="uploadBtn">
                             <i class="fas fa-upload"></i> Upload Resource
                         </button>
-                        <button type="reset" class="btn btn-secondary" style="background: var(--card-hover-bg); color: var(--text-color); border: 1px solid var(--border-color);">
+                        <button type="reset" class="btn btn-secondary" id="clearBtn">
                             <i class="fas fa-times"></i> Clear
                         </button>
                     </div>
@@ -1418,40 +1898,10 @@ $csrf_token = generateCSRFLite();
         
         <!-- My Resources Section -->
         <div id="resourcesSection">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+            <div style="display: flex; justify-content: center; align-items: center; margin-bottom: 24px;">
                 <h2 style="font-size: 22px; font-weight: 400; color: var(--text-color);">My Resources</h2>
-                <a href="upload" class="btn btn-primary btn-sm">
-                    <i class="fas fa-plus"></i> Add New
-                </a>
             </div>
-            
-            <!-- Search and Filter Controls -->
-            <div class="resource-section-filters" style="background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 16px; margin-bottom: 24px;">
-                <div style="display: flex; gap: 12px; flex-wrap: wrap;">
-                    <div style="flex: 1; min-width: 200px;">
-                        <div style="position: relative;">
-                            <input type="text" id="searchMyResources" placeholder="Search my resources..." style="width: 100%; padding: 10px 16px 10px 40px; border: 1px solid var(--form-border-color); border-radius: 25px; font-size: 14px; background: var(--card-bg); color: var(--text-color);">
-                            <i class="fas fa-search" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--secondary-color);"></i>
-                        </div>
-                    </div>
-                    <div style="min-width: 150px;">
-                        <select id="filterMyResources" style="width: 100%; padding: 10px 16px; border: 1px solid var(--form-border-color); border-radius: 25px; font-size: 14px; background: var(--card-bg); color: var(--text-color); cursor: pointer;">
-                            <option value="">All Types</option>
-                            <?php foreach ($allowed_file_types as $type): ?>
-                                <option value="<?php echo $type; ?>"><?php echo $type; ?></option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-                    <div style="min-width: 150px;">
-                        <select id="filterMySubject" style="width: 100%; padding: 10px 16px; border: 1px solid var(--form-border-color); border-radius: 25px; font-size: 14px; background: var(--card-bg); color: var(--text-color); cursor: pointer;">
-                            <option value="">All Subjects</option>
-                            <?php foreach ($unique_subjects as $subject): ?>
-                                <option value="<?php echo strtolower($subject); ?>"><?php echo htmlspecialchars($subject); ?></option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-                </div>
-            </div>
+
             <?php if (empty($user_resources)): ?>
                 <div style="text-align: center; padding: 40px; color: var(--text-color);">
                     <i class="fas fa-folder-open fa-3x" style="color: var(--secondary-color); margin-bottom: 16px;"></i>
@@ -1663,7 +2113,7 @@ $csrf_token = generateCSRFLite();
                                     <?php if ($user_upload_count >= 2 || $resource['user_id'] == $user_id): ?>
                                         <a href="#" onclick="downloadResource(<?php echo $resource['id']; ?>, this)" class="btn btn-download">Download</a>
                                     <?php else: ?>
-                                        <button onclick="scrollToUploadSection()" class="btn btn-download" style="background: #f1f3f4; color: #5f6368; border: 1px solid #000;">
+                                        <button onclick="scrollToUploadSection()" class="btn btn-download locked-button">
                                             <i class="fas fa-lock"></i> Upload 2 resources to unlock
                                         </button>
                                     <?php endif; ?>
@@ -1675,14 +2125,7 @@ $csrf_token = generateCSRFLite();
     </main>
 
     <!-- Footer -->
-    <footer style="background: transparent; color: var(--secondary-color); padding: 2rem; text-align: center; border-top: 1px solid var(--border-color); margin-top: 40px;">
-        <p style="margin: 0;">
-            <span style="color: #FF6B35;">&copy; 2026</span>
-            <span style="color: #FF6B35;">Kenya</span>
-            <span style="color: #008000;">EduHub</span>
-            <span style="color: var(--secondary-color);">. All rights reserved.</span>
-        </p>
-    </footer>
+    <?php require_once '../includes/copywrite.php'; ?>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
@@ -1771,62 +2214,7 @@ $csrf_token = generateCSRFLite();
                 uploadSection.scrollIntoView({ behavior: 'smooth' });
             }
         }
-        
-        // Search and Filter Functionality for My Resources
-        const searchMyResources = document.getElementById('searchMyResources');
-        const filterMyResources = document.getElementById('filterMyResources');
-        const filterMySubject = document.getElementById('filterMySubject');
-        
-        if (searchMyResources && filterMyResources && filterMySubject) {
-            function filterMyResourcesList() {
-                const searchTerm = searchMyResources.value.toLowerCase();
-                const typeFilter = filterMyResources.value;
-                const subjectFilter = filterMySubject.value;
-                
-                const resourceCards = document.querySelectorAll('#resourcesSection .resource-card');
-                let visibleCount = 0;
-                
-                resourceCards.forEach(card => {
-                    const title = card.getAttribute('data-title') || '';
-                    const type = card.getAttribute('data-type') || '';
-                    const fileGroup = card.getAttribute('data-file-group') || '';
-                    const subject = card.getAttribute('data-subject') || '';
-                    
-                    const matchesSearch = title.includes(searchTerm);
-                    // Match by exact type or file group
-                    let matchesType = typeFilter === '' || type === typeFilter || fileGroup === typeFilter;
-                    
-                    const matchesSubject = subjectFilter === '' || subject === subjectFilter;
-                    
-                    if (matchesSearch && matchesType && matchesSubject) {
-                        card.style.display = 'block';
-                        visibleCount++;
-                    } else {
-                        card.style.display = 'none';
-                    }
-                });
-                
-                // Show "no results" message if needed
-                let noResultsMsg = document.querySelector('#resourcesSection .no-results-message');
-                if (visibleCount === 0 && resourceCards.length > 0) {
-                    if (!noResultsMsg) {
-                        noResultsMsg = document.createElement('div');
-                        noResultsMsg.className = 'no-results-message';
-                        noResultsMsg.style.cssText = 'text-align: center; padding: 40px; color: var(--text-color);';
-                        noResultsMsg.innerHTML = '<i class="fas fa-search fa-2x" style="color: var(--secondary-color); margin-bottom: 16px;"></i><p style="color: var(--secondary-color);">No resources match your search criteria</p>';
-                        document.querySelector('#resourcesSection .resource-grid').after(noResultsMsg);
-                    }
-                    noResultsMsg.style.display = 'block';
-                } else if (noResultsMsg) {
-                    noResultsMsg.style.display = 'none';
-                }
-            }
-            
-            searchMyResources.addEventListener('input', filterMyResourcesList);
-            filterMyResources.addEventListener('change', filterMyResourcesList);
-            filterMySubject.addEventListener('change', filterMyResourcesList);
-        }
-        
+
         // Search and Filter Functionality for All Resources
         const searchAllResources = document.getElementById('searchAllResources');
         const filterAllResources = document.getElementById('filterAllResources');
@@ -2086,18 +2474,87 @@ $csrf_token = generateCSRFLite();
         
         // Download Resource Function
         function downloadResource(resourceId, element) {
-            // Implement download functionality
-            const originalText = element.innerHTML;
-            element.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Downloading...';
+            // Prevent duplicate clicks - disable button immediately
+            if (element.disabled || element.classList.contains('btn-loading')) {
+                return;
+            }
+
+            // Add loading state
+            element.classList.add('btn-loading');
             element.disabled = true;
-            
-            // Simulate download (replace with actual download logic)
-            setTimeout(() => {
-                element.innerHTML = originalText;
+            element.innerHTML = '<i class="fas fa-download"></i> Downloading...';
+
+            // Use fetch to download the file (single call, handles errors properly)
+            const downloadUrl = `../api/download.php?id=${resourceId}&download=true`;
+
+            fetch(downloadUrl, {
+                method: 'GET',
+                credentials: 'include'
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(data => {
+                        throw new Error(data.message || 'Download failed');
+                    });
+                }
+
+                // Get the content disposition header for the filename
+                const contentDisposition = response.headers.get('Content-Disposition');
+                let filename = 'resource_' + resourceId;
+
+                if (contentDisposition) {
+                    const filenameMatch = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+                    if (filenameMatch && filenameMatch[1]) {
+                        filename = filenameMatch[1].replace(/['"]/g, '');
+                    }
+                }
+
+                // Return the blob for successful downloads along with filename
+                return response.blob().then(blob => ({ blob, filename }));
+            })
+            .then(({ blob, filename }) => {
+                // Create a download link and trigger it
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+
+                // Reset button after a short delay
+                setTimeout(() => {
+                    element.classList.remove('btn-loading');
+                    element.innerHTML = '<i class="fas fa-download"></i> Download';
+                    element.disabled = false;
+                }, 2000);
+            })
+            .catch(error => {
+                // Show user-friendly error message in the dashboard
+                const errorDiv = document.createElement('div');
+                errorDiv.style.cssText = 'position: fixed; top: 20px; right: 20px; background: #f44336; color: white; padding: 16px 24px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); z-index: 10000; transition: all 0.3s ease;';
+                errorDiv.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${error.message}`;
+                document.body.appendChild(errorDiv);
+
+                // Reset button state
+                element.classList.remove('btn-loading');
+                element.innerHTML = '<i class="fas fa-download"></i> Download';
                 element.disabled = false;
-                alert('Download functionality to be implemented for resource ID: ' + resourceId);
-            }, 1000);
+
+                // Remove error message after 5 seconds
+                setTimeout(() => {
+                    errorDiv.style.opacity = '0';
+                    errorDiv.style.transform = 'translateX(100%)';
+                    setTimeout(() => {
+                        document.body.removeChild(errorDiv);
+                    }, 300);
+                }, 5000);
+            });
         }
+
+        // Make downloadResource globally accessible
+        window.downloadResource = downloadResource;
     </script>
 </body>
 </html>

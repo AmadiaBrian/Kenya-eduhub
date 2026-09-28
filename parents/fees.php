@@ -354,12 +354,14 @@ try {
             font-weight: 400;
             color: #202124;
             margin-bottom: 24px;
+            text-align: center;
         }
         
         .page-subtitle {
             font-size: 14px;
             color: #5f6368;
             margin-bottom: 32px;
+            text-align: center;
         }
         
         /* Cards */
@@ -376,6 +378,7 @@ try {
             font-weight: 500;
             color: #202124;
             margin-bottom: 16px;
+            text-align: center;
         }
         
         /* Fee Summary */
@@ -478,6 +481,7 @@ try {
             outline: none;
             transition: border-color 0.2s, box-shadow 0.2s;
             font-family: inherit;
+            background: var(--bg-color);
         }
         
         .form-control:focus {
@@ -576,69 +580,13 @@ try {
 </head>
 <body>
     <!-- Header -->
-    <header class="header">
-        <div class="header-left">
-            <button class="menu-btn" onclick="toggleSidebar()">
-                <i class="fas fa-bars"></i>
-            </button>
-            <div class="logo">
-                <div style="width: 40px; height: 40px; background: #FFD700; border: 3px solid #FF6B35; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 0;">
-                    <span style="font-weight: bold; font-size: 20px;">
-                        <span style="color: #FF6B35; font-size: 24px;">K</span><span style="color: #008000; font-size: 20px;">E</span>
-                    </span>
-                </div>
-                <span style="color: #FF6B35; font-weight: bold;">Kenya</span> <span style="color: #008000; font-weight: bold;">EduHub</span>
-            </div>
-        </div>
-        <div class="header-right">
-            <div class="user-avatar">
-                <?php echo strtoupper(substr($parent_name, 0, 1)); ?>
-            </div>
-        </div>
-    </header>
+    <?php require_once 'includes/header.php'; ?>
     
     <!-- Sidebar -->
-    <aside class="sidebar" id="sidebar">
-        <div class="sidebar-section">
-            <div class="sidebar-title">Main</div>
-            <a class="nav-link" href="dashboard">
-                <i class="fas fa-home"></i> Dashboard
-            </a>
-            <a class="nav-link" href="children">
-                <i class="fas fa-child"></i> My Children
-            </a>
-            <a class="nav-link" href="performance">
-                <i class="fas fa-chart-line"></i> Performance
-            </a>
-            <a class="nav-link" href="results">
-                <i class="fas fa-award"></i> Results
-            </a>
-            <a class="nav-link" href="attendance">
-                <i class="fas fa-calendar-check"></i> Attendance
-            </a>
-            <a class="nav-link" href="calendar">
-                <i class="fas fa-calendar"></i> Calendar
-            </a>
-            <a class="nav-link" href="assignments">
-                <i class="fas fa-tasks"></i> Assignments
-            </a>
-            <a class="nav-link" href="fines">
-                <i class="fas fa-book"></i> Library Fines
-            </a>
-            <a class="nav-link active" href="fees">
-                <i class="fas fa-money-bill-wave"></i> Fee Payments
-            </a>
-        </div>
-        <div class="sidebar-section">
-            <div class="sidebar-title">Account</div>
-            <a class="nav-link" href="profile">
-                <i class="fas fa-user"></i> Profile
-            </a>
-            <a class="nav-link" href="logout">
-                <i class="fas fa-sign-out-alt"></i> Logout
-            </a>
-        </div>
-    </aside>
+    <?php 
+    $active_page = 'fees';
+    require_once 'includes/sidebar.php'; 
+    ?>
     
     <!-- Main Content -->
     <main class="main-content" id="mainContent">
@@ -698,7 +646,7 @@ try {
             <h2 class="card-title">Select Child</h2>
             <div class="filter-group">
                 <label for="child_id">Child</label>
-                <select class="form-control" id="child_id" name="child_id" onchange="window.location.href='fees?child_id='+this.value">
+                <select class="form-control" id="child_id" name="child_id" onchange="window.location.href='fees?child_id='+this.value" style="background: var(--bg-color);">
                     <option value="">Select a child</option>
                     <?php foreach ($children as $child): ?>
                         <option value="<?php echo $child['id']; ?>" <?php echo $selected_child_id == $child['id'] ? 'selected' : ''; ?>>
@@ -798,7 +746,7 @@ try {
                     </div>
                     <div class="filter-group">
                         <label for="payment_amount">Amount (KES)</label>
-                        <input type="number" class="form-control" id="payment_amount" name="amount" min="1" required placeholder="Enter amount">
+                        <input type="number" class="form-control" id="payment_amount" name="amount" min="1" required placeholder="Enter amount" style="background: var(--bg-color);">
                         <small style="color: #5f6368; font-size: 11px;">Amount auto-filled based on balance. You can change it if needed.</small>
                     </div>
                     <div class="filter-group">
@@ -1386,15 +1334,9 @@ try {
         }
     </script>
     <script src="../assets/js/notifications.js"></script>
-    
+    </br>
+    </br>
     <!-- Footer -->
-    <footer style="background: transparent; color: white; padding: 2rem; text-align: center; border-top: 1px solid rgba(255, 255, 255, 0.1);">
-        <p style="margin: 0;">
-            <span style="color: #FF6B35;">&copy; 2026</span> 
-            <span style="color: #FF6B35;">Kenya</span> 
-            <span style="color: #008000;">EduHub</span>
-            <span style="color: #008000;">. All rights reserved.</span>
-        </p>
-    </footer>
+    <?php require_once '../includes/copywrite.php'; ?>
 </body>
 </html>

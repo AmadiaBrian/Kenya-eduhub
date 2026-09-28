@@ -145,6 +145,7 @@ try {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#FF6B35">
     <title>Resources Management - Kenya EduHub</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
@@ -558,57 +559,13 @@ try {
 </head>
 <body>
     <!-- Header -->
-    <div class="header">
-        <div class="header-left">
-            <button class="menu-btn" onclick="toggleSidebar()">
-                <i class="fas fa-bars"></i>
-            </button>
-            <div class="logo">
-                <div style="width: 40px; height: 40px; background: #FFD700; border: 3px solid #FF6B35; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 0;">
-                    <span style="font-weight: bold; font-size: 20px;">
-                        <span style="color: #FF6B35; font-size: 24px;">K</span><span style="color: #008000; font-size: 20px;">E</span>
-                    </span>
-                </div>
-                <span style="color: #FF6B35; font-weight: bold;">Kenya</span> <span style="color: #008000; font-weight: bold;">EduHub</span>
-            </div>
-        </div>
-        <div class="header-right">
-            <div class="user-avatar">
-                <?php echo strtoupper(substr($user['name'] ?? 'A', 0, 1)); ?>
-            </div>
-        </div>
-    </div>
+    <?php require_once 'includes/header.php'; ?>
 
     <!-- Sidebar -->
-    <div class="sidebar" id="sidebar">
-        <a class="nav-link" href="dashboard">
-            <i class="fas fa-home"></i> Dashboard
-        </a>
-        <a class="nav-link active" href="resources">
-            <i class="fas fa-book"></i> Resources
-        </a>
-        <a class="nav-link" href="users">
-            <i class="fas fa-users"></i> Users
-        </a>
-        <a class="nav-link" href="schools">
-            <i class="fas fa-school"></i> Schools
-        </a>
-        <a class="nav-link" href="reports">
-            <i class="fas fa-chart-bar"></i> Reports
-        </a>
-        <a class="nav-link" href="logs">
-            <i class="fas fa-history"></i> Activity Logs
-        </a>
-        <a class="nav-link" href="settings">
-            <i class="fas fa-cog"></i> Settings
-        </a>
-        <a class="nav-link" href="../../dashboard">
-            <i class="fas fa-arrow-left"></i> Back to Dashboard
-        </a>
-        <a class="nav-link" href="logout">
-            <i class="fas fa-sign-out-alt"></i> Logout
-        </a>
-    </div>
+    <?php 
+    $active_page = 'resources';
+    require_once 'includes/sidebar.php'; 
+    ?>
 
     <!-- Main Content -->
     <div class="main-content" id="mainContent">
@@ -746,14 +703,7 @@ try {
     </div>
 
     <!-- Footer -->
-    <footer style="background: transparent; color: #5f6368; padding: 2rem; text-align: center; border-top: 1px solid #e8eaed; margin-top: 40px;">
-        <p style="margin: 0;">
-            <span style="color: #FF6B35;">&copy; 2026</span>
-            <span style="color: #FF6B35;">Kenya</span>
-            <span style="color: #008000;">EduHub</span>
-            <span style="color: #5f6368;">. All rights reserved.</span>
-        </p>
-    </footer>
+    <?php require_once '../includes/copywrite.php'; ?>
 
     <!-- Confirmation Modal -->
     <div class="modal fade" id="confirmResourceModal" tabindex="-1" data-bs-backdrop="static">

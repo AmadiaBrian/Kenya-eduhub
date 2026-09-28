@@ -400,7 +400,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             --sidebar-width: 256px;
             --header-height: 64px;
             --primary-orange: #FF6B35;
-            --primary-gold: #FFD700;
+            --primary-gold: #ffc107;
             --text-color: #202124;
             --border-color: #e8eaed;
             --form-border-color: #dadce0;
@@ -411,6 +411,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             --bg-color: #1a1a1a;
             --card-bg: #1a1a1a;
             --text-color: #e8eaed;
+            --secondary-color: #ffffff;
             --border-color: #2a2a2a;
             --form-border-color: #2a2a2a;
             --card-hover-bg: #252525;
@@ -453,10 +454,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             border-radius: 50%;
             color: var(--secondary-color);
             transition: background 0.2s;
+            font-size: 18px;
         }
-        
+
         .menu-btn:hover {
             background: #f1f3f4;
+        }
+
+        .dark-mode .menu-btn {
+            color: var(--primary-gold);
+            font-size: 22px;
+        }
+
+        .dark-mode .menu-btn:hover {
+            background: rgba(255, 193, 7, 0.1);
         }
         
         .logo {
@@ -583,11 +594,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
         
         .dark-mode .dark-mode-toggle {
-            color: var(--text-color);
+            color: #ffc107;
         }
-        
+
         .dark-mode .dark-mode-toggle:hover {
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(255, 193, 7, 0.1);
         }
         
         .main-content {
@@ -606,6 +617,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             font-weight: 400;
             color: var(--text-color);
             margin-bottom: 24px;
+            text-align: center;
         }
         
         .card {
@@ -664,6 +676,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             outline: none;
             border-color: var(--primary-color);
         }
+
+        .dark-mode .form-control {
+            border-color: var(--primary-gold);
+        }
+
+        .dark-mode .form-control:focus {
+            border-color: var(--primary-gold);
+        }
         
         .form-check {
             display: flex;
@@ -693,6 +713,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             transition: all 0.3s ease;
             text-decoration: none;
             display: inline-block;
+            width: 100%;
         }
         
         .btn-primary {
@@ -778,12 +799,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <i class="fas fa-bars"></i>
             </button>
             <div class="logo">
-                <div style="width: 40px; height: 40px; background: var(--primary-gold); border: 3px solid var(--primary-orange); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 0;">
-                    <span style="font-weight: bold; font-size: 20px;">
-                        <span style="color: var(--primary-orange); font-size: 24px;">K</span><span style="color: #008000; font-size: 20px;">E</span>
-                    </span>
-                </div>
-                <span style="color: var(--primary-orange); font-weight: bold;">Kenya</span> <span style="color: #008000; font-weight: bold;">EduHub</span>
+                <?php require_once '../includes/logo.php'; ?>
             </div>
         </div>
         <div class="header-right">
@@ -801,10 +817,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         <a class="nav-link" href="dashboard">
             <i class="fas fa-tachometer-alt"></i> Dashboard
         </a>
-        <a class="nav-link" href="resources">
+        <a class="nav-link" href="dashboard?section=resources">
             <i class="fas fa-book"></i> My Resources
         </a>
-        <a class="nav-link" href="upload">
+        <a class="nav-link" href="dashboard?section=upload">
             <i class="fas fa-upload"></i> Upload Resource
         </a>
         <a class="nav-link" href="https://sites.google.com/view/noteselectricalengineering/home" target="_blank">
@@ -1254,14 +1270,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     </style>
 
     <!-- Footer -->
-    <footer style="background: transparent; color: var(--secondary-color); padding: 2rem; text-align: center; border-top: 1px solid var(--border-color); margin-top: 40px;">
-        <p style="margin: 0;">
-            <span style="color: #FF6B35;">&copy; 2026</span>
-            <span style="color: #FF6B35;">Kenya</span>
-            <span style="color: #008000;">EduHub</span>
-            <span style="color: var(--secondary-color);">. All rights reserved.</span>
-        </p>
-    </footer>
+    <?php require_once '../includes/copywrite.php'; ?>
     
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>

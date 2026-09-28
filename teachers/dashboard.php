@@ -130,7 +130,7 @@ try {
             --primary-color: #FF6B35;
             --secondary-color: #5f6368;
             --bg-color: #f8f9fa;
-            --card-bg: #ffffff;
+            --card-bg: #f8f9fa;
             --sidebar-width: 256px;
             --header-height: 64px;
         }
@@ -142,145 +142,35 @@ try {
         }
         
         body {
-            background: var(--bg-color);
+            background: #f8f9fa;
             font-family: 'Google Sans', 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             font-size: 14px;
             color: #202124;
         }
         
-        /* Header */
-        .header {
-            position: fixed !important;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: var(--header-height);
-            background: var(--bg-color);
-            border-bottom: 1px solid #e8eaed;
-            display: flex;
-            align-items: center;
-            padding: 0 24px;
-            z-index: 1000;
+        /* Welcome Container */
+        .welcome-container {
+            background: #f8f9fa;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 24px;
+            margin-bottom: 24px;
+            text-align: center;
         }
         
-        .header-left {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-        
-        .menu-btn {
-            background: none;
-            border: none;
-            cursor: pointer;
-            padding: 12px;
-            border-radius: 50%;
-            color: #5f6368;
-            transition: background 0.2s;
-        }
-        
-        .menu-btn:hover {
-            background: #f1f3f4;
-        }
-        
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 20px;
+        .page-title {
+            font-size: 22px;
             font-weight: 400;
             color: #202124;
-        }
-        
-        .logo i {
-            color: var(--primary-color);
-        }
-        
-        .header-right {
-            margin-left: auto;
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-        
-        .user-avatar {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            background: var(--primary-color);
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 500;
-        }
-        
-        /* Sidebar */
-        .sidebar {
-            position: fixed;
-            top: var(--header-height);
-            left: 0;
-            width: var(--sidebar-width);
-            height: calc(100vh - var(--header-height));
-            background: var(--bg-color);
-            overflow-y: auto;
-            transition: transform 0.3s ease, margin-left 0.3s ease;
-            z-index: 999;
-            scrollbar-width: none; /* Firefox */
-            -ms-overflow-style: none; /* IE and Edge */
-        }
-
-        .sidebar::-webkit-scrollbar {
-            display: none; /* Chrome, Safari, Opera */
-        }
-        
-        .sidebar.collapsed {
-            transform: translateX(-256px);
-        }
-        
-        .sidebar-section {
-            padding: 12px 0;
-        }
-        
-        .sidebar-title {
-            padding: 8px 24px;
-            font-size: 12px;
-            font-weight: 500;
-            color: #5f6368;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        
-        .nav-link {
-            display: flex;
-            align-items: center;
-            padding: 10px 24px;
-            color: #5f6368;
-            text-decoration: none;
-            transition: background 0.2s;
-            border: none;
-            background: none;
-            width: 100%;
-            text-align: left;
-            cursor: pointer;
-            font-size: 14px;
-        }
-        
-        .nav-link:hover {
-            background: #f1f3f4;
-        }
-        
-        .nav-link.active {
-            background: #e8f0fe;
-            color: var(--primary-color);
-        }
-        
-        .nav-link i {
-            margin-right: 12px;
-            font-size: 18px;
-            width: 24px;
+            margin-bottom: 24px;
             text-align: center;
-            color: #FF6B35;
+        }
+        
+        .page-subtitle {
+            font-size: 14px;
+            color: #5f6368;
+            margin-bottom: 32px;
+            text-align: center;
         }
         
         /* Main Content */
@@ -296,23 +186,10 @@ try {
             margin-left: 0;
         }
         
-        .page-title {
-            font-size: 22px;
-            font-weight: 400;
-            color: #202124;
-            margin-bottom: 24px;
-        }
-        
-        .page-subtitle {
-            font-size: 14px;
-            color: #5f6368;
-            margin-bottom: 32px;
-        }
-        
         /* Cards */
         .card {
-            background: var(--bg-color);
-            border: 1px solid #e8eaed;
+            background: #f8f9fa;
+            border: 1px solid #e0e0e0;
             border-radius: 8px;
             padding: 24px;
             margin-bottom: 24px;
@@ -323,6 +200,7 @@ try {
             font-weight: 500;
             color: #202124;
             margin-bottom: 16px;
+            text-align: center;
         }
         
         /* Stats Grid */
@@ -341,8 +219,8 @@ try {
         }
         
         .stat-card {
-            background: var(--bg-color);
-            border: 1px solid #e8eaed;
+            background: #f8f9fa;
+            border: 1px solid #e0e0e0;
             border-radius: 8px;
             padding: 24px;
             transition: box-shadow 0.2s;
@@ -361,6 +239,14 @@ try {
             font-size: 14px;
             color: #5f6368;
             margin-bottom: 8px;
+            text-align: center;
+        }
+        
+        .stat-icon {
+            font-size: 32px;
+            color: #FF6B35;
+            margin-bottom: 12px;
+            text-align: center;
         }
         
         .stat-value {
@@ -368,19 +254,23 @@ try {
             font-weight: 400;
             color: #202124;
             margin-bottom: 8px;
+            text-align: center;
         }
         
         .stat-change {
             font-size: 12px;
             color: #5f6368;
+            text-align: center;
         }
         
         .stat-change.positive {
             color: #1e8e3e;
+            text-align: center;
         }
         
         .stat-change.negative {
             color: #d93025;
+            text-align: center;
         }
         
         /* Quick Actions */
@@ -391,8 +281,8 @@ try {
         }
         
         .action-card {
-            background: white;
-            border: 1px solid #e8eaed;
+            background: #f8f9fa;
+            border: 1px solid #e0e0e0;
             border-radius: 8px;
             padding: 20px;
             text-decoration: none;
@@ -540,120 +430,71 @@ try {
             .page-title {
                 font-size: 18px;
                 margin-bottom: 16px;
+                text-align: center;
+            }
+            
+            .page-subtitle {
+                font-size: 13px;
+                margin-bottom: 20px;
+                text-align: center;
             }
             
             .card {
                 padding: 16px;
             }
             
+            .card-title {
+                text-align: center;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
+            
             .stat-card {
                 padding: 16px;
+            }
+            
+            .stat-icon {
+                font-size: 24px;
+            }
+            
+            .stat-label {
+                font-size: 12px;
+            }
+            
+            .stat-change {
+                font-size: 10px;
             }
             
             .stat-value {
                 font-size: 24px;
             }
-            
-            footer {
-                position: fixed;
-                bottom: 0;
-                left: 0;
-                right: 0;
-                margin-top: 0;
-            }
         }
     </style>
 </head>
 <body>
-    <!-- Header -->
-    <header class="header">
-        <div class="header-left">
-            <button class="menu-btn" onclick="toggleSidebar()">
-                <i class="fas fa-bars"></i>
-            </button>
-            <div class="logo">
-                <div style="width: 40px; height: 40px; background: #FFD700; border: 3px solid #FF6B35; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 0;">
-                    <span style="font-weight: bold; font-size: 20px;">
-                        <span style="color: #FF6B35; font-size: 24px;">K</span><span style="color: #008000; font-size: 20px;">E</span>
-                    </span>
-                </div>
-                <span style="color: #FF6B35; font-weight: bold;">Kenya</span> <span style="color: #008000; font-weight: bold;">EduHub</span>
-            </div>
-        </div>
-        <div class="header-right">
-            <div class="user-avatar">
-                <?php echo strtoupper(substr($teacher_name, 0, 1)); ?>
-            </div>
-        </div>
-    </header>
-    
-    <!-- Sidebar -->
-    <aside class="sidebar" id="sidebar">
-        <div class="sidebar-section">
-            <div class="sidebar-title">Main</div>
-            <a class="nav-link active" href="dashboard">
-                <i class="fas fa-home"></i> Dashboard
-            </a>
-            <a class="nav-link" href="timetable">
-                <i class="fas fa-calendar-alt"></i> Timetable
-            </a>
-            <a class="nav-link" href="attendance">
-                <i class="fas fa-calendar-check"></i> Attendance
-            </a>
-            <a class="nav-link" href="calendar">
-                <i class="fas fa-calendar"></i> Calendar
-            </a>
-            <a class="nav-link" href="performance">
-                <i class="fas fa-chart-line"></i> Performance
-            </a>
-            <a class="nav-link" href="results">
-                <i class="fas fa-award"></i> Results
-            </a>
-            <a class="nav-link" href="students">
-                <i class="fas fa-user-graduate"></i> Students
-            </a>
-            <a class="nav-link" href="student-subjects">
-                <i class="fas fa-book"></i> Student Subjects
-            </a>
-            <a class="nav-link" href="assignments">
-                <i class="fas fa-tasks"></i> Assignments
-            </a>
-            <a class="nav-link" href="parents">
-                <i class="fas fa-users"></i> Parents
-            </a>
-            <a class="nav-link" href="duty">
-                <i class="fas fa-clipboard-list"></i> My Duties
-            </a>
-            <a class="nav-link" href="fees">
-                <i class="fas fa-money-bill-wave"></i> Fee Payments
-            </a>
-        </div>
-        <div class="sidebar-section">
-            <div class="sidebar-title">Account</div>
-            <a class="nav-link" href="profile">
-                <i class="fas fa-user"></i> Profile
-            </a>
-            <a class="nav-link" href="logout">
-                <i class="fas fa-sign-out-alt"></i> Logout
-            </a>
-        </div>
-    </aside>
+    <?php require_once 'includes/header.php'; ?>
+    <?php $active_page = 'dashboard'; require_once 'includes/sidebar.php'; ?>
     
     <!-- Main Content -->
     <main class="main-content" id="mainContent">
-        <h1 class="page-title">Dashboard</h1>
-        <p class="page-subtitle">
-            Welcome, <?php echo htmlspecialchars($teacher_name); ?>
-            <?php if ($teacher['school_name']): ?>
-                | <?php echo htmlspecialchars($teacher['school_name']); ?>
-            <?php endif; ?>
-            <?php if ($class_name): ?>
-                | Class: <?php echo htmlspecialchars($class_name); ?>
-                <?php if ($stream_name): ?>
-                    - <?php echo htmlspecialchars($stream_name); ?>
+        <div class="welcome-container">
+            <h1 class="page-title">Dashboard</h1>
+            <p class="page-subtitle">
+                Welcome, <?php echo htmlspecialchars($teacher_name); ?>
+                <?php if ($teacher['school_name']): ?>
+                    | <?php echo htmlspecialchars($teacher['school_name']); ?>
                 <?php endif; ?>
-            <?php endif; ?>
-        </p>
+                <?php if ($class_name): ?>
+                    | Class: <?php echo htmlspecialchars($class_name); ?>
+                    <?php if ($stream_name): ?>
+                        - <?php echo htmlspecialchars($stream_name); ?>
+                    <?php endif; ?>
+                <?php endif; ?>
+            </p>
+        </div>
         
         <!-- Calendar Status -->
         <div style="margin-bottom: 24px;">
@@ -705,16 +546,19 @@ try {
         <!-- Statistics Grid -->
         <div class="stats-grid">
             <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-user-graduate"></i></div>
                 <div class="stat-label">Total Students</div>
                 <div class="stat-value"><?php echo $stats['total_students'] ?? 0; ?></div>
                 <div class="stat-change">In your class</div>
             </div>
             <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-calendar-check"></i></div>
                 <div class="stat-label">Attendance Today</div>
                 <div class="stat-value"><?php echo $stats['attendance_today'] ?? 0; ?></div>
                 <div class="stat-change">Records taken</div>
             </div>
             <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-user-check"></i></div>
                 <div class="stat-label">Present Today</div>
                 <div class="stat-value"><?php echo $stats['present_today'] ?? 0; ?></div>
                 <div class="stat-change positive">
@@ -727,6 +571,7 @@ try {
                 </div>
             </div>
             <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-chart-line"></i></div>
                 <div class="stat-label">Performance Records</div>
                 <div class="stat-value"><?php echo $stats['performance_records'] ?? 0; ?></div>
                 <div class="stat-change">This term</div>
@@ -806,32 +651,9 @@ try {
         </div>
     </main>
     
-    <script>
-        function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            const mainContent = document.getElementById('mainContent');
-            
-            // Check if we're on mobile
-            if (window.innerWidth <= 768) {
-                // Mobile: toggle the 'show' class
-                sidebar.classList.toggle('show');
-            } else {
-                // Desktop: toggle the 'collapsed' and 'expanded' classes
-                sidebar.classList.toggle('collapsed');
-                mainContent.classList.toggle('expanded');
-            }
-        }
-    </script>
     <script src="../assets/js/notifications.js"></script>
     
     <!-- Footer -->
-    <footer style="position: fixed; bottom: 0; left: 0; right: 0; background: var(--bg-color); color: #5f6368; padding: 20px 0; text-align: center; border-top: 1px solid #e8eaed; z-index: 1000;">
-        <p style="margin: 0;">
-            <span style="color: #FF6B35;">&copy; 2026</span> 
-            <span style="color: #FF6B35;">Kenya</span> 
-            <span style="color: #008000;">EduHub</span>
-            <span style="color: #5f6368;">. All rights reserved.</span>
-        </p>
-    </footer>
+    <?php require_once '../includes/copywrite.php'; ?>
 </body>
 </html>

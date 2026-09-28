@@ -13,7 +13,7 @@ require_once __DIR__ . '/../config.php';
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body {
-            background: #ffffff;
+            background: var(--card-bg, #f8f9fa);
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -68,5 +68,8 @@ require_once __DIR__ . '/../config.php';
             <i class="fas fa-home"></i> Go to Dashboard
         </a>
     </div>
+
+    <!-- Footer -->
+    <?php require_once '../includes/copywrite.php'; ?>
 </body>
 </html>

@@ -103,7 +103,7 @@ if ($result->num_rows === 0) {
     http_response_code(404);
     echo json_encode([
         "success" => false,
-        "message" => "Resource not found"
+        "message" => "This resource has been deleted or is no longer available. Please contact support if you believe this is an error."
     ]);
     exit();
 }
@@ -135,14 +135,18 @@ if ($updateStmt->execute()) {
         }
         
         if (file_exists($filePath)) {
-            // Set headers for file download
+            // Get the original filename from the resource title
+            $originalFilename = $resource['title'] ?? basename($filePath);
+            $extension = strtolower(pathinfo($filePath, PATHINFO_EXTENSION));
+
+            // Set headers for file download with proper filename
             header('Content-Type: application/octet-stream');
-            header('Content-Disposition: attachment; filename="' . basename($filePath) . '"');
+            header('Content-Disposition: attachment; filename="' . $originalFilename . '.' . $extension . '"');
             header('Content-Length: ' . filesize($filePath));
             header('Cache-Control: no-cache, must-revalidate');
             header('Pragma: no-cache');
             header('Expires: 0');
-            
+
             // Output file
             readfile($filePath);
             exit();

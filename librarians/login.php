@@ -341,14 +341,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <body>
     <div class="login-container">
         <div class="logo">
-            <div style="width: 50px; height: 50px; background: #FFD700; border: 3px solid #FF6B35; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 2px;">
-                <span style="font-weight: bold; font-size: 24px;">
-                    <span style="color: #FF6B35; font-size: 28px;">K</span><span style="color: #008000; font-size: 24px;">E</span>
-                </span>
-            </div>
-            <span style="color: #FF6B35;">Kenya</span> <span style="color: #008000;">EduHub</span>
+            <?php require_once '../includes/logo.php'; ?>
         </div>
-        
+
+        <br>
+
         <h1 style="text-align: center; font-size: 24px; font-weight: 400; color: #202124; margin-bottom: 8px;">Librarian Portal</h1>
         <p style="text-align: center; font-size: 16px; color: #5f6368; margin-bottom: 40px;">Kenya EduHub Library Management</p>
         

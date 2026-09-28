@@ -153,7 +153,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['new_password']) && $s
         }
 
         body {
-            background: #ffffff;
+            background: var(--card-bg, #f8f9fa);
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -313,11 +313,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['new_password']) && $s
 <body>
     <main class="login-card" role="main" aria-label="Password Reset Form">
         <div class="auth-brand-logo" aria-label="Kenya EduHub Logo">
-            <div class="logo-circle">
-                <span style="color: #FF6B35; font-size: 28px;">K</span><span style="color: #008000; font-size: 24px;">E</span>
-            </div>
-            <span class="brand-text"><span style="color: #FF6B35;">Kenya</span> <span style="color: #008000;">EduHub</span></span>
+            <?php require_once '../includes/logo.php'; ?>
         </div>
+
+        <br>
 
         <h3>Forgot Password?</h3>
 
@@ -399,5 +398,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['new_password']) && $s
             <a href="login">Back to Login</a>
         </div>
     </main>
+
+    <!-- Footer -->
+    <?php require_once '../includes/copywrite.php'; ?>
 </body>
 </html>

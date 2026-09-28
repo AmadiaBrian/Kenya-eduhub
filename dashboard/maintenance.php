@@ -112,40 +112,7 @@ if (isset($_SESSION['user_id'])) {
             font-size: 18px;
         }
         
-        .maintenance-logo {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            margin-bottom: 32px;
-        }
-        
-        .maintenance-logo-circle {
-            width: 40px;
-            height: 40px;
-            background: #FFD700;
-            border: 2px solid #FF6B35;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 500;
-            font-size: 20px;
-        }
-        
-        .maintenance-logo-text {
-            font-size: 20px;
-            font-weight: 500;
-        }
-        
-        .maintenance-logo-text span:first-child {
-            color: #FF6B35;
-        }
-        
-        .maintenance-logo-text span:last-child {
-            color: #008000;
-        }
-        
+
         .btn {
             display: inline-flex;
             align-items: center;
@@ -197,14 +164,7 @@ if (isset($_SESSION['user_id'])) {
 </head>
 <body>
     <div class="maintenance-container">
-        <div class="maintenance-logo">
-            <div class="maintenance-logo-circle">
-                <span style="color: #FF6B35; font-size: 24px;">K</span><span style="color: #008000; font-size: 20px;">E</span>
-            </div>
-            <div class="maintenance-logo-text">
-                <span>Kenya</span> <span>EduHub</span>
-            </div>
-        </div>
+        <?php require_once '../includes/logo.php'; ?>
         
         <div class="maintenance-icon">
             <span class="material-icons">build</span>
@@ -231,5 +191,7 @@ if (isset($_SESSION['user_id'])) {
             We apologize for any inconvenience. Thank you for your patience!
         </p>
     </div>
+
+    <?php require_once '../includes/copywrite.php'; ?>
 </body>
 </html>

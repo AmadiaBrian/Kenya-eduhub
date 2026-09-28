@@ -58,15 +58,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <style>
         /* Base */
         body {
-            background: #000000 !important;
-            background-image: none !important;
+            background: var(--card-bg, #f8f9fa);
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
             padding: 1rem;
-            color: #fff;
+            color: #202124;
         }
 
         body::before,
@@ -75,19 +74,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         html {
-            background: #000000 !important;
-            background-image: none !important;
+            background: var(--card-bg, #f8f9fa);
         }
 
         /* Card */
         .login-card {
-            background: #000000;
+            background: #ffffff;
             max-width: 420px;
             width: 100%;
             padding: 3rem 2.5rem 2.5rem;
-            border-radius: 0;
-            box-shadow: none;
-            border: none;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+            border: 1px solid #e8eaed;
         }
 
         .login-card::before {
@@ -96,9 +94,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         .login-card:hover {
             transform: none;
-            box-shadow: none;
-            background: #000000;
-            border: none;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+            background: #ffffff;
+            border: 1px solid #e8eaed;
         }
 
         .login-card:hover::before {
@@ -107,7 +105,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         .login-card h3 {
             font-weight: 700;
-            color: #666;
+            color: #202124;
             margin-bottom: 1.75rem;
             text-align: center;
             text-shadow: none;
@@ -117,45 +115,40 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         input.form-control {
             height: 48px;
             font-size: 1rem;
-            border-radius: 0;
-            border: 2px solid #fff;
-            background: #000;
-            color: #fff !important;
-            transition: none;
-            will-change: auto;
+            border-radius: 25px;
+            border: 1px solid #dadce0;
+            background: #ffffff;
+            color: #202124;
+            transition: border-color 0.2s, box-shadow 0.2s;
         }
 
         input.form-control::placeholder {
-            color: #888 !important;
+            color: #5f6368;
             opacity: 1;
         }
 
         input.form-control:-webkit-autofill,
         input.form-control:-webkit-autofill:hover,
         input.form-control:-webkit-autofill:focus {
-            -webkit-text-fill-color: #fff !important;
-            -webkit-box-shadow: 0 0 0 1000px #000 inset;
+            -webkit-text-fill-color: #202124;
+            -webkit-box-shadow: 0 0 0 1000px #ffffff inset;
             transition: background-color 5000s ease-in-out 0s;
         }
 
         input.form-control:focus {
-            border: 2px solid #333;
-            box-shadow: none;
-            outline: none;
-            transform: none;
-            background: #000;
+            border-color: #FF6B35;
+            box-shadow: 0 0 0 2px rgba(255, 107, 53, 0.2);
         }
 
-        
         /* Button */
         button.btn-primary {
             width: 100%;
             height: 48px;
             font-weight: 700;
             font-size: 1.125rem;
-            border-radius: 0;
-            background: #000;
-            border: 1px solid #333;
+            border-radius: 25px;
+            background: #FF6B35;
+            border: none;
             color: #fff;
             transition: none;
             box-shadow: none;
@@ -188,21 +181,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         .alert-success {
-            background-color: #000;
-            color: #0f5132;
-            border: 1px solid #0f5132;
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
         }
 
         .alert-warning {
-            background-color: #000;
-            color: #ff0000;
-            border: 1px solid #ff0000;
+            background-color: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeeba;
         }
 
         .alert-error {
-            background-color: #000;
-            color: #ff0000;
-            border: 1px solid #ff0000;
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
         }
 
         /* Animations */
@@ -249,7 +242,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             align-items: center;
             justify-content: center;
             gap: 0.75rem;
-            color: white;
+            color: #202124;
             text-decoration: none;
             font-size: 1.5rem;
             font-weight: bold;
@@ -273,13 +266,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <main class="login-card" role="main" aria-label="Password Reset Form">
         <div class="text-center mb-4">
             <div class="auth-brand-logo" aria-label="Kenya EduHub Logo">
-                <div style="width: 50px; height: 50px; background: var(--primary-gold); border: 3px solid var(--primary-orange); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 2px;">
-                    <span style="font-weight: bold; font-size: 24px;">
-                        <span style="color: var(--primary-orange); font-size: 28px;">K</span><span style="color: #008000; font-size: 24px;">E</span>
-                    </span>
-                </div>
-                <span class="brand-text"><span style="color: var(--primary-orange);">Kenya</span> <span style="color: #008000;">EduHub</span></span>
+                <?php require_once '../includes/logo.php'; ?>
             </div>
+            <br>
             <h3>Reset Password</h3>
             <p style="color: #6c757d; margin-bottom: 1.5rem;">Enter your new password below.</p>
         </div>
@@ -340,5 +329,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
         <?php endif; ?>
     </main>
+
+    <!-- Footer -->
+    <?php require_once '../includes/copywrite.php'; ?>
 </body>
 </html>

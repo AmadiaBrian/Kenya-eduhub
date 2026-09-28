@@ -638,6 +638,7 @@ $total_schools = count($schools);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#FF6B35">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
@@ -1055,54 +1056,13 @@ $total_schools = count($schools);
 </head>
 <body>
     <!-- Header -->
-    <header class="header">
-        <div class="header-left">
-            <button class="menu-btn" onclick="toggleSidebar()">
-                <i class="fas fa-bars"></i>
-            </button>
-            <div class="logo">
-                <div style="width: 40px; height: 40px; background: #FFD700; border: 3px solid #FF6B35; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 0;">
-                    <span style="font-weight: bold; font-size: 20px;">
-                        <span style="color: #FF6B35; font-size: 24px;">K</span><span style="color: #008000; font-size: 20px;">E</span>
-                    </span>
-                </div>
-                <span style="color: #FF6B35; font-weight: bold;">Kenya</span> <span style="color: #008000; font-weight: bold;">EduHub</span>
-            </div>
-        </div>
-        <div class="header-right">
-            <div class="user-avatar">
-                <?php echo strtoupper(substr($user['name'] ?? 'A', 0, 1)); ?>
-            </div>
-        </div>
-    </header>
+    <?php require_once 'includes/header.php'; ?>
     
     <!-- Sidebar -->
-    <aside class="sidebar" id="sidebar">
-        <a class="nav-link" href="dashboard">
-            <i class="fas fa-home"></i> Dashboard
-        </a>
-        <a class="nav-link" href="schools">
-            <i class="fas fa-school"></i> All Schools
-        </a>
-        <a class="nav-link active" href="school-accounts">
-            <i class="fas fa-wallet"></i> School Accounts
-        </a>
-        <a class="nav-link" href="users">
-            <i class="fas fa-users"></i> All Users
-        </a>
-        <a class="nav-link" href="resources">
-            <i class="fas fa-folder"></i> Resources
-        </a>
-        <a class="nav-link" href="reports">
-            <i class="fas fa-chart-bar"></i> Reports
-        </a>
-        <a class="nav-link" href="logs">
-            <i class="fas fa-history"></i> Activity Logs
-        </a>
-        <a class="nav-link" href="settings">
-            <i class="fas fa-cog"></i> Settings
-        </a>
-    </aside>
+    <?php 
+    $active_page = 'school-accounts';
+    require_once 'includes/sidebar.php'; 
+    ?>
 
     <!-- Main Content -->
     <main class="main-content" id="mainContent">
@@ -1619,5 +1579,8 @@ $total_schools = count($schools);
                 });
         }
     </script>
+
+    <!-- Footer -->
+    <?php require_once '../includes/copywrite.php'; ?>
 </body>
 </html>
