@@ -71,8 +71,22 @@
         font-size: 18px;
         width: 24px;
         text-align: center;
-        color: #FF6B35;
     }
+
+    .nav-link[href="dashboard"] i { color: #4285F4; }
+    .nav-link[href="timetable"] i { color: #EA4335; }
+    .nav-link[href="attendance"] i { color: #00AC47; }
+    .nav-link[href="calendar"] i { color: #FFBA00; }
+    .nav-link[href="performance"] i { color: #0066DA; }
+    .nav-link[href="results"] i { color: #4285F4; }
+    .nav-link[href="students"] i { color: #EA4335; }
+    .nav-link[href="student-subjects"] i { color: #00AC47; }
+    .nav-link[href="assignments"] i { color: #FFBA00; }
+    .nav-link[href="parents"] i { color: #0066DA; }
+    .nav-link[href="duty"] i { color: #4285F4; }
+    .nav-link[href="fees"] i { color: #EA4335; }
+    .nav-link[href="profile"] i { color: #5f6368; }
+    .nav-link[href="logout"] i { color: #EA4335; }
 
     /* Header CSS */
     .header {

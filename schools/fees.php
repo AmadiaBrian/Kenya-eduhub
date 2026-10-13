@@ -50,12 +50,10 @@ try {
     <link rel="stylesheet" href="../assets/css/notifications.css">
     <style>
         :root {
-            --primary-color: #1a73e8;
+            --primary-color: #FF6B35;
             --secondary-color: #5f6368;
             --bg-color: #f8f9fa;
-            --card-bg: #ffffff;
-            --sidebar-width: 256px;
-            --header-height: 64px;
+            --card-bg: #f8f9fa;
         }
         
         * {
@@ -70,159 +68,19 @@ try {
             font-size: 14px;
             color: #202124;
         }
-        
-        .header {
-            position: fixed !important;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: var(--header-height);
-            background: var(--bg-color);
-            border-bottom: 1px solid #e8eaed;
-            display: flex;
-            align-items: center;
-            padding: 0 24px;
-            z-index: 1000;
-        }
-        
-        .header-left {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-        
-        .menu-btn {
-            background: none;
-            border: none;
-            cursor: pointer;
-            padding: 12px;
-            border-radius: 50%;
-            color: #5f6368;
-            transition: background 0.2s;
-        }
-        
-        .menu-btn:hover {
-            background: #f1f3f4;
-        }
-        
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 20px;
-            font-weight: 400;
-            color: #202124;
-        }
-        
-        .logo i {
-            color: var(--primary-color);
-        }
-        
-        .header-right {
-            margin-left: auto;
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-        
-        .school-avatar {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            background: var(--primary-color);
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 500;
-            font-size: 14px;
-        }
-        
-        .sidebar {
-            position: fixed;
-            top: var(--header-height);
-            left: 0;
-            width: var(--sidebar-width);
-            height: calc(100vh - var(--header-height));
-            background: var(--bg-color);
-            overflow-y: auto;
-            transition: transform 0.3s ease;
-            z-index: 999;
-            scrollbar-width: none; /* Firefox */
-            -ms-overflow-style: none; /* IE and Edge */
-        }
-        
-        .sidebar::-webkit-scrollbar {
-            display: none; /* Chrome, Safari, Opera */
-        }
-        
-        .sidebar.collapsed {
-            transform: translateX(-256px);
-        }
-        
-        .sidebar-section {
-            padding: 12px 0;
-        }
-        
-        .sidebar-title {
-            padding: 8px 24px;
-            font-size: 12px;
-            font-weight: 500;
-            color: #5f6368;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        
-        .nav-link {
-            display: flex;
-            align-items: center;
-            padding: 10px 24px;
-            color: #5f6368;
-            text-decoration: none;
-            transition: background 0.2s;
-            border: none;
-            background: none;
-            width: 100%;
-            text-align: left;
-            cursor: pointer;
-            font-size: 14px;
-        }
-        
-        .nav-link:hover {
-            background: #f1f3f4;
-        }
-        
-        .nav-link.active {
-            background: #e8f0fe;
-            color: var(--primary-color);
-        }
-        
-        .nav-link i {
-            margin-right: 12px;
-            font-size: 18px;
-            width: 24px;
-            text-align: center;
-            color: #FF6B35;
-        }
-        
+
         .main-content {
-            margin-left: var(--sidebar-width);
-            margin-top: var(--header-height);
             padding: 24px;
-            transition: margin-left 0.3s ease;
         }
-        
-        .main-content.expanded {
-            margin-left: 0;
-        }
-        
+
         .page-title {
             font-size: 22px;
             font-weight: 400;
             color: #202124;
             margin-bottom: 24px;
+            text-align: center;
         }
-        
+
         .card {
             background: var(--bg-color);
             border: 1px solid #e8eaed;
@@ -230,24 +88,27 @@ try {
             padding: 24px;
             margin-bottom: 24px;
         }
-        
+
         .card-title {
             font-size: 18px;
             font-weight: 500;
             color: #202124;
             margin-bottom: 16px;
+            text-align: center;
         }
-        
+
         .form-control {
             border: 1px solid #dadce0;
-            border-radius: 8px;
+            border-radius: 25px;
             padding: 10px 12px;
             font-size: 14px;
+            background: var(--bg-color);
         }
-        
+
         .form-control:focus {
             border-color: var(--primary-color);
             box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.2);
+            background: var(--bg-color);
         }
         
         .btn {
@@ -258,6 +119,27 @@ try {
             border: none;
             cursor: pointer;
             transition: background 0.2s;
+            width: auto;
+        }
+
+        @media (max-width: 768px) {
+            .btn {
+                width: 100% !important;
+            }
+            
+            .card-header {
+                flex-direction: column !important;
+                align-items: stretch !important;
+            }
+            
+            .card-header .d-flex {
+                flex-direction: column !important;
+                width: 100% !important;
+            }
+            
+            .form-control {
+                margin-bottom: 12px;
+            }
         }
         
         .btn-primary {
@@ -299,21 +181,61 @@ try {
         
         .btn-action {
             background: #f8f9fa;
-            color: #000;
-            border: 1px solid #000;
+            color: #202124;
+            border: 1px solid #e8eaed;
         }
-        
+
         .btn-action:hover {
             background: #e9ecef;
         }
-        
+
         .btn-action i {
-            color: #000;
+            color: #202124;
+        }
+
+        .action-buttons-cell {
+            display: flex;
+            gap: 4px;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .action-buttons .btn {
+            flex: 1;
+            padding: 12px 24px;
+            border-radius: 25px;
+        }
+
+        @media (max-width: 768px) {
+            .action-buttons {
+                flex-direction: column;
+            }
+        }
+
+        /* Filter Section */
+        .filter-section {
+            background: var(--bg-color);
+            border-radius: 8px;
+            padding: 24px;
+            margin-bottom: 24px;
+            border: 1px solid #e8eaed;
+        }
+
+        .filter-section .card-title {
+            font-size: 18px;
+            font-weight: 500;
+            color: #202124;
+            margin-bottom: 16px;
         }
         
         .table {
             border-collapse: collapse;
-            background: white;
+            background: #ffffff;
             border: 1px solid #000;
             width: 100%;
             margin: 0;
@@ -325,16 +247,17 @@ try {
         }
         
         .table thead {
-            background: #f0f0f0;
+            background: #FF6B35 !important;
             border-bottom: 2px solid #000;
         }
-        
-        .table th {
+
+        .table thead th {
+            background: #FF6B35 !important;
             border: 1px solid #000;
             border-bottom: 2px solid #000;
             padding: 12px;
             font-weight: 600;
-            color: #000;
+            color: #ffffff !important;
             font-size: 13px;
             text-transform: uppercase;
         }
@@ -347,7 +270,7 @@ try {
         }
         
         .table tbody tr:nth-child(even) {
-            background: #f9f9f9;
+            background: #ffffff;
         }
         
         .table tbody tr:hover {
@@ -359,91 +282,58 @@ try {
                 overflow-x: hidden;
                 position: relative;
             }
-            
-            .header {
-                position: fixed !important;
-                top: 0 !important;
-                left: 0 !important;
-                right: 0 !important;
-                padding: 0 16px;
-                box-shadow: 0 2px 4px rgba(0,0,0,0.08);
-                transform: none !important;
-            }
-            
-            .logo span {
-                font-size: 18px;
-            }
-            
-            .menu-btn {
-                padding: 8px;
-                border-radius: 50%;
-                transition: background 0.2s;
-            }
-            
-            .menu-btn:hover {
-                background: rgba(0,0,0,0.04);
-            }
-            
-            .sidebar {
-                position: fixed !important;
-                transform: translateX(-256px);
-                box-shadow: 2px 0 8px rgba(0,0,0,0.15);
-            }
-            
-            .sidebar.show {
-                transform: translateX(0);
-            }
-            
+
             .main-content {
-                margin-left: 0;
                 padding: 16px;
             }
-            
+
             .page-title {
                 font-size: 22px;
                 font-weight: 400;
                 margin-bottom: 16px;
             }
-            
+
             .card {
                 padding: 16px;
                 margin-bottom: 16px;
                 border-radius: 12px;
                 box-shadow: 0 1px 2px rgba(0,0,0,0.05);
             }
-            
+
             .table-responsive {
                 overflow-x: auto;
                 -webkit-overflow-scrolling: touch;
                 border-radius: 8px;
                 width: 100%;
             }
-            
+
             .table {
                 min-width: 600px;
                 width: 100%;
             }
-            
+
             .btn {
                 padding: 10px 20px;
                 font-size: 14px;
                 font-weight: 500;
                 border-radius: 8px;
                 height: 40px;
+                width: 100%;
             }
-            
+
             .form-control {
                 padding: 12px;
                 font-size: 16px;
-                border-radius: 8px;
+                border-radius: 25px;
                 border: 1px solid #dadce0;
+                margin-bottom: 12px;
             }
-            
+
             .form-control:focus {
                 border-color: var(--primary-color);
                 box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.2);
             }
-            
+
             .card-header {
                 flex-direction: column;
                 gap: 12px;
@@ -451,62 +341,44 @@ try {
                 padding-bottom: 12px;
                 border-bottom: 1px solid #e8eaed;
             }
-            
+
             .card-header .btn {
                 width: 100%;
             }
-            
+
             .card {
                 text-align: center;
             }
-            
+
             .card-header {
                 justify-content: center;
             }
         }
         
         @media (max-width: 480px) {
-            .header {
-                padding: 0 12px;
-            }
-            
-            .logo span {
-                font-size: 16px;
-            }
-            
             .main-content {
                 padding: 12px;
             }
-            
+
             .page-title {
                 font-size: 18px;
                 margin-bottom: 16px;
             }
-            
+
             .card {
                 padding: 12px;
             }
-            
-            .menu-btn {
-                padding: 8px;
-            }
-            
-            .school-avatar {
-                width: 28px;
-                height: 28px;
-                font-size: 12px;
-            }
-            
+
             /* Quick Access Mobile */
             .quick-access-grid {
                 grid-template-columns: repeat(3, 1fr);
                 gap: 8px;
             }
-            
+
             .quick-access-item {
                 padding: 12px;
             }
-            
+
             .quick-access-icon {
                 width: 40px;
                 height: 40px;
@@ -514,7 +386,7 @@ try {
                 color: #FF6B35;
                 margin-bottom: 8px;
             }
-            
+
             .quick-access-label {
                 font-size: 11px;
             }
@@ -562,115 +434,25 @@ try {
             color: #202124;
             text-align: center;
         }
+
+        /* Icon colors */
+        .quick-access-item:nth-child(1) .quick-access-icon { background: #e8f0fe; color: #4285F4; }
+        .quick-access-item:nth-child(2) .quick-access-icon { background: #fce8e6; color: #EA4335; }
+        .quick-access-item:nth-child(3) .quick-access-icon { background: #e6f4ea; color: #00AC47; }
+        .quick-access-item:nth-child(4) .quick-access-icon { background: #fef7e0; color: #FFBA00; }
+        .quick-access-item:nth-child(5) .quick-access-icon { background: #e8f0fe; color: #0066DA; }
+        .quick-access-item:nth-child(6) .quick-access-icon { background: #fce8e6; color: #4285F4; }
+        .fa-plus { color: #00AC47; }
+        .fa-download { color: #4285F4; }
+        .fa-edit { color: #0066DA; }
+        .fa-trash { color: #EA4335; }
     </style>
 </head>
 <body>
-    <!-- Header -->
-    <header class="header">
-        <div class="header-left">
-            <button class="menu-btn" onclick="toggleSidebar()">
-                <i class="fas fa-bars"></i>
-            </button>
-            <div class="logo">
-                <div style="width: 40px; height: 40px; background: #FFD700; border: 3px solid #FF6B35; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 0;">
-                    <span style="font-weight: bold; font-size: 20px;">
-                        <span style="color: #FF6B35; font-size: 24px;">K</span><span style="color: #008000; font-size: 20px;">E</span>
-                    </span>
-                </div>
-                <span style="color: #FF6B35; font-weight: bold;">Kenya</span> <span style="color: #008000; font-weight: bold;">EduHub</span>
-            </div>
-        </div>
-        <div class="header-right">
-            <div class="school-avatar">
-                <?php echo strtoupper(substr($school_name, 0, 1)); ?>
-            </div>
-        </div>
-    </header>
+    <?php require_once 'includes/header.php'; ?>
+    <?php $active_page = 'fees'; require_once 'includes/sidebar.php'; ?>
     
-    <!-- Sidebar -->
-    <aside class="sidebar" id="sidebar">
-        <div class="sidebar-section">
-            <div class="sidebar-title">Main</div>
-            <a class="nav-link" href="dashboard">
-                <i class="fas fa-home"></i> Dashboard
-            </a>
-            <a class="nav-link" href="students">
-                <i class="fas fa-user-graduate"></i> Students
-            </a>
-            <a class="nav-link" href="teachers">
-                <i class="fas fa-chalkboard-teacher"></i> Teachers
-            </a>
-            <a class="nav-link" href="classes">
-                <i class="fas fa-chalkboard"></i> Classes
-            </a>
-            <a class="nav-link" href="streams">
-                <i class="fas fa-layer-group"></i> Streams
-            </a>
-            <a class="nav-link" href="subjects">
-                <i class="fas fa-book"></i> Subjects
-            </a>
-            <a class="nav-link" href="exam-types">
-                <i class="fas fa-clipboard-list"></i> Exam Types
-            </a>
-            <a class="nav-link" href="timetable">
-                <i class="fas fa-calendar-alt"></i> Timetable
-            </a>
-            <a class="nav-link" href="grading">
-                <i class="fas fa-chart-bar"></i> Grading
-            </a>
-            <a class="nav-link" href="performance">
-                <i class="fas fa-chart-line"></i> Performance
-            </a>
-            <a class="nav-link" href="results">
-                <i class="fas fa-clipboard-list"></i> Results
-            </a>
-            <a class="nav-link" href="attendance">
-                <i class="fas fa-calendar-check"></i> Attendance
-            </a>
-            <a class="nav-link" href="calendar">
-                <i class="fas fa-calendar"></i> Calendar
-            </a>
-            <a class="nav-link active" href="fees">
-                <i class="fas fa-money-bill-wave"></i> Fees
-            </a>
-            <a class="nav-link" href="invoices">
-                <i class="fas fa-file-invoice-dollar"></i> Invoices
-            </a>
-            <a class="nav-link" href="finance-managers">
-                <i class="fas fa-user-tie"></i> Finance Managers
-            </a>
-            <a class="nav-link" href="account">
-                <i class="fas fa-wallet"></i> Account Balance
-            </a>
-            <a class="nav-link" href="parents">
-                <i class="fas fa-users"></i> Parents
-            </a>
-            <a class="nav-link" href="disciplinary">
-                <i class="fas fa-shield-alt"></i> Disciplinary
-            </a>
-            <a class="nav-link" href="disciplinary-action-types">
-                <i class="fas fa-list-alt"></i> Disciplinary Types
-            </a>
-            <a class="nav-link" href="librarians">
-                <i class="fas fa-book-reader"></i> Librarians
-            </a>
-            <a class="nav-link" href="duty-assignments">
-                <i class="fas fa-clipboard-list"></i> Duty Assignments
-            </a>
-            <a class="nav-link" href="examination-heads">
-                <i class="fas fa-user-tie"></i> Examination Heads
-            </a>
-        </div>
-        <div class="sidebar-section">
-            <div class="sidebar-title">Settings</div>
-            <a class="nav-link" href="settings">
-                <i class="fas fa-cog"></i> Settings
-            </a>
-            <a class="nav-link" href="logout">
-                <i class="fas fa-sign-out-alt"></i> Logout
-            </a>
-        </div>
-    </aside>
+    <br>
     
     <!-- Main Content -->
     <main class="main-content" id="mainContent">
@@ -678,21 +460,21 @@ try {
         
         <!-- Calendar Status Alert -->
         <?php if ($calendar_status['is_holiday']): ?>
-            <div style="background: #fce8e6; border: 1px solid #c5221f; padding: 16px; border-radius: 8px; margin-bottom: 24px;">
+            <div style="background: #fce8e6; border: 1px solid #e8eaed; padding: 16px; border-radius: 8px; margin-bottom: 24px;">
                 <div style="display: flex; align-items: center; gap: 12px;">
                     <i class="fas fa-exclamation-triangle" style="color: #c5221f; font-size: 20px;"></i>
                     <div>
                         <strong style="color: #c5221f;">School is on Holiday</strong>
                         <p style="margin: 4px 0 0 0; color: #5f6368; font-size: 14px;">
-                            <?php echo htmlspecialchars($calendar_status['current_holiday']['holiday_name']); ?> 
-                            (<?php echo date('M j, Y', strtotime($calendar_status['current_holiday']['start_date'])); ?> - 
+                            <?php echo htmlspecialchars($calendar_status['current_holiday']['holiday_name']); ?>
+                            (<?php echo date('M j, Y', strtotime($calendar_status['current_holiday']['start_date'])); ?> -
                             <?php echo date('M j, Y', strtotime($calendar_status['current_holiday']['end_date'])); ?>)
                         </p>
                     </div>
                 </div>
             </div>
         <?php elseif ($calendar_status['school_status'] === 'break'): ?>
-            <div style="background: #fef7e0; border: 1px solid #f9ab00; padding: 16px; border-radius: 8px; margin-bottom: 24px;">
+            <div style="background: #fef7e0; border: 1px solid #e8eaed; padding: 16px; border-radius: 8px; margin-bottom: 24px;">
                 <div style="display: flex; align-items: center; gap: 12px;">
                     <i class="fas fa-info-circle" style="color: #f9ab00; font-size: 20px;"></i>
                     <div>
@@ -816,182 +598,214 @@ try {
                 </a>
             </div>
         </div>
-        
-        <!-- Fee Structure Section -->
-        <div class="card mb-4">
-            <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
-                <span>Fee Structure</span>
-                <div class="d-flex gap-2 flex-wrap">
-                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addFeeStructureModal">
-                        <i class="fas fa-plus me-2"></i> Add Fee Structure
-                    </button>
-                    <button class="btn btn-success" onclick="exportFeeStructure()">
-                        <i class="fas fa-download me-2"></i> Export
-                    </button>
-                </div>
-            </div>
-            <div class="card-body">
-                <div class="row mb-3">
-                    <div class="col-md-3">
-                        <select class="form-control" id="filterStructureClass" onchange="filterFeeStructure()">
-                            <option value="">All Classes</option>
-                        </select>
-                    </div>
-                    <div class="col-md-3">
-                        <select class="form-control" id="filterStructureTerm" onchange="filterFeeStructure()">
-                            <option value="">All Terms</option>
-                            <option value="Term 1">Term 1</option>
-                            <option value="Term 2">Term 2</option>
-                            <option value="Term 3">Term 3</option>
-                        </select>
-                    </div>
-                    <div class="col-md-3">
-                        <input type="number" class="form-control" id="filterStructureYear" placeholder="Year" onchange="filterFeeStructure()">
-                    </div>
-                    <div class="col-md-3">
-                        <input type="text" class="form-control" id="searchStructure" placeholder="Search..." onkeyup="filterFeeStructure()">
-                    </div>
-                </div>
-                <div class="table-responsive">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>Class</th>
-                                <th>Term</th>
-                                <th>Year</th>
-                                <th>Amount</th>
-                                <th>Description</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="feeStructureTable">
-                            <tr><td colspan="6" class="text-center">Loading...</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+
+        <!-- Fee Structure Action Buttons -->
+        <div class="action-buttons">
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addFeeStructureModal">
+                <i class="fas fa-plus me-2"></i> Add Fee Structure
+            </button>
+            <button class="btn btn-success" onclick="exportFeeStructure()">
+                <i class="fas fa-download me-2"></i> Export
+            </button>
         </div>
-        
-        <!-- Fee Payments Section -->
-        <div class="card mb-4">
-            <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
-                <span>Fee Payments</span>
-                <div class="d-flex gap-2 flex-wrap">
-                    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addPaymentModal">
-                        <i class="fas fa-plus me-2"></i> Record Payment
-                    </button>
-                    <button class="btn btn-success" onclick="exportPayments()">
-                        <i class="fas fa-download me-2"></i> Export
-                    </button>
-                </div>
-            </div>
-            <div class="card-body">
-                <div class="row mb-3">
-                    <div class="col-md-3">
-                        <input type="text" class="form-control" id="searchPayment" placeholder="Search student..." onkeyup="filterPayments()">
-                    </div>
-                    <div class="col-md-3">
-                        <select class="form-control" id="filterPaymentMethod" onchange="filterPayments()">
-                            <option value="">All Methods</option>
-                            <option value="Cash">Cash</option>
-                            <option value="M-Pesa">M-Pesa</option>
-                            <option value="Bank Transfer">Bank Transfer</option>
-                            <option value="Cheque">Cheque</option>
-                        </select>
-                    </div>
-                    <div class="col-md-3">
-                        <select class="form-control" id="filterPaymentTerm" onchange="filterPayments()">
-                            <option value="">All Terms</option>
-                            <option value="Term 1">Term 1</option>
-                            <option value="Term 2">Term 2</option>
-                            <option value="Term 3">Term 3</option>
-                        </select>
-                    </div>
-                    <div class="col-md-3">
-                        <input type="date" class="form-control" id="filterPaymentDate" onchange="filterPayments()">
-                    </div>
-                </div>
-                <div class="table-responsive">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>Receipt No</th>
-                                <th>Student</th>
-                                <th>Fee Type</th>
-                                <th>Amount</th>
-                                <th>Payment Date</th>
-                                <th>Method</th>
-                                <th>Term</th>
-                                <th>Actions</th>
-                                <th>Statement</th>
-                            </tr>
-                        </thead>
-                        <tbody id="paymentsTable">
-                            <tr><td colspan="9" class="text-center">Loading...</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Fee Balances Section -->
-        <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
-                <span>Student Fee Balances</span>
-                <div class="d-flex gap-2 flex-wrap">
-                    <select class="form-control form-control-sm" id="filterClass" style="width: 150px;" onchange="loadStreamsForClass()">
+
+        <!-- Fee Structure Filter Section -->
+        <div class="filter-section">
+            <div class="card-title">Fee Structure</div>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Class</label>
+                    <select class="form-control" id="filterStructureClass" onchange="filterFeeStructure()">
                         <option value="">All Classes</option>
                     </select>
-                    <select class="form-control form-control-sm" id="filterStream" style="width: 150px;">
-                        <option value="">All Streams</option>
+                </div>
+                <div class="form-group">
+                    <label>Term</label>
+                    <select class="form-control" id="filterStructureTerm" onchange="filterFeeStructure()">
+                        <option value="">All Terms</option>
+                        <option value="Term 1">Term 1</option>
+                        <option value="Term 2">Term 2</option>
+                        <option value="Term 3">Term 3</option>
                     </select>
-                    <input type="text" class="form-control form-control-sm" id="searchAdmission" placeholder="Admission No" style="width: 150px;">
-                    <input type="text" class="form-control form-control-sm" id="searchName" placeholder="Student Name" style="width: 150px;">
-                    <select class="form-control form-control-sm" id="balanceTerm" style="width: 120px;">
-                        <option value="">Select Term</option>
-                    </select>
-                    <select class="form-control form-control-sm" id="balanceYear" style="width: 100px;">
-                        <option value="">Select Year</option>
-                    </select>
-                    <button class="btn btn-sm btn-primary" onclick="loadBalances()">
-                        <i class="fas fa-search"></i> View
-                    </button>
-                    <button class="btn btn-sm btn-secondary" onclick="clearFilters()">
-                        <i class="fas fa-times"></i> Clear
-                    </button>
-                    <button class="btn btn-sm btn-warning" onclick="sendFeeReminders()">
-                        <i class="fas fa-bell"></i> Send Reminders
-                    </button>
-                    <button class="btn btn-sm btn-success" onclick="sendFeeBalancesViaSMS()">
-                        <i class="fas fa-sms"></i> Send SMS Balances
-                    </button>
+                </div>
+                <div class="form-group">
+                    <label>Year</label>
+                    <input type="number" class="form-control" id="filterStructureYear" placeholder="Year" onchange="filterFeeStructure()">
+                </div>
+                <div class="form-group">
+                    <label>Search</label>
+                    <input type="text" class="form-control" id="searchStructure" placeholder="Search..." onkeyup="filterFeeStructure()">
                 </div>
             </div>
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th><input type="checkbox" id="selectAllBalances" onchange="toggleAllBalances()"></th>
-                                <th>Admission No</th>
-                                <th>Student Name</th>
-                                <th>Class</th>
-                                <th>Stream</th>
-                                <th>Fee Type</th>
-                                <th>Term</th>
-                                <th>Year</th>
-                                <th>Fee Amount</th>
-                                <th>Paid</th>
-                                <th>Balance</th>
-                                <th>Status</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="balancesTable">
-                            <tr><td colspan="12" class="text-center">Select filters and click View</td></tr>
-                        </tbody>
-                    </table>
+        </div>
+
+        <!-- Fee Structure Table -->
+        <div class="card">
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Class</th>
+                            <th>Term</th>
+                            <th>Year</th>
+                            <th>Amount</th>
+                            <th>Description</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="feeStructureTable">
+                        <tr><td colspan="6" class="text-center">Loading...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Fee Payments Action Buttons -->
+        <div class="action-buttons">
+            <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addPaymentModal">
+                <i class="fas fa-plus me-2"></i> Record Payment
+            </button>
+            <button class="btn btn-success" onclick="exportPayments()">
+                <i class="fas fa-download me-2"></i> Export
+            </button>
+        </div>
+
+        <!-- Fee Payments Filter Section -->
+        <div class="filter-section">
+            <div class="card-title">Fee Payments</div>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Search Student</label>
+                    <input type="text" class="form-control" id="searchPayment" placeholder="Search student..." onkeyup="filterPayments()">
                 </div>
+                <div class="form-group">
+                    <label>Payment Method</label>
+                    <select class="form-control" id="filterPaymentMethod" onchange="filterPayments()">
+                        <option value="">All Methods</option>
+                        <option value="Cash">Cash</option>
+                        <option value="M-Pesa">M-Pesa</option>
+                        <option value="Bank Transfer">Bank Transfer</option>
+                        <option value="Cheque">Cheque</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Term</label>
+                    <select class="form-control" id="filterPaymentTerm" onchange="filterPayments()">
+                        <option value="">All Terms</option>
+                        <option value="Term 1">Term 1</option>
+                        <option value="Term 2">Term 2</option>
+                        <option value="Term 3">Term 3</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Payment Date</label>
+                    <input type="date" class="form-control" id="filterPaymentDate" onchange="filterPayments()">
+                </div>
+            </div>
+        </div>
+
+        <!-- Fee Payments Table -->
+        <div class="card">
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Receipt No</th>
+                            <th>Student</th>
+                            <th>Fee Type</th>
+                            <th>Amount</th>
+                            <th>Payment Date</th>
+                            <th>Method</th>
+                            <th>Term</th>
+                            <th>Actions</th>
+                            <th>Statement</th>
+                        </tr>
+                    </thead>
+                    <tbody id="paymentsTable">
+                        <tr><td colspan="9" class="text-center">Loading...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Fee Balances Filter Section -->
+        <div class="filter-section">
+            <div class="card-title">Student Fee Balances</div>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Class</label>
+                    <select class="form-control" id="filterClass" onchange="loadStreamsForClass()">
+                        <option value="">All Classes</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Stream</label>
+                    <select class="form-control" id="filterStream">
+                        <option value="">All Streams</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Admission No</label>
+                    <input type="text" class="form-control" id="searchAdmission" placeholder="Admission No">
+                </div>
+                <div class="form-group">
+                    <label>Student Name</label>
+                    <input type="text" class="form-control" id="searchName" placeholder="Student Name">
+                </div>
+                <div class="form-group">
+                    <label>Term</label>
+                    <select class="form-control" id="balanceTerm">
+                        <option value="">Select Term</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Year</label>
+                    <select class="form-control" id="balanceYear">
+                        <option value="">Select Year</option>
+                    </select>
+                </div>
+            </div>
+            <div class="d-flex gap-2 mt-3">
+                <button class="btn btn-primary" onclick="loadBalances()">
+                    <i class="fas fa-search me-2"></i> View
+                </button>
+                <button class="btn btn-secondary" onclick="clearFilters()">
+                    <i class="fas fa-times me-2"></i> Clear
+                </button>
+                <button class="btn btn-warning" onclick="sendFeeReminders()">
+                    <i class="fas fa-bell me-2"></i> Send Reminders
+                </button>
+                <button class="btn btn-success" onclick="sendFeeBalancesViaSMS()">
+                    <i class="fas fa-sms me-2"></i> Send SMS Balances
+                </button>
+            </div>
+        </div>
+
+        <!-- Fee Balances Table -->
+        <div class="card">
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th><input type="checkbox" id="selectAllBalances" onchange="toggleAllBalances()"></th>
+                            <th>Admission No</th>
+                            <th>Student Name</th>
+                            <th>Class</th>
+                            <th>Stream</th>
+                            <th>Fee Type</th>
+                            <th>Term</th>
+                            <th>Year</th>
+                            <th>Fee Amount</th>
+                            <th>Paid</th>
+                            <th>Balance</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="balancesTable">
+                        <tr><td colspan="12" class="text-center">Select filters and click View</td></tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
@@ -1134,14 +948,6 @@ try {
     
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            const mainContent = document.getElementById('mainContent');
-            sidebar.classList.toggle('collapsed');
-            sidebar.classList.toggle('show');
-            mainContent.classList.toggle('expanded');
-        }
-        
         // Load classes dropdown
         async function loadClassesDropdown() {
             try {
@@ -1182,12 +988,14 @@ try {
                     <td>KES ${fee.amount.toLocaleString()}</td>
                     <td>${fee.description || '-'}</td>
                     <td>
-                        <button class="btn btn-sm btn-action me-1" onclick="editFeeStructure(${fee.id}, '${fee.class_id}', '${fee.term}', ${fee.year}, '${fee.fee_type}', ${fee.amount}, '${fee.description || ''}')">
-                            <i class="fas fa-edit"></i>
-                        </button>
-                        <button class="btn btn-sm btn-action" onclick="deleteFeeStructure(${fee.id})">
-                            <i class="fas fa-trash"></i>
-                        </button>
+                        <div class="action-buttons-cell">
+                            <button class="btn btn-sm btn-action" onclick="editFeeStructure(${fee.id}, '${fee.class_id}', '${fee.term}', ${fee.year}, '${fee.fee_type}', ${fee.amount}, '${fee.description || ''}')">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-sm btn-action" onclick="deleteFeeStructure(${fee.id})">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
                     </td>
                 </tr>
             `).join('');
@@ -1231,14 +1039,18 @@ try {
                     <td>${payment.payment_method}</td>
                     <td>${payment.term}</td>
                     <td>
-                        <button class="btn btn-sm btn-action" onclick="deletePayment(${payment.id})">
-                            <i class="fas fa-trash"></i>
-                        </button>
+                        <div class="action-buttons-cell">
+                            <button class="btn btn-sm btn-action" onclick="deletePayment(${payment.id})">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
                     </td>
                     <td>
-                        <button class="btn btn-sm btn-action" onclick="generateFeeStatement(${payment.student_id})">
-                            <i class="fas fa-file-invoice"></i> Statement
-                        </button>
+                        <div class="action-buttons-cell">
+                            <button class="btn btn-sm btn-action" onclick="generateFeeStatement(${payment.student_id})">
+                                <i class="fas fa-file-invoice"></i> Statement
+                            </button>
+                        </div>
                     </td>
                 </tr>
             `).join('');
@@ -2104,15 +1916,7 @@ try {
         }
     </script>
     <script src="../assets/js/notifications.js"></script>
-    
-    <!-- Footer -->
-    <footer style="background: transparent; color: white; padding: 2rem; text-align: center; border-top: 1px solid rgba(255, 255, 255, 0.1);">
-        <p style="margin: 0;">
-            <span style="color: #FF6B35;">&copy; 2026</span> 
-            <span style="color: #FF6B35;">Kenya</span> 
-            <span style="color: #008000;">EduHub</span>
-            <span style="color: #008000;">. All rights reserved.</span>
-        </p>
-    </footer>
+
+    <?php require_once '../includes/copywrite.php'; ?>
 </body>
 </html>

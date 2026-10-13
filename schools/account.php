@@ -115,9 +115,7 @@ if (empty($_SESSION['csrf_token'])) {
             --primary-color: #FF6B35;
             --secondary-color: #5f6368;
             --bg-color: #f8f9fa;
-            --card-bg: #ffffff;
-            --sidebar-width: 256px;
-            --header-height: 64px;
+            --card-bg: #f8f9fa;
         }
         
         * {
@@ -132,176 +130,35 @@ if (empty($_SESSION['csrf_token'])) {
             font-size: 14px;
             color: #202124;
         }
-        
-        /* Header */
-        .header {
-            position: fixed !important;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: var(--header-height);
-            background: var(--bg-color);
-            border-bottom: 1px solid #e8eaed;
-            display: flex;
-            align-items: center;
-            padding: 0 24px;
-            z-index: 1000;
-        }
-        
-        .header-left {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-        
-        .menu-btn {
-            background: none;
-            border: none;
-            cursor: pointer;
-            padding: 12px;
-            border-radius: 50%;
-            color: #5f6368;
-            transition: background 0.2s;
-        }
-        
-        .menu-btn:hover {
-            background: #f1f3f4;
-        }
-        
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 20px;
-            font-weight: 400;
-            color: #202124;
-        }
-        
-        .logo i {
-            color: var(--primary-color);
-        }
-        
-        .header-right {
-            margin-left: auto;
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-        
-        .user-avatar {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            background: var(--primary-color);
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 500;
-        }
-        
-        /* Sidebar */
-        .sidebar {
-            position: fixed;
-            top: var(--header-height);
-            left: 0;
-            width: var(--sidebar-width);
-            height: calc(100vh - var(--header-height));
-            background: var(--bg-color);
-            overflow-y: auto;
-            transition: transform 0.3s ease;
-            z-index: 999;
-            scrollbar-width: none; /* Firefox */
-            -ms-overflow-style: none; /* IE and Edge */
-        }
-        
-        .sidebar::-webkit-scrollbar {
-            display: none; /* Chrome, Safari, Opera */
-        }
-        
-        .sidebar.collapsed {
-            transform: translateX(-256px);
-        }
-        
-        .sidebar-section {
-            padding: 12px 0;
-        }
-        
-        .sidebar-title {
-            padding: 8px 24px;
-            font-size: 12px;
-            font-weight: 500;
-            color: #5f6368;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        
-        .nav-link {
-            display: flex;
-            align-items: center;
-            padding: 10px 24px;
-            color: #5f6368;
-            text-decoration: none;
-            transition: background 0.2s;
-            border: none;
-            background: none;
-            width: 100%;
-            text-align: left;
-            cursor: pointer;
-            font-size: 14px;
-        }
-        
-        .nav-link:hover {
-            background: #f1f3f4;
-        }
-        
-        .nav-link.active {
-            background: #e8f0fe;
-            color: var(--primary-color);
-        }
-        
-        .nav-link i {
-            margin-right: 12px;
-            font-size: 18px;
-            width: 24px;
-            text-align: center;
-            color: #FF6B35;
-        }
-        
-        /* Main Content */
+
         .main-content {
-            margin-left: var(--sidebar-width);
-            margin-top: var(--header-height);
             padding: 24px;
             padding-bottom: 80px;
-            transition: margin-left 0.3s ease;
         }
-        
-        .main-content.expanded {
-            margin-left: 0;
-        }
-        
+
         .page-title {
             font-size: 22px;
             font-weight: 400;
             color: #202124;
             margin-bottom: 24px;
+            text-align: center;
         }
         
         /* Cards */
         .card {
-            background: var(--bg-color);
+            background: var(--card-bg);
             border: 1px solid #e8eaed;
             border-radius: 8px;
             padding: 24px;
             margin-bottom: 24px;
         }
-        
+
         .card-title {
             font-size: 18px;
             font-weight: 500;
             color: #202124;
             margin-bottom: 16px;
+            text-align: center;
         }
         
         /* Balance Card */
@@ -338,17 +195,17 @@ if (empty($_SESSION['csrf_token'])) {
             border: 1px solid #000;
             margin: 0;
         }
-        
+
         .table-responsive {
             width: 100%;
             overflow-x: auto;
         }
-        
+
         .table thead {
-            background: #f0f0f0;
+            background: white;
             border-bottom: 2px solid #000;
         }
-        
+
         .table th {
             text-align: left;
             padding: 12px;
@@ -358,18 +215,18 @@ if (empty($_SESSION['csrf_token'])) {
             border: 1px solid #000;
             border-bottom: 2px solid #000;
         }
-        
+
         .table td {
             padding: 12px;
             font-size: 13px;
             color: #000;
             border: 1px solid #000;
         }
-        
+
         .table tbody tr:nth-child(even) {
             background: #f9f9f9;
         }
-        
+
         .table tbody tr:hover {
             background: #f0f0f0;
         }
@@ -407,131 +264,48 @@ if (empty($_SESSION['csrf_token'])) {
             border-color: #FF8C42;
             color: white;
         }
-        
+
+        .form-control {
+            border-radius: 25px;
+        }
+
         /* Responsive */
         @media (max-width: 768px) {
-            .sidebar {
-                transform: translateX(-256px);
-                z-index: 9999;
+            .btn {
+                width: 100%;
             }
-            
-            .sidebar.show {
-                transform: translateX(0);
+
+            .form-control {
+                margin-bottom: 15px;
             }
-            
-            .main-content {
-                margin-left: 0;
-                padding-bottom: 80px;
-            }
-            
+
             .balance-amount {
                 font-size: 36px;
             }
         }
+
+        /* Icon colors */
+        .quick-access-item:nth-child(1) .quick-access-icon { background: #e8f0fe; color: #4285F4; }
+        .quick-access-item:nth-child(2) .quick-access-icon { background: #fce8e6; color: #EA4335; }
+        .quick-access-item:nth-child(3) .quick-access-icon { background: #e6f4ea; color: #00AC47; }
+        .quick-access-item:nth-child(4) .quick-access-icon { background: #fef7e0; color: #FFBA00; }
+        .quick-access-item:nth-child(5) .quick-access-icon { background: #e8f0fe; color: #0066DA; }
+        .quick-access-item:nth-child(6) .quick-access-icon { background: #fce8e6; color: #4285F4; }
+        .fa-plus { color: #00AC47; }
+        .fa-download { color: #4285F4; }
+        .fa-edit { color: #0066DA; }
+        .fa-trash { color: #EA4335; }
     </style>
 </head>
 <body>
-    <!-- Header -->
-    <header class="header">
-        <div class="header-left">
-            <button class="menu-btn" onclick="toggleSidebar()">
-                <i class="fas fa-bars"></i>
-            </button>
-            <div class="logo">
-                <div style="width: 40px; height: 40px; background: #FFD700; border: 3px solid #FF6B35; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 0;">
-                    <span style="font-weight: bold; font-size: 20px;">
-                        <span style="color: #FF6B35; font-size: 24px;">K</span><span style="color: #008000; font-size: 20px;">E</span>
-                    </span>
-                </div>
-                <span style="color: #FF6B35; font-weight: bold;">Kenya</span> <span style="color: #008000; font-weight: bold;">EduHub</span>
-            </div>
-        </div>
-        <div class="header-right">
-            <div class="user-avatar">
-                <?php echo strtoupper(substr($school_name, 0, 1)); ?>
-            </div>
-        </div>
-    </header>
+    <?php require_once 'includes/header.php'; ?>
+
+    <?php $active_page = 'account'; require_once 'includes/sidebar.php'; ?>
     
-    <!-- Sidebar -->
-    <aside class="sidebar" id="sidebar">
-        <div class="sidebar-section">
-            <div class="sidebar-title">Main</div>
-            <a class="nav-link" href="dashboard">
-                <i class="fas fa-home"></i> Dashboard
-            </a>
-            <a class="nav-link" href="students">
-                <i class="fas fa-user-graduate"></i> Students
-            </a>
-            <a class="nav-link" href="teachers">
-                <i class="fas fa-chalkboard-teacher"></i> Teachers
-            </a>
-            <a class="nav-link" href="classes">
-                <i class="fas fa-chalkboard"></i> Classes
-            </a>
-            <a class="nav-link" href="streams">
-                <i class="fas fa-layer-group"></i> Streams
-            </a>
-            <a class="nav-link" href="subjects">
-                <i class="fas fa-book"></i> Subjects
-            </a>
-            <a class="nav-link" href="exam-types">
-                <i class="fas fa-clipboard-list"></i> Exam Types
-            </a>
-            <a class="nav-link" href="timetable">
-                <i class="fas fa-clock"></i> Timetable
-            </a>
-            <a class="nav-link" href="grading">
-                <i class="fas fa-chart-bar"></i> Grading
-            </a>
-            <a class="nav-link" href="performance">
-                <i class="fas fa-chart-line"></i> Performance
-            </a>
-            <a class="nav-link" href="results">
-                <i class="fas fa-clipboard-list"></i> Results
-            </a>
-            <a class="nav-link" href="attendance">
-                <i class="fas fa-calendar-check"></i> Attendance
-            </a>
-            <a class="nav-link" href="calendar">
-                <i class="fas fa-calendar-alt"></i> Calendar
-            </a>
-            <a class="nav-link" href="fees">
-                <i class="fas fa-money-bill-wave"></i> Fees
-            </a>
-            <a class="nav-link" href="invoices">
-                <i class="fas fa-file-invoice-dollar"></i> Invoices
-            </a>
-            <a class="nav-link active" href="account">
-                <i class="fas fa-wallet"></i> Account Balance
-            </a>
-        </div>
-        <div class="sidebar-section">
-            <div class="sidebar-title">Management</div>
-            <a class="nav-link" href="finance-managers">
-                <i class="fas fa-user-tie"></i> Finance Managers
-            </a>
-            <a class="nav-link" href="librarians">
-                <i class="fas fa-book-reader"></i> Librarians
-            </a>
-            <a class="nav-link" href="parents">
-                <i class="fas fa-user-friends"></i> Parents
-            </a>
-        </div>
-        <div class="sidebar-section">
-            <div class="sidebar-title">Account</div>
-            <a class="nav-link" href="profile">
-                <i class="fas fa-user"></i> Profile
-            </a>
-            <a class="nav-link" href="settings">
-                <i class="fas fa-cog"></i> Settings
-            </a>
-            <a class="nav-link" href="logout">
-                <i class="fas fa-sign-out-alt"></i> Logout
-            </a>
-        </div>
-    </aside>
-    
+    <br>
+    <br>
+    <br>
+
     <!-- Main Content -->
     <main class="main-content" id="mainContent">
         <h1 class="page-title">School Account Balance</h1>
@@ -598,7 +372,7 @@ if (empty($_SESSION['csrf_token'])) {
                         </div>
                         <div>
                             <label for="destination_type" style="display: block; margin-bottom: 8px; color: #202124; font-weight: 500;">Send To</label>
-                            <select id="destination_type" name="destination_type" class="form-control" required onchange="updateFormFields()" style="width: 100%; padding: 12px 15px; border: 1px solid #e8eaed; border-radius: 6px; background: #ffffff; color: #202124; font-size: 16px;">
+                            <select id="destination_type" name="destination_type" class="form-control" required onchange="updateDestinationFields()" style="width: 100%; padding: 12px 15px; border: 1px solid #e8eaed; border-radius: 6px; background: #ffffff; color: #202124; font-size: 16px;">
                                 <option value="phone" selected>Phone Number</option>
                                 <option value="till">Till Number</option>
                                 <option value="paybill">Paybill</option>
@@ -746,34 +520,12 @@ if (empty($_SESSION['csrf_token'])) {
             </div>
         </div>
     </main>
-    
-    <!-- Footer -->
-    <footer style="position: fixed; bottom: 0; left: 0; right: 0; background: #f8f9fa; border-top: 1px solid #e8eaed; padding: 20px 0; margin-top: 40px; z-index: 1000;">
-        <div style="text-align: center;">
-            <p style="margin: 0; color: #5f6368; font-size: 14px;">
-                <span style="color: #FF6B35;">&copy; 2026</span>
-                <span style="color: #FF6B35;">Kenya</span>
-                <span style="color: #008000;">EduHub</span>
-                <span style="color: #5f6368;">. All rights reserved.</span>
-            </p>
-        </div>
-    </footer>
-    
+
+    <br>
+
+    <?php require_once '../includes/copywrite.php'; ?>
+
     <script>
-        function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            const mainContent = document.getElementById('mainContent');
-            
-            // Check if we're on mobile
-            if (window.innerWidth <= 768) {
-                // Mobile: toggle the 'show' class
-                sidebar.classList.toggle('show');
-            } else {
-                // Desktop: toggle the 'collapsed' and 'expanded' classes
-                sidebar.classList.toggle('collapsed');
-                mainContent.classList.toggle('expanded');
-            }
-        }
         
         function showPinVerification() {
             document.getElementById('pinVerificationSection').style.display = 'block';

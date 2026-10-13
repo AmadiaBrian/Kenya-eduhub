@@ -398,9 +398,7 @@ if (isset($_GET['delete_aggregate']) && isset($_GET['aggregate_id'])) {
             --primary-color: #1a73e8;
             --secondary-color: #5f6368;
             --bg-color: #f8f9fa;
-            --card-bg: #ffffff;
-            --sidebar-width: 256px;
-            --header-height: 64px;
+            --card-bg: #f8f9fa;
         }
         
         * {
@@ -416,38 +414,6 @@ if (isset($_GET['delete_aggregate']) && isset($_GET['aggregate_id'])) {
             color: #202124;
         }
         
-        .header {
-            position: fixed !important;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: var(--header-height);
-            background: var(--bg-color);
-            border-bottom: 1px solid #e8eaed;
-            display: flex;
-            align-items: center;
-            padding: 0 24px;
-            z-index: 1000;
-        }
-        
-        .sidebar {
-            position: fixed;
-            top: var(--header-height);
-            left: 0;
-            width: var(--sidebar-width);
-            height: calc(100vh - var(--header-height));
-            background: var(--bg-color);
-            overflow-y: auto;
-            z-index: 999;
-            scrollbar-width: none; /* Firefox */
-            -ms-overflow-style: none; /* IE and Edge */
-            transition: transform 0.3s ease;
-        }
-        
-        .sidebar::-webkit-scrollbar {
-            display: none; /* Chrome, Safari, Opera */
-        }
-        
         .main-content {
             margin-left: var(--sidebar-width);
             margin-top: var(--header-height);
@@ -457,7 +423,7 @@ if (isset($_GET['delete_aggregate']) && isset($_GET['aggregate_id'])) {
         
         .card {
             background: var(--bg-color);
-            border: 1px solid #e8eaed;
+            border: 1px solid #e0e0e0;
             border-radius: 8px;
             padding: 24px;
             margin-bottom: 24px;
@@ -528,10 +494,51 @@ if (isset($_GET['delete_aggregate']) && isset($_GET['aggregate_id'])) {
             color: #000;
             border: 1px solid #000;
             cursor: pointer;
+            margin-right: 4px;
         }
-        
+
         .btn-action:hover {
             background: #e9ecef;
+        }
+
+        .action-buttons-cell {
+            display: flex;
+            gap: 4px;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .action-buttons .btn {
+            flex: 1;
+            padding: 12px 24px;
+            border-radius: 25px;
+        }
+
+        @media (max-width: 768px) {
+            .action-buttons {
+                flex-direction: column;
+            }
+        }
+
+        /* Filter Section */
+        .filter-section {
+            background: var(--bg-color);
+            border-radius: 8px;
+            padding: 24px;
+            margin-bottom: 24px;
+            border: 1px solid #e8eaed;
+        }
+
+        .filter-section .card-title {
+            font-size: 18px;
+            font-weight: 500;
+            color: #202124;
+            margin-bottom: 16px;
         }
 
         .btn-warning {
@@ -594,116 +601,34 @@ if (isset($_GET['delete_aggregate']) && isset($_GET['aggregate_id'])) {
             border: 1px solid #ffcdd2;
         }
         
-        .nav-link {
-            display: flex;
-            align-items: center;
-            padding: 10px 24px;
-            color: #5f6368;
-            text-decoration: none;
-            transition: background 0.2s;
-            border: none;
-            background: none;
-            width: 100%;
-            text-align: left;
-            cursor: pointer;
-            font-size: 14px;
-        }
-
-        .nav-link:hover {
-            background: #f1f3f4;
-        }
-
-        .nav-link.active {
-            background: #e8f0fe;
-            color: var(--primary-color);
-        }
-
-        .nav-link i {
-            margin-right: 12px;
-            font-size: 18px;
-            width: 24px;
-            text-align: center;
-            color: #FF6B35;
-        }
-        
-        .header-left {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-        
-        .menu-btn {
-            background: none;
-            border: none;
-            cursor: pointer;
-            padding: 8px;
-            border-radius: 50%;
-            transition: background 0.2s;
-        }
-
-        .menu-btn:hover {
-            background: #f1f3f4;
-        }
-
-        .menu-btn i {
-            font-size: 20px;
-            color: #5f6368;
-        }
-        
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 20px;
-            font-weight: 400;
-            color: #202124;
-        }
-        
-        .sidebar-section {
-            padding: 12px 0;
-        }
-        
-        .sidebar-title {
-            padding: 8px 24px;
-            font-size: 12px;
-            font-weight: 500;
-            color: #5f6368;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        
-        .sidebar.collapsed {
-            transform: translateX(-256px);
-        }
-        
-        .main-content.expanded {
-            margin-left: 0;
-        }
-        
         .page-title {
             font-size: 22px;
             font-weight: 400;
             color: #202124;
             margin-bottom: 24px;
+            text-align: center;
         }
-        
+
         .card-title {
             font-size: 18px;
             font-weight: 500;
             color: #202124;
             margin-bottom: 16px;
+            text-align: center;
         }
-        
+
         .form-control {
             border: 1px solid #dadce0;
-            border-radius: 8px;
+            border-radius: 25px;
             padding: 10px 12px;
             font-size: 14px;
+            background: var(--bg-color);
         }
-        
+
         .form-control:focus {
             border-color: var(--primary-color);
             box-shadow: 0 0 0 2px rgba(255, 107, 53, 0.2);
+            background: var(--bg-color);
         }
         
         .form-label {
@@ -785,7 +710,7 @@ if (isset($_GET['delete_aggregate']) && isset($_GET['aggregate_id'])) {
         .table {
             width: 100%;
             border-collapse: collapse;
-            background: white;
+            background: var(--bg-color);
             box-shadow: 0 1px 3px rgba(0,0,0,0.1);
         }
 
@@ -793,36 +718,41 @@ if (isset($_GET['delete_aggregate']) && isset($_GET['aggregate_id'])) {
         .table td {
             padding: 12px 16px;
             text-align: left;
-            border: 1px solid #000;
-            border-bottom: 1px solid #000;
-            border-right: 1px solid #000;
+            border: 1px solid #e0e0e0;
+            border-bottom: 1px solid #e0e0e0;
+            border-right: 1px solid #e0e0e0;
             font-size: 14px;
         }
 
-        .table th {
-            background: #f0f0f0;
+        .table thead {
+            background: #FF6B35 !important;
+        }
+
+        .table thead th {
+            background: #FF6B35 !important;
             font-weight: 600;
-            color: #000;
+            color: #ffffff !important;
             font-size: 15px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            border-top: 2px solid #000;
-        }
-
-        .table th:last-child {
-            border-right: 2px solid #000;
-        }
-
-        .table td:last-child {
-            border-right: 2px solid #000;
-        }
-
-        .table tbody tr:last-child td {
+            border-top: 1px solid #000;
             border-bottom: 2px solid #000;
         }
 
+        .table th:last-child {
+            border-right: 1px solid #e0e0e0;
+        }
+
+        .table td:last-child {
+            border-right: 1px solid #e0e0e0;
+        }
+
+        .table tbody tr:last-child td {
+            border-bottom: 1px solid #e0e0e0;
+        }
+
         .table tbody tr:hover {
-            background: #f9f9f9;
+            background: #f1f3f4;
         }
         
         .table-responsive {
@@ -842,14 +772,6 @@ if (isset($_GET['delete_aggregate']) && isset($_GET['aggregate_id'])) {
         
         /* Mobile */
         @media (max-width: 768px) {
-            .sidebar {
-                transform: translateX(-256px);
-            }
-            
-            .sidebar.show {
-                transform: translateX(0);
-            }
-            
             .main-content {
                 margin-left: 0;
                 padding: 16px;
@@ -893,111 +815,32 @@ if (isset($_GET['delete_aggregate']) && isset($_GET['aggregate_id'])) {
             .table td {
                 padding: 8px 10px;
             }
+            
+            .table-responsive {
+                margin: 0 -16px;
+                padding: 0 16px;
+                overflow-x: auto;
+            }
         }
+
+        /* Icon colors */
+        .quick-access-item:nth-child(1) .quick-access-icon { background: #e8f0fe; color: #4285F4; }
+        .quick-access-item:nth-child(2) .quick-access-icon { background: #fce8e6; color: #EA4335; }
+        .quick-access-item:nth-child(3) .quick-access-icon { background: #e6f4ea; color: #00AC47; }
+        .quick-access-item:nth-child(4) .quick-access-icon { background: #fef7e0; color: #FFBA00; }
+        .quick-access-item:nth-child(5) .quick-access-icon { background: #e8f0fe; color: #0066DA; }
+        .quick-access-item:nth-child(6) .quick-access-icon { background: #fce8e6; color: #4285F4; }
+        .fa-plus { color: #00AC47; }
+        .fa-download { color: #4285F4; }
+        .fa-edit { color: #0066DA; }
+        .fa-trash { color: #EA4335; }
     </style>
 </head>
 <body>
-    <!-- Header -->
-    <header class="header">
-        <div class="header-left">
-            <button class="menu-btn" onclick="toggleSidebar()">
-                <i class="fas fa-bars"></i>
-            </button>
-            <div class="logo">
-                <div style="width: 40px; height: 40px; background: #FFD700; border: 3px solid #FF6B35; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 0;">
-                    <span style="font-weight: bold; font-size: 20px;">
-                        <span style="color: #FF6B35; font-size: 24px;">K</span><span style="color: #008000; font-size: 20px;">E</span>
-                    </span>
-                </div>
-                <span style="color: #FF6B35; font-weight: bold;">Kenya</span> <span style="color: #008000; font-weight: bold;">EduHub</span>
-            </div>
-        </div>
-    </header>
+    <?php require_once 'includes/header.php'; ?>
+    <?php $active_page = 'grading'; require_once 'includes/sidebar.php'; ?>
     
-    <!-- Sidebar -->
-    <aside class="sidebar" id="sidebar">
-        <div class="sidebar-section">
-            <div class="sidebar-title">Main</div>
-            <a class="nav-link" href="dashboard">
-                <i class="fas fa-home"></i> Dashboard
-            </a>
-            <a class="nav-link" href="students">
-                <i class="fas fa-user-graduate"></i> Students
-            </a>
-            <a class="nav-link" href="teachers">
-                <i class="fas fa-chalkboard-teacher"></i> Teachers
-            </a>
-            <a class="nav-link" href="classes">
-                <i class="fas fa-chalkboard"></i> Classes
-            </a>
-            <a class="nav-link" href="streams">
-                <i class="fas fa-layer-group"></i> Streams
-            </a>
-            <a class="nav-link" href="subjects">
-                <i class="fas fa-book"></i> Subjects
-            </a>
-            <a class="nav-link" href="exam-types">
-                <i class="fas fa-clipboard-list"></i> Exam Types
-            </a>
-            <a class="nav-link" href="timetable">
-                <i class="fas fa-calendar-alt"></i> Timetable
-            </a>
-            <a class="nav-link active" href="grading">
-                <i class="fas fa-chart-bar"></i> Grading System
-            </a>
-            <a class="nav-link" href="performance">
-                <i class="fas fa-chart-line"></i> Performance
-            </a>
-            <a class="nav-link" href="results">
-                <i class="fas fa-clipboard-list"></i> Results
-            </a>
-            <a class="nav-link" href="attendance">
-                <i class="fas fa-calendar-check"></i> Attendance
-            </a>
-            <a class="nav-link" href="calendar">
-                <i class="fas fa-calendar"></i> Calendar
-            </a>
-            <a class="nav-link" href="fees">
-                <i class="fas fa-dollar-sign"></i> Fees
-            </a>
-            <a class="nav-link" href="invoices">
-                <i class="fas fa-file-invoice-dollar"></i> Invoices
-            </a>
-            <a class="nav-link" href="finance-managers">
-                <i class="fas fa-user-tie"></i> Finance Managers
-            </a>
-            <a class="nav-link" href="account">
-                <i class="fas fa-wallet"></i> Account Balance
-            </a>
-            <a class="nav-link" href="parents">
-                <i class="fas fa-users"></i> Parents
-            </a>
-            <a class="nav-link" href="disciplinary">
-                <i class="fas fa-shield-alt"></i> Disciplinary
-            </a>
-            <a class="nav-link" href="disciplinary-action-types">
-                <i class="fas fa-list-alt"></i> Disciplinary Types
-            </a>
-            <a class="nav-link" href="librarians">
-                <i class="fas fa-book-reader"></i> Librarians
-            </a>
-            <a class="nav-link" href="duty-assignments">
-                <i class="fas fa-clipboard-list"></i> Duty Assignments
-            </a>
-            <a class="nav-link" href="examination-heads">
-                <i class="fas fa-user-tie"></i> Examination Heads
-            </a>
-        </div>
-        <div class="sidebar-section">
-            <div class="sidebar-title">Settings</div>
-            <a class="nav-link" href="settings">
-                <i class="fas fa-cog"></i> Settings
-            </a>
-            <a class="nav-link" href="logout">
-                <i class="fas fa-sign-out-alt"></i> Logout
-            </a>
-        </div>
-    </aside>
+    <br>
     
     <!-- Main Content -->
     <main class="main-content" id="mainContent">
@@ -1107,14 +950,16 @@ if (isset($_GET['delete_aggregate']) && isset($_GET['aggregate_id'])) {
                                             <td><?php echo htmlspecialchars($scale['grade_description'] ?? '-'); ?></td>
                                             <td><strong><?php echo $scale['points'] ?? 0; ?></strong></td>
                                             <td>
-                                                <button class="btn btn-sm btn-action" onclick="editScale(<?php echo $scale['id']; ?>, '<?php echo $scale['min_score']; ?>', '<?php echo $scale['max_score']; ?>', '<?php echo htmlspecialchars($scale['grade_name']); ?>', '<?php echo htmlspecialchars($scale['grade_description'] ?? ''); ?>', '<?php echo $scale['points'] ?? 0; ?>')">
-                                                    <i class="fas fa-edit"></i> Edit
-                                                </button>
-                                                <a href="grading.php?delete_scale=1&scale_id=<?php echo $scale['id']; ?>"
-                                                   class="btn btn-sm btn-action"
-                                                   onclick="return confirm('Are you sure you want to delete this grading scale?')">
-                                                    <i class="fas fa-trash"></i> Delete
-                                                </a>
+                                                <div class="action-buttons-cell">
+                                                    <button class="btn btn-sm btn-action" onclick="editScale(<?php echo $scale['id']; ?>, '<?php echo $scale['min_score']; ?>', '<?php echo $scale['max_score']; ?>', '<?php echo htmlspecialchars($scale['grade_name']); ?>', '<?php echo htmlspecialchars($scale['grade_description'] ?? ''); ?>', '<?php echo $scale['points'] ?? 0; ?>')">
+                                                        <i class="fas fa-edit"></i> Edit
+                                                    </button>
+                                                    <a href="grading.php?delete_scale=1&scale_id=<?php echo $scale['id']; ?>"
+                                                       class="btn btn-sm btn-action"
+                                                       onclick="return confirm('Are you sure you want to delete this grading scale?')">
+                                                        <i class="fas fa-trash"></i> Delete
+                                                    </a>
+                                                </div>
                                             </td>
                                         </tr>
                                     <?php endforeach; ?>
@@ -1177,11 +1022,13 @@ if (isset($_GET['delete_aggregate']) && isset($_GET['aggregate_id'])) {
                                     <td><?php echo $aggregate['max_points']; ?></td>
                                     <td><?php echo htmlspecialchars($aggregate['grade_description'] ?? '-'); ?></td>
                                     <td>
-                                        <a href="grading?delete_aggregate=1&aggregate_id=<?php echo $aggregate['id']; ?>"
-                                           class="btn btn-sm btn-action"
-                                           onclick="return confirm('Are you sure you want to delete this aggregate points distribution entry?')">
-                                            <i class="fas fa-trash"></i> Delete
-                                        </a>
+                                        <div class="action-buttons-cell">
+                                            <a href="grading?delete_aggregate=1&aggregate_id=<?php echo $aggregate['id']; ?>"
+                                               class="btn btn-sm btn-action"
+                                               onclick="return confirm('Are you sure you want to delete this aggregate points distribution entry?')">
+                                                <i class="fas fa-trash"></i> Delete
+                                            </a>
+                                        </div>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>
@@ -1193,14 +1040,6 @@ if (isset($_GET['delete_aggregate']) && isset($_GET['aggregate_id'])) {
     </main>
     
     <script>
-        function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            const mainContent = document.getElementById('mainContent');
-            sidebar.classList.toggle('collapsed');
-            sidebar.classList.toggle('show');
-            mainContent.classList.toggle('expanded');
-        }
-        
         function downloadTemplate() {
             const subjectId = document.querySelector('select[name="subject_id"]').value;
             if (!subjectId) {
@@ -1278,14 +1117,6 @@ if (isset($_GET['delete_aggregate']) && isset($_GET['aggregate_id'])) {
     
     <script src="../assets/js/notifications.js"></script>
     
-    <!-- Footer -->
-    <footer style="background: transparent; color: white; padding: 2rem; text-align: center; border-top: 1px solid rgba(255, 255, 255, 0.1);">
-        <p style="margin: 0;">
-            <span style="color: #FF6B35;">&copy; 2026</span> 
-            <span style="color: #FF6B35;">Kenya</span> 
-            <span style="color: #008000;">EduHub</span>
-            <span style="color: #008000;">. All rights reserved.</span>
-        </p>
-    </footer>
+    <?php require_once '../includes/copywrite.php'; ?>
 </body>
 </html>

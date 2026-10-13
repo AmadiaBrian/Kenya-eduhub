@@ -137,167 +137,64 @@ try {
             --primary-color: #1a73e8;
             --secondary-color: #5f6368;
             --bg-color: #f8f9fa;
-            --card-bg: #ffffff;
-            --sidebar-width: 256px;
-            --header-height: 64px;
+            --card-bg: #f8f9fa;
         }
-        
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         body {
-            background: var(--bg-color);
+            background: #f8f9fa;
             font-family: 'Google Sans', 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             font-size: 14px;
             color: #202124;
         }
-        
-        .header {
-            position: fixed !important;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: var(--header-height);
-            background: var(--bg-color);
-            border-bottom: 1px solid #e8eaed;
-            display: flex;
-            align-items: center;
-            padding: 0 24px;
-            z-index: 1000;
-        }
-        
-        .header-left {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-        
-        .menu-btn {
-            background: none;
-            border: none;
-            cursor: pointer;
-            padding: 12px;
-            border-radius: 50%;
-            color: #5f6368;
-            transition: background 0.2s;
-        }
-        
-        .menu-btn:hover {
-            background: #f1f3f4;
-        }
-        
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 18px;
-            font-weight: 400;
-            color: #202124;
-        }
-        
-        .sidebar {
-            position: fixed;
-            top: var(--header-height);
-            left: 0;
-            width: var(--sidebar-width);
-            height: calc(100vh - var(--header-height));
-            background: var(--bg-color);
-            overflow-y: auto;
-            transition: transform 0.3s ease;
-            z-index: 999;
-            scrollbar-width: none;
-        }
-        
-        .sidebar::-webkit-scrollbar {
-            display: none;
-        }
-        
-        .sidebar.collapsed {
-            transform: translateX(-256px);
-        }
-        
-        .nav-link {
-            display: flex;
-            align-items: center;
-            padding: 12px 24px;
-            color: #5f6368;
-            text-decoration: none;
-            transition: background 0.2s;
-            font-size: 14px;
-            border-bottom: 1px solid #f1f3f4;
-        }
-        
-        .nav-link:hover {
-            background: #f1f3f4;
-        }
-        }
-        
-        .nav-link:hover {
-            background: #f1f3f4;
-        }
-        
-        .nav-link.active {
-            background: #e8f0fe;
-            color: var(--primary-color);
-        }
-        
-        .nav-link i {
-            margin-right: 12px;
-            font-size: 18px;
-            width: 24px;
-            text-align: center;
-            color: #FF6B35;
-        }
-        
+
         .main-content {
-            margin-left: var(--sidebar-width);
-            margin-top: var(--header-height);
             padding: 24px;
             padding-bottom: 80px;
-            transition: margin-left 0.3s ease;
         }
-        
-        .main-content.expanded {
-            margin-left: 0;
-        }
-        
+
         .card {
-            background: var(--card-bg);
-            border: none;
+            background: var(--bg-color);
+            border: 1px solid #e0e0e0;
             border-radius: 12px;
             box-shadow: none;
             margin-bottom: 20px;
         }
-        
+
         .card-header {
-            background: var(--card-bg);
-            border-bottom: 1px solid rgba(0,0,0,0.04);
+            background: var(--bg-color);
+            border-bottom: 1px solid #e0e0e0;
             padding: 16px 20px;
             font-weight: 500;
             color: var(--secondary-color);
-            border-radius: 12px;
+            border-radius: 12px 12px 0 0;
+            text-align: center;
         }
-        
+
         .card-body {
             padding: 20px;
-            border-radius: 12px;
+            border-radius: 0 0 12px 12px;
         }
-        
+
         .card-title {
             font-size: 18px;
             font-weight: 500;
             color: #202124;
             margin-bottom: 16px;
+            text-align: center;
         }
-        
+
         .page-title {
             font-size: 22px;
             font-weight: 400;
             color: #202124;
             margin-bottom: 24px;
+            text-align: center;
         }
         
         /* Form */
@@ -306,65 +203,72 @@ try {
             padding: 10px 12px;
             font-size: 14px;
             border: 1px solid #dadce0;
-            border-radius: 8px;
+            border-radius: 20px;
             outline: none;
             transition: border-color 0.2s, box-shadow 0.2s;
+            background: var(--bg-color);
         }
-        
+
         .form-control:focus {
             border-color: var(--primary-color);
             box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.2);
         }
-        
+
         .form-label {
             display: block;
             margin-bottom: 4px;
             font-weight: 500;
             color: var(--secondary-color);
         }
-        
+
         /* Buttons */
         .btn {
             padding: 10px 24px;
-            border-radius: 4px;
+            border-radius: 20px;
             font-size: 14px;
             font-weight: 500;
             border: none;
             cursor: pointer;
             transition: background 0.2s;
         }
-        
+
         .btn-primary {
             background: #FF6B35;
             color: white;
         }
-        
+
         .btn-primary:hover {
             background: #e55a2b;
         }
-        
+
         .btn-secondary {
             background: var(--secondary-color);
             color: white;
         }
-        
+
         .btn-secondary:hover {
             background: #3c4043;
         }
-        
+
         .btn-sm {
             padding: 4px 8px;
             font-size: 12px;
         }
-        
+
         .btn-outline-secondary {
             border: 1px solid #dadce0;
             background: white;
             color: #5f6368;
         }
-        
+
         .btn-outline-secondary:hover {
             background: #f1f3f4;
+        }
+
+        .btn-action {
+            padding: 4px 8px;
+            font-size: 11px;
+            border-radius: 20px;
         }
         
         /* Table */
@@ -375,42 +279,43 @@ try {
             border: 1px solid #000;
             margin: 0;
         }
-        
+
         .table-responsive {
             width: 100%;
             overflow-x: auto;
         }
-        
+
         .table thead {
-            background: #f0f0f0;
+            background: #FF6B35 !important;
             border-bottom: 2px solid #000;
         }
-        
+
         .table th {
             text-align: left;
             padding: 12px;
             font-size: 13px;
             font-weight: 600;
-            color: #000;
+            color: #ffffff !important;
             border: 1px solid #000;
             border-bottom: 2px solid #000;
+            background-color: #FF6B35 !important;
         }
-        
+
         .table td {
             padding: 12px;
             font-size: 13px;
             color: #000;
             border: 1px solid #000;
         }
-        
+
         .table tbody tr:nth-child(even) {
             background: #f9f9f9;
         }
-        
+
         .table tbody tr:hover {
             background: #f0f0f0;
         }
-        
+
         /* Badge */
         .badge {
             padding: 4px 8px;
@@ -418,162 +323,99 @@ try {
             font-size: 11px;
             font-weight: 500;
         }
-        
+
         .badge-active {
             background: #e6f4ea;
             color: #137333;
         }
-        
+
         .badge-inactive {
             background: #fce8e6;
             color: #c5221f;
         }
-        
+
         .badge-archived {
             background: #fce8e6;
             color: #c5221f;
         }
-        
+
         /* Alert */
         .alert {
             padding: 12px 16px;
             border-radius: 4px;
             margin-bottom: 16px;
         }
-        
+
         .alert-success {
             background: #e6f4ea;
             color: #137333;
             border: 1px solid rgba(19, 115, 51, 0.1);
         }
-        
+
         .alert-danger {
             background: #fce8e6;
             color: #c5221f;
             border: 1px solid rgba(197, 34, 31, 0.1);
         }
-        
+
         @media (max-width: 768px) {
-            .sidebar {
-                transform: translateX(-256px);
-                z-index: 9999;
-            }
-            
-            .sidebar.show {
-                transform: translateX(0);
-            }
-            
             .main-content {
-                margin-left: 0;
                 padding: 16px;
                 padding-bottom: 80px;
-                padding-top: calc(var(--header-height) + 16px);
+            }
+
+            .table {
+                font-size: 11px;
+                min-width: 100%;
+            }
+
+            .table th,
+            .table td {
+                padding: 6px 8px;
+            }
+
+            .table td:last-child {
+                white-space: nowrap !important;
+                width: 150px !important;
+                min-width: 150px !important;
+            }
+
+            .table td form {
+                display: inline !important;
+            }
+
+            .table td form button {
+                margin-right: 2px !important;
+                padding: 2px 4px !important;
+                font-size: 9px !important;
+            }
+
+            .table td form button:last-child {
+                margin-right: 0 !important;
             }
         }
+
+        /* Icon colors */
+        .quick-access-item:nth-child(1) .quick-access-icon { background: #e8f0fe; color: #4285F4; }
+        .quick-access-item:nth-child(2) .quick-access-icon { background: #fce8e6; color: #EA4335; }
+        .quick-access-item:nth-child(3) .quick-access-icon { background: #e6f4ea; color: #00AC47; }
+        .quick-access-item:nth-child(4) .quick-access-icon { background: #fef7e0; color: #FFBA00; }
+        .quick-access-item:nth-child(5) .quick-access-icon { background: #e8f0fe; color: #0066DA; }
+        .quick-access-item:nth-child(6) .quick-access-icon { background: #fce8e6; color: #4285F4; }
+        .fa-plus { color: #00AC47; }
+        .fa-download { color: #4285F4; }
+        .fa-edit { color: #0066DA; }
+        .fa-trash { color: #EA4335; }
     </style>
 </head>
 <body>
-    <!-- Header -->
-    <header class="header">
-        <div class="header-left">
-            <button class="menu-btn" onclick="toggleSidebar()">
-                <i class="fas fa-bars"></i>
-            </button>
-            <div class="logo">
-                <div style="width: 40px; height: 40px; background: #FFD700; border: 3px solid #FF6B35; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 0;">
-                    <span style="font-weight: bold; font-size: 20px;">
-                        <span style="color: #FF6B35; font-size: 24px;">K</span><span style="color: #008000; font-size: 20px;">E</span>
-                    </span>
-                </div>
-                <span style="color: #FF6B35; font-weight: bold;">Kenya</span> <span style="color: #008000; font-weight: bold;">EduHub</span>
-            </div>
-        </div>
-        <div class="header-right">
-        </div>
-    </header>
-    
-    <!-- Sidebar -->
-    <aside class="sidebar" id="sidebar">
-        <a class="nav-link" href="dashboard">
-            <i class="fas fa-home"></i> Dashboard
-        </a>
-        <a class="nav-link" href="students">
-            <i class="fas fa-user-graduate"></i> Students
-        </a>
-        <a class="nav-link" href="teachers">
-            <i class="fas fa-chalkboard-teacher"></i> Teachers
-        </a>
-        <a class="nav-link" href="classes">
-            <i class="fas fa-chalkboard"></i> Classes
-        </a>
-        <a class="nav-link" href="streams">
-            <i class="fas fa-layer-group"></i> Streams
-        </a>
-        <a class="nav-link" href="subjects">
-            <i class="fas fa-book"></i> Subjects
-        </a>
-        <a class="nav-link" href="exam-types">
-            <i class="fas fa-clipboard-list"></i> Exam Types
-        </a>
-        <a class="nav-link" href="timetable">
-            <i class="fas fa-calendar-alt"></i> Timetable
-        </a>
-        <a class="nav-link" href="grading">
-            <i class="fas fa-chart-bar"></i> Grading
-        </a>
-        <a class="nav-link" href="performance">
-            <i class="fas fa-chart-line"></i> Performance
-        </a>
-        <a class="nav-link" href="results">
-            <i class="fas fa-clipboard-list"></i> Results
-        </a>
-        <a class="nav-link" href="attendance">
-            <i class="fas fa-calendar-check"></i> Attendance
-        </a>
-        <a class="nav-link" href="calendar">
-            <i class="fas fa-calendar-alt"></i> Calendar
-        </a>
-        <a class="nav-link" href="fees">
-            <i class="fas fa-money-bill-wave"></i> Fees
-        </a>
-        <a class="nav-link" href="invoices">
-            <i class="fas fa-file-invoice-dollar"></i> Invoices
-        </a>
-        <a class="nav-link" href="finance-managers">
-            <i class="fas fa-user-tie"></i> Finance Managers
-        </a>
-        <a class="nav-link" href="account">
-            <i class="fas fa-wallet"></i> Account Balance
-        </a>
-        <a class="nav-link" href="parents">
-            <i class="fas fa-user-friends"></i> Parents
-        </a>
-        <a class="nav-link" href="disciplinary">
-            <i class="fas fa-exclamation-triangle"></i> Disciplinary
-        </a>
-        <a class="nav-link" href="disciplinary-action-types">
-            <i class="fas fa-list-alt"></i> Disciplinary Types
-        </a>
-        <a class="nav-link" href="duty-assignments">
-            <i class="fas fa-clipboard-list"></i> Duty Assignments
-        </a>
-        <a class="nav-link" href="librarians">
-            <i class="fas fa-book-reader"></i> Librarians
-        </a>
-        <a class="nav-link active" href="examination-heads">
-            <i class="fas fa-user-tie"></i> Examination Heads
-        </a>
-        <a class="nav-link" href="settings">
-            <i class="fas fa-cog"></i> Settings
-        </a>
-        <a class="nav-link" href="logout">
-            <i class="fas fa-sign-out-alt"></i> Logout
-        </a>
-    </aside>
-    
+    <?php require_once 'includes/header.php'; ?>
+    <?php $active_page = 'examination-heads'; require_once 'includes/sidebar.php'; ?>
+
     <!-- Main Content -->
-    <main class="main-content" id="mainContent">
+    <main class="main-content">
         <div class="container-fluid">
+            <br><br>
             <h1 class="page-title">Examination Department Heads</h1>
         
         <?php if ($success): ?>
@@ -703,21 +545,6 @@ try {
     
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            const mainContent = document.getElementById('mainContent');
-            
-            // Check if we're on mobile
-            if (window.innerWidth <= 768) {
-                // Mobile: toggle the 'show' class
-                sidebar.classList.toggle('show');
-            } else {
-                // Desktop: toggle the 'collapsed' and 'expanded' classes
-                sidebar.classList.toggle('collapsed');
-                mainContent.classList.toggle('expanded');
-            }
-        }
-        
         // Auto-fill teacher details when selected
         document.getElementById('teacherSelect').addEventListener('change', function() {
             const selectedOption = this.options[this.selectedIndex];
@@ -735,7 +562,7 @@ try {
                 document.getElementById('password').value = '';
             }
         });
-        
+
         // Generate random password function
         function generatePassword() {
             const length = 12;
@@ -747,17 +574,7 @@ try {
             document.getElementById('password').value = password;
         }
     </script>
-    
-    <!-- Footer -->
-    <footer style="position: fixed; bottom: 0; left: 0; right: 0; background: #f8f9fa; border-top: 1px solid #e8eaed; padding: 20px 0; z-index: 1000;">
-        <div style="text-align: center;">
-            <p style="margin: 0; color: #5f6368; font-size: 14px;">
-                <span style="color: #FF6B35;">&copy; 2026</span>
-                <span style="color: #FF6B35;">Kenya</span>
-                <span style="color: #008000;">EduHub</span>
-                <span style="color: #5f6368;">. All rights reserved.</span>
-            </p>
-        </div>
-    </footer>
+
+    <?php require_once '../includes/copywrite.php'; ?>
 </body>
 </html>

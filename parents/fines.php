@@ -119,6 +119,7 @@ try {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#FF6B35">
     <title>Fines - <?php echo htmlspecialchars($parent_name); ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -290,30 +291,55 @@ try {
         }
         
         .stat-card {
-            background: transparent;
+            background: var(--bg-color);
             border: 1px solid #e8eaed;
-            border-radius: 8px;
-            padding: 20px;
+            border-radius: 12px;
+            padding: 24px;
             text-align: center;
+            transition: all 0.2s ease;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
         }
-        
+
+        .stat-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+            transform: translateY(-2px);
+        }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px auto;
+            font-size: 24px;
+        }
+
+        .stat-card:nth-child(1) .stat-icon { background: #e8f0fe; color: #4285F4; }
+        .stat-card:nth-child(2) .stat-icon { background: #fce8e6; color: #EA4335; }
+        .stat-card:nth-child(3) .stat-icon { background: #e6f4ea; color: #00AC47; }
+        .stat-card:nth-child(4) .stat-icon { background: #fef7e0; color: #FFBA00; }
+        .stat-card:nth-child(5) .stat-icon { background: #fce8e6; color: #EA4335; }
+        .stat-card:nth-child(6) .stat-icon { background: #e6f4ea; color: #00AC47; }
+
         .stat-value {
-            font-size: 28px;
-            font-weight: 500;
-            color: var(--primary-color);
-            margin-bottom: 4px;
+            font-size: 32px;
+            font-weight: 600;
+            color: #202124;
+            margin-bottom: 8px;
         }
-        
+
         .stat-label {
             font-size: 14px;
             color: #5f6368;
             font-weight: 500;
+            margin-bottom: 4px;
         }
 
         .stat-sublabel {
             font-size: 12px;
             color: #9aa0a6;
-            margin-top: 4px;
         }
         
         /* Table */
@@ -534,6 +560,9 @@ try {
                 font-size: 12px;
             }
         }
+
+        /* Icon colors */
+        .fa-info-circle { color: #4285F4; }
     </style>
 </head>
 <body>
@@ -619,31 +648,49 @@ try {
             <!-- Fine Statistics -->
             <div class="stats-grid">
                 <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-book"></i>
+                    </div>
                     <div class="stat-value"><?php echo $fine_stats['total_fines']; ?></div>
                     <div class="stat-label">Total Fines</div>
                     <div class="stat-sublabel">For your children</div>
                 </div>
                 <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-money-bill-wave"></i>
+                    </div>
                     <div class="stat-value"><?php echo number_format($fine_stats['total_amount'], 2); ?></div>
                     <div class="stat-label">Total Amount</div>
                     <div class="stat-sublabel">Currency units</div>
                 </div>
                 <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
                     <div class="stat-value"><?php echo number_format($fine_stats['total_paid'], 2); ?></div>
                     <div class="stat-label">Amount Paid</div>
                     <div class="stat-sublabel">Already settled</div>
                 </div>
                 <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-exclamation-circle"></i>
+                    </div>
                     <div class="stat-value"><?php echo number_format($fine_stats['unpaid_amount'], 2); ?></div>
                     <div class="stat-label">Outstanding</div>
                     <div class="stat-sublabel">Remaining balance</div>
                 </div>
                 <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
                     <div class="stat-value"><?php echo $fine_stats['unpaid_count']; ?></div>
                     <div class="stat-label">Unpaid Fines</div>
                     <div class="stat-sublabel">Pending payment</div>
                 </div>
                 <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-check-double"></i>
+                    </div>
                     <div class="stat-value"><?php echo $fine_stats['paid_count']; ?></div>
                     <div class="stat-label">Paid Fines</div>
                     <div class="stat-sublabel">Completed</div>

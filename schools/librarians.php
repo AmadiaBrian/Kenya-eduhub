@@ -122,8 +122,6 @@ try {
             --secondary-color: #5f6368;
             --bg-color: #f8f9fa;
             --card-bg: #ffffff;
-            --sidebar-width: 256px;
-            --header-height: 64px;
         }
         
         * {
@@ -138,157 +136,11 @@ try {
             font-size: 14px;
             color: #202124;
         }
-        
-        /* Header */
-        .header {
-            position: fixed !important;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: var(--header-height);
-            background: var(--bg-color);
-            border-bottom: 1px solid #e8eaed;
-            display: flex;
-            align-items: center;
-            padding: 0 24px;
-            z-index: 1000;
-        }
-        
-        .header-left {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-        
-        .menu-btn {
-            background: none;
-            border: none;
-            cursor: pointer;
-            padding: 8px;
-            border-radius: 50%;
-            transition: background 0.2s;
-        }
-        
-        .menu-btn:hover {
-            background: rgba(95, 99, 104, 0.1);
-        }
-        
-        .menu-btn i {
-            font-size: 20px;
-            color: var(--primary-color);
-        }
-        
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 20px;
-            font-weight: 400;
-            color: #202124;
-        }
-        
-        .logo i {
-            color: var(--primary-color);
-        }
-        
-        .header-right {
-            margin-left: auto;
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-        
-        .school-avatar {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            background: var(--primary-color);
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 500;
-            font-size: 14px;
-        }
-        
-        /* Sidebar */
-        .sidebar {
-            position: fixed;
-            top: var(--header-height);
-            left: 0;
-            width: var(--sidebar-width);
-            height: calc(100vh - var(--header-height));
-            background: var(--bg-color);
-            overflow-y: auto;
-            transition: transform 0.3s ease;
-            z-index: 999;
-            scrollbar-width: none; /* Firefox */
-            -ms-overflow-style: none; /* IE and Edge */
-        }
-        
-        .sidebar::-webkit-scrollbar {
-            display: none; /* Chrome, Safari, Opera */
-        }
-        
-        .sidebar.collapsed {
-            transform: translateX(-256px);
-        }
-        
-        .sidebar-section {
-            padding: 12px 0;
-        }
-        
-        .sidebar-title {
-            padding: 8px 24px;
-            font-size: 12px;
-            font-weight: 500;
-            color: #5f6368;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        
-        .nav-link {
-            display: flex;
-            align-items: center;
-            padding: 10px 24px;
-            color: #5f6368;
-            text-decoration: none;
-            transition: background 0.2s;
-            border: none;
-            background: none;
-            width: 100%;
-            text-align: left;
-            cursor: pointer;
-            font-size: 14px;
-        }
-        
-        .nav-link:hover {
-            background: #f1f3f4;
-        }
-        
-        .nav-link.active {
-            background: #e8f0fe;
-            color: var(--primary-color);
-        }
-        
-        .nav-link i {
-            margin-right: 12px;
-            font-size: 18px;
-            width: 24px;
-            text-align: center;
-            color: #FF6B35;
-        }
-        
-        /* Main Content */
+
         .main-content {
-            margin-left: var(--sidebar-width);
-            margin-top: var(--header-height);
             padding: 24px;
-            transition: margin-left 0.3s;
-        }
-        
-        .main-content.expanded {
-            margin-left: 0;
+            padding-bottom: 80px;
+            min-height: 100vh;
         }
         
         .page-title {
@@ -296,6 +148,7 @@ try {
             font-weight: 400;
             color: #202124;
             margin-bottom: 24px;
+            text-align: center;
         }
         
         .page-subtitle {
@@ -327,17 +180,19 @@ try {
         /* Cards */
         .card {
             background: var(--bg-color);
-            border: 1px solid #e8eaed;
-            border-radius: 8px;
+            border: none;
+            border-radius: 12px;
+            box-shadow: none;
             padding: 24px;
             margin-bottom: 24px;
         }
-        
+
         .card-title {
             font-size: 18px;
             font-weight: 500;
             margin-bottom: 16px;
             color: #202124;
+            text-align: center;
         }
         
         /* Table */
@@ -345,112 +200,161 @@ try {
             width: 100%;
             border-collapse: collapse;
             background: white;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        }
-        
-        .table th,
-        .table td {
-            padding: 12px 16px;
-            text-align: left;
             border: 1px solid #000;
-            border-bottom: 1px solid #000;
-            border-right: 1px solid #000;
+            margin: 0;
+            table-layout: fixed;
         }
-        
-        .table th {
-            background: #f0f0f0;
-            font-weight: 600;
-            color: #000;
-            font-size: 12px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            border-top: 2px solid #000;
-        }
-        
-        .table th:last-child {
-            border-right: 2px solid #000;
-        }
-        
-        .table td:last-child {
-            border-right: 2px solid #000;
-        }
-        
-        .table tbody tr:last-child td {
+
+        .table thead,
+        .table-responsive .table thead {
+            background: #FF6B35 !important;
             border-bottom: 2px solid #000;
         }
-        
-        .table tbody tr:hover {
+
+        .table th,
+        .table-responsive .table th {
+            text-align: left;
+            padding: 12px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #ffffff !important;
+            border: 1px solid #000;
+            border-bottom: 2px solid #000;
+            background-color: #FF6B35 !important;
+        }
+
+        .table td {
+            padding: 12px;
+            font-size: 13px;
+            color: #000;
+            border: 1px solid #000;
+        }
+
+        .table td:last-child {
+            min-width: 200px;
+            width: 200px;
+        }
+
+        .table th:last-child {
+            min-width: 200px;
+            width: 200px;
+        }
+
+        .table tbody tr:nth-child(even) {
             background: #f9f9f9;
         }
-        
+
+        .table tbody tr:hover {
+            background: #f0f0f0;
+        }
+
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+        }
+
         /* Buttons */
         .btn {
-            padding: 8px 16px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
+            padding: 10px 24px;
+            border-radius: 20px;
             font-size: 14px;
             font-weight: 500;
+            border: none;
+            cursor: pointer;
             transition: background 0.2s;
         }
-        
+
+        .btn {
+            margin-right: 8px;
+        }
+
+        .btn:last-child {
+            margin-right: 0;
+        }
+
         .btn-primary {
-            background: var(--primary-color);
+            background: #FF6B35;
             color: white;
         }
-        
+
         .btn-primary:hover {
             background: #e55a2b;
         }
-        
+
         .btn-secondary {
             background: var(--secondary-color);
             color: white;
         }
-        
+
         .btn-secondary:hover {
-            background: #4a4e54;
+            background: #3c4043;
         }
-        
+
         .btn-danger {
             background: #c5221f;
             color: white;
         }
-        
+
         .btn-danger:hover {
             background: #a91c1a;
         }
-        
+
         .btn-action {
             background: #f8f9fa;
-            color: #000;
-            border: 1px solid #000;
+            color: #202124;
+            border: 1px solid #e8eaed;
             cursor: pointer;
+            padding: 6px 12px;
+            font-size: 12px;
+            border-radius: 12px;
+            transition: background 0.2s;
+            white-space: nowrap;
         }
-        
+
         .btn-action:hover {
             background: #e9ecef;
         }
-        
+
         .btn-sm {
-            padding: 4px 8px;
+            padding: 6px 12px;
             font-size: 12px;
+            border-radius: 12px;
+            white-space: nowrap;
+        }
+
+        .table td form {
+            display: inline;
+        }
+
+        .table td form button {
+            margin-right: 4px;
+        }
+
+        .table td form button:last-child {
+            margin-right: 0;
+        }
+
+        .table td:last-child {
+            white-space: nowrap;
         }
         
         /* Form */
         .form-control {
             width: 100%;
-            padding: 8px 12px;
-            border: 1px solid #e8eaed;
-            border-radius: 8px;
+            padding: 10px 12px;
             font-size: 14px;
-        }
-        
-        .form-control:focus {
+            border: 1px solid #dadce0;
+            border-radius: 20px;
             outline: none;
-            border-color: var(--primary-color);
+            transition: border-color 0.2s, box-shadow 0.2s;
+            background: var(--bg-color);
         }
-        
+
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.2);
+        }
+
         .form-label {
             display: block;
             margin-bottom: 4px;
@@ -468,193 +372,145 @@ try {
             border-radius: 4px;
             margin-bottom: 16px;
         }
-        
+
         .alert-success {
             background: #e6f4ea;
             color: #137333;
-            border: 1px solid #ceead6;
+            border: 1px solid rgba(19, 115, 51, 0.1);
         }
-        
+
         .alert-danger {
             background: #fce8e6;
             color: #c5221f;
-            border: 1px solid #fad2cf;
+            border: 1px solid rgba(197, 34, 31, 0.1);
         }
-        
+
+        /* Footer styling */
+        .kenya-eduhub-footer-unique-2026 {
+            background: var(--bg-color) !important;
+        }
+
         /* Mobile */
         @media (max-width: 768px) {
-            .sidebar {
-                transform: translateX(-256px);
-            }
-            
-            .sidebar.show {
-                transform: translateX(0);
-            }
-            
             .main-content {
-                margin-left: 0;
                 padding: 16px;
+                padding-bottom: 80px;
             }
-            
+
             .card {
                 text-align: left;
+                border: none !important;
             }
-            
+
             .card form {
                 text-align: left;
             }
-            
+
             .row {
                 flex-direction: column;
             }
-            
+
             .col-md-3,
             .col-md-6 {
                 width: 100%;
                 max-width: 100%;
                 margin-bottom: 12px;
             }
-            
+
             .form-control {
-                border-radius: 8px;
+                border-radius: 20px;
             }
-            
+
             .btn {
                 width: 100%;
-                border-radius: 8px;
+                border-radius: 20px;
                 padding: 12px 16px;
                 font-size: 16px;
             }
-            
+
             .table-responsive {
                 overflow-x: auto;
                 -webkit-overflow-scrolling: touch;
+                width: 100%;
             }
-            
+
             .table {
-                font-size: 12px;
+                font-size: 11px;
                 min-width: 600px;
             }
-            
+
             .table th,
             .table td {
                 padding: 8px 10px;
             }
+
+            .table td:last-child {
+                white-space: nowrap !important;
+                width: 100px !important;
+                min-width: 100px !important;
+            }
+
+            .table th:last-child {
+                width: 100px !important;
+                min-width: 100px !important;
+            }
+
+            .table td form {
+                display: inline !important;
+            }
+
+            .table td form button,
+            .table td form .btn,
+            .table td form .btn-sm,
+            .table td form .btn-action {
+                margin-right: 2px !important;
+                padding: 2px 5px !important;
+                font-size: 8px !important;
+                border-radius: 6px !important;
+                line-height: 1 !important;
+                min-width: auto !important;
+                width: auto !important;
+            }
+
+            .table td form button i,
+            .table td form .btn i,
+            .table td form .btn-sm i,
+            .table td form .btn-action i {
+                font-size: 10px !important;
+            }
+
+            .table td form button:last-child,
+            .table td form .btn:last-child,
+            .table td form .btn-sm:last-child,
+            .table td form .btn-action:last-child {
+                margin-right: 0 !important;
+            }
         }
+
+        /* Icon colors */
+        .quick-access-item:nth-child(1) .quick-access-icon { background: #e8f0fe; color: #4285F4; }
+        .quick-access-item:nth-child(2) .quick-access-icon { background: #fce8e6; color: #EA4335; }
+        .quick-access-item:nth-child(3) .quick-access-icon { background: #e6f4ea; color: #00AC47; }
+        .quick-access-item:nth-child(4) .quick-access-icon { background: #fef7e0; color: #FFBA00; }
+        .quick-access-item:nth-child(5) .quick-access-icon { background: #e8f0fe; color: #0066DA; }
+        .quick-access-item:nth-child(6) .quick-access-icon { background: #fce8e6; color: #4285F4; }
+        .fa-plus { color: #00AC47; }
+        .fa-download { color: #4285F4; }
+        .fa-edit { color: #0066DA; }
+        .fa-trash { color: #EA4335; }
     </style>
 </head>
 <body>
-    <!-- Header -->
-    <header class="header">
-        <div class="header-left">
-            <button class="menu-btn" onclick="toggleSidebar()">
-                <i class="fas fa-bars"></i>
-            </button>
-            <div class="logo">
-                <div style="width: 40px; height: 40px; background: #FFD700; border: 3px solid #FF6B35; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 0;">
-                    <span style="font-weight: bold; font-size: 20px;">
-                        <span style="color: #FF6B35; font-size: 24px;">K</span><span style="color: #008000; font-size: 20px;">E</span>
-                    </span>
-                </div>
-                <span style="color: #FF6B35; font-weight: bold;">Kenya</span> <span style="color: #008000; font-weight: bold;">EduHub</span>
-            </div>
-        </div>
-        <div class="header-right">
-            <div class="school-avatar">
-                <?php echo strtoupper(substr($school_name, 0, 1)); ?>
-            </div>
-        </div>
-    </header>
-    
-    <!-- Sidebar -->
-    <aside class="sidebar" id="sidebar">
-        <div class="sidebar-section">
-            <div class="sidebar-title">Main</div>
-            <a class="nav-link" href="dashboard">
-                <i class="fas fa-home"></i> Dashboard
-            </a>
-            <a class="nav-link" href="students">
-                <i class="fas fa-user-graduate"></i> Students
-            </a>
-            <a class="nav-link" href="teachers">
-                <i class="fas fa-chalkboard-teacher"></i> Teachers
-            </a>
-            <a class="nav-link" href="classes">
-                <i class="fas fa-chalkboard"></i> Classes
-            </a>
-            <a class="nav-link" href="streams">
-                <i class="fas fa-layer-group"></i> Streams
-            </a>
-            <a class="nav-link" href="subjects">
-                <i class="fas fa-book"></i> Subjects
-            </a>
-            <a class="nav-link" href="exam-types">
-                <i class="fas fa-clipboard-list"></i> Exam Types
-            </a>
-            <a class="nav-link" href="timetable">
-                <i class="fas fa-calendar-alt"></i> Timetable
-            </a>
-            <a class="nav-link" href="grading">
-                <i class="fas fa-chart-bar"></i> Grading
-            </a>
-            <a class="nav-link" href="performance">
-                <i class="fas fa-chart-line"></i> Performance
-            </a>
-            <a class="nav-link" href="results">
-                <i class="fas fa-clipboard-list"></i> Results
-            </a>
-            <a class="nav-link" href="attendance">
-                <i class="fas fa-calendar-check"></i> Attendance
-            </a>
-            <a class="nav-link" href="calendar">
-                <i class="fas fa-calendar"></i> Calendar
-            </a>
-            <a class="nav-link" href="fees">
-                <i class="fas fa-money-bill-wave"></i> Fees
-            </a>
-            <a class="nav-link" href="invoices">
-                <i class="fas fa-file-invoice-dollar"></i> Invoices
-            </a>
-            <a class="nav-link" href="finance-managers">
-                <i class="fas fa-calculator"></i> Finance Managers
-            </a>
-            <a class="nav-link" href="account">
-                <i class="fas fa-wallet"></i> Account Balance
-            </a>
-            <a class="nav-link" href="parents">
-                <i class="fas fa-users"></i> Parents
-            </a>
-            <a class="nav-link" href="disciplinary">
-                <i class="fas fa-shield-alt"></i> Disciplinary
-            </a>
-            <a class="nav-link" href="disciplinary-action-types">
-                <i class="fas fa-list-alt"></i> Disciplinary Types
-            </a>
-            <a class="nav-link active" href="librarians">
-                <i class="fas fa-book"></i> Librarians
-            </a>
-            <a class="nav-link" href="duty-assignments">
-                <i class="fas fa-clipboard-list"></i> Duty Assignments
-            </a>
-            <a class="nav-link" href="examination-heads">
-                <i class="fas fa-user-tie"></i> Examination Heads
-            </a>
-        </div>
-        <div class="sidebar-section">
-            <div class="sidebar-title">Settings</div>
-            <a class="nav-link" href="settings">
-                <i class="fas fa-cog"></i> Settings
-            </a>
-            <a class="nav-link" href="logout">
-                <i class="fas fa-sign-out-alt"></i> Logout
-            </a>
-        </div>
-    </aside>
-    
-    <!-- Main Content -->
+<?php require_once 'includes/header.php'; ?>
+<?php $active_page = 'librarians'; require_once 'includes/sidebar.php'; ?>
+
+<br>
+
+<!-- Main Content -->
     <main class="main-content" id="mainContent">
         <h1 class="page-title">Librarians</h1>
-        <p class="page-subtitle">Manage your school librarians</p>
+
+        <p class="page-subtitle" style="text-align: center; color: #5f6368; margin-bottom: 32px;">Manage your school librarians</p>
         
         <?php if (isset($success)): ?>
             <div class="alert alert-success">
@@ -677,25 +533,25 @@ try {
                 <div class="row">
                     <div class="col-md-3 mb-3">
                         <label class="form-label">First Name</label>
-                        <input type="text" class="form-control" name="first_name" required>
+                        <input type="text" class="form-control" name="first_name" placeholder="Enter first name" required>
                     </div>
                     <div class="col-md-3 mb-3">
                         <label class="form-label">Last Name</label>
-                        <input type="text" class="form-control" name="last_name" required>
+                        <input type="text" class="form-control" name="last_name" placeholder="Enter last name" required>
                     </div>
                     <div class="col-md-3 mb-3">
                         <label class="form-label">Email</label>
-                        <input type="email" class="form-control" name="email" required>
+                        <input type="email" class="form-control" name="email" placeholder="Enter email address" required>
                     </div>
                     <div class="col-md-3 mb-3">
                         <label class="form-label">Phone</label>
-                        <input type="text" class="form-control" name="phone" required>
+                        <input type="text" class="form-control" name="phone" placeholder="Enter phone number" required>
                     </div>
                 </div>
                 <div class="row">
                     <div class="col-md-6 mb-3">
                         <label class="form-label">Password</label>
-                        <input type="password" class="form-control" name="password" required minlength="8">
+                        <input type="password" class="form-control" name="password" placeholder="Enter password (min 8 characters)" required minlength="8">
                     </div>
                     <div class="col-md-6 mb-3">
                         <label class="form-label">&nbsp;</label>
@@ -747,13 +603,13 @@ try {
                                         <form method="POST" style="display: inline;">
                                             <input type="hidden" name="librarian_id" value="<?php echo $librarian['id']; ?>">
                                             <input type="hidden" name="status" value="<?php echo $librarian['status'] === 'active' ? 'inactive' : 'active'; ?>">
-                                            <button type="submit" name="update_status" class="btn btn-sm btn-action">
-                                                <?php echo $librarian['status'] === 'active' ? 'Deactivate' : 'Activate'; ?>
+                                            <button type="submit" name="update_status" class="btn btn-sm btn-action" title="<?php echo $librarian['status'] === 'active' ? 'Deactivate' : 'Activate'; ?>">
+                                                <i class="fas fa-<?php echo $librarian['status'] === 'active' ? 'toggle-on' : 'toggle-off'; ?>"></i>
                                             </button>
                                         </form>
                                         <form method="POST" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this librarian?');">
                                             <input type="hidden" name="librarian_id" value="<?php echo $librarian['id']; ?>">
-                                            <button type="submit" name="delete_librarian" class="btn btn-sm btn-action">
+                                            <button type="submit" name="delete_librarian" class="btn btn-sm btn-action" title="Delete">
                                                 <i class="fas fa-trash"></i>
                                             </button>
                                         </form>
@@ -766,17 +622,12 @@ try {
             </div>
         </div>
     </main>
-    
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            const mainContent = document.getElementById('mainContent');
-            sidebar.classList.toggle('collapsed');
-            sidebar.classList.toggle('show');
-            mainContent.classList.toggle('expanded');
-        }
-    </script>
     <script src="../assets/js/notifications.js"></script>
+
+<br>
+<br>
+<?php require_once '../includes/copywrite.php'; ?>
 </body>
 </html>

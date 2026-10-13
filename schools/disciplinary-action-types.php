@@ -77,8 +77,7 @@ if (isset($_GET['delete'])) {
             --primary-color: #FF6B35;
             --secondary-color: #5f6368;
             --bg-color: #f8f9fa;
-            --sidebar-width: 256px;
-            --header-height: 64px;
+            --card-bg: #ffffff;
         }
         
         * {
@@ -93,168 +92,35 @@ if (isset($_GET['delete'])) {
             font-size: 14px;
             color: #202124;
         }
-        
-        .header {
-            position: fixed !important;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: var(--header-height);
-            background: var(--bg-color);
-            border-bottom: 1px solid #e8eaed;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 24px;
-            z-index: 1000;
-        }
-        
-        .header-left {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-        
-        .logo {
-            display: flex;
-            align-items: center;
-            font-size: 18px;
-            font-weight: bold;
-        }
-        
-        .menu-btn {
-            background: none;
-            border: none;
-            font-size: 20px;
-            color: #5f6368;
-            cursor: pointer;
-            padding: 8px;
-            border-radius: 50%;
-            transition: background 0.2s;
-        }
-        
-        .menu-btn:hover {
-            background: #e8eaed;
-        }
-        
-        .header-right {
-            margin-left: auto;
-        }
-        
-        .user-avatar {
-            width: 32px;
-            height: 32px;
-            background: var(--primary-color);
-            color: white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 500;
-            font-size: 14px;
-        }
-        
-        .sidebar {
-            position: fixed;
-            top: var(--header-height);
-            left: 0;
-            width: var(--sidebar-width);
-            height: calc(100vh - var(--header-height));
-            background: var(--bg-color);
-            overflow-y: auto;
-            transition: transform 0.3s ease;
-            z-index: 999;
-            scrollbar-width: none; /* Firefox */
-            -ms-overflow-style: none; /* IE and Edge */
-        }
-        
-        .sidebar::-webkit-scrollbar {
-            display: none; /* Chrome, Safari, Opera */
-        }
-        
-        .sidebar.collapsed {
-            transform: translateX(-256px);
-        }
-        
-        .sidebar-section {
-            padding: 12px 0;
-        }
-        
-        .sidebar-title {
-            padding: 8px 24px;
-            font-size: 12px;
-            font-weight: 500;
-            color: #5f6368;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        
-        .nav-link {
-            display: flex;
-            align-items: center;
-            padding: 10px 24px;
-            color: #5f6368;
-            text-decoration: none;
-            transition: background 0.2s;
-            border: none;
-            background: none;
-            width: 100%;
-            text-align: left;
-            cursor: pointer;
-            font-size: 14px;
-        }
-        
-        .nav-link:hover {
-            background: #f1f3f4;
-        }
-        
-        .nav-link.active {
-            background: #e8f0fe;
-            color: var(--primary-color);
-        }
-        
-        .nav-link i {
-            margin-right: 12px;
-            font-size: 18px;
-            width: 24px;
-            text-align: center;
-            color: #FF6B35;
-        }
-        
+
         .main-content {
-            margin-left: var(--sidebar-width);
-            margin-top: var(--header-height);
             padding: 24px;
-            min-height: calc(100vh - var(--header-height));
-            transition: margin-left 0.3s ease;
-        }
-        
-        .main-content.expanded {
-            margin-left: 0;
         }
         
         .page-title {
-            font-size: 24px;
+            font-size: 22px;
             font-weight: 400;
             color: #202124;
             margin-bottom: 24px;
+            text-align: center;
         }
         
         .card {
-            background: var(--card-bg);
-            border: none;
+            background: var(--bg-color);
+            border: 1px solid #e0e0e0;
             border-radius: 12px;
             box-shadow: none;
             margin-bottom: 20px;
         }
-        
+
         .card-header {
-            background: var(--card-bg);
+            background: var(--bg-color);
             border-bottom: 1px solid rgba(0,0,0,0.04);
             padding: 16px 20px;
             font-weight: 500;
             color: var(--secondary-color);
             border-radius: 12px;
+            text-align: center;
         }
         
         .card-body {
@@ -267,6 +133,7 @@ if (isset($_GET['delete'])) {
             font-weight: 500;
             color: #202124;
             margin-bottom: 16px;
+            text-align: center;
         }
         
         /* Form */
@@ -275,11 +142,12 @@ if (isset($_GET['delete'])) {
             padding: 10px 12px;
             font-size: 14px;
             border: 1px solid #dadce0;
-            border-radius: 8px;
+            border-radius: 20px;
             outline: none;
             transition: border-color 0.2s, box-shadow 0.2s;
+            background: var(--bg-color);
         }
-        
+
         .form-control:focus {
             border-color: var(--primary-color);
             box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.2);
@@ -295,35 +163,59 @@ if (isset($_GET['delete'])) {
         /* Buttons */
         .btn {
             padding: 10px 24px;
-            border-radius: 4px;
+            border-radius: 20px;
             font-size: 14px;
             font-weight: 500;
             border: none;
             cursor: pointer;
             transition: background 0.2s;
         }
-        
+
+        .btn {
+            margin-right: 8px;
+        }
+
+        .btn:last-child {
+            margin-right: 0;
+        }
+
         .btn-primary {
             background: #FF6B35;
             color: white;
         }
-        
+
         .btn-primary:hover {
             background: #e55a2b;
         }
-        
+
         .btn-secondary {
             background: var(--secondary-color);
             color: white;
         }
-        
+
         .btn-secondary:hover {
             background: #3c4043;
         }
-        
+
         .btn-sm {
-            padding: 4px 8px;
+            padding: 6px 12px;
             font-size: 12px;
+            border-radius: 12px;
+        }
+
+        .btn-action {
+            background: #f8f9fa;
+            color: #202124;
+            border: 1px solid #e8eaed;
+            cursor: pointer;
+            padding: 6px 12px;
+            font-size: 12px;
+            border-radius: 12px;
+            transition: background 0.2s;
+        }
+
+        .btn-action:hover {
+            background: #e9ecef;
         }
         
         /* Table */
@@ -341,18 +233,19 @@ if (isset($_GET['delete'])) {
         }
         
         .table thead {
-            background: #f0f0f0;
+            background: #FF6B35 !important;
             border-bottom: 2px solid #000;
         }
-        
+
         .table th {
             text-align: left;
             padding: 12px;
             font-size: 13px;
             font-weight: 600;
-            color: #000;
+            color: #ffffff !important;
             border: 1px solid #000;
             border-bottom: 2px solid #000;
+            background-color: #FF6B35 !important;
         }
         
         .table td {
@@ -435,7 +328,7 @@ if (isset($_GET['delete'])) {
             font-size: 14px;
             padding: 10px 12px;
             border: 1px solid #dadce0;
-            border-radius: 6px;
+            border-radius: 20px;
             transition: border-color 0.2s;
         }
         
@@ -453,31 +346,31 @@ if (isset($_GET['delete'])) {
         
         .table {
             background: white;
-            border-radius: 8px;
+            border-radius: 0;
             overflow: hidden;
-            border: 1px solid #e8eaed;
+            border: 1px solid #000;
         }
         
         .table thead th {
-            background: #f8f9fa;
+            background: #FF6B35 !important;
             font-weight: 500;
-            color: #5f6368;
+            color: #ffffff !important;
             font-size: 12px;
             text-transform: uppercase;
             letter-spacing: 0.3px;
             padding: 12px 16px;
-            border-bottom: 1px solid #e8eaed;
+            border-bottom: 1px solid #000;
         }
         
         .table tbody td {
             padding: 12px 16px;
             color: #202124;
             font-size: 14px;
-            border-bottom: 1px solid #e8eaed;
+            border: 1px solid #000;
         }
-        
+
         .table tbody tr:last-child td {
-            border-bottom: none;
+            border-bottom: 1px solid #000;
         }
         
         .badge {
@@ -558,7 +451,12 @@ if (isset($_GET['delete'])) {
             color: #137333;
             border: 1px solid #c6f6d5;
         }
-        
+
+        /* Footer styling */
+        .kenya-eduhub-footer-unique-2026 {
+            background: var(--bg-color) !important;
+        }
+
         /* Responsive */
         @media (max-width: 768px) {
             .sidebar {
@@ -577,114 +475,27 @@ if (isset($_GET['delete'])) {
                 grid-template-columns: 1fr;
             }
         }
+
+        /* Icon colors */
+        .quick-access-item:nth-child(1) .quick-access-icon { background: #e8f0fe; color: #4285F4; }
+        .quick-access-item:nth-child(2) .quick-access-icon { background: #fce8e6; color: #EA4335; }
+        .quick-access-item:nth-child(3) .quick-access-icon { background: #e6f4ea; color: #00AC47; }
+        .quick-access-item:nth-child(4) .quick-access-icon { background: #fef7e0; color: #FFBA00; }
+        .quick-access-item:nth-child(5) .quick-access-icon { background: #e8f0fe; color: #0066DA; }
+        .quick-access-item:nth-child(6) .quick-access-icon { background: #fce8e6; color: #4285F4; }
+        .fa-plus { color: #00AC47; }
+        .fa-download { color: #4285F4; }
+        .fa-edit { color: #0066DA; }
+        .fa-trash { color: #EA4335; }
     </style>
 </head>
 <body>
-    <!-- Header -->
-    <header class="header">
-        <div class="header-left">
-            <button class="menu-btn" onclick="toggleSidebar()">
-                <i class="fas fa-bars"></i>
-            </button>
-            <div class="logo">
-                <div style="width: 32px; height: 32px; background: #FFD700; border: 3px solid #FF6B35; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 8px;">
-                    <span style="font-weight: bold; font-size: 16px;">
-                        <span style="color: #FF6B35; font-size: 18px;">K</span><span style="color: #008000; font-size: 16px;">E</span>
-                    </span>
-                </div>
-                <span style="color: #FF6B35; font-weight: bold;">Kenya</span> <span style="color: #008000; font-weight: bold;">EduHub</span>
-            </div>
-        </div>
-        <div class="header-right">
-        </div>
-    </header>
-    
-    <!-- Sidebar -->
-    <aside class="sidebar" id="sidebar">
-        <div class="sidebar-section">
-            <div class="sidebar-title">Main</div>
-            <a class="nav-link" href="dashboard">
-                <i class="fas fa-home"></i> Dashboard
-            </a>
-            <a class="nav-link" href="students">
-                <i class="fas fa-users"></i> Students
-            </a>
-            <a class="nav-link" href="teachers">
-                <i class="fas fa-chalkboard-teacher"></i> Teachers
-            </a>
-            <a class="nav-link" href="classes">
-                <i class="fas fa-school"></i> Classes
-            </a>
-            <a class="nav-link" href="streams">
-                <i class="fas fa-layer-group"></i> Streams
-            </a>
-            <a class="nav-link" href="subjects">
-                <i class="fas fa-book"></i> Subjects
-            </a>
-            <a class="nav-link" href="exam-types">
-                <i class="fas fa-clipboard-list"></i> Exam Types
-            </a>
-            <a class="nav-link" href="timetable">
-                <i class="fas fa-calendar-alt"></i> Timetable
-            </a>
-            <a class="nav-link" href="grading">
-                <i class="fas fa-chart-bar"></i> Grading
-            </a>
-            <a class="nav-link" href="performance">
-                <i class="fas fa-chart-line"></i> Performance
-            </a>
-            <a class="nav-link" href="results">
-                <i class="fas fa-clipboard-list"></i> Results
-            </a>
-            <a class="nav-link" href="attendance">
-                <i class="fas fa-calendar-check"></i> Attendance
-            </a>
-            <a class="nav-link" href="calendar">
-                <i class="fas fa-calendar"></i> Calendar
-            </a>
-            <a class="nav-link" href="fees">
-                <i class="fas fa-file-invoice-dollar"></i> Fee Management
-            </a>
-            <a class="nav-link" href="invoices">
-                <i class="fas fa-file-invoice-dollar"></i> Invoices
-            </a>
-            <a class="nav-link" href="finance-managers">
-                <i class="fas fa-user-tie"></i> Finance Managers
-            </a>
-            <a class="nav-link" href="account">
-                <i class="fas fa-wallet"></i> Account Balance
-            </a>
-            <a class="nav-link" href="parents">
-                <i class="fas fa-users"></i> Parents
-            </a>
-            <a class="nav-link" href="disciplinary">
-                <i class="fas fa-exclamation-triangle"></i> Disciplinary
-            </a>
-            <a class="nav-link active" href="disciplinary-action-types">
-                <i class="fas fa-list-alt"></i> Disciplinary Types
-            </a>
-            <a class="nav-link" href="librarians">
-                <i class="fas fa-book-reader"></i> Librarians
-            </a>
-            <a class="nav-link" href="duty-assignments">
-                <i class="fas fa-clipboard-list"></i> Duty Assignments
-            </a>
-            <a class="nav-link" href="examination-heads">
-                <i class="fas fa-user-tie"></i> Examination Heads
-            </a>
-        </div>
-        <div class="sidebar-section">
-            <div class="sidebar-title">Settings</div>
-            <a class="nav-link" href="settings">
-                <i class="fas fa-cog"></i> Settings
-            </a>
-            <a class="nav-link" href="logout">
-                <i class="fas fa-sign-out-alt"></i> Logout
-            </a>
-        </div>
-    </aside>
-    
-    <!-- Main Content -->
+<?php require_once 'includes/header.php'; ?>
+<?php $active_page = 'disciplinary-action-types'; require_once 'includes/sidebar.php'; ?>
+
+<br>
+<br>
+<!-- Main Content -->
     <main class="main-content" id="mainContent">
         <h1 class="page-title">Disciplinary Action Types</h1>
         
@@ -785,17 +596,11 @@ if (isset($_GET['delete'])) {
             </div>
         </div>
     </main>
-    
-    <script>
-        function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            const mainContent = document.getElementById('mainContent');
-            sidebar.classList.toggle('collapsed');
-            sidebar.classList.toggle('show');
-            mainContent.classList.toggle('expanded');
-        }
-        
-    </script>
+
     <script src="../assets/js/notifications.js"></script>
+
+<br>
+<br>
+<?php require_once '../includes/copywrite.php'; ?>
 </body>
 </html>

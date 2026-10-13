@@ -123,8 +123,6 @@ try {
             --secondary-color: #5f6368;
             --bg-color: #f8f9fa;
             --card-bg: #ffffff;
-            --sidebar-width: 256px;
-            --header-height: 64px;
         }
         
         * {
@@ -139,179 +137,9 @@ try {
             font-size: 14px;
             color: #202124;
         }
-        
-        /* Header */
-        .header {
-            position: fixed !important;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: var(--header-height);
-            background: var(--bg-color);
-            border-bottom: 1px solid #e8eaed;
-            display: flex;
-            align-items: center;
-            padding: 0 24px;
-            z-index: 1000;
-        }
-        
-        .header-left {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-        
-        .menu-btn {
-            background: none;
-            border: none;
-            cursor: pointer;
-            padding: 12px;
-            border-radius: 50%;
-            color: #5f6368;
-            transition: background 0.2s;
-        }
-        
-        .menu-btn:hover {
-            background: #f1f3f4;
-        }
-        
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 18px;
-            font-weight: 400;
-            color: #202124;
-        }
-        
-        .logo i {
-            color: var(--primary-color);
-        }
-        
-        .header-right {
-            margin-left: auto;
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-        
-        .user-avatar {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            background: var(--primary-color);
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 500;
-        }
-        
-        /* Sidebar */
-        .sidebar {
-            position: fixed;
-            top: var(--header-height);
-            left: 0;
-            width: var(--sidebar-width);
-            height: calc(100vh - var(--header-height));
-            background: var(--bg-color);
-            overflow-y: auto;
-            transition: transform 0.3s ease;
-            z-index: 999;
-            scrollbar-width: none; /* Firefox */
-            -ms-overflow-style: none; /* IE and Edge */
-        }
-        
-        .sidebar::-webkit-scrollbar {
-            display: none; /* Chrome, Safari, Opera */
-        }
-        
-        .sidebar.collapsed {
-            transform: translateX(-256px);
-        }
-        
-        .sidebar-section {
-            padding: 12px 0;
-        }
-        
-        .sidebar-title {
-            padding: 8px 24px;
-            font-size: 12px;
-            font-weight: 500;
-            color: #5f6368;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            cursor: pointer;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            user-select: none;
-        }
-        
-        .sidebar-title:hover {
-            background: #f1f3f4;
-        }
-        
-        .sidebar-title .chevron {
-            transition: transform 0.3s ease;
-        }
-        
-        .sidebar-title.collapsed .chevron {
-            transform: rotate(-90deg);
-        }
-        
-        .sidebar-links {
-            max-height: 1000px;
-            overflow: hidden;
-            transition: max-height 0.3s ease;
-        }
-        
-        .sidebar-links.collapsed {
-            max-height: 0;
-        }
-        
-        .nav-link {
-            display: flex;
-            align-items: center;
-            padding: 10px 24px;
-            color: #5f6368;
-            text-decoration: none;
-            transition: background 0.2s;
-            border: none;
-            background: none;
-            width: 100%;
-            text-align: left;
-            cursor: pointer;
-            font-size: 14px;
-        }
-        
-        .nav-link:hover {
-            background: #f1f3f4;
-        }
-        
-        .nav-link.active {
-            background: #e8f0fe;
-            color: var(--primary-color);
-        }
-        
-        .nav-link i {
-            margin-right: 12px;
-            font-size: 18px;
-            width: 24px;
-            text-align: center;
-            color: #FF6B35;
-        }
-        
-        /* Main Content */
+
         .main-content {
-            margin-left: var(--sidebar-width);
-            margin-top: var(--header-height);
             padding: 24px;
-            transition: margin-left 0.3s ease;
-        }
-        
-        .main-content.expanded {
-            margin-left: 0;
         }
         
         .page-title {
@@ -319,27 +147,58 @@ try {
             font-weight: 400;
             color: #202124;
             margin-bottom: 24px;
+            text-align: center;
         }
         
         .stat-card {
             background: var(--bg-color);
+            border: 1px solid #e0e0e0;
             border-radius: 8px;
-            padding: 20px;
-            text-align: center;
+            padding: 24px;
+            transition: box-shadow 0.2s;
         }
-        
-        .stat-value {
-            font-size: 32px;
-            font-weight: 600;
-            color: var(--primary-color);
+
+        .stat-card:hover {
+            box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
         }
-        
+
         .stat-label {
             font-size: 14px;
-            color: var(--secondary-color);
-            margin-top: 8px;
+            color: #5f6368;
+            margin-bottom: 8px;
         }
-        
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: 400;
+            color: #202124;
+            margin-bottom: 8px;
+        }
+
+        .stat-icon {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            margin-bottom: 16px;
+        }
+
+        .stat-icon.students { color: #FF6B35; }
+        .stat-icon.classes { color: #FF6B35; }
+        .stat-icon.parents { color: #FF6B35; }
+        .stat-icon.performance { color: #FF6B35; }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
         .table {
             background: white;
             border-radius: 8px;
@@ -395,25 +254,26 @@ try {
         
         /* Filter Section Styling */
         .filter-section {
-            background: white;
+            background: var(--bg-color);
             border-radius: 8px;
             padding: 20px;
             margin-bottom: 24px;
         }
-        
+
         .filter-section .card-title {
             font-size: 16px;
             font-weight: 500;
             color: #202124;
             margin-bottom: 16px;
+            text-align: center;
         }
-        
+
         .filter-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
             gap: 16px;
         }
-        
+
         .filter-group label {
             font-size: 12px;
             font-weight: 500;
@@ -423,24 +283,24 @@ try {
             text-transform: uppercase;
             letter-spacing: 0.3px;
         }
-        
+
         .filter-group .form-control {
             font-size: 14px;
             padding: 10px 12px;
             border: 1px solid #dadce0;
-            border-radius: 6px;
+            border-radius: 20px;
             transition: border-color 0.2s;
         }
-        
+
         .filter-group .form-control:focus {
             border-color: var(--primary-color);
             outline: none;
             box-shadow: 0 0 0 2px rgba(255, 107, 53, 0.2);
         }
-        
+
         /* Inline Form Styling */
         .inline-form-section {
-            background: white;
+            background: var(--bg-color);
             border-radius: 8px;
             padding: 24px;
             margin-bottom: 24px;
@@ -452,6 +312,7 @@ try {
             color: #202124;
             margin-bottom: 20px;
             padding-bottom: 12px;
+            text-align: center;
         }
         
         .form-grid {
@@ -475,7 +336,7 @@ try {
             font-size: 14px;
             padding: 10px 12px;
             border: 1px solid #dadce0;
-            border-radius: 6px;
+            border-radius: 20px;
             transition: border-color 0.2s;
         }
         
@@ -495,6 +356,14 @@ try {
             gap: 12px;
             margin-top: 20px;
             padding-top: 16px;
+        }
+
+        .btn {
+            margin-right: 8px;
+        }
+
+        .btn:last-child {
+            margin-right: 0;
         }
         
         /* Modal Styling */
@@ -540,7 +409,7 @@ try {
             font-size: 14px;
             padding: 10px 14px;
             border: 1px solid #dadce0;
-            border-radius: 4px;
+            border-radius: 20px;
             background: #ffffff;
             transition: all 0.2s ease;
         }
@@ -611,15 +480,15 @@ try {
         
         /* Card container styling */
         .card {
-            background: var(--card-bg);
+            background: var(--bg-color);
             border: none;
             border-radius: 12px;
             box-shadow: none;
             margin-bottom: 20px;
         }
-        
+
         .card-header {
-            background: var(--card-bg);
+            background: var(--bg-color);
             border-bottom: 1px solid rgba(0,0,0,0.04);
             padding: 16px 20px;
             font-weight: 500;
@@ -637,6 +506,7 @@ try {
             font-weight: 500;
             color: #202124;
             margin-bottom: 16px;
+            text-align: center;
         }
         
         /* Form */
@@ -645,7 +515,7 @@ try {
             padding: 10px 12px;
             font-size: 14px;
             border: 1px solid #dadce0;
-            border-radius: 8px;
+            border-radius: 20px;
             outline: none;
             transition: border-color 0.2s, box-shadow 0.2s;
         }
@@ -665,35 +535,51 @@ try {
         /* Buttons */
         .btn {
             padding: 10px 24px;
-            border-radius: 4px;
+            border-radius: 20px;
             font-size: 14px;
             font-weight: 500;
             border: none;
             cursor: pointer;
             transition: background 0.2s;
         }
-        
+
         .btn-primary {
             background: #FF6B35;
             color: white;
         }
-        
+
         .btn-primary:hover {
             background: #e55a2b;
         }
-        
+
         .btn-secondary {
             background: var(--secondary-color);
             color: white;
         }
-        
+
         .btn-secondary:hover {
             background: #3c4043;
         }
-        
+
         .btn-sm {
-            padding: 4px 8px;
+            padding: 6px 12px;
             font-size: 12px;
+            border-radius: 12px;
+        }
+
+        .btn-action {
+            background: #f8f9fa;
+            color: #202124;
+            border: 1px solid #e8eaed;
+            cursor: pointer;
+            padding: 6px 12px;
+            font-size: 12px;
+            border-radius: 12px;
+            transition: background 0.2s;
+        }
+
+        .btn-action:hover {
+            background: #e9ecef;
         }
         
         /* Table */
@@ -711,18 +597,19 @@ try {
         }
         
         .table thead {
-            background: #f0f0f0;
+            background: #FF6B35 !important;
             border-bottom: 2px solid #000;
         }
-        
+
         .table th {
             text-align: left;
             padding: 12px;
             font-size: 13px;
             font-weight: 600;
-            color: #000;
+            color: #ffffff !important;
             border: 1px solid #000;
             border-bottom: 2px solid #000;
+            background-color: #FF6B35 !important;
         }
         
         .table td {
@@ -795,7 +682,12 @@ try {
             color: #c5221f;
             border: 1px solid rgba(197, 34, 31, 0.1);
         }
-        
+
+        /* Footer styling */
+        .kenya-eduhub-footer-unique-2026 {
+            background: var(--bg-color) !important;
+        }
+
         .modal .btn-secondary {
             background: #ffffff;
             border-color: #dadce0;
@@ -870,160 +762,253 @@ try {
                 display: none !important;
             }
         }
-        
+
         @media (max-width: 991px) {
             #inlineAddForm {
                 display: none !important;
             }
         }
+
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 16px;
+            }
+
+            .page-title {
+                font-size: 22px;
+                font-weight: 400;
+                margin-bottom: 16px;
+            }
+
+            .card {
+                padding: 16px;
+                margin-bottom: 16px;
+                border-radius: 12px;
+                box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 8px;
+            }
+
+            .stat-card {
+                padding: 12px;
+                border-radius: 12px;
+                box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+                text-align: center;
+            }
+
+            .stat-icon {
+                width: 48px;
+                height: 48px;
+                font-size: 20px;
+                margin-bottom: 8px;
+            }
+
+            .stat-value {
+                font-size: 20px;
+                font-weight: 400;
+                margin-bottom: 4px;
+            }
+
+            .stat-label {
+                font-size: 11px;
+                font-weight: 500;
+                color: #5f6368;
+                margin-bottom: 0;
+            }
+
+            .table-responsive {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                border-radius: 8px;
+                width: 100%;
+            }
+
+            .table {
+                min-width: 600px;
+                width: 100%;
+            }
+
+            .btn {
+                padding: 10px 20px;
+                font-size: 14px;
+                font-weight: 500;
+                border-radius: 8px;
+                height: 40px;
+                width: 100% !important;
+            }
+
+            .form-control {
+                padding: 12px;
+                font-size: 16px;
+                border-radius: 25px;
+                border: 1px solid #dadce0;
+                margin-bottom: 12px;
+            }
+
+            .form-control:focus {
+                border-color: var(--primary-color);
+                box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.2);
+            }
+
+            .card-header {
+                flex-direction: column !important;
+                gap: 12px;
+                align-items: stretch !important;
+                padding-bottom: 12px;
+                border-bottom: 1px solid #e8eaed;
+            }
+
+            .card-header .d-flex {
+                flex-direction: column !important;
+                width: 100% !important;
+            }
+
+            .card-header .btn {
+                width: 100% !important;
+            }
+
+            .card {
+                text-align: center;
+            }
+
+            .card-header {
+                justify-content: center;
+            }
+
+            .stat-card {
+                text-align: center;
+            }
+
+            .stat-icon {
+                margin: 0 auto;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .main-content {
+                padding: 12px;
+            }
+
+            .page-title {
+                font-size: 18px;
+                margin-bottom: 16px;
+            }
+
+            .card {
+                padding: 12px;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 8px;
+            }
+
+            .stat-card {
+                padding: 12px;
+                text-align: center;
+            }
+
+            .stat-icon {
+                width: 48px;
+                height: 48px;
+                font-size: 20px;
+                margin-bottom: 8px;
+            }
+
+            .stat-value {
+                font-size: 20px;
+                margin-bottom: 4px;
+            }
+
+            .stat-label {
+                font-size: 11px;
+                margin-bottom: 0;
+            }
+        }
+
+        /* Icon colors */
+        .quick-access-item:nth-child(1) .quick-access-icon { background: #e8f0fe; color: #4285F4; }
+        .quick-access-item:nth-child(2) .quick-access-icon { background: #fce8e6; color: #EA4335; }
+        .quick-access-item:nth-child(3) .quick-access-icon { background: #e6f4ea; color: #00AC47; }
+        .quick-access-item:nth-child(4) .quick-access-icon { background: #fef7e0; color: #FFBA00; }
+        .quick-access-item:nth-child(5) .quick-access-icon { background: #e8f0fe; color: #0066DA; }
+        .quick-access-item:nth-child(6) .quick-access-icon { background: #fce8e6; color: #4285F4; }
+        .fa-plus { color: #00AC47; }
+        .fa-download { color: #4285F4; }
+        .fa-edit { color: #0066DA; }
+        .fa-trash { color: #EA4335; }
     </style>
 </head>
 <body>
-    <!-- Header -->
-    <header class="header">
-        <div class="header-left">
-            <button class="menu-btn" onclick="toggleSidebar()">
-                <i class="fas fa-bars"></i>
-            </button>
-            <div class="logo">
-                <div style="width: 40px; height: 40px; background: #FFD700; border: 3px solid #FF6B35; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 0;">
-                    <span style="font-weight: bold; font-size: 20px;">
-                        <span style="color: #FF6B35; font-size: 24px;">K</span><span style="color: #008000; font-size: 20px;">E</span>
-                    </span>
-                </div>
-                <span style="color: #FF6B35; font-weight: bold;">Kenya</span> <span style="color: #008000; font-weight: bold;">EduHub</span>
-            </div>
-        </div>
-        <div class="header-right">
-        </div>
-    </header>
-    
-    <!-- Sidebar -->
-    <aside class="sidebar" id="sidebar">
-        <div class="sidebar-section">
-            <div class="sidebar-title">Main</div>
-            <a class="nav-link" href="dashboard">
-                <i class="fas fa-home"></i> Dashboard
-            </a>
-            <a class="nav-link" href="students">
-                <i class="fas fa-user-graduate"></i> Students
-            </a>
-            <a class="nav-link" href="teachers">
-                <i class="fas fa-chalkboard-teacher"></i> Teachers
-            </a>
-            <a class="nav-link" href="classes">
-                <i class="fas fa-chalkboard"></i> Classes
-            </a>
-            <a class="nav-link" href="streams">
-                <i class="fas fa-layer-group"></i> Streams
-            </a>
-            <a class="nav-link" href="subjects">
-                <i class="fas fa-book"></i> Subjects
-            </a>
-            <a class="nav-link" href="exam-types">
-                <i class="fas fa-clipboard-list"></i> Exam Types
-            </a>
-            <a class="nav-link" href="timetable">
-                <i class="fas fa-calendar-alt"></i> Timetable
-            </a>
-            <a class="nav-link" href="grading">
-                <i class="fas fa-chart-bar"></i> Grading
-            </a>
-            <a class="nav-link" href="performance">
-                <i class="fas fa-chart-line"></i> Performance
-            </a>
-            <a class="nav-link" href="results">
-                <i class="fas fa-clipboard-list"></i> Results
-            </a>
-            <a class="nav-link" href="attendance">
-                <i class="fas fa-calendar-check"></i> Attendance
-            </a>
-            <a class="nav-link" href="calendar">
-                <i class="fas fa-calendar"></i> Calendar
-            </a>
-            <a class="nav-link" href="fees">
-                <i class="fas fa-money-bill-wave"></i> Fees
-            </a>
-            <a class="nav-link" href="invoices">
-                <i class="fas fa-file-invoice-dollar"></i> Invoices
-            </a>
-            <a class="nav-link" href="finance-managers">
-                <i class="fas fa-user-tie"></i> Finance Managers
-            </a>
-            <a class="nav-link" href="account">
-                <i class="fas fa-wallet"></i> Account Balance
-            </a>
-            <a class="nav-link" href="parents">
-                <i class="fas fa-users"></i> Parents
-            </a>
-            <a class="nav-link active" href="disciplinary">
-                <i class="fas fa-shield-alt"></i> Disciplinary
-            </a>
-            <a class="nav-link" href="disciplinary-action-types">
-                <i class="fas fa-list-alt"></i> Disciplinary Types
-            </a>
-            <a class="nav-link" href="librarians">
-                <i class="fas fa-book-reader"></i> Librarians
-            </a>
-            <a class="nav-link" href="duty-assignments">
-                <i class="fas fa-clipboard-list"></i> Duty Assignments
-            </a>
-            <a class="nav-link" href="examination-heads">
-                <i class="fas fa-user-tie"></i> Examination Heads
-            </a>
-        </div>
-        <div class="sidebar-section">
-            <div class="sidebar-title">Settings</div>
-            <a class="nav-link" href="settings">
-                <i class="fas fa-cog"></i> Settings
-            </a>
-            <a class="nav-link" href="logout">
-                <i class="fas fa-sign-out-alt"></i> Logout
-            </a>
-        </div>
-    </aside>
-    
-    <!-- Main Content -->
+<?php require_once 'includes/header.php'; ?>
+<?php $active_page = 'disciplinary'; require_once 'includes/sidebar.php'; ?>
+
+<br>
+<br>
+<br>
+<br>
+<!-- Main Content -->
     <main class="main-content" id="mainContent">
         <h1 class="page-title">Disciplinary Management</h1>
         
         <!-- Statistics -->
-        <div class="stats-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 24px; margin-bottom: 32px;">
-            <div class="stat-card">
+        <div class="stats-grid">
+            <div class="stat-card" style="background: #e8f0fe;">
+                <div class="stat-icon students">
+                    <i class="fas fa-gavel"></i>
+                </div>
                 <div class="stat-value"><?php echo $stats['total']; ?></div>
                 <div class="stat-label">Total Cases</div>
             </div>
-            <div class="stat-card">
-                <div class="stat-value" style="color: #dc3545;"><?php echo $stats['expulsions']; ?></div>
+            <div class="stat-card" style="background: #fce8e6;">
+                <div class="stat-icon students" style="color: #dc3545;">
+                    <i class="fas fa-user-slash"></i>
+                </div>
+                <div class="stat-value"><?php echo $stats['expulsions']; ?></div>
                 <div class="stat-label">Expulsions</div>
             </div>
-            <div class="stat-card">
-                <div class="stat-value" style="color: #ffc107;"><?php echo $stats['suspensions']; ?></div>
+            <div class="stat-card" style="background: #fff8e1;">
+                <div class="stat-icon students" style="color: #ffc107;">
+                    <i class="fas fa-user-clock"></i>
+                </div>
+                <div class="stat-value"><?php echo $stats['suspensions']; ?></div>
                 <div class="stat-label">Suspensions</div>
             </div>
-            <div class="stat-card">
-                <div class="stat-value" style="color: #17a2b8;"><?php echo $stats['warnings']; ?></div>
+            <div class="stat-card" style="background: #e3f2fd;">
+                <div class="stat-icon students" style="color: #17a2b8;">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <div class="stat-value"><?php echo $stats['warnings']; ?></div>
                 <div class="stat-label">Warnings</div>
             </div>
-            <div class="stat-card">
-                <div class="stat-value" style="color: #6c757d;"><?php echo $stats['pending']; ?></div>
+            <div class="stat-card" style="background: #f1f3f4;">
+                <div class="stat-icon students" style="color: #6c757d;">
+                    <i class="fas fa-hourglass-half"></i>
+                </div>
+                <div class="stat-value"><?php echo $stats['pending']; ?></div>
                 <div class="stat-label">Pending</div>
             </div>
-            <div class="stat-card">
-                <div class="stat-value" style="color: #0d6efd;"><?php echo $stats['this_year']; ?></div>
+            <div class="stat-card" style="background: #e8f0fe;">
+                <div class="stat-icon students" style="color: #0d6efd;">
+                    <i class="fas fa-calendar-alt"></i>
+                </div>
+                <div class="stat-value"><?php echo $stats['this_year']; ?></div>
                 <div class="stat-label">This Year</div>
             </div>
         </div>
 
         <!-- Add New Record Button -->
-        <div class="mb-4">
-            <button class="btn btn-primary" id="addRecordModalBtn" data-bs-toggle="modal" data-bs-target="#addRecordModal">
+        <div class="mb-4" style="display: flex; gap: 12px; flex-wrap: wrap;">
+            <button class="btn btn-primary" id="addRecordModalBtn" data-bs-toggle="modal" data-bs-target="#addRecordModal" style="padding: 8px 20px; font-size: 13px; background: #FF6B35; border-color: #FF6B35; border-radius: 20px;">
                 <i class="fas fa-plus"></i> Add Disciplinary Record
             </button>
-            <button class="btn btn-secondary" onclick="loadRecords()">
+            <button class="btn btn-secondary" onclick="loadRecords()" style="padding: 8px 20px; font-size: 13px; border-radius: 20px;">
                 <i class="fas fa-sync"></i> Refresh
             </button>
-            <a href="disciplinary-action-types" class="btn btn-info">
+            <a href="disciplinary-action-types" class="btn btn-info" style="padding: 8px 20px; font-size: 13px; border-radius: 20px; text-decoration: none; color: white;">
                 <i class="fas fa-cog"></i> Manage Action Types
             </a>
         </div>
@@ -1094,11 +1079,11 @@ try {
                         <textarea class="form-control" id="recordNotesInline" rows="2"></textarea>
                     </div>
                 </div>
-                <div class="form-actions">
-                    <button type="button" class="btn btn-primary" onclick="addRecordInline()">
+                <div class="form-actions" style="display: flex; gap: 12px;">
+                    <button type="button" class="btn btn-primary" onclick="addRecordInline()" style="padding: 10px 24px; border-radius: 20px;">
                         <i class="fas fa-plus"></i> Add Record
                     </button>
-                    <button type="button" class="btn btn-secondary" onclick="document.getElementById('addRecordFormInline').reset()">
+                    <button type="button" class="btn btn-secondary" onclick="document.getElementById('addRecordFormInline').reset()" style="padding: 10px 24px; border-radius: 20px;">
                         <i class="fas fa-times"></i> Clear
                     </button>
                 </div>
@@ -1149,7 +1134,7 @@ try {
                     </select>
                 </div>
                 <div class="filter-group" style="display: flex; align-items: flex-end;">
-                    <button class="btn btn-secondary" onclick="clearFilters()" style="width: 100%;">
+                    <button class="btn btn-secondary" onclick="clearFilters()" style="width: 100%; padding: 10px 24px; border-radius: 20px;">
                         <i class="fas fa-times"></i> Clear Filters
                     </button>
                 </div>
@@ -1202,17 +1187,19 @@ try {
                                         <strong><?php echo ucfirst($record['status']); ?></strong>
                                     </td>
                                     <td>
-                                        <a href="disciplinary_view.php?id=<?php echo $record['id']; ?>" class="btn btn-sm btn-action">
-                                            <i class="fas fa-eye"></i>
-                                        </a>
-                                        <button class="btn btn-sm btn-action" onclick="editRecord(<?php echo $record['id']; ?>)">
-                                            <i class="fas fa-edit"></i>
-                                        </button>
-                                        <?php if (in_array($record['action_type'], ['suspension', 'expulsion', 'transfer'])): ?>
-                                            <button class="btn btn-sm btn-action" onclick="generatePDF(<?php echo $record['id']; ?>)">
-                                                <i class="fas fa-print"></i>
+                                        <div style="display: flex; gap: 8px;">
+                                            <a href="disciplinary_view.php?id=<?php echo $record['id']; ?>" class="btn btn-sm btn-action">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            <button class="btn btn-sm btn-action" onclick="editRecord(<?php echo $record['id']; ?>)">
+                                                <i class="fas fa-edit"></i>
                                             </button>
-                                        <?php endif; ?>
+                                            <?php if (in_array($record['action_type'], ['suspension', 'expulsion', 'transfer'])): ?>
+                                                <button class="btn btn-sm btn-action" onclick="generatePDF(<?php echo $record['id']; ?>)">
+                                                    <i class="fas fa-print"></i>
+                                                </button>
+                                            <?php endif; ?>
+                                        </div>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>
@@ -1224,37 +1211,6 @@ try {
     
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            const mainContent = document.getElementById('mainContent');
-            sidebar.classList.toggle('collapsed');
-            sidebar.classList.toggle('show');
-            mainContent.classList.toggle('expanded');
-        }
-        
-        function toggleSidebarSection(titleElement) {
-            const linksContainer = titleElement.nextElementSibling;
-            const isCollapsed = linksContainer.classList.contains('collapsed');
-            
-            titleElement.classList.toggle('collapsed');
-            linksContainer.classList.toggle('collapsed');
-        }
-        
-        // Only enable collapsible sections on large screens
-        function handleResize() {
-            const sidebarTitles = document.querySelectorAll('.sidebar-title');
-            const sidebarLinks = document.querySelectorAll('.sidebar-links');
-            
-            if (window.innerWidth <= 768) {
-                // On mobile, expand all sections
-                sidebarTitles.forEach(title => title.classList.remove('collapsed'));
-                sidebarLinks.forEach(links => links.classList.remove('collapsed'));
-            }
-        }
-        
-        window.addEventListener('resize', handleResize);
-        handleResize();
-        
         function filterRecords() {
             const search = document.getElementById('searchRecords').value.toLowerCase();
             const classId = document.getElementById('filterClass').value;
@@ -1479,7 +1435,7 @@ try {
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label class="form-label" style="font-size: 14px; color: #5f6368; font-weight: 500;">Student</label>
-                                <select class="form-select" id="recordStudent" required style="border-radius: 8px; border: 1px solid #dadce0;">
+                                <select class="form-select" id="recordStudent" required style="border-radius: 20px; border: 1px solid #dadce0;">
                                     <option value="">Select Student</option>
                                     <?php foreach ($students as $student): ?>
                                         <option value="<?php echo $student['id']; ?>">
@@ -1490,7 +1446,7 @@ try {
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label class="form-label" style="font-size: 14px; color: #5f6368; font-weight: 500;">Action Type</label>
-                                <select class="form-select" id="recordActionType" required style="border-radius: 8px; border: 1px solid #dadce0;">
+                                <select class="form-select" id="recordActionType" required style="border-radius: 20px; border: 1px solid #dadce0;">
                                     <option value="">Select Action</option>
                                     <?php foreach ($action_types as $type): ?>
                                         <option value="<?php echo htmlspecialchars($type['action_type']); ?>"><?php echo htmlspecialchars($type['action_name']); ?></option>
@@ -1501,7 +1457,7 @@ try {
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label class="form-label" style="font-size: 14px; color: #5f6368; font-weight: 500;">Severity</label>
-                                <select class="form-select" id="recordSeverity" required style="border-radius: 8px; border: 1px solid #dadce0;">
+                                <select class="form-select" id="recordSeverity" required style="border-radius: 20px; border: 1px solid #dadce0;">
                                     <option value="minor">Minor</option>
                                     <option value="moderate">Moderate</option>
                                     <option value="severe">Severe</option>
@@ -1510,25 +1466,25 @@ try {
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label class="form-label" style="font-size: 14px; color: #5f6368; font-weight: 500;">Incident Date</label>
-                                <input type="date" class="form-control" id="recordIncidentDate" required style="border-radius: 8px; border: 1px solid #dadce0;">
+                                <input type="date" class="form-control" id="recordIncidentDate" required style="border-radius: 20px; border: 1px solid #dadce0;">
                             </div>
                         </div>
                         <div class="mb-3">
                             <label class="form-label" style="font-size: 14px; color: #5f6368; font-weight: 500;">Title</label>
-                            <input type="text" class="form-control" id="recordTitle" required style="border-radius: 8px; border: 1px solid #dadce0;">
+                            <input type="text" class="form-control" id="recordTitle" required style="border-radius: 20px; border: 1px solid #dadce0;">
                         </div>
                         <div class="mb-3">
                             <label class="form-label" style="font-size: 14px; color: #5f6368; font-weight: 500;">Description</label>
-                            <textarea class="form-control" id="recordDescription" rows="3" style="border-radius: 8px; border: 1px solid #dadce0;"></textarea>
+                            <textarea class="form-control" id="recordDescription" rows="3" style="border-radius: 20px; border: 1px solid #dadce0;"></textarea>
                         </div>
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label class="form-label" style="font-size: 14px; color: #5f6368; font-weight: 500;">Action Date</label>
-                                <input type="date" class="form-control" id="recordActionDate" required style="border-radius: 8px; border: 1px solid #dadce0;">
+                                <input type="date" class="form-control" id="recordActionDate" required style="border-radius: 20px; border: 1px solid #dadce0;">
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label class="form-label" style="font-size: 14px; color: #5f6368; font-weight: 500;">End Date (for suspensions)</label>
-                                <input type="date" class="form-control" id="recordEndDate" style="border-radius: 8px; border: 1px solid #dadce0;">
+                                <input type="date" class="form-control" id="recordEndDate" style="border-radius: 20px; border: 1px solid #dadce0;">
                             </div>
                         </div>
                         <div class="row">
@@ -1543,13 +1499,13 @@ try {
                         </div>
                         <div class="mb-3">
                             <label class="form-label" style="font-size: 14px; color: #5f6368; font-weight: 500;">Notes</label>
-                            <textarea class="form-control" id="recordNotes" rows="2" style="border-radius: 8px; border: 1px solid #dadce0;"></textarea>
+                            <textarea class="form-control" id="recordNotes" rows="2" style="border-radius: 20px; border: 1px solid #dadce0;"></textarea>
                         </div>
                     </form>
                 </div>
-                <div class="modal-footer" style="border: none; padding: 0 32px 32px 32px;">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="background: transparent; color: #5f6368; border: none; border-radius: 25px; padding: 10px 24px; font-size: 14px; font-weight: 500; letter-spacing: 0.25px; text-transform: uppercase;">Cancel</button>
-                    <button type="button" class="btn btn-primary" onclick="addRecord()" style="background: #FF6B35; color: white; border: none; border-radius: 25px; padding: 10px 24px; font-size: 14px; font-weight: 500; letter-spacing: 0.25px; text-transform: uppercase;">Add Record</button>
+                <div class="modal-footer" style="border: none; padding: 0 32px 32px 32px; display: flex; gap: 12px;">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="background: transparent; color: #5f6368; border: none; border-radius: 20px; padding: 10px 24px; font-size: 14px; font-weight: 500;">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="addRecord()" style="background: #FF6B35; color: white; border: none; border-radius: 20px; padding: 10px 24px; font-size: 14px; font-weight: 500;">Add Record</button>
                 </div>
             </div>
         </div>
@@ -1638,7 +1594,7 @@ try {
                     </div>
                 </div>
                 <div class="modal-footer" style="border: none; padding: 0 32px 32px 32px;">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="background: transparent; color: #5f6368; border: none; border-radius: 25px; padding: 10px 24px; font-size: 14px; font-weight: 500; letter-spacing: 0.25px; text-transform: uppercase;">Close</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="background: transparent; color: #5f6368; border: none; border-radius: 20px; padding: 10px 24px; font-size: 14px; font-weight: 500;">Close</button>
                 </div>
             </div>
         </div>
@@ -1658,7 +1614,7 @@ try {
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Student</label>
-                                <select class="form-select" id="editStudent" required>
+                                <select class="form-select" id="editStudent" required style="border-radius: 20px; border: 1px solid #dadce0;">
                                     <option value="">Select Student</option>
                                     <?php foreach ($students as $student): ?>
                                         <option value="<?php echo $student['id']; ?>">
@@ -1669,7 +1625,7 @@ try {
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Action Type</label>
-                                <select class="form-select" id="editActionType" required>
+                                <select class="form-select" id="editActionType" required style="border-radius: 20px; border: 1px solid #dadce0;">
                                     <option value="">Select Action</option>
                                     <?php foreach ($action_types as $type): ?>
                                         <option value="<?php echo htmlspecialchars($type['action_type']); ?>"><?php echo htmlspecialchars($type['action_name']); ?></option>
@@ -1680,7 +1636,7 @@ try {
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Severity</label>
-                                <select class="form-select" id="editSeverity" required>
+                                <select class="form-select" id="editSeverity" required style="border-radius: 20px; border: 1px solid #dadce0;">
                                     <option value="minor">Minor</option>
                                     <option value="moderate">Moderate</option>
                                     <option value="severe">Severe</option>
@@ -1737,9 +1693,9 @@ try {
                         </div>
                     </form>
                 </div>
-                <div class="modal-footer" style="border: none; padding: 0 32px 32px 32px;">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="background: transparent; color: #5f6368; border: none; border-radius: 25px; padding: 10px 24px; font-size: 14px; font-weight: 500; letter-spacing: 0.25px; text-transform: uppercase;">Cancel</button>
-                    <button type="button" class="btn btn-primary" onclick="updateRecord()" style="background: #FF6B35; color: white; border: none; border-radius: 25px; padding: 10px 24px; font-size: 14px; font-weight: 500; letter-spacing: 0.25px; text-transform: uppercase;">Update Record</button>
+                <div class="modal-footer" style="border: none; padding: 0 32px 32px 32px; display: flex; gap: 12px;">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="background: transparent; color: #5f6368; border: none; border-radius: 20px; padding: 10px 24px; font-size: 14px; font-weight: 500;">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="updateRecord()" style="background: #FF6B35; color: white; border: none; border-radius: 20px; padding: 10px 24px; font-size: 14px; font-weight: 500;">Update Record</button>
                 </div>
             </div>
         </div>
@@ -1892,5 +1848,9 @@ try {
         }
     </script>
     <script src="../assets/js/notifications.js"></script>
+
+<br>
+<br>
+<?php require_once '../includes/copywrite.php'; ?>
 </body>
 </html>
