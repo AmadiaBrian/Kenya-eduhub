@@ -154,9 +154,7 @@ try {
             --primary-color: #FF6B35;
             --secondary-color: #5f6368;
             --bg-color: #f8f9fa;
-            --card-bg: #ffffff;
-            --sidebar-width: 256px;
-            --header-height: 64px;
+            --card-bg: #f8f9fa;
         }
         
         * {
@@ -172,233 +170,77 @@ try {
             color: #202124;
         }
         
-        /* Header */
-        .header {
-            position: fixed !important;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: var(--header-height);
-            background: var(--bg-color);
-            border-bottom: 1px solid #e8eaed;
-            display: flex;
-            align-items: center;
-            padding: 0 24px;
-            z-index: 1000;
-        }
-        
-        .header-left {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-        
-        .menu-btn {
-            background: none;
-            border: none;
-            cursor: pointer;
-            padding: 12px;
-            border-radius: 50%;
-            color: #5f6368;
-            transition: background 0.2s;
-        }
-        
-        .menu-btn:hover {
-            background: #f1f3f4;
-        }
-        
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 18px;
-            font-weight: 400;
-            color: #202124;
-        }
-        
-        .logo i {
-            color: var(--primary-color);
-        }
-        
-        .header-right {
-            margin-left: auto;
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-        
-        .school-avatar {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            background: var(--primary-color);
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 14px;
-            font-weight: 500;
-        }
-        
-        /* Sidebar */
-        .sidebar {
-            position: fixed;
-            top: var(--header-height);
-            left: 0;
-            width: var(--sidebar-width);
-            height: calc(100vh - var(--header-height));
-            background: var(--bg-color);
-            border-right: 1px solid #e8eaed;
-            overflow-y: auto;
-            transition: transform 0.3s ease, margin-left 0.3s ease;
-            z-index: 999;
-            scrollbar-width: none; /* Firefox */
-            -ms-overflow-style: none; /* IE and Edge */
-        }
-        
-        .sidebar::-webkit-scrollbar {
-            display: none; /* Chrome, Safari, Opera */
-        }
-        
-        .sidebar.collapsed {
-            transform: translateX(-256px);
-        }
-        
-        .sidebar-section {
-            padding: 12px 0;
-            border-bottom: 1px solid #f1f3f4;
-        }
-        
-        .sidebar-title {
-            padding: 8px 24px;
-            font-size: 12px;
-            font-weight: 500;
-            color: #5f6368;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            cursor: pointer;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            user-select: none;
-        }
-        
-        .sidebar-title:hover {
-            background: #f1f3f4;
-        }
-        
-        .sidebar-title .chevron {
-            transition: transform 0.3s ease;
-        }
-        
-        .sidebar-title.collapsed .chevron {
-            transform: rotate(-90deg);
-        }
-        
-        .sidebar-links {
-            max-height: 1000px;
-            overflow: hidden;
-            transition: max-height 0.3s ease;
-        }
-        
-        .sidebar-links.collapsed {
-            max-height: 0;
-        }
-        
-        .nav-link {
-            display: flex;
-            align-items: center;
-            padding: 10px 24px;
-            color: #202124;
-            text-decoration: none;
-            transition: background 0.2s;
-            gap: 12px;
-        }
-        
-        .nav-link i {
-            width: 20px;
-            text-align: center;
-            color: #FF6B35;
-        }
-        
-        .nav-link:hover {
-            background: #FFF3E0;
-        }
-        
-        .nav-link.active {
-            background: #FFF3E0;
-            color: #FF6B35;
-            font-weight: 500;
-        }
-        
-        .nav-link.active i {
-            color: #FF6B35;
-        }
-        
-        /* Main Content */
         .main-content {
-            margin-left: var(--sidebar-width);
-            margin-top: var(--header-height);
             padding: 24px;
-            padding-bottom: 80px;
-            transition: margin-left 0.3s ease;
-        }
-        
-        .main-content.expanded {
-            margin-left: 0;
         }
         
         .page-title {
-            font-size: 24px;
+            font-size: 22px;
             font-weight: 400;
             color: #202124;
             margin-bottom: 24px;
+            text-align: center;
         }
         
-        /* Cards */
         .card {
-            background: var(--card-bg);
-            border: none;
-            border-radius: 12px;
-            box-shadow: none;
-            margin-bottom: 20px;
+            background: var(--bg-color);
+            border: 1px solid #e8eaed;
+            border-radius: 8px;
+            padding: 24px;
+            margin-bottom: 24px;
         }
-        
-        .card-header {
-            background: var(--card-bg);
-            border-bottom: 1px solid rgba(0,0,0,0.04);
-            padding: 16px 20px;
-            font-weight: 500;
-            color: var(--secondary-color);
-            border-radius: 12px;
-        }
-        
-        .card-body {
-            padding: 20px;
-            border-radius: 12px;
-        }
-        
+
         .card-title {
             font-size: 18px;
             font-weight: 500;
             color: #202124;
             margin-bottom: 16px;
+            text-align: center;
         }
-        
-        /* Form */
+
         .form-control {
-            width: 100%;
+            border: 1px solid #dadce0;
+            border-radius: 25px;
             padding: 10px 12px;
             font-size: 14px;
-            border: 1px solid #dadce0;
-            border-radius: 8px;
-            outline: none;
-            transition: border-color 0.2s, box-shadow 0.2s;
+            background: var(--bg-color);
         }
-        
+
         .form-control:focus {
             border-color: var(--primary-color);
             box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.2);
+            background: var(--bg-color);
+        }
+        
+        .btn {
+            padding: 10px 24px;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 500;
+            border: none;
+            cursor: pointer;
+            transition: background 0.2s;
+            width: auto;
+        }
+
+        @media (max-width: 768px) {
+            .btn {
+                width: 100% !important;
+            }
+            
+            .card-header {
+                flex-direction: column !important;
+                align-items: stretch !important;
+            }
+            
+            .card-header .d-flex {
+                flex-direction: column !important;
+                width: 100% !important;
+            }
+            
+            .form-control {
+                margin-bottom: 12px;
+            }
         }
         
         .form-select {
@@ -406,9 +248,17 @@ try {
             padding: 10px 12px;
             font-size: 14px;
             border: 1px solid #dadce0;
-            border-radius: 8px;
+            border-radius: 25px;
             outline: none;
             transition: border-color 0.2s, box-shadow 0.2s;
+            background: var(--bg-color);
+        }
+
+        .form-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.2);
+            background: var(--bg-color);
+        }
         }
         
         .form-select:focus {
@@ -438,11 +288,51 @@ try {
             background: #FF6B35;
             color: white;
         }
-        
+
         .btn-primary:hover {
             background: #e55a2b;
         }
-        
+
+        .action-buttons-cell {
+            display: flex;
+            gap: 4px;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .action-buttons .btn {
+            flex: 1;
+            padding: 12px 24px;
+            border-radius: 25px;
+        }
+
+        @media (max-width: 768px) {
+            .action-buttons {
+                flex-direction: column;
+            }
+        }
+
+        /* Filter Section */
+        .filter-section {
+            background: var(--bg-color);
+            border-radius: 8px;
+            padding: 24px;
+            margin-bottom: 24px;
+            border: 1px solid #e8eaed;
+        }
+
+        .filter-section .card-title {
+            font-size: 18px;
+            font-weight: 500;
+            color: #202124;
+            margin-bottom: 16px;
+        }
+
         .btn-secondary {
             background: var(--secondary-color);
             color: white;
@@ -489,7 +379,7 @@ try {
         .table {
             width: 100%;
             border-collapse: collapse;
-            background: white;
+            background: #ffffff;
             border: 1px solid #000;
             margin: 0;
         }
@@ -500,16 +390,17 @@ try {
         }
         
         .table thead {
-            background: #f0f0f0;
+            background: #FF6B35 !important;
             border-bottom: 2px solid #000;
         }
-        
-        .table th {
+
+        .table thead th {
+            background: #FF6B35 !important;
             text-align: left;
             padding: 12px;
             font-size: 13px;
             font-weight: 600;
-            color: #000;
+            color: #ffffff !important;
             border: 1px solid #000;
             border-bottom: 2px solid #000;
         }
@@ -522,11 +413,11 @@ try {
         }
         
         .table tbody tr:nth-child(even) {
-            background: #f9f9f9;
+            background: #ffffff;
         }
         
         .table tbody tr:hover {
-            background: #f0f0f0;
+            background: #ffffff;
         }
         
         /* Badge */
@@ -622,19 +513,19 @@ try {
         }
         
         .table thead {
-            background: #f8f9fa;
-            border-bottom: 2px solid #FF6B35;
+            background: #FF6B35 !important;
+            border-bottom: 2px solid #000;
         }
-        
-        .table th {
+
+        .table thead th {
+            background: #FF6B35 !important;
             font-weight: 600;
-            color: #202124;
+            color: #ffffff !important;
             font-size: 11px;
             text-transform: uppercase;
             letter-spacing: 0.8px;
             padding: 14px 16px;
-            border-bottom: 1px solid #e8eaed;
-            background: #f8f9fa;
+            border-bottom: 1px solid #000;
         }
         
         .table td {
@@ -736,20 +627,18 @@ try {
         
         /* Responsive */
         @media (max-width: 768px) {
-            .sidebar {
-                position: fixed !important;
-                transform: translateX(-256px);
-                z-index: 9999;
-            }
-            
-            .sidebar.show {
-                transform: translateX(0);
-            }
-            
             .main-content {
-                margin-left: 0;
                 padding: 16px;
-                padding-bottom: 80px;
+            }
+            
+            .row {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
+            
+            .col-md-3 {
+                width: 100%;
             }
             
             .stat-card {
@@ -761,116 +650,43 @@ try {
             .stat-icon {
                 margin: 0 auto;
             }
+            
+            .table-responsive {
+                overflow-x: auto;
+                width: 100%;
+            }
+            
+            .table {
+                min-width: 600px;
+                width: 100%;
+            }
         }
+
+        /* Icon colors */
+        .quick-access-item:nth-child(1) .quick-access-icon { background: #e8f0fe; color: #4285F4; }
+        .quick-access-item:nth-child(2) .quick-access-icon { background: #fce8e6; color: #EA4335; }
+        .quick-access-item:nth-child(3) .quick-access-icon { background: #e6f4ea; color: #00AC47; }
+        .quick-access-item:nth-child(4) .quick-access-icon { background: #fef7e0; color: #FFBA00; }
+        .quick-access-item:nth-child(5) .quick-access-icon { background: #e8f0fe; color: #0066DA; }
+        .quick-access-item:nth-child(6) .quick-access-icon { background: #fce8e6; color: #4285F4; }
+        .fa-plus { color: #00AC47; }
+        .fa-download { color: #4285F4; }
+        .fa-edit { color: #0066DA; }
+        .fa-trash { color: #EA4335; }
+        .fa-eye { color: #4285F4; }
+        .fa-print { color: #5f6368; }
+        .fa-filter { color: #FF6B35; }
+        .fa-file-invoice { color: #4285F4; }
+        .fa-money-bill-wave { color: #00AC47; }
+        .fa-check-circle { color: #00AC47; }
+        .fa-exclamation-circle { color: #FFBA00; }
     </style>
 </head>
 <body>
-    <!-- Header -->
-    <header class="header">
-        <div class="header-left">
-            <button class="menu-btn" onclick="toggleSidebar()">
-                <i class="fas fa-bars"></i>
-            </button>
-            <div class="logo">
-                <div style="width: 32px; height: 32px; background: #FFD700; border: 2px solid #FF6B35; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 8px;">
-                    <span style="font-weight: bold; font-size: 16px;">
-                        <span style="color: #FF6B35; font-size: 20px;">K</span><span style="color: #008000; font-size: 16px;">E</span>
-                    </span>
-                </div>
-                <span style="color: #FF6B35; font-weight: bold;">Kenya</span> <span style="color: #008000; font-weight: bold;">EduHub</span>
-            </div>
-        </div>
-        <div class="header-right">
-        </div>
-    </header>
+    <?php require_once 'includes/header.php'; ?>
+    <?php $active_page = 'invoices'; require_once 'includes/sidebar.php'; ?>
     
-    <!-- Sidebar -->
-    <aside class="sidebar" id="sidebar">
-        <div class="sidebar-section">
-            <div class="sidebar-title">Main</div>
-            <a class='nav-link' href='dashboard'>
-                <i class='fas fa-home'></i> Dashboard
-            </a>
-            <a class='nav-link' href='students'>
-                <i class='fas fa-user-graduate'></i> Students
-            </a>
-            <a class='nav-link' href='teachers'>
-                <i class='fas fa-chalkboard-teacher'></i> Teachers
-            </a>
-            <a class='nav-link' href='classes'>
-                <i class='fas fa-chalkboard'></i> Classes
-            </a>
-            <a class='nav-link' href='streams'>
-                <i class='fas fa-layer-group'></i> Streams
-            </a>
-            <a class='nav-link' href='subjects'>
-                <i class='fas fa-book'></i> Subjects
-            </a>
-            <a class='nav-link' href='exam-types'>
-                <i class='fas fa-clipboard-list'></i> Exam Types
-            </a>
-            <a class='nav-link' href='timetable'>
-                <i class='fas fa-calendar-alt'></i> Timetable
-            </a>
-            <a class='nav-link' href='grading'>
-                <i class='fas fa-chart-bar'></i> Grading
-            </a>
-            <a class='nav-link' href='performance'>
-                <i class='fas fa-chart-line'></i> Performance
-            </a>
-            <a class='nav-link' href='results'>
-                <i class='fas fa-clipboard-list'></i> Results
-            </a>
-            <a class='nav-link' href='attendance'>
-                <i class='fas fa-calendar-check'></i> Attendance
-            </a>
-            <a class='nav-link' href='calendar'>
-                <i class='fas fa-calendar'></i> Calendar
-            </a>
-            <a class='nav-link' href='fees'>
-                <i class='fas fa-money-bill-wave'></i> Fees
-            </a>
-            <a class='nav-link active' href='invoices'>
-                <i class='fas fa-file-invoice-dollar'></i> Invoices
-            </a>
-            <a class='nav-link' href='finance-managers'>
-                <i class='fas fa-user-tie'></i> Finance Managers
-            </a>
-            <a class='nav-link' href='account'>
-                <i class='fas fa-wallet'></i> Account Balance
-            </a>
-            <a class='nav-link' href='parents'>
-                <i class='fas fa-users'></i> Parents
-            </a>
-            <a class='nav-link' href='disciplinary'>
-                <i class='fas fa-shield-alt'></i> Disciplinary
-            </a>
-            <a class='nav-link' href='disciplinary-action-types'>
-                <i class='fas fa-list-alt'></i> Disciplinary Types
-            </a>
-            <a class='nav-link' href='librarians'>
-                <i class='fas fa-book'></i> Librarians
-            </a>
-            <a class='nav-link' href='duty-assignments'>
-                <i class='fas fa-clipboard-list'></i> Duty Assignments
-            </a>
-            <a class='nav-link' href='examination-heads'>
-                <i class='fas fa-user-tie'></i> Examination Heads
-            </a>
-        </div>
-        <div class="sidebar-section">
-            <div class="sidebar-title">Settings</div>
-            <a class='nav-link' href='settings'>
-                <i class='fas fa-cog'></i> Settings
-            </a>
-            <a class='nav-link' href='profile'>
-                <i class='fas fa-user'></i> Profile
-            </a>
-            <a class='nav-link' href='logout'>
-                <i class='fas fa-sign-out-alt'></i> Logout
-            </a>
-        </div>
-    </aside>
+    <br>
     
     <!-- Main Content -->
     <main class="main-content" id="mainContent">
@@ -923,91 +739,80 @@ try {
                 </div>
             </div>
         </div>
-        
-        <!-- Invoice Generation Form -->
-        <div class="card">
-            <div class="card-header">
-                <i class="fas fa-plus me-2"></i>Generate Invoices
-            </div>
-            <div class="card-body">
-                <form id="invoiceForm" class="row g-3">
-                    <div class="col-md-4">
-                        <label class="form-label">Class</label>
-                        <select class="form-select" id="classSelect" required>
-                            <option value="">Select Class</option>
-                            <?php foreach ($classes as $class): ?>
-                                <option value="<?php echo $class['id']; ?>"><?php echo htmlspecialchars($class['class_name']); ?></option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-                    <div class="col-md-3">
-                        <label class="form-label">Term</label>
-                        <select class="form-select" id="termSelect" required>
-                            <option value="Term 1" <?php echo $current_term === 'Term 1' ? 'selected' : ''; ?>>Term 1</option>
-                            <option value="Term 2" <?php echo $current_term === 'Term 2' ? 'selected' : ''; ?>>Term 2</option>
-                            <option value="Term 3" <?php echo $current_term === 'Term 3' ? 'selected' : ''; ?>>Term 3</option>
-                        </select>
-                    </div>
-                    <div class="col-md-3">
-                        <label class="form-label">Year</label>
-                        <input type="number" class="form-control" id="yearSelect" value="<?php echo $current_year; ?>" required>
-                    </div>
-                    <div class="col-md-2">
-                        <label class="form-label">&nbsp;</label>
-                        <button type="submit" class="btn-primary w-100">
-                            <i class="fas fa-plus me-2"></i>Generate
-                        </button>
-                    </div>
-                </form>
-            </div>
+
+        <!-- Invoice Generation Section -->
+        <div class="filter-section">
+            <div class="card-title">Generate Invoices</div>
+            <form id="invoiceForm" class="form-grid">
+                <div class="form-group">
+                    <label>Class</label>
+                    <select class="form-select" id="classSelect" required>
+                        <option value="">Select Class</option>
+                        <?php foreach ($classes as $class): ?>
+                            <option value="<?php echo $class['id']; ?>"><?php echo htmlspecialchars($class['class_name']); ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Term</label>
+                    <select class="form-select" id="termSelect" required>
+                        <option value="Term 1" <?php echo $current_term === 'Term 1' ? 'selected' : ''; ?>>Term 1</option>
+                        <option value="Term 2" <?php echo $current_term === 'Term 2' ? 'selected' : ''; ?>>Term 2</option>
+                        <option value="Term 3" <?php echo $current_term === 'Term 3' ? 'selected' : ''; ?>>Term 3</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Year</label>
+                    <input type="number" class="form-control" id="yearSelect" value="<?php echo $current_year; ?>" required>
+                </div>
+                <div class="form-group">
+                    <label>&nbsp;</label>
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-plus me-2"></i>Generate
+                    </button>
+                </div>
+            </form>
         </div>
-        
-        <!-- Filters -->
-        <div class="card">
-            <div class="card-header">
-                <i class="fas fa-filter me-2"></i>Filter Invoices
-            </div>
-            <div class="card-body">
-                <form class="row g-3">
-                    <div class="col-md-3">
-                        <label class="form-label">Term</label>
-                        <select class="form-select" id="filterTerm" onchange="filterInvoices()">
-                            <option value="">All Terms</option>
-                            <option value="Term 1" <?php echo ($_GET['term'] ?? '') === 'Term 1' ? 'selected' : ''; ?>>Term 1</option>
-                            <option value="Term 2" <?php echo ($_GET['term'] ?? '') === 'Term 2' ? 'selected' : ''; ?>>Term 2</option>
-                            <option value="Term 3" <?php echo ($_GET['term'] ?? '') === 'Term 3' ? 'selected' : ''; ?>>Term 3</option>
-                        </select>
-                    </div>
-                    <div class="col-md-2">
-                        <label class="form-label">Year</label>
-                        <input type="number" class="form-control" id="filterYear" value="<?php echo $current_year; ?>" onchange="filterInvoices()">
-                    </div>
-                    <div class="col-md-2">
-                        <label class="form-label">Status</label>
-                        <select class="form-select" id="filterStatus" onchange="filterInvoices()">
-                            <option value="">All Status</option>
-                            <option value="pending" <?php echo ($_GET['status'] ?? '') === 'pending' ? 'selected' : ''; ?>>Pending</option>
-                            <option value="partial" <?php echo ($_GET['status'] ?? '') === 'partial' ? 'selected' : ''; ?>>Partial</option>
-                            <option value="paid" <?php echo ($_GET['status'] ?? '') === 'paid' ? 'selected' : ''; ?>>Paid</option>
-                            <option value="overdue" <?php echo ($_GET['status'] ?? '') === 'overdue' ? 'selected' : ''; ?>>Overdue</option>
-                        </select>
-                    </div>
-                    <div class="col-md-2">
-                        <label class="form-label">&nbsp;</label>
-                        <button class="btn-primary w-100" onclick="clearFilters()">Clear Filters</button>
-                    </div>
-                </form>
-            </div>
+
+        <!-- Filter Section -->
+        <div class="filter-section">
+            <div class="card-title">Filter Invoices</div>
+            <form class="form-grid">
+                <div class="form-group">
+                    <label>Term</label>
+                    <select class="form-select" id="filterTerm" onchange="filterInvoices()">
+                        <option value="">All Terms</option>
+                        <option value="Term 1" <?php echo ($_GET['term'] ?? '') === 'Term 1' ? 'selected' : ''; ?>>Term 1</option>
+                        <option value="Term 2" <?php echo ($_GET['term'] ?? '') === 'Term 2' ? 'selected' : ''; ?>>Term 2</option>
+                        <option value="Term 3" <?php echo ($_GET['term'] ?? '') === 'Term 3' ? 'selected' : ''; ?>>Term 3</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Year</label>
+                    <input type="number" class="form-control" id="filterYear" value="<?php echo $current_year; ?>" onchange="filterInvoices()">
+                </div>
+                <div class="form-group">
+                    <label>Status</label>
+                    <select class="form-select" id="filterStatus" onchange="filterInvoices()">
+                        <option value="">All Status</option>
+                        <option value="pending" <?php echo ($_GET['status'] ?? '') === 'pending' ? 'selected' : ''; ?>>Pending</option>
+                        <option value="partial" <?php echo ($_GET['status'] ?? '') === 'partial' ? 'selected' : ''; ?>>Partial</option>
+                        <option value="paid" <?php echo ($_GET['status'] ?? '') === 'paid' ? 'selected' : ''; ?>>Paid</option>
+                        <option value="overdue" <?php echo ($_GET['status'] ?? '') === 'overdue' ? 'selected' : ''; ?>>Overdue</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>&nbsp;</label>
+                    <button class="btn btn-primary w-100" onclick="clearFilters()">Clear Filters</button>
+                </div>
+            </form>
         </div>
-        
+
         <!-- Invoices Table -->
         <div class="card">
-            <div class="card-header">
-                <i class="fas fa-list me-2"></i>Invoices List
-            </div>
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-hover" id="invoicesTable">
+            <div class="card-title">Invoices List</div>
+            <div class="table-responsive">
+                <table class="table table-hover" id="invoicesTable">
                         <thead>
                             <tr>
                                 <th>Invoice #</th>
@@ -1042,15 +847,17 @@ try {
                                     </td>
                                     <td><?php echo date('M d, Y', strtotime($invoice['issue_date'])); ?></td>
                                     <td>
-                                        <button class="btn-outline-primary" onclick="viewInvoice(<?php echo $invoice['id']; ?>)">
-                                            <i class="fas fa-eye"></i>
-                                        </button>
-                                        <button class="btn-outline-secondary" onclick="printInvoice(<?php echo $invoice['id']; ?>)">
-                                            <i class="fas fa-print"></i>
-                                        </button>
-                                        <button class="btn-outline-secondary" onclick="deleteInvoice(<?php echo $invoice['id']; ?>)" style="color: #dc3545; border-color: #dc3545;">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
+                                        <div class="action-buttons-cell">
+                                            <button class="btn-outline-primary" onclick="viewInvoice(<?php echo $invoice['id']; ?>)">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            <button class="btn-outline-secondary" onclick="printInvoice(<?php echo $invoice['id']; ?>)">
+                                                <i class="fas fa-print"></i>
+                                            </button>
+                                            <button class="btn-outline-secondary" onclick="deleteInvoice(<?php echo $invoice['id']; ?>)" style="color: #dc3545; border-color: #dc3545;">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>
@@ -1065,22 +872,11 @@ try {
                             <?php endif; ?>
                         </tbody>
                     </table>
-                </div>
             </div>
         </div>
     </main>
     
-    <!-- Footer -->
-    <footer style="position: fixed; bottom: 0; left: 0; right: 0; background: #f8f9fa; border-top: 1px solid #e8eaed; padding: 20px 0; margin-top: 40px; z-index: 1000;">
-        <div style="text-align: center;">
-            <p style="margin: 0; color: #5f6368; font-size: 14px;">
-                <span style="color: #FF6B35;">&copy; 2026</span>
-                <span style="color: #FF6B35;">Kenya</span>
-                <span style="color: #008000;">EduHub</span>
-                <span style="color: #5f6368;">. All rights reserved.</span>
-            </p>
-        </div>
-    </footer>
+    <?php require_once '../includes/copywrite.php'; ?>
     
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -1092,46 +888,6 @@ try {
         console.log('Invoices count: <?php echo count($invoices); ?>');
         console.log('Invoices data:', <?php echo json_encode($invoices); ?>);
         console.log('Statistics:', <?php echo json_encode($stats); ?>);
-        
-        // Toggle sidebar
-        function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            const mainContent = document.getElementById('mainContent');
-            
-            // Check if we're on mobile
-            if (window.innerWidth <= 768) {
-                // Mobile: toggle the 'show' class
-                sidebar.classList.toggle('show');
-            } else {
-                // Desktop: toggle the 'collapsed' and 'expanded' classes
-                sidebar.classList.toggle('collapsed');
-                mainContent.classList.toggle('expanded');
-            }
-        }
-        
-        // Toggle sidebar section
-        function toggleSidebarSection(titleElement) {
-            const linksContainer = titleElement.nextElementSibling;
-            const isCollapsed = linksContainer.classList.contains('collapsed');
-            
-            titleElement.classList.toggle('collapsed');
-            linksContainer.classList.toggle('collapsed');
-        }
-        
-        // Only enable collapsible sections on large screens
-        function handleResize() {
-            const sidebarTitles = document.querySelectorAll('.sidebar-title');
-            const sidebarLinks = document.querySelectorAll('.sidebar-links');
-            
-            if (window.innerWidth <= 768) {
-                // On mobile, expand all sections
-                sidebarTitles.forEach(title => title.classList.remove('collapsed'));
-                sidebarLinks.forEach(links => links.classList.remove('collapsed'));
-            }
-        }
-        
-        window.addEventListener('resize', handleResize);
-        handleResize();
         
         // Export table to PDF
         function exportToPDF() {

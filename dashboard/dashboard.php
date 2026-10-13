@@ -2123,7 +2123,11 @@ $csrf_token = generateCSRFLite();
                     </div>
                 <?php endif; ?>
     </main>
-
+                                    </br>
+                                    </br>
+                                    </br>
+                                    </br>
+                                    </br>
     <!-- Footer -->
     <?php require_once '../includes/copywrite.php'; ?>
 

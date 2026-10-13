@@ -173,7 +173,7 @@ try {
             --primary-color: #FF6B35;
             --secondary-color: #5f6368;
             --bg-color: #f8f9fa;
-            --card-bg: #ffffff;
+            --card-bg: #f8f9fa;
             --sidebar-width: 256px;
             --header-height: 64px;
         }
@@ -190,145 +190,7 @@ try {
             font-size: 14px;
             color: #202124;
         }
-        
-        /* Header */
-        .header {
-            position: fixed !important;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: var(--header-height);
-            background: var(--bg-color);
-            border-bottom: 1px solid #e8eaed;
-            display: flex;
-            align-items: center;
-            padding: 0 24px;
-            z-index: 1000;
-        }
-        
-        .header-left {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-        
-        .menu-btn {
-            background: none;
-            border: none;
-            cursor: pointer;
-            padding: 12px;
-            border-radius: 50%;
-            color: #5f6368;
-            transition: background 0.2s;
-        }
-        
-        .menu-btn:hover {
-            background: #f1f3f4;
-        }
-        
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 20px;
-            font-weight: 400;
-            color: #202124;
-        }
-        
-        .logo i {
-            color: var(--primary-color);
-        }
-        
-        .header-right {
-            margin-left: auto;
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-        
-        .user-avatar {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            background: var(--primary-color);
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 500;
-        }
-        
-        /* Sidebar */
-        .sidebar {
-            position: fixed;
-            top: var(--header-height);
-            left: 0;
-            width: var(--sidebar-width);
-            height: calc(100vh - var(--header-height));
-            background: var(--bg-color);
-            overflow-y: auto;
-            transition: transform 0.3s ease;
-            z-index: 999;
-        }
-        
-        .sidebar::-webkit-scrollbar {
-            display: none; /* Chrome, Safari, Opera */
-        }
-        
-        .sidebar {
-            -ms-overflow-style: none;  /* IE and Edge */
-            scrollbar-width: none;  /* Firefox */
-        }
-        
-        .sidebar.collapsed {
-            transform: translateX(-256px);
-        }
-        
-        .sidebar-section {
-            padding: 12px 0;
-        }
-        
-        .sidebar-title {
-            padding: 8px 24px;
-            font-size: 12px;
-            font-weight: 500;
-            color: #5f6368;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        
-        .nav-link {
-            display: flex;
-            align-items: center;
-            padding: 10px 24px;
-            color: #5f6368;
-            text-decoration: none;
-            transition: background 0.2s;
-            border: none;
-            background: none;
-            width: 100%;
-            text-align: left;
-            cursor: pointer;
-            font-size: 14px;
-        }
-        
-        .nav-link:hover {
-            background: #f1f3f4;
-        }
-        
-        .nav-link.active {
-            background: #e8f0fe;
-            color: var(--primary-color);
-        }
-        
-        .nav-link i {
-            margin-right: 12px;
-            font-size: 18px;
-            width: 24px;
-            text-align: center;
-            color: #FF6B35;
-        }
-        
+
         /* Main Content */
         .main-content {
             margin-left: var(--sidebar-width);
@@ -337,44 +199,48 @@ try {
             padding-bottom: 80px;
             transition: margin-left 0.3s ease;
         }
-        
+
         .main-content.expanded {
             margin-left: 0;
         }
-        
+
         .page-title {
             font-size: 22px;
             font-weight: 400;
             color: #202124;
             margin-bottom: 24px;
+            text-align: center;
         }
         
         /* Cards */
         .card {
             background: var(--bg-color);
-            border: 1px solid #e8eaed;
+            border: 1px solid #e0e0e0;
             border-radius: 8px;
             padding: 24px;
             margin-bottom: 24px;
         }
-        
+
         .card-title {
             font-size: 18px;
             font-weight: 500;
             color: #202124;
             margin-bottom: 16px;
+            text-align: center;
         }
-        
+
         .form-control {
             border: 1px solid #dadce0;
-            border-radius: 8px;
+            border-radius: 25px;
             padding: 10px 12px;
             font-size: 14px;
+            background: var(--bg-color);
         }
-        
+
         .form-control:focus {
             border-color: var(--primary-color);
             box-shadow: 0 0 0 2px rgba(255, 107, 53, 0.2);
+            background: var(--bg-color);
         }
         
         .btn {
@@ -395,104 +261,132 @@ try {
         .btn-primary:hover {
             background: #e55a2b;
         }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .action-buttons .btn {
+            flex: 1;
+            padding: 12px 24px;
+            border-radius: 25px;
+        }
+
+        @media (max-width: 768px) {
+            .action-buttons {
+                flex-direction: column;
+            }
+        }
+
+        /* Filter Section */
+        .filter-section {
+            background: var(--bg-color);
+            border-radius: 8px;
+            padding: 24px;
+            margin-bottom: 24px;
+            border: 1px solid #e8eaed;
+        }
+
+        .filter-section .card-title {
+            font-size: 18px;
+            font-weight: 500;
+            color: #202124;
+            margin-bottom: 16px;
+        }
         
         .table {
             width: 100%;
             border-collapse: collapse;
-            background: white;
-            border: 1px solid #000;
+            background: #f8f9fa;
+            border: 1px solid #e0e0e0;
             margin: 0;
         }
-        
+
         .table-responsive {
             width: 100%;
             overflow-x: auto;
         }
-        
+
         .table thead {
-            background: #f0f0f0;
+            background: #FF6B35 !important;
             border-bottom: 2px solid #000;
         }
-        
-        .table th {
+
+        .table thead th {
+            background: #FF6B35 !important;
             text-align: left;
             padding: 12px;
             font-size: 13px;
             font-weight: 600;
-            color: #000;
-            border: 1px solid #000;
-            border-bottom: 2px solid #000;
+            color: #ffffff !important;
+            border: 1px solid #e0e0e0;
+            border-bottom: 2px solid #e0e0e0;
         }
-        
+
         .table td {
             padding: 12px;
             font-size: 13px;
             color: #000;
-            border: 1px solid #000;
+            border: 1px solid #e0e0e0;
         }
-        
+
         .table tbody tr:nth-child(even) {
             background: #f9f9f9;
         }
-        
+
         .table tbody tr:hover {
             background: #f0f0f0;
         }
         
         /* Responsive */
         @media (max-width: 768px) {
-            .sidebar {
-                transform: translateX(-256px);
-                z-index: 9999;
-            }
-            
-            .sidebar.show {
-                transform: translateX(0);
-            }
-            
             .main-content {
                 margin-left: 0;
                 padding: 16px;
                 padding-bottom: 80px;
             }
-            
-            .menu-btn {
-                display: block !important;
-            }
-            
+
             .card {
                 padding: 16px;
             }
-            
+
             .table-responsive {
                 overflow-x: auto;
                 width: 100%;
             }
-            
+
             .table {
                 min-width: 100%;
                 font-size: 12px;
             }
-            
+
             .table th, .table td {
                 padding: 8px 4px;
             }
-            
+
             .form-control, .form-select {
                 font-size: 14px;
             }
-            
+
             .btn {
                 font-size: 14px;
                 padding: 8px 12px;
+                width: 100%;
             }
-            
+
             .col-md-3, .col-md-4, .col-md-2 {
                 margin-bottom: 12px;
             }
-            
+
             .page-title {
                 font-size: 18px;
+            }
+
+            .row.g-3 > div {
+                margin-bottom: 12px;
             }
         }
         
@@ -548,98 +442,25 @@ try {
             font-size: 48px;
             margin-bottom: 15px;
         }
+
+        /* Icon colors */
+        .quick-access-item:nth-child(1) .quick-access-icon { background: #e8f0fe; color: #4285F4; }
+        .quick-access-item:nth-child(2) .quick-access-icon { background: #fce8e6; color: #EA4335; }
+        .quick-access-item:nth-child(3) .quick-access-icon { background: #e6f4ea; color: #00AC47; }
+        .quick-access-item:nth-child(4) .quick-access-icon { background: #fef7e0; color: #FFBA00; }
+        .quick-access-item:nth-child(5) .quick-access-icon { background: #e8f0fe; color: #0066DA; }
+        .quick-access-item:nth-child(6) .quick-access-icon { background: #fce8e6; color: #4285F4; }
+        .fa-plus { color: #00AC47; }
+        .fa-download { color: #4285F4; }
+        .fa-edit { color: #0066DA; }
+        .fa-trash { color: #EA4335; }
     </style>
 </head>
 <body>
-    <!-- Header -->
-    <header class="header">
-        <div class="header-left">
-            <button class="menu-btn" onclick="toggleSidebar()">
-                <i class="fas fa-bars"></i>
-            </button>
-            <div class="logo">
-                <div style="width: 40px; height: 40px; background: #FFD700; border: 3px solid #FF6B35; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 0;">
-                    <span style="font-weight: bold; font-size: 20px;">
-                        <span style="color: #FF6B35; font-size: 24px;">K</span><span style="color: #008000; font-size: 20px;">E</span>
-                    </span>
-                </div>
-                <span style="color: #FF6B35; font-weight: bold;">Kenya</span> <span style="color: #008000; font-weight: bold;">EduHub</span>
-            </div>
-        </div>
-        <div class="header-right">
-            <div class="user-avatar">
-                <?php echo strtoupper(substr($school_name, 0, 1)); ?>
-            </div>
-        </div>
-    </header>
+    <?php require_once 'includes/header.php'; ?>
+    <?php $active_page = 'results'; require_once 'includes/sidebar.php'; ?>
     
-    <!-- Sidebar -->
-    <aside class="sidebar" id="sidebar">
-        <div class="sidebar-section">
-            <div class="sidebar-title">Main</div>
-            <a class="nav-link" href="dashboard">
-                <i class="fas fa-home"></i> Dashboard
-            </a>
-            <a class="nav-link" href="students">
-                <i class="fas fa-user-graduate"></i> Students
-            </a>
-            <a class="nav-link" href="teachers">
-                <i class="fas fa-chalkboard-teacher"></i> Teachers
-            </a>
-            <a class="nav-link" href="classes">
-                <i class="fas fa-chalkboard"></i> Classes
-            </a>
-            <a class="nav-link" href="streams">
-                <i class="fas fa-layer-group"></i> Streams
-            </a>
-            <a class="nav-link" href="subjects">
-                <i class="fas fa-book"></i> Subjects
-            </a>
-            <a class="nav-link" href="exam-types">
-                <i class="fas fa-clipboard-list"></i> Exam Types
-            </a>
-            <a class="nav-link" href="timetable">
-                <i class="fas fa-calendar-alt"></i> Timetable
-            </a>
-            <a class="nav-link" href="parents">
-                <i class="fas fa-users"></i> Parents
-            </a>
-            <a class="nav-link" href="disciplinary">
-                <i class="fas fa-shield-alt"></i> Disciplinary
-            </a>
-            <a class="nav-link" href="disciplinary-action-types">
-                <i class="fas fa-list-alt"></i> Disciplinary Types
-            </a>
-            <a class="nav-link" href="performance">
-                <i class="fas fa-chart-line"></i> Performance
-            </a>
-            <a class="nav-link active" href="results">
-                <i class="fas fa-award"></i> Results
-            </a>
-            <a class="nav-link" href="attendance">
-                <i class="fas fa-calendar-check"></i> Attendance
-            </a>
-            <a class="nav-link" href="calendar">
-                <i class="fas fa-calendar"></i> Calendar
-            </a>
-            <a class="nav-link" href="fees">
-                <i class="fas fa-money-bill-wave"></i> Fees
-            </a>
-            <a class="nav-link" href="invoices">
-                <i class="fas fa-file-invoice-dollar"></i> Invoices
-            </a>
-        </div>
-        
-        <div class="sidebar-section">
-            <div class="sidebar-title">Settings</div>
-            <a class="nav-link" href="settings">
-                <i class="fas fa-cog"></i> Settings
-            </a>
-            <a class="nav-link" href="logout">
-                <i class="fas fa-sign-out-alt"></i> Logout
-            </a>
-        </div>
-    </aside>
+    <br>
     
     <!-- Main Content -->
     <main class="main-content" id="mainContent">
@@ -647,10 +468,10 @@ try {
         
         <!-- Calendar Status Alert -->
         <?php if ($calendar_status['is_holiday']): ?>
-        <div class="card" style="background: #fff3cd; border: 1px solid #ffc107;">
+        <div class="card" style="background: #fff3cd; border: 1px solid #e0e0e0;">
             <p style="margin: 0; color: #856404;">
-                <i class="fas fa-info-circle"></i> 
-                <strong>Holiday Period:</strong> <?php echo htmlspecialchars($calendar_status['holiday_name'] ?? 'Current holiday'); ?> 
+                <i class="fas fa-info-circle"></i>
+                <strong>Holiday Period:</strong> <?php echo htmlspecialchars($calendar_status['holiday_name'] ?? 'Current holiday'); ?>
                 (<?php echo htmlspecialchars($calendar_status['holiday_start'] ?? ''); ?> to <?php echo htmlspecialchars($calendar_status['holiday_end'] ?? ''); ?>)
             </p>
         </div>
@@ -739,16 +560,7 @@ try {
     </main>
     
     <!-- Footer -->
-    <footer style="position: fixed; bottom: 0; left: 0; right: 0; background: #f8f9fa; border-top: 1px solid #e8eaed; padding: 20px 0; margin-top: 40px; z-index: 1000;">
-        <div style="text-align: center;">
-            <p style="margin: 0; color: #5f6368; font-size: 14px;">
-                <span style="color: #FF6B35;">&copy; 2026</span>
-                <span style="color: #FF6B35;">Kenya</span>
-                <span style="color: #008000;">EduHub</span>
-                <span style="color: #5f6368;">. All rights reserved.</span>
-            </p>
-        </div>
-    </footer>
+    <?php require_once '../includes/copywrite.php'; ?>
     
     <div class="notification" id="notification"></div>
     
@@ -763,37 +575,7 @@ try {
         const smsEnabled = <?php echo json_encode($school['sms_enabled'] ?? 0); ?>;
         const schoolId = <?php echo json_encode($school_id); ?>;
         const schoolName = <?php echo json_encode($school['school_name'] ?? ''); ?>;
-        
-        function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            const mainContent = document.getElementById('mainContent');
-            
-            // Check if we're on mobile
-            if (window.innerWidth <= 768) {
-                // Mobile: toggle the 'show' class
-                sidebar.classList.toggle('show');
-                
-                // Add or remove backdrop
-                let backdrop = document.querySelector('.sidebar-backdrop');
-                if (sidebar.classList.contains('show')) {
-                    if (!backdrop) {
-                        backdrop = document.createElement('div');
-                        backdrop.className = 'sidebar-backdrop';
-                        backdrop.onclick = toggleSidebar;
-                        document.body.appendChild(backdrop);
-                    }
-                } else {
-                    if (backdrop) {
-                        backdrop.remove();
-                    }
-                }
-            } else {
-                // Desktop: toggle the 'collapsed' and 'expanded' classes
-                sidebar.classList.toggle('collapsed');
-                mainContent.classList.toggle('expanded');
-            }
-        }
-        
+
         function showNotification(message, type = 'info') {
             const notification = document.createElement('div');
             notification.className = `alert alert-${type} alert-dismissible fade show`;

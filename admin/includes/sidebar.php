@@ -103,8 +103,20 @@
         font-size: 18px;
         width: 24px;
         text-align: center;
-        color: #FF6B35;
     }
+
+    .nav-link[href*="dashboard"] i { color: #4285F4; }
+    .nav-link[href*="my-resources"] i { color: #EA4335; }
+    .nav-link[href*="upload"] i { color: #00AC47; }
+    .nav-link[href*="schools"] i { color: #FFBA00; }
+    .nav-link[href*="school-accounts"] i { color: #0066DA; }
+    .nav-link[href*="users"] i { color: #4285F4; }
+    .nav-link[href*="resources"] i { color: #EA4335; }
+    .nav-link[href*="transaction-rates"] i { color: #00AC47; }
+    .nav-link[href*="reports"] i { color: #FFBA00; }
+    .nav-link[href*="logs"] i { color: #0066DA; }
+    .nav-link[href*="settings"] i { color: #5f6368; }
+    .nav-link[href*="logout"] i { color: #EA4335; }
 
     .dark-mode .sidebar {
         background: var(--bg-color, #1a1a1a);

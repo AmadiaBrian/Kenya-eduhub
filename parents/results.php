@@ -141,6 +141,7 @@ if ($parent) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#FF6B35">
     <title>Results - <?php echo htmlspecialchars($parent_name); ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -469,6 +470,17 @@ if ($parent) {
             }
         }
         
+        /* Icon colors */
+        .fa-search { color: #4285F4; }
+        .fa-print { color: #00AC47; }
+        .fa-redo { color: #FFBA00; }
+        .fa-award { color: #FFBA00; }
+        .fa-spinner { color: #4285F4; }
+        .fa-exclamation-triangle { color: #EA4335; }
+        .fa-inbox { color: #5f6368; }
+        .fa-clipboard-list { color: #0066DA; }
+        .fa-info-circle { color: #4285F4; }
+
         /* Print styles */
         @media print {
             @page {
@@ -1374,6 +1386,8 @@ if ($parent) {
         });
     </script>
     <script src="../assets/js/notifications.js"></script>
+    </br>
+    </br>
     </br>
     </br>
     <!-- Footer -->

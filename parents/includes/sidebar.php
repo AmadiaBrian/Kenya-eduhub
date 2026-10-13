@@ -122,8 +122,19 @@
         font-size: 18px;
         width: 24px;
         text-align: center;
-        color: #FF6B35;
     }
+
+    .nav-link[href="dashboard"] i { color: #4285F4; }
+    .nav-link[href="children"] i { color: #EA4335; }
+    .nav-link[href="performance"] i { color: #00AC47; }
+    .nav-link[href="results"] i { color: #FFBA00; }
+    .nav-link[href="attendance"] i { color: #0066DA; }
+    .nav-link[href="calendar"] i { color: #EA4335; }
+    .nav-link[href="assignments"] i { color: #00AC47; }
+    .nav-link[href="fines"] i { color: #FFBA00; }
+    .nav-link[href="fees"] i { color: #4285F4; }
+    .nav-link[href="profile"] i { color: #5f6368; }
+    .nav-link[href="logout"] i { color: #EA4335; }
 </style>
 
 <script>

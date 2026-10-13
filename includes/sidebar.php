@@ -217,6 +217,16 @@ $current_page = basename($_SERVER['PHP_SELF']);
     margin-right: 10px;
 }
 
+.nav-link[href="dashboard.php"] i { color: #4285F4; }
+.nav-link[href="apply.php"] i { color: #EA4335; }
+.nav-link[href="my_applications.php"] i { color: #00AC47; }
+.nav-link[href="documents.php"] i { color: #FFBA00; }
+.nav-link[href="messages.php"] i { color: #0066DA; }
+.nav-link[href="calendar.php"] i { color: #4285F4; }
+.nav-link[href="profile.php"] i { color: #5f6368; }
+.nav-link[href="settings.php"] i { color: #5f6368; }
+.nav-link[href="../auth/logout"] i { color: #EA4335; }
+
 /* Badge styles */
 .badge {
     font-weight: 500;

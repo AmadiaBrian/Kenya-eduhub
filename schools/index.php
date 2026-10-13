@@ -82,7 +82,7 @@ if ($route === 'login') {
         }
         
         body {
-            background: #ffffff;
+            background: #f8f9fa;
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -190,6 +190,7 @@ if ($route === 'login') {
         .auth-form-container {
             flex: 1;
             max-width: 400px;
+            width: 100%;
         }
         
         .auth-tabs {
@@ -226,12 +227,14 @@ if ($route === 'login') {
             font-weight: 400;
             color: #202124;
             margin-bottom: 8px;
+            text-align: center;
         }
-        
+
         .auth-form p {
             font-size: 14px;
             color: #5f6368;
             margin-bottom: 32px;
+            text-align: center;
         }
         
         .form-group {
@@ -256,8 +259,9 @@ if ($route === 'login') {
             outline: none;
             transition: border-color 0.2s, box-shadow 0.2s;
             font-family: inherit;
+            background: #f8f9fa;
         }
-        
+
         .form-control:focus {
             border-color: #FF6B35;
             box-shadow: 0 0 0 2px rgba(255, 107, 53, 0.2);
@@ -350,18 +354,23 @@ if ($route === 'login') {
             .auth-container {
                 padding: 24px 20px;
                 gap: 24px;
+                max-width: 100%;
             }
-            
+
             .auth-info h1 {
                 font-size: 20px;
             }
-            
+
             .auth-info h2 {
                 font-size: 16px;
             }
-            
+
             .feature-list li {
                 font-size: 13px;
+            }
+
+            .auth-form-container {
+                max-width: 100%;
             }
         }
         
@@ -369,47 +378,53 @@ if ($route === 'login') {
             .auth-container {
                 padding: 20px 16px;
                 gap: 20px;
+                max-width: 100%;
             }
-            
+
             .auth-info > div:first-child {
                 font-size: 1.25rem;
                 gap: 0.5rem;
             }
-            
+
             .auth-info h1 {
                 font-size: 18px;
             }
-            
+
             .auth-info h2 {
                 font-size: 14px;
             }
-            
+
             .auth-info p {
                 font-size: 13px;
             }
-            
+
             .feature-list li {
                 font-size: 12px;
                 padding: 6px 0;
             }
-            
+
             .form-control {
                 padding: 12px 14px;
                 font-size: 15px;
+                width: 100%;
             }
-            
+
             .btn-primary {
                 padding: 11px 20px;
                 font-size: 13px;
             }
-            
+
             .auth-tabs {
                 gap: 12px;
             }
-            
+
             .auth-tab {
                 padding: 10px 12px;
                 font-size: 13px;
+            }
+
+            .auth-form-container {
+                max-width: 100%;
             }
         }
             
@@ -518,14 +533,11 @@ if ($route === 'login') {
 <body>
     <div class="auth-container">
         <div class="auth-info">
-            <div style="display: flex; align-items: center; gap: 0.75rem; font-size: 1.5rem; font-weight: bold; color: white; margin-bottom: 24px;">
-                <div style="width: 50px; height: 50px; background: #FFD700; border: 3px solid #FF6B35; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 2px;">
-                    <span style="font-weight: bold; font-size: 24px;">
-                        <span style="color: #FF6B35; font-size: 28px;">K</span><span style="color: #008000; font-size: 24px;">E</span>
-                    </span>
-                </div>
-                <span style="color: #FF6B35;">Kenya</span> <span style="color: #008000;">EduHub</span>
-            </div>
+            <?php require_once __DIR__ . '/../includes/logo.php'; ?>
+            <br>
+            <br>
+            
+
             <h1>Schools Portal</h1>
             <p>Manage your school efficiently with our comprehensive management system. Streamline student records, attendance, performance tracking, and parent communication.</p>
             
@@ -556,11 +568,11 @@ if ($route === 'login') {
                     <form id="loginForm">
                         <div class="form-group">
                             <label for="loginEmail">Email</label>
-                            <input type="email" class="form-control" id="loginEmail" required autocomplete="email">
+                            <input type="email" class="form-control" id="loginEmail" placeholder="Enter your email" required autocomplete="email">
                         </div>
                         <div class="form-group">
                             <label for="loginPassword">Password</label>
-                            <input type="password" class="form-control" id="loginPassword" required autocomplete="current-password">
+                            <input type="password" class="form-control" id="loginPassword" placeholder="Enter your password" required autocomplete="current-password">
                         </div>
                         <a href="#" class="forgot-link">Forgot Password?</a>
                         <button type="submit" class="btn-primary">Next</button>
@@ -579,24 +591,24 @@ if ($route === 'login') {
                     <form id="registerForm">
                         <div class="form-group">
                             <label for="schoolName">School Name</label>
-                            <input type="text" class="form-control" id="schoolName" required>
+                            <input type="text" class="form-control" id="schoolName" placeholder="Enter school name" required>
                         </div>
                         <div class="form-group">
                             <label for="schoolEmail">Email</label>
-                            <input type="email" class="form-control" id="schoolEmail" required autocomplete="email">
+                            <input type="email" class="form-control" id="schoolEmail" placeholder="Enter school email" required autocomplete="email">
                         </div>
                         <div class="form-group">
                             <label for="schoolPhone">Phone Number</label>
-                            <input type="tel" class="form-control" id="schoolPhone" required>
+                            <input type="tel" class="form-control" id="schoolPhone" placeholder="Enter phone number" required>
                         </div>
                         <div class="form-group">
                             <label for="schoolPassword">Password</label>
-                            <input type="password" class="form-control" id="schoolPassword" required autocomplete="new-password">
+                            <input type="password" class="form-control" id="schoolPassword" placeholder="Create password (min 8 characters)" required autocomplete="new-password">
                             <small>Minimum 8 characters</small>
                         </div>
                         <div class="form-group">
                             <label for="schoolCounty">County</label>
-                            <input type="text" class="form-control" id="schoolCounty" required>
+                            <input type="text" class="form-control" id="schoolCounty" placeholder="Enter county" required>
                         </div>
                         <div class="form-group">
                             <label for="schoolType">School Type</label>
@@ -615,9 +627,13 @@ if ($route === 'login') {
                         </div>
                         <div class="form-group">
                             <label for="schoolAddress">Address</label>
-                            <textarea class="form-control" id="schoolAddress" rows="2" required></textarea>
+                            <textarea class="form-control" id="schoolAddress" rows="2" placeholder="Enter school address" required></textarea>
                         </div>
                         <button type="submit" class="btn-primary">Register School</button>
+                        <br>
+                        <br>
+                        <br>
+                        <br>
                     </form>
                 </div>
             </div>
@@ -730,6 +746,8 @@ if ($route === 'login') {
     </script>
 </body>
 </html>
+
+<?php require_once __DIR__ . '/../includes/copywrite.php'; ?>
 <?php
     exit;
 }

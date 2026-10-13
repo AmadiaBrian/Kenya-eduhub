@@ -146,7 +146,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['upload_logo'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#FF6B35">
-    <title>School Profile - <?php echo htmlspecialchars($school_name); ?></title>
+    <title>Profile - <?php echo htmlspecialchars($school_name); ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="../assets/css/notifications.css">
@@ -156,534 +156,184 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['upload_logo'])) {
             --secondary-color: #5f6368;
             --bg-color: #f8f9fa;
             --card-bg: #ffffff;
-            --sidebar-width: 256px;
-            --header-height: 64px;
         }
-        
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         body {
             background: var(--bg-color);
             font-family: 'Google Sans', 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             font-size: 14px;
             color: #202124;
         }
-        
-        /* Header */
-        .header {
-            position: fixed !important;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: var(--header-height);
-            background: var(--bg-color);
-            border-bottom: 1px solid #e8eaed;
-            display: flex;
-            align-items: center;
-            padding: 0 24px;
-            z-index: 1000;
-        }
-        
-        .header-left {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-        
-        .menu-btn {
-            background: none;
-            border: none;
-            cursor: pointer;
-            padding: 12px;
-            border-radius: 50%;
-            color: #5f6368;
-            transition: background 0.2s;
-        }
-        
-        .menu-btn:hover {
-            background: #f1f3f4;
-        }
-        
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 20px;
-            font-weight: 400;
-            color: #202124;
-        }
-        
-        .logo i {
-            color: var(--primary-color);
-        }
-        
-        .header-right {
-            margin-left: auto;
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-        
-        .user-avatar {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            background: var(--primary-color);
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 500;
-        }
-        
-        /* Sidebar */
-        .sidebar {
-            position: fixed;
-            top: var(--header-height);
-            left: 0;
-            width: var(--sidebar-width);
-            height: calc(100vh - var(--header-height));
-            background: var(--bg-color);
-            overflow-y: auto;
-            transition: transform 0.3s ease;
-            z-index: 999;
-            scrollbar-width: none; /* Firefox */
-            -ms-overflow-style: none; /* IE and Edge */
-        }
-        
-        .sidebar::-webkit-scrollbar {
-            display: none; /* Chrome, Safari, Opera */
-        }
-        
-        .sidebar.collapsed {
-            transform: translateX(-256px);
-        }
-        
-        .sidebar-section {
-            padding: 12px 0;
-        }
-        
-        .sidebar-title {
-            padding: 8px 24px;
-            font-size: 12px;
-            font-weight: 500;
-            color: #5f6368;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        
-        .nav-link {
-            display: flex;
-            align-items: center;
-            padding: 10px 24px;
-            color: #5f6368;
-            text-decoration: none;
-            transition: background 0.2s;
-            border: none;
-            background: none;
-            width: 100%;
-            text-align: left;
-            cursor: pointer;
-            font-size: 14px;
-        }
-        
-        .nav-link:hover {
-            background: #f1f3f4;
-        }
-        
-        .nav-link.active {
-            background: #e8f0fe;
-            color: var(--primary-color);
-        }
-        
-        .nav-link i {
-            margin-right: 12px;
-            font-size: 18px;
-            width: 24px;
-            text-align: center;
-            color: #FF6B35;
-        }
-        
-        /* Main Content */
+
         .main-content {
-            margin-left: var(--sidebar-width);
-            margin-top: var(--header-height);
             padding: 24px;
-            transition: margin-left 0.3s ease;
+            padding-bottom: 80px;
+            margin-top: 24px;
         }
-        
-        .main-content.expanded {
-            margin-left: 0;
-        }
-        
+
         .page-title {
             font-size: 22px;
             font-weight: 400;
             color: #202124;
             margin-bottom: 24px;
+            text-align: center;
         }
-        
-        /* Cards */
+
         .card {
-            background: var(--card-bg);
+            background: var(--bg-color);
+            border: 1px solid #e0e0e0;
             border-radius: 8px;
             padding: 24px;
             margin-bottom: 24px;
         }
-        
+
         .card-title {
             font-size: 18px;
             font-weight: 500;
             color: #202124;
             margin-bottom: 16px;
+            text-align: center;
         }
-        
-        /* Form Styles */
-        .form-group {
-            margin-bottom: 16px;
-        }
-        
-        .form-group label {
-            display: block;
-            font-size: 12px;
-            font-weight: 500;
-            color: #5f6368;
-            margin-bottom: 6px;
-        }
-        
+
         .form-control {
-            width: 100%;
-            padding: 10px 12px;
             border: 1px solid #dadce0;
-            border-radius: 6px;
+            border-radius: 20px;
+            padding: 10px 12px;
             font-size: 14px;
-            transition: border-color 0.2s;
+            background: var(--bg-color);
         }
-        
+
         .form-control:focus {
             border-color: var(--primary-color);
-            outline: none;
-            box-shadow: 0 0 0 2px rgba(255, 107, 53, 0.2);
+            box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.2);
         }
-        
-        .form-row {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 16px;
+
+        .form-label {
+            display: block;
+            margin-bottom: 4px;
+            font-weight: 500;
+            color: var(--secondary-color);
         }
-        
-        /* Logo Upload */
-        .logo-preview {
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
-            background: #f1f3f4;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 16px;
-            overflow: hidden;
-        }
-        
-        .logo-preview img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        
-        .logo-preview i {
-            font-size: 48px;
-            color: #9aa0a6;
-        }
-        
-        /* Buttons */
+
         .btn {
-            padding: 8px 16px;
-            border-radius: 4px;
+            padding: 10px 24px;
+            border-radius: 20px;
             font-size: 14px;
             font-weight: 500;
-            cursor: pointer;
             border: none;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
+            cursor: pointer;
+            transition: background 0.2s;
+            width: 100%;
         }
-        
+
         .btn-primary {
-            background: var(--primary-color);
+            background: #FF6B35;
             color: white;
         }
-        
+
         .btn-primary:hover {
             background: #e55a2b;
         }
-        
-        .btn-secondary {
-            background: #5f6368;
-            color: white;
-        }
-        
-        .btn-outline {
-            background: transparent;
-            border: 1px solid #e8eaed;
-            color: #5f6368;
-        }
-        
-        .btn-outline:hover {
-            background: #f1f3f4;
-        }
-        
-        /* Alert */
+
         .alert {
             padding: 12px 16px;
             border-radius: 4px;
             margin-bottom: 16px;
         }
-        
+
         .alert-success {
-            background: #e8f5e9;
+            background: #e6f4ea;
             color: #137333;
+            border: 1px solid rgba(19, 115, 51, 0.1);
         }
-        
+
         .alert-danger {
             background: #fce8e6;
             color: #c5221f;
+            border: 1px solid rgba(197, 34, 31, 0.1);
         }
-        
-        /* Responsive */
-        @media (max-width: 768px) {
-            .sidebar {
-                transform: translateX(-256px);
-            }
-            
-            .sidebar.show {
-                transform: translateX(0);
-            }
-            
-            .main-content {
-                margin-left: 0;
-            }
-            
-            .form-row {
-                grid-template-columns: 1fr;
-            }
+
+        /* Footer styling */
+        .kenya-eduhub-footer-unique-2026 {
+            background: var(--bg-color) !important;
         }
+
+        /* Icon colors */
+        .fa-save { color: #00AC47; }
+        .fa-key { color: #0066DA; }
+        .fa-upload { color: #4285F4; }
     </style>
 </head>
 <body>
-    <!-- Header -->
-    <header class="header">
-        <div class="header-left">
-            <button class="menu-btn" onclick="toggleSidebar()">
-                <i class="fas fa-bars"></i>
-            </button>
-            <div class="logo">
-                <div style="width: 40px; height: 40px; background: #FFD700; border: 3px solid #FF6B35; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 0;">
-                    <span style="font-weight: bold; font-size: 20px;">
-                        <span style="color: #FF6B35; font-size: 24px;">K</span><span style="color: #008000; font-size: 20px;">E</span>
-                    </span>
-                </div>
-                <span style="color: #FF6B35; font-weight: bold;">Kenya</span> <span style="color: #008000; font-weight: bold;">EduHub</span>
-            </div>
-        </div>
-        <div class="header-right">
-            <div class="user-avatar">
-                <?php echo strtoupper(substr($school_name, 0, 1)); ?>
-            </div>
-        </div>
-    </header>
-    
-    <!-- Sidebar -->
-    <aside class="sidebar" id="sidebar">
-        <div class="sidebar-section">
-            <div class="sidebar-title">Main</div>
-            <a class="nav-link" href="dashboard">
-                <i class="fas fa-home"></i> Dashboard
-            </a>
-            <a class="nav-link" href="students">
-                <i class="fas fa-user-graduate"></i> Students
-            </a>
-            <a class="nav-link" href="teachers">
-                <i class="fas fa-chalkboard-teacher"></i> Teachers
-            </a>
-            <a class="nav-link" href="classes">
-                <i class="fas fa-chalkboard"></i> Classes
-            </a>
-            <a class="nav-link" href="streams">
-                <i class="fas fa-layer-group"></i> Streams
-            </a>
-            <a class="nav-link" href="subjects">
-                <i class="fas fa-book"></i> Subjects
-            </a>
-            <a class="nav-link" href="exam-types">
-                <i class="fas fa-clipboard-list"></i> Exam Types
-            </a>
-            <a class="nav-link" href="timetable">
-                <i class="fas fa-calendar-alt"></i> Timetable
-            </a>
-            <a class="nav-link" href="grading">
-                <i class="fas fa-chart-bar"></i> Grading
-            </a>
-            <a class="nav-link" href="performance">
-                <i class="fas fa-chart-line"></i> Performance
-            </a>
-            <a class="nav-link" href="results">
-                <i class="fas fa-clipboard-list"></i> Results
-            </a>
-            <a class="nav-link" href="attendance">
-                <i class="fas fa-calendar-check"></i> Attendance
-            </a>
-            <a class="nav-link" href="calendar">
-                <i class="fas fa-calendar"></i> Calendar
-            </a>
-            <a class="nav-link" href="fees">
-                <i class="fas fa-file-invoice-dollar"></i> Fee Management
-            </a>
-            <a class="nav-link" href="invoices">
-                <i class="fas fa-file-invoice-dollar"></i> Invoices
-            </a>
-            <a class="nav-link" href="finance-managers">
-                <i class="fas fa-user-tie"></i> Finance Managers
-            </a>
-            <a class="nav-link" href="account">
-                <i class="fas fa-wallet"></i> Account Balance
-            </a>
-            <a class="nav-link" href="parents">
-                <i class="fas fa-users"></i> Parents
-            </a>
-            <a class="nav-link" href="disciplinary">
-                <i class="fas fa-exclamation-triangle"></i> Disciplinary
-            </a>
-            <a class="nav-link" href="disciplinary-action-types">
-                <i class="fas fa-list-alt"></i> Disciplinary Types
-            </a>
-            <a class="nav-link" href="librarians">
-                <i class="fas fa-book-reader"></i> Librarians
-            </a>
-            <a class="nav-link" href="duty-assignments">
-                <i class="fas fa-clipboard-list"></i> Duty Assignments
-            </a>
-            <a class="nav-link" href="examination-heads">
-                <i class="fas fa-user-tie"></i> Examination Heads
-            </a>
-        </div>
-        <div class="sidebar-section">
-            <div class="sidebar-title">Settings</div>
-            <a class="nav-link" href="settings">
-                <i class="fas fa-cog"></i> Settings
-            </a>
-            <a class="nav-link active" href="profile">
-                <i class="fas fa-user"></i> Profile
-            </a>
-            <a class="nav-link" href="logout">
-                <i class="fas fa-sign-out-alt"></i> Logout
-            </a>
-        </div>
-    </aside>
-    
-    <!-- Main Content -->
+<?php require_once 'includes/header.php'; ?>
+<?php $active_page = 'profile'; require_once 'includes/sidebar.php'; ?>
+
+<br>
+<br>
+<br>
+<br>
+
+<!-- Main Content -->
     <main class="main-content" id="mainContent">
         <h1 class="page-title">School Profile</h1>
         
-        <!-- Profile Information -->
+        <?php if (isset($success)): ?>
+            <div class="alert alert-success">
+                <?php echo htmlspecialchars($success); ?>
+            </div>
+        <?php endif; ?>
+        
+        <?php if (isset($error)): ?>
+            <div class="alert alert-danger">
+                <?php echo htmlspecialchars($error); ?>
+            </div>
+        <?php endif; ?>
+        
+        <!-- School Information -->
         <div class="card">
             <h2 class="card-title">School Information</h2>
             <form method="POST">
-                <input type="hidden" name="update_profile" value="1">
-                
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>School Code</label>
-                        <input type="text" class="form-control" value="<?php echo htmlspecialchars($school['school_code'] ?? ''); ?>" readonly>
-                    </div>
-                    <div class="form-group">
-                        <label>School Name *</label>
-                        <input type="text" class="form-control" name="school_name" value="<?php echo htmlspecialchars($school['school_name'] ?? ''); ?>" required>
-                    </div>
+                <div class="mb-3">
+                    <label class="form-label">School Name</label>
+                    <input type="text" class="form-control" name="school_name" value="<?php echo htmlspecialchars($school['school_name'] ?? ''); ?>" placeholder="Enter school name" required>
                 </div>
-                
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Email *</label>
-                        <input type="email" class="form-control" name="email" value="<?php echo htmlspecialchars($school['email'] ?? ''); ?>" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Phone *</label>
-                        <input type="text" class="form-control" name="phone" value="<?php echo htmlspecialchars($school['phone'] ?? ''); ?>" required>
-                    </div>
+                <div class="mb-3">
+                    <label class="form-label">Email</label>
+                    <input type="email" class="form-control" name="email" value="<?php echo htmlspecialchars($school['email'] ?? ''); ?>" placeholder="Enter email address" required>
                 </div>
-                
-                <div class="form-group">
-                    <label>Address</label>
-                    <textarea class="form-control" name="address" rows="3"><?php echo htmlspecialchars($school['address'] ?? ''); ?></textarea>
+                <div class="mb-3">
+                    <label class="form-label">Phone</label>
+                    <input type="text" class="form-control" name="phone" value="<?php echo htmlspecialchars($school['phone'] ?? ''); ?>" placeholder="Enter phone number" required>
                 </div>
-                
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>County</label>
-                        <input type="text" class="form-control" name="county" value="<?php echo htmlspecialchars($school['county'] ?? ''); ?>">
-                    </div>
-                    <div class="form-group">
-                        <label>School Type</label>
-                        <select class="form-control" name="school_type">
-                            <option value="Primary" <?php echo ($school['school_type'] ?? '') === 'Primary' ? 'selected' : ''; ?>>Primary</option>
-                            <option value="Secondary" <?php echo ($school['school_type'] ?? '') === 'Secondary' ? 'selected' : ''; ?>>Secondary</option>
-                            <option value="College" <?php echo ($school['school_type'] ?? '') === 'College' ? 'selected' : ''; ?>>College</option>
-                            <option value="University" <?php echo ($school['school_type'] ?? '') === 'University' ? 'selected' : ''; ?>>University</option>
-                        </select>
-                    </div>
+                <div class="mb-3">
+                    <label class="form-label">Address</label>
+                    <input type="text" class="form-control" name="address" value="<?php echo htmlspecialchars($school['address'] ?? ''); ?>" placeholder="Enter school address">
                 </div>
-                
-                <div class="form-group">
-                    <label>Admission Prefix</label>
-                    <input type="text" class="form-control" name="admission_prefix" value="<?php echo htmlspecialchars($school['admission_prefix'] ?? ''); ?>" placeholder="e.g., STU">
+                <div class="mb-3">
+                    <label class="form-label">County</label>
+                    <input type="text" class="form-control" name="county" value="<?php echo htmlspecialchars($school['county'] ?? ''); ?>" placeholder="Enter county">
                 </div>
-                
-                <div class="form-group">
-                    <label>Status</label>
-                    <input type="text" class="form-control" value="<?php echo ucfirst($school['status'] ?? 'pending'); ?>" readonly>
+                <div class="mb-3">
+                    <label class="form-label">School Type</label>
+                    <select class="form-control" name="school_type">
+                        <option value="Primary" <?php echo ($school['school_type'] ?? '') === 'Primary' ? 'selected' : ''; ?>>Primary</option>
+                        <option value="Secondary" <?php echo ($school['school_type'] ?? '') === 'Secondary' ? 'selected' : ''; ?>>Secondary</option>
+                        <option value="College" <?php echo ($school['school_type'] ?? '') === 'College' ? 'selected' : ''; ?>>College</option>
+                    </select>
                 </div>
-                
-                <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-save"></i> Update Profile
-                </button>
-            </form>
-        </div>
-        
-        <!-- Logo Upload -->
-        <div class="card">
-            <h2 class="card-title">School Logo</h2>
-            <form method="POST" enctype="multipart/form-data">
-                <input type="hidden" name="upload_logo" value="1">
-                
-                <div class="logo-preview">
-                    <?php if (!empty($school['logo'])): ?>
-                        <?php 
-                        $logo_path = $school['logo'];
-                        // If logo doesn't start with ../uploads/schools/, add the path
-                        if (strpos($logo_path, '../uploads/schools/') !== 0) {
-                            $logo_path = '../uploads/schools/' . $logo_path;
-                        }
-                        ?>
-                        <img src="<?php echo htmlspecialchars($logo_path); ?>" alt="School Logo">
-                    <?php else: ?>
-                        <i class="fas fa-school"></i>
-                    <?php endif; ?>
+                <div class="mb-3">
+                    <label class="form-label">Admission Prefix</label>
+                    <input type="text" class="form-control" name="admission_prefix" value="<?php echo htmlspecialchars($school['admission_prefix'] ?? ''); ?>" placeholder="e.g., TKNP/B">
+                    <small class="text-muted">This prefix will be used for all student admission numbers. Example: TKNP/B/7280</small>
                 </div>
-                
-                <div class="form-group">
-                    <label>Upload New Logo</label>
-                    <input type="file" class="form-control" name="logo" accept="image/jpeg,image/png,image/jpg">
-                    <small style="color: #5f6368;">Maximum file size: 2MB. Allowed formats: JPG, JPEG, PNG</small>
-                </div>
-                
-                <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-upload"></i> Upload Logo
+                <button type="submit" name="update_profile" class="btn btn-primary">
+                    <i class="fas fa-save me-2"></i> Update Profile
                 </button>
             </form>
         </div>
@@ -692,50 +342,54 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['upload_logo'])) {
         <div class="card">
             <h2 class="card-title">Change Password</h2>
             <form method="POST">
-                <input type="hidden" name="change_password" value="1">
-                
-                <div class="form-group">
-                    <label>Current Password *</label>
-                    <input type="password" class="form-control" name="current_password" required>
+                <div class="mb-3">
+                    <label class="form-label">Current Password</label>
+                    <input type="password" class="form-control" name="current_password" placeholder="Enter current password" required>
                 </div>
-                
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>New Password *</label>
-                        <input type="password" class="form-control" name="new_password" required minlength="8">
-                        <small style="color: #5f6368;">Minimum 8 characters</small>
-                    </div>
-                    <div class="form-group">
-                        <label>Confirm New Password *</label>
-                        <input type="password" class="form-control" name="confirm_password" required minlength="8">
-                    </div>
+                <div class="mb-3">
+                    <label class="form-label">New Password</label>
+                    <input type="password" class="form-control" name="new_password" placeholder="Enter new password (min 8 characters)" required minlength="8">
                 </div>
-                
-                <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-key"></i> Change Password
+                <div class="mb-3">
+                    <label class="form-label">Confirm New Password</label>
+                    <input type="password" class="form-control" name="confirm_password" placeholder="Confirm new password" required minlength="8">
+                </div>
+                <button type="submit" name="change_password" class="btn btn-primary">
+                    <i class="fas fa-key me-2"></i> Change Password
+                </button>
+            </form>
+        </div>
+        
+        <!-- Logo Upload -->
+        <div class="card">
+            <h2 class="card-title">School Logo</h2>
+            <div class="mb-3">
+                <label class="form-label">Current Logo</label>
+                <?php if (!empty($school['logo'])): ?>
+                    <div class="mb-3">
+                        <img src="<?php echo htmlspecialchars($school['logo']); ?>" alt="School Logo" style="max-width: 200px; max-height: 200px; border: 1px solid #ddd; padding: 10px;">
+                    </div>
+                <?php else: ?>
+                    <p class="text-muted">No logo uploaded yet</p>
+                <?php endif; ?>
+            </div>
+            <form method="POST" enctype="multipart/form-data">
+                <div class="mb-3">
+                    <label class="form-label">Upload New Logo</label>
+                    <input type="file" class="form-control" name="logo" accept="image/*">
+                    <small class="text-muted">Accepted formats: JPG, PNG. Maximum size: 2MB</small>
+                </div>
+                <button type="submit" name="upload_logo" class="btn btn-primary">
+                    <i class="fas fa-upload me-2"></i> Upload Logo
                 </button>
             </form>
         </div>
     </main>
-    
-    <script>
-        function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            const mainContent = document.getElementById('mainContent');
-            sidebar.classList.toggle('collapsed');
-            mainContent.classList.toggle('expanded');
-        }
-    </script>
+
     <script src="../assets/js/notifications.js"></script>
-    <script>
-        // Show PHP success/error messages as custom notifications
-        <?php if (isset($success)): ?>
-            notificationSystem.success('Success', <?php echo json_encode($success); ?>);
-        <?php endif; ?>
-        
-        <?php if (isset($error)): ?>
-            notificationSystem.error('Error', <?php echo json_encode($error); ?>);
-        <?php endif; ?>
-    </script>
+
+<br>
+<br>
+<?php require_once '../includes/copywrite.php'; ?>
 </body>
 </html>

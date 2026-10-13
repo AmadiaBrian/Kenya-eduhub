@@ -115,9 +115,7 @@ try {
             --primary-color: #1a73e8;
             --secondary-color: #5f6368;
             --bg-color: #f8f9fa;
-            --card-bg: #ffffff;
-            --sidebar-width: 256px;
-            --header-height: 64px;
+            --card-bg: #f8f9fa;
         }
         
         * {
@@ -133,210 +131,37 @@ try {
             color: #202124;
         }
         
-        /* Header */
-        .header {
-            position: fixed !important;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: var(--header-height);
-            background: var(--bg-color);
-            border-bottom: 1px solid #e8eaed;
-            display: flex;
-            align-items: center;
-            padding: 0 24px;
-            z-index: 1000;
-        }
-        
-        .header-left {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-        
-        .menu-btn {
-            background: none;
-            border: none;
-            cursor: pointer;
-            padding: 12px;
-            border-radius: 50%;
-            color: #5f6368;
-            transition: background 0.2s;
-        }
-        
-        .menu-btn:hover {
-            background: #f1f3f4;
-        }
-        
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 18px;
-            font-weight: 400;
-            color: #202124;
-        }
-        
-        .logo i {
-            color: var(--primary-color);
-        }
-        
-        .header-right {
-            margin-left: auto;
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-        
-        .school-avatar {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            background: var(--primary-color);
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 500;
-            font-size: 14px;
-        }
-        
-        /* Sidebar */
-        .sidebar {
-            position: fixed;
-            top: var(--header-height);
-            left: 0;
-            width: var(--sidebar-width);
-            height: calc(100vh - var(--header-height));
-            background: var(--bg-color);
-            overflow-y: auto;
-            transition: transform 0.3s ease;
-            z-index: 999;
-            scrollbar-width: none; /* Firefox */
-            -ms-overflow-style: none; /* IE and Edge */
-        }
-        
-        .sidebar::-webkit-scrollbar {
-            display: none; /* Chrome, Safari, Opera */
-        }
-        
-        .sidebar.collapsed {
-            transform: translateX(-256px);
-        }
-        
-        .sidebar-section {
-            padding: 12px 0;
-        }
-        
-        .sidebar-title {
-            padding: 8px 24px;
-            font-size: 12px;
-            font-weight: 500;
-            color: #5f6368;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            cursor: pointer;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            user-select: none;
-        }
-        
-        .sidebar-title:hover {
-            background: #f1f3f4;
-        }
-        
-        .sidebar-title .chevron {
-            transition: transform 0.3s ease;
-        }
-        
-        .sidebar-title.collapsed .chevron {
-            transform: rotate(-90deg);
-        }
-        
-        .sidebar-links {
-            max-height: 1000px;
-            overflow: hidden;
-            transition: max-height 0.3s ease;
-        }
-        
-        .sidebar-links.collapsed {
-            max-height: 0;
-        }
-        
-        .nav-link {
-            display: flex;
-            align-items: center;
-            padding: 10px 24px;
-            color: #5f6368;
-            text-decoration: none;
-            transition: background 0.2s;
-            border: none;
-            background: none;
-            width: 100%;
-            text-align: left;
-            cursor: pointer;
-            font-size: 14px;
-        }
-        
-        .nav-link:hover {
-            background: #f1f3f4;
-        }
-        
-        .nav-link.active {
-            background: #e8f0fe;
-            color: var(--primary-color);
-        }
-        
-        .nav-link i {
-            margin-right: 12px;
-            font-size: 18px;
-            width: 24px;
-            text-align: center;
-            color: #FF6B35;
-        }
-        
-        /* Main Content */
-        .main-content {
-            margin-left: var(--sidebar-width);
-            margin-top: var(--header-height);
-            padding: 24px;
-            transition: margin-left 0.3s ease;
-        }
-        
-        .main-content.expanded {
-            margin-left: 0;
-        }
-        
         .page-title {
             font-size: 22px;
             font-weight: 400;
             color: #202124;
             margin-bottom: 24px;
+            text-align: center;
         }
-        
+
         .card {
             background: var(--bg-color);
-            border: none;
+            border: 1px solid #e0e0e0;
             border-radius: 12px;
             box-shadow: none;
             margin-bottom: 20px;
         }
-        
+
         .card-header {
             background: var(--bg-color);
-            border-bottom: 1px solid rgba(0,0,0,0.04);
+            border-bottom: 1px solid #e0e0e0;
             padding: 16px 20px;
             font-weight: 500;
             color: var(--secondary-color);
             border-radius: 12px;
+            text-align: center;
         }
-        
+
         .card-body {
             padding: 20px;
             border-radius: 12px;
         }
-        
+
         .btn-primary {
             background: #FF6B35;
             border: none;
@@ -344,11 +169,11 @@ try {
             padding: 8px 16px;
             font-weight: 500;
         }
-        
+
         .btn-primary:hover {
             background: #e55a2b;
         }
-        
+
         .btn-danger {
             background: #FF6B35;
             border: none;
@@ -356,22 +181,63 @@ try {
             padding: 8px 16px;
             font-weight: 500;
         }
-        
+
         .btn-danger:hover {
             background: #e55a2b;
         }
-        
+
         .btn-action {
             background: #f8f9fa;
             color: #000;
             border: 1px solid #000;
             cursor: pointer;
+            margin-right: 4px;
         }
-        
+
         .btn-action:hover {
             background: #e9ecef;
         }
-        
+
+        .action-buttons-cell {
+            display: flex;
+            gap: 4px;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .action-buttons .btn {
+            flex: 1;
+            padding: 12px 24px;
+            border-radius: 25px;
+        }
+
+        @media (max-width: 768px) {
+            .action-buttons {
+                flex-direction: column;
+            }
+        }
+
+        /* Filter Section */
+        .filter-section {
+            background: var(--bg-color);
+            border-radius: 8px;
+            padding: 24px;
+            margin-bottom: 24px;
+            border: 1px solid #e8eaed;
+        }
+
+        .filter-section .card-title {
+            font-size: 18px;
+            font-weight: 500;
+            color: #202124;
+            margin-bottom: 16px;
+        }
+
         .table {
             margin-bottom: 0;
             background: white;
@@ -379,13 +245,31 @@ try {
             border-radius: 0;
             overflow: hidden;
         }
-        
-        .table th {
+
+        .table thead {
+            background: #FF6B35 !important;
+        }
+
+        .table thead th {
             font-weight: 600;
-            color: #000;
+            color: #ffffff !important;
             border-bottom: 2px solid #000;
             border-right: 1px solid #000;
-            background: #f8f9fa;
+            background: #FF6B35 !important;
+        }
+
+        .form-control {
+            border: 1px solid #dadce0;
+            border-radius: 25px;
+            padding: 10px 12px;
+            font-size: 14px;
+            background: var(--bg-color);
+        }
+
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.2);
+            background: var(--bg-color);
         }
         
         .table th:last-child {
@@ -520,150 +404,59 @@ try {
         
         /* Responsive */
         @media (max-width: 768px) {
-            .sidebar {
-                transform: translateX(-256px);
-                box-shadow: 2px 0 8px rgba(0,0,0,0.15);
-            }
-            
-            .sidebar.show {
-                transform: translateX(0);
-            }
-            
             .main-content {
                 margin-left: 0;
+                padding: 16px;
             }
             
-            .main-content.expanded {
-                margin-left: 0;
+            .page-title {
+                font-size: 22px;
+                font-weight: 400;
+                margin-bottom: 16px;
             }
             
-            .menu-btn {
-                padding: 8px;
+            .card {
+                padding: 16px;
             }
             
-            .school-avatar {
-                width: 28px;
-                height: 28px;
-                font-size: 12px;
+            .btn {
+                width: 100%;
+            }
+            
+            .table-responsive {
+                margin: 0 -16px;
+                padding: 0 16px;
+                overflow-x: auto;
+            }
+            
+            .table {
+                width: 100%;
+                min-width: 600px;
             }
         }
+
+        /* Icon colors */
+        .quick-access-item:nth-child(1) .quick-access-icon { background: #e8f0fe; color: #4285F4; }
+        .quick-access-item:nth-child(2) .quick-access-icon { background: #fce8e6; color: #EA4335; }
+        .quick-access-item:nth-child(3) .quick-access-icon { background: #e6f4ea; color: #00AC47; }
+        .quick-access-item:nth-child(4) .quick-access-icon { background: #fef7e0; color: #FFBA00; }
+        .quick-access-item:nth-child(5) .quick-access-icon { background: #e8f0fe; color: #0066DA; }
+        .quick-access-item:nth-child(6) .quick-access-icon { background: #fce8e6; color: #4285F4; }
+        .fa-plus { color: #00AC47; }
+        .fa-download { color: #4285F4; }
+        .fa-edit { color: #0066DA; }
+        .fa-trash { color: #EA4335; }
     </style>
 </head>
 <body>
-    <!-- Header -->
-    <header class="header">
-        <div class="header-left">
-            <button class="menu-btn" onclick="toggleSidebar()">
-                <i class="fas fa-bars"></i>
-            </button>
-            <div class="logo">
-                <div style="width: 40px; height: 40px; background: #FFD700; border: 3px solid #FF6B35; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 8px;">
-                    <span style="font-weight: bold; font-size: 20px;">
-                        <span style="color: #FF6B35; font-size: 24px;">K</span><span style="color: #008000; font-size: 20px;">E</span>
-                    </span>
-                </div>
-                <span style="color: #FF6B35; font-weight: bold;">Kenya</span> <span style="color: #008000; font-weight: bold;">EduHub</span>
-            </div>
-        </div>
-        <div class="header-right">
-            <div class="school-avatar">
-                <?php echo strtoupper(substr($school_name, 0, 1)); ?>
-            </div>
-        </div>
-    </header>
+    <?php require_once 'includes/header.php'; ?>
+    <?php $active_page = 'exam-types'; require_once 'includes/sidebar.php'; ?>
     
-    <!-- Sidebar -->
-    <aside class="sidebar" id="sidebar">
-        <div class="sidebar-section">
-            <div class="sidebar-title">Main</div>
-            <a class="nav-link" href="dashboard">
-                <i class="fas fa-home"></i> Dashboard
-            </a>
-            <a class="nav-link" href="students">
-                <i class="fas fa-user-graduate"></i> Students
-            </a>
-            <a class="nav-link" href="teachers">
-                <i class="fas fa-chalkboard-teacher"></i> Teachers
-            </a>
-            <a class="nav-link" href="classes">
-                <i class="fas fa-chalkboard"></i> Classes
-            </a>
-            <a class="nav-link" href="streams">
-                <i class="fas fa-layer-group"></i> Streams
-            </a>
-            <a class="nav-link" href="subjects">
-                <i class="fas fa-book"></i> Subjects
-            </a>
-            <a class="nav-link active" href="exam-types">
-                <i class="fas fa-clipboard-list"></i> Exam Types
-            </a>
-            <a class="nav-link" href="timetable">
-                <i class="fas fa-calendar-alt"></i> Timetable
-            </a>
-            <a class="nav-link" href="grading">
-                <i class="fas fa-chart-bar"></i> Grading
-            </a>
-            <a class="nav-link" href="performance">
-                <i class="fas fa-chart-line"></i> Performance
-            </a>
-            <a class="nav-link" href="results">
-                <i class="fas fa-clipboard-list"></i> Results
-            </a>
-            <a class="nav-link" href="attendance">
-                <i class="fas fa-calendar-check"></i> Attendance
-            </a>
-            <a class="nav-link" href="calendar">
-                <i class="fas fa-calendar"></i> Calendar
-            </a>
-            <a class="nav-link" href="fees">
-                <i class="fas fa-money-bill-wave"></i> Fees
-            </a>
-            <a class="nav-link" href="invoices">
-                <i class="fas fa-file-invoice-dollar"></i> Invoices
-            </a>
-            <a class="nav-link" href="finance-managers">
-                <i class="fas fa-user-tie"></i> Finance Managers
-            </a>
-            <a class="nav-link" href="account">
-                <i class="fas fa-wallet"></i> Account Balance
-            </a>
-            <a class="nav-link" href="parents">
-                <i class="fas fa-users"></i> Parents
-            </a>
-            <a class="nav-link" href="disciplinary">
-                <i class="fas fa-exclamation-triangle"></i> Disciplinary
-            </a>
-            <a class="nav-link" href="disciplinary-action-types">
-                <i class="fas fa-list-alt"></i> Disciplinary Types
-            </a>
-            <a class="nav-link" href="librarians">
-                <i class="fas fa-book-reader"></i> Librarians
-            </a>
-            <a class="nav-link" href="duty-assignments">
-                <i class="fas fa-clipboard-list"></i> Duty Assignments
-            </a>
-            <a class="nav-link" href="examination-heads">
-                <i class="fas fa-user-tie"></i> Examination Heads
-            </a>
-        </div>
-        <div class="sidebar-section">
-            <div class="sidebar-title">Settings</div>
-            <a class="nav-link" href="settings">
-                <i class="fas fa-cog"></i> Settings
-            </a>
-            <a class="nav-link" href="profile">
-                <i class="fas fa-user"></i> Profile
-            </a>
-            <a class="nav-link" href="logout">
-                <i class="fas fa-sign-out-alt"></i> Logout
-            </a>
-        </div>
-    </aside>
-
-    <!-- Main Content -->
     <main class="main-content" id="mainContent">
         <div class="container-fluid">
             <h1 class="page-title">Exam Types</h1>
+            
+            <br>
             
             <?php if (!empty($errors)): ?>
                 <div class="alert alert-danger">
@@ -747,12 +540,14 @@ try {
                                                 <?php endif; ?>
                                             </td>
                                             <td>
-                                                <button class="btn btn-sm btn-action" onclick="editExamType(<?php echo $exam_type['id']; ?>, '<?php echo htmlspecialchars($exam_type['exam_type_name']); ?>', '<?php echo htmlspecialchars($exam_type['exam_type_code']); ?>', '<?php echo htmlspecialchars($exam_type['description']); ?>')">
-                                                    <i class="fas fa-edit"></i>
-                                                </button>
-                                                <button class="btn btn-sm btn-action" onclick="openDeleteModal(<?php echo $exam_type['id']; ?>)">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
+                                                <div class="action-buttons-cell">
+                                                    <button class="btn btn-sm btn-action" onclick="editExamType(<?php echo $exam_type['id']; ?>, '<?php echo htmlspecialchars($exam_type['exam_type_name']); ?>', '<?php echo htmlspecialchars($exam_type['exam_type_code']); ?>', '<?php echo htmlspecialchars($exam_type['description']); ?>')">
+                                                        <i class="fas fa-edit"></i>
+                                                    </button>
+                                                    <button class="btn btn-sm btn-action" onclick="openDeleteModal(<?php echo $exam_type['id']; ?>)">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </div>
                                             </td>
                                         </tr>
                                     <?php endforeach; ?>
@@ -819,14 +614,6 @@ try {
     
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            const mainContent = document.getElementById('mainContent');
-            sidebar.classList.toggle('collapsed');
-            sidebar.classList.toggle('show');
-            mainContent.classList.toggle('expanded');
-        }
-        
         function toggleSidebarSection(titleElement) {
             const linksContainer = titleElement.nextElementSibling;
             const isCollapsed = linksContainer.classList.contains('collapsed');
@@ -873,5 +660,8 @@ try {
             };
         }
     </script>
+    <script src="../assets/js/notifications.js"></script>
+
+    <?php require_once '../includes/copywrite.php'; ?>
 </body>
 </html>

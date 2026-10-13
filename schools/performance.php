@@ -39,7 +39,7 @@ $calendar_status = getSchoolCalendarStatus($pdo, $_SESSION['school_id']);
             --primary-color: #1a73e8;
             --secondary-color: #5f6368;
             --bg-color: #f8f9fa;
-            --card-bg: #ffffff;
+            --card-bg: #f8f9fa;
             --sidebar-width: 256px;
             --header-height: 64px;
         }
@@ -55,140 +55,6 @@ $calendar_status = getSchoolCalendarStatus($pdo, $_SESSION['school_id']);
             font-family: 'Google Sans', 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             font-size: 14px;
             color: #202124;
-        }
-        
-        .header {
-            position: fixed !important;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: var(--header-height);
-            background: var(--bg-color);
-            border-bottom: 1px solid #e8eaed;
-            display: flex;
-            align-items: center;
-            padding: 0 24px;
-            z-index: 1000;
-        }
-        
-        .header-left {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-        
-        .menu-btn {
-            background: none;
-            border: none;
-            cursor: pointer;
-            padding: 12px;
-            border-radius: 50%;
-            color: #5f6368;
-            transition: background 0.2s;
-        }
-        
-        .menu-btn:hover {
-            background: #f1f3f4;
-        }
-        
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 20px;
-            font-weight: 400;
-            color: #202124;
-        }
-        
-        .logo i {
-            color: var(--primary-color);
-        }
-        
-        .header-right {
-            margin-left: auto;
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-        
-        .school-avatar {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            background: var(--primary-color);
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 500;
-            font-size: 14px;
-        }
-        
-        .sidebar {
-            position: fixed;
-            top: var(--header-height);
-            left: 0;
-            width: var(--sidebar-width);
-            height: calc(100vh - var(--header-height));
-            background: var(--bg-color);
-            overflow-y: auto;
-            transition: transform 0.3s ease;
-            z-index: 999;
-            scrollbar-width: none; /* Firefox */
-            -ms-overflow-style: none; /* IE and Edge */
-        }
-        
-        .sidebar::-webkit-scrollbar {
-            display: none; /* Chrome, Safari, Opera */
-        }
-        
-        .sidebar.collapsed {
-            transform: translateX(-256px);
-        }
-        
-        .sidebar-section {
-            padding: 12px 0;
-        }
-        
-        .sidebar-title {
-            padding: 8px 24px;
-            font-size: 12px;
-            font-weight: 500;
-            color: #5f6368;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        
-        .nav-link {
-            display: flex;
-            align-items: center;
-            padding: 10px 24px;
-            color: #5f6368;
-            text-decoration: none;
-            transition: background 0.2s;
-            border: none;
-            background: none;
-            width: 100%;
-            text-align: left;
-            cursor: pointer;
-            font-size: 14px;
-        }
-        
-        .nav-link:hover {
-            background: #f1f3f4;
-        }
-        
-        .nav-link.active {
-            background: #e8f0fe;
-            color: var(--primary-color);
-        }
-        
-        .nav-link i {
-            margin-right: 12px;
-            font-size: 18px;
-            width: 24px;
-            text-align: center;
-            color: #FF6B35;
         }
         
         .main-content {
@@ -207,11 +73,12 @@ $calendar_status = getSchoolCalendarStatus($pdo, $_SESSION['school_id']);
             font-weight: 400;
             color: #202124;
             margin-bottom: 24px;
+            text-align: center;
         }
         
         .card {
             background: var(--bg-color);
-            border: 1px solid #e8eaed;
+            border: 1px solid #e0e0e0;
             border-radius: 8px;
             padding: 24px;
             margin-bottom: 24px;
@@ -222,18 +89,21 @@ $calendar_status = getSchoolCalendarStatus($pdo, $_SESSION['school_id']);
             font-weight: 500;
             color: #202124;
             margin-bottom: 16px;
+            text-align: center;
         }
         
         .form-control {
             border: 1px solid #dadce0;
-            border-radius: 8px;
+            border-radius: 25px;
             padding: 10px 12px;
             font-size: 14px;
+            background: var(--bg-color);
         }
-        
+
         .form-control:focus {
             border-color: var(--primary-color);
             box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.2);
+            background: var(--bg-color);
         }
         
         .btn {
@@ -273,7 +143,42 @@ $calendar_status = getSchoolCalendarStatus($pdo, $_SESSION['school_id']);
         .btn-success:hover {
             background: #137333;
         }
-        
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .action-buttons .btn {
+            flex: 1;
+            padding: 12px 24px;
+            border-radius: 25px;
+        }
+
+        @media (max-width: 768px) {
+            .action-buttons {
+                flex-direction: column;
+            }
+        }
+
+        /* Filter Section */
+        .filter-section {
+            background: var(--bg-color);
+            border-radius: 8px;
+            padding: 24px;
+            margin-bottom: 24px;
+            border: 1px solid #e8eaed;
+        }
+
+        .filter-section .card-title {
+            font-size: 18px;
+            font-weight: 500;
+            color: #202124;
+            margin-bottom: 16px;
+        }
+
         .btn-danger {
             background: #d93025;
             color: white;
@@ -286,8 +191,8 @@ $calendar_status = getSchoolCalendarStatus($pdo, $_SESSION['school_id']);
         .table {
             width: 100%;
             border-collapse: collapse;
-            background: white;
-            border: 1px solid #000;
+            background: var(--bg-color);
+            border: 1px solid #e0e0e0;
             margin: 0;
         }
         
@@ -297,16 +202,17 @@ $calendar_status = getSchoolCalendarStatus($pdo, $_SESSION['school_id']);
         }
         
         .table thead {
-            background: #f0f0f0;
+            background: #FF6B35 !important;
             border-bottom: 2px solid #000;
         }
-        
-        .table th {
+
+        .table thead th {
+            background: #FF6B35 !important;
             text-align: left;
             padding: 12px;
             font-size: 13px;
             font-weight: 600;
-            color: #000;
+            color: #ffffff !important;
             border: 1px solid #000;
             border-bottom: 2px solid #000;
         }
@@ -314,35 +220,23 @@ $calendar_status = getSchoolCalendarStatus($pdo, $_SESSION['school_id']);
         .table td {
             padding: 12px;
             font-size: 13px;
-            color: #000;
-            border: 1px solid #000;
+            color: #202124;
+            border: 1px solid #e0e0e0;
         }
         
         .table tbody tr:nth-child(even) {
-            background: #f9f9f9;
+            background: #f8f9fa;
         }
         
         .table tbody tr:hover {
-            background: #f0f0f0;
+            background: #f1f3f4;
         }
         
         /* Responsive */
         @media (max-width: 768px) {
-            .sidebar {
-                transform: translateX(-256px);
-            }
-            
-            .sidebar.show {
-                transform: translateX(0);
-            }
-            
             .main-content {
                 margin-left: 0;
                 padding: 16px;
-            }
-            
-            .menu-btn {
-                display: block !important;
             }
             
             .card {
@@ -350,12 +244,13 @@ $calendar_status = getSchoolCalendarStatus($pdo, $_SESSION['school_id']);
             }
             
             .table-responsive {
+                margin: 0 -16px;
+                padding: 0 16px;
                 overflow-x: auto;
-                width: 100%;
             }
             
             .table {
-                min-width: 100%;
+                min-width: 600px;
                 font-size: 12px;
             }
             
@@ -363,21 +258,12 @@ $calendar_status = getSchoolCalendarStatus($pdo, $_SESSION['school_id']);
                 padding: 8px 4px;
             }
             
-            .form-control, .form-select {
-                font-size: 14px;
-            }
-            
             .btn {
-                font-size: 14px;
-                padding: 8px 12px;
+                width: 100%;
             }
             
-            .col-md-3, .col-md-4, .col-md-2 {
+            .col-md-2, .col-md-3, .col-md-4 {
                 margin-bottom: 12px;
-            }
-            
-            .page-title {
-                font-size: 18px;
             }
         }
         
@@ -396,142 +282,52 @@ $calendar_status = getSchoolCalendarStatus($pdo, $_SESSION['school_id']);
             background: #f8f9fa;
             border-radius: 8px;
             text-decoration: none;
+            color: #202124;
             transition: all 0.2s;
         }
         
         .quick-access-item:hover {
-            background: #fff3e0;
-            transform: translateY(-2px);
+            background: #f1f3f4;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
         
         .quick-access-icon {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background: transparent;
+            font-size: 24px;
             color: #FF6B35;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-            margin-bottom: 12px;
+            margin-bottom: 8px;
         }
         
         .quick-access-label {
             font-size: 13px;
             font-weight: 500;
-            color: #202124;
-            text-align: center;
         }
+
+        /* Icon colors */
+        .quick-access-item:nth-child(1) .quick-access-icon { background: #e8f0fe; color: #4285F4; }
+        .quick-access-item:nth-child(2) .quick-access-icon { background: #fce8e6; color: #EA4335; }
+        .quick-access-item:nth-child(3) .quick-access-icon { background: #e6f4ea; color: #00AC47; }
+        .quick-access-item:nth-child(4) .quick-access-icon { background: #fef7e0; color: #FFBA00; }
+        .quick-access-item:nth-child(5) .quick-access-icon { background: #e8f0fe; color: #0066DA; }
+        .quick-access-item:nth-child(6) .quick-access-icon { background: #fce8e6; color: #4285F4; }
+        .fa-plus { color: #00AC47; }
+        .fa-download { color: #4285F4; }
+        .fa-edit { color: #0066DA; }
+        .fa-trash { color: #EA4335; }
     </style>
 </head>
 <body>
-    <!-- Header -->
-    <header class="header">
-        <div class="header-left">
-            <button class="menu-btn" onclick="toggleSidebar()">
-                <i class="fas fa-bars"></i>
-            </button>
-            <div class="logo">
-                <div style="width: 40px; height: 40px; background: #FFD700; border: 3px solid #FF6B35; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 0;">
-                    <span style="font-weight: bold; font-size: 20px;">
-                        <span style="color: #FF6B35; font-size: 24px;">K</span><span style="color: #008000; font-size: 20px;">E</span>
-                    </span>
-                </div>
-                <span style="color: #FF6B35; font-weight: bold;">Kenya</span> <span style="color: #008000; font-weight: bold;">EduHub</span>
-            </div>
-        </div>
-        <div class="header-right">
-            <div class="school-avatar">
-                <?php echo strtoupper(substr($school_name, 0, 1)); ?>
-            </div>
-        </div>
-    </header>
+    <?php require_once 'includes/header.php'; ?>
+    <?php $active_page = 'performance'; require_once 'includes/sidebar.php'; ?>
     
-    <!-- Sidebar -->
-    <aside class="sidebar" id="sidebar">
-        <div class="sidebar-section">
-            <div class="sidebar-title">Main</div>
-            <a class="nav-link" href="dashboard">
-                <i class="fas fa-home"></i> Dashboard
-            </a>
-            <a class="nav-link" href="students">
-                <i class="fas fa-user-graduate"></i> Students
-            </a>
-            <a class="nav-link" href="teachers">
-                <i class="fas fa-chalkboard-teacher"></i> Teachers
-            </a>
-            <a class="nav-link" href="classes">
-                <i class="fas fa-chalkboard"></i> Classes
-            </a>
-            <a class="nav-link" href="streams">
-                <i class="fas fa-layer-group"></i> Streams
-            </a>
-            <a class="nav-link" href="subjects">
-                <i class="fas fa-book"></i> Subjects
-            </a>
-            <a class="nav-link" href="exam-types">
-                <i class="fas fa-clipboard-list"></i> Exam Types
-            </a>
-            <a class="nav-link" href="timetable">
-                <i class="fas fa-calendar-alt"></i> Timetable
-            </a>
-            <a class="nav-link" href="grading">
-                <i class="fas fa-chart-bar"></i> Grading
-            </a>
-            <a class="nav-link active" href="performance">
-                <i class="fas fa-chart-line"></i> Performance
-            </a>
-            <a class="nav-link" href="results">
-                <i class="fas fa-clipboard-list"></i> Results
-            </a>
-            <a class="nav-link" href="attendance">
-                <i class="fas fa-calendar-check"></i> Attendance
-            </a>
-            <a class="nav-link" href="calendar">
-                <i class="fas fa-calendar"></i> Calendar
-            </a>
-            <a class="nav-link" href="fees">
-                <i class="fas fa-money-bill-wave"></i> Fees
-            </a>
-            <a class="nav-link" href="invoices">
-                <i class="fas fa-file-invoice-dollar"></i> Invoices
-            </a>
-            <a class="nav-link" href="finance-managers">
-                <i class="fas fa-user-tie"></i> Finance Managers
-            </a>
-            <a class="nav-link" href="account">
-                <i class="fas fa-wallet"></i> Account Balance
-            </a>
-            <a class="nav-link" href="parents">
-                <i class="fas fa-users"></i> Parents
-            </a>
-            <a class="nav-link" href="disciplinary">
-                <i class="fas fa-shield-alt"></i> Disciplinary
-            </a>
-            <a class="nav-link" href="disciplinary-action-types">
-                <i class="fas fa-list-alt"></i> Disciplinary Types
-            </a>
-            <a class="nav-link" href="librarians">
-                <i class="fas fa-book-reader"></i> Librarians
-            </a>
-            <a class="nav-link" href="duty-assignments">
-                <i class="fas fa-clipboard-list"></i> Duty Assignments
-            </a>
-            <a class="nav-link" href="examination-heads">
-                <i class="fas fa-user-tie"></i> Examination Heads
-            </a>
-        </div>
-        <div class="sidebar-section">
-            <div class="sidebar-title">Settings</div>
-            <a class="nav-link" href="settings">
-                <i class="fas fa-cog"></i> Settings
-            </a>
-            <a class="nav-link" href="logout">
-                <i class="fas fa-sign-out-alt"></i> Logout
-            </a>
-        </div>
-    </aside>
+    <br>
+    
+  
+</head>
+<body>
+    <?php require_once 'includes/header.php'; ?>
+    <?php $active_page = 'performance'; require_once 'includes/sidebar.php'; ?>
+    
+    <br>
     
     <!-- Main Content -->
     <main class="main-content" id="mainContent">
@@ -539,7 +335,7 @@ $calendar_status = getSchoolCalendarStatus($pdo, $_SESSION['school_id']);
         
         <!-- Calendar Status Alert -->
         <?php if ($calendar_status['is_holiday']): ?>
-            <div style="background: #fce8e6; border: 1px solid #c5221f; padding: 16px; border-radius: 8px; margin-bottom: 24px;">
+            <div style="background: #fce8e6; border: 1px solid #e0e0e0; padding: 16px; border-radius: 8px; margin-bottom: 24px;">
                 <div style="display: flex; align-items: center; gap: 12px;">
                     <i class="fas fa-exclamation-triangle" style="color: #c5221f; font-size: 20px;"></i>
                     <div>
@@ -553,7 +349,7 @@ $calendar_status = getSchoolCalendarStatus($pdo, $_SESSION['school_id']);
                 </div>
             </div>
         <?php elseif ($calendar_status['school_status'] === 'break'): ?>
-            <div style="background: #fef7e0; border: 1px solid #f9ab00; padding: 16px; border-radius: 8px; margin-bottom: 24px;">
+            <div style="background: #fef7e0; border: 1px solid #e0e0e0; padding: 16px; border-radius: 8px; margin-bottom: 24px;">
                 <div style="display: flex; align-items: center; gap: 12px;">
                     <i class="fas fa-info-circle" style="color: #f9ab00; font-size: 20px;"></i>
                     <div>
@@ -656,75 +452,77 @@ $calendar_status = getSchoolCalendarStatus($pdo, $_SESSION['school_id']);
                 </a>
             </div>
         </div>
-        
-        <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
-                <span>Performance Records</span>
-                <button class="btn btn-success" onclick="exportPerformance()">
-                    <i class="fas fa-download me-2"></i> Export
-                </button>
+
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+            <button class="btn btn-success" onclick="exportPerformance()">
+                <i class="fas fa-download me-2"></i> Export
+            </button>
+        </div>
+
+        <!-- Search and Filter Section -->
+        <div class="filter-section">
+            <div class="card-title">Search & Filter</div>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Search</label>
+                    <input type="text" class="form-control" id="searchPerformance" placeholder="Search by name or admission number" onkeyup="filterPerformanceRecords()">
+                </div>
+                <div class="form-group">
+                    <label>Class</label>
+                    <select class="form-control" id="filterClass" onchange="filterPerformanceRecords()">
+                        <option value="">All Classes</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Stream</label>
+                    <select class="form-control" id="filterStream" onchange="filterPerformanceRecords()">
+                        <option value="">All Streams</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Term</label>
+                    <select class="form-control" id="filterTerm" onchange="filterPerformanceRecords()">
+                        <option value="">All Terms</option>
+                        <option value="Term 1">Term 1</option>
+                        <option value="Term 2">Term 2</option>
+                        <option value="Term 3">Term 3</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Year</label>
+                    <select class="form-control" id="filterYear" onchange="filterPerformanceRecords()">
+                        <option value="">All Years</option>
+                        <option value="2024">2024</option>
+                        <option value="2025">2025</option>
+                        <option value="2026">2026</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Subject</label>
+                    <select class="form-control" id="filterSubject" onchange="filterPerformanceRecords()">
+                        <option value="">All Subjects</option>
+                    </select>
+                </div>
             </div>
-            <div class="card-body">
-                <div class="row mb-3">
-                    <div class="col-md-3">
-                        <input type="text" class="form-control" id="searchPerformance" placeholder="Search by name or admission number" onkeyup="filterPerformanceRecords()">
-                    </div>
-                    <div class="col-md-2">
-                        <select class="form-control" id="filterClass" onchange="filterPerformanceRecords()">
-                            <option value="">All Classes</option>
-                        </select>
-                    </div>
-                    <div class="col-md-2">
-                        <select class="form-control" id="filterStream" onchange="filterPerformanceRecords()">
-                            <option value="">All Streams</option>
-                        </select>
-                    </div>
-                    <div class="col-md-2">
-                        <select class="form-control" id="filterTerm" onchange="filterPerformanceRecords()">
-                            <option value="">All Terms</option>
-                            <option value="Term 1">Term 1</option>
-                            <option value="Term 2">Term 2</option>
-                            <option value="Term 3">Term 3</option>
-                        </select>
-                    </div>
-                    <div class="col-md-2">
-                        <select class="form-control" id="filterYear" onchange="filterPerformanceRecords()">
-                            <option value="">All Years</option>
-                            <option value="2024">2024</option>
-                            <option value="2025">2025</option>
-                            <option value="2026">2026</option>
-                        </select>
-                    </div>
-                    <div class="col-md-2">
-                        <select class="form-control" id="filterSubject" onchange="filterPerformanceRecords()">
-                            <option value="">All Subjects</option>
-                        </select>
-                    </div>
+            <div class="row mb-3">
+                <div class="col-md-12">
+                    <button class="btn btn-secondary" onclick="resetFilters()">
+                        <i class="fas fa-undo"></i> Reset
+                    </button>
                 </div>
-                <div class="row mb-3">
-                    <div class="col-md-12">
-                        <button class="btn btn-secondary" onclick="resetFilters()">
-                            <i class="fas fa-undo"></i> Reset
-                        </button>
-                    </div>
-                </div>
-                <div id="performanceTableContainer">
-                    <p class="text-center">Loading performance records...</p>
-                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div id="performanceTableContainer">
+                <p class="text-center">Loading performance records...</p>
             </div>
         </div>
     </div>
     
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            const mainContent = document.getElementById('mainContent');
-            sidebar.classList.toggle('collapsed');
-            sidebar.classList.toggle('show');
-            mainContent.classList.toggle('expanded');
-        }
-        
         let allPerformanceRecords = [];
         
         async function loadPerformanceRecords() {
@@ -1004,14 +802,6 @@ $calendar_status = getSchoolCalendarStatus($pdo, $_SESSION['school_id']);
     </script>
     <script src="../assets/js/notifications.js"></script>
     
-    <!-- Footer -->
-    <footer style="background: transparent; color: white; padding: 2rem; text-align: center; border-top: 1px solid rgba(255, 255, 255, 0.1);">
-        <p style="margin: 0;">
-            <span style="color: #FF6B35;">&copy; 2026</span> 
-            <span style="color: #FF6B35;">Kenya</span> 
-            <span style="color: #008000;">EduHub</span>
-            <span style="color: #008000;">. All rights reserved.</span>
-        </p>
-    </footer>
+    <?php require_once '../includes/copywrite.php'; ?>
 </body>
 </html>
