@@ -176,6 +176,12 @@ try {
             border-radius: 8px;
             padding: 24px;
             margin-bottom: 24px;
+            width: 100%;
+            max-width: 100%;
+        }
+
+        .card-body {
+            padding: 0;
         }
         
         .card-title {
@@ -212,6 +218,12 @@ try {
             border-radius: 8px;
             padding: 24px;
             margin-bottom: 24px;
+            width: 100%;
+            max-width: 100%;
+        }
+
+        .card-body {
+            padding: 0;
         }
         
         .form-group {
@@ -421,21 +433,29 @@ try {
             width: 100%;
             border-collapse: collapse;
         }
-        
+
+        .table thead {
+            background: #FF6B35 !important;
+            border-bottom: 2px solid #000;
+        }
+
         .table th {
             text-align: left;
             padding: 12px;
             font-size: 13px;
             font-weight: 600;
-            color: #5f6368;
-            border-bottom: 2px solid #dadce0;
+            color: #ffffff !important;
+            background: #FF6B35 !important;
+            border: 1px solid #000;
+            border-bottom: 2px solid #000;
+            text-transform: uppercase;
         }
-        
+
         .table td {
             padding: 12px;
             font-size: 13px;
-            color: #202124;
-            border-bottom: 1px solid #dadce0;
+            color: #000;
+            border: 1px solid #000;
         }
         
         .badge {
@@ -657,6 +677,18 @@ try {
                 color: white !important;
                 border: 1px solid #FF6B35 !important;
             }
+        }
+
+        /* Icon colors - Google Search Console style (gray) */
+        .fa-plus, .fa-edit, .fa-trash, .fa-download, .fa-print, .fa-filter,
+        .fa-calendar, .fa-calendar-alt, .fa-calendar-check, .fa-check-circle,
+        .fa-exclamation-circle, .fa-exclamation-triangle, .fa-info-circle,
+        .fa-search, .fa-sms, .fa-award, .fa-chart-line, .fa-redo,
+        .fa-user-graduate, .fa-book, .fa-users, .fa-clipboard-list,
+        .fa-money-bill-wave, .fa-home, .fa-user, .fa-sign-out-alt,
+        .fa-cloud-upload-alt, .fa-copy, .fa-chart-bar, .fa-eye,
+        .fa-envelope, .fa-phone {
+            color: #5f6368;
         }
     </style>
 </head>

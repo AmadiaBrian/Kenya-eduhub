@@ -26,6 +26,11 @@ $teacher_type = $_SESSION['teacher_type'] ?? 'class_teacher';
             color: #202124;
         }
 
+        .main-content {
+            width: 100%;
+            max-width: 100%;
+        }
+
         .page-title {
             font-size: 22px;
             font-weight: 400;
@@ -41,6 +46,82 @@ $teacher_type = $_SESSION['teacher_type'] ?? 'class_teacher';
             padding: 24px;
             margin-bottom: 24px;
             box-shadow: none;
+            max-width: 100%;
+            width: 100%;
+        }
+
+        .card-body {
+            padding: 0;
+        }
+
+        /* Stats Grid - like dashboard */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
+        }
+
+        .stat-card {
+            background: #f8f9fa;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 24px;
+            transition: box-shadow 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .stat-card:hover {
+            box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: #5f6368;
+            margin-bottom: 8px;
+            text-align: center;
+        }
+
+        .stat-icon {
+            font-size: 32px;
+            color: #FF6B35;
+            margin-bottom: 12px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: 400;
+            color: #202124;
+            margin-bottom: 8px;
+            text-align: center;
+        }
+
+        .stat-change {
+            font-size: 12px;
+            color: #5f6368;
+            text-align: center;
+        }
+
+        .stat-change.positive {
+            color: #1e8e3e;
+            text-align: center;
+        }
+
+        .stat-change.negative {
+            color: #d93025;
+            text-align: center;
         }
 
         .card-title {
@@ -130,18 +211,20 @@ $teacher_type = $_SESSION['teacher_type'] ?? 'class_teacher';
         }
 
         .table thead {
-            background: #f0f0f0;
+            background: #FF6B35 !important;
             border-bottom: 2px solid #000;
         }
 
-        .table th {
+        .table thead th {
+            background: #FF6B35 !important;
             text-align: left;
             padding: 12px;
             font-size: 13px;
             font-weight: 600;
-            color: #000;
+            color: #ffffff !important;
             border: 1px solid #000;
             border-bottom: 2px solid #000;
+            text-transform: uppercase;
         }
 
         .table td {
@@ -158,6 +241,79 @@ $teacher_type = $_SESSION['teacher_type'] ?? 'class_teacher';
         .table tbody tr:hover {
             background: #f0f0f0;
         }
+
+        .action-buttons-cell {
+            display: flex;
+            gap: 4px;
+            align-items: center;
+        }
+
+        /* Icon colors - Google Search Console style (gray) */
+        .fa-plus, .fa-edit, .fa-trash, .fa-download, .fa-print, .fa-filter,
+        .fa-calendar, .fa-calendar-alt, .fa-calendar-check, .fa-check-circle,
+        .fa-exclamation-circle, .fa-exclamation-triangle, .fa-info-circle,
+        .fa-search, .fa-sms, .fa-award, .fa-chart-line, .fa-redo,
+        .fa-user-graduate, .fa-book, .fa-users, .fa-clipboard-list,
+        .fa-money-bill-wave, .fa-home, .fa-user, .fa-sign-out-alt,
+        .fa-envelope, .fa-phone, .fa-male, .fa-female, .fa-undo,
+        .fa-paper-plane, .fa-eraser, .fa-times {
+            color: #5f6368;
+        }
+
+        /* Mobile responsive */
+        @media (max-width: 768px) {
+            .table {
+                width: 100%;
+                min-width: 100%;
+            }
+
+            .table-responsive {
+                width: 100%;
+                overflow-x: auto;
+            }
+
+            .card {
+                padding: 16px;
+            }
+
+            .table td, .table th {
+                padding: 8px;
+                font-size: 12px;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
+
+            .stat-card {
+                padding: 16px;
+            }
+
+            .stat-icon {
+                font-size: 24px;
+            }
+
+            .stat-label {
+                font-size: 12px;
+            }
+
+            .stat-change {
+                font-size: 10px;
+            }
+
+            .stat-value {
+                font-size: 24px;
+            }
+
+            /* Footer mobile override */
+            .kenya-eduhub-footer-unique-2026 {
+                padding: 8px 0 !important;
+                margin: 16px 0 0 0 !important;
+                font-size: 11px !important;
+                position: static !important;
+            }
+        }
     </style>
 </head>
 <body>
@@ -167,7 +323,35 @@ $teacher_type = $_SESSION['teacher_type'] ?? 'class_teacher';
     <!-- Main Content -->
     <main class="main-content" id="mainContent">
         <h1 class="page-title">Parent Affairs</h1>
-        
+
+        <!-- Parent Statistics -->
+        <div class="stats-grid" id="parentStats">
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-users"></i></div>
+                <div class="stat-label">Total Parents</div>
+                <div class="stat-value" id="totalParents">0</div>
+                <div class="stat-change">All parents</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-user-graduate"></i></div>
+                <div class="stat-label">Linked Students</div>
+                <div class="stat-value" id="linkedStudents">0</div>
+                <div class="stat-change">Linked to parents</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-male"></i></div>
+                <div class="stat-label">Fathers</div>
+                <div class="stat-value" id="fathersCount">0</div>
+                <div class="stat-change">Registered fathers</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-female"></i></div>
+                <div class="stat-label">Mothers</div>
+                <div class="stat-value" id="mothersCount">0</div>
+                <div class="stat-change">Registered mothers</div>
+            </div>
+        </div>
+
         <div class="card mb-4">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <span>Search Parents</span>
@@ -239,27 +423,7 @@ $teacher_type = $_SESSION['teacher_type'] ?? 'class_teacher';
                 </div>
             </div>
         </div>
-        
-        <!-- Parent Statistics -->
-        <div id="parentStats" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 24px;">
-            <div style="background: #e8f0fe; padding: 16px; border-radius: 8px; text-align: center;">
-                <div style="font-size: 24px; font-weight: 600; color: #1967d2;" id="totalParents">0</div>
-                <div style="font-size: 12px; color: #5f6368;">Total Parents</div>
-            </div>
-            <div style="background: #e6f4ea; padding: 16px; border-radius: 8px; text-align: center;">
-                <div style="font-size: 24px; font-weight: 600; color: #137333;" id="linkedStudents">0</div>
-                <div style="font-size: 12px; color: #5f6368;">Linked Students</div>
-            </div>
-            <div style="background: #fce8e6; padding: 16px; border-radius: 8px; text-align: center;">
-                <div style="font-size: 24px; font-weight: 600; color: #c5221f;" id="fathersCount">0</div>
-                <div style="font-size: 12px; color: #5f6368;">Fathers</div>
-            </div>
-            <div style="background: #fef7e0; padding: 16px; border-radius: 8px; text-align: center;">
-                <div style="font-size: 24px; font-weight: 600; color: #b06000;" id="mothersCount">0</div>
-                <div style="font-size: 12px; color: #5f6368;">Mothers</div>
-            </div>
-        </div>
-        
+
         <div class="card">
             <div class="card-header">
                 <span>All Parents</span>
@@ -376,15 +540,17 @@ $teacher_type = $_SESSION['teacher_type'] ?? 'class_teacher';
                     <td>${parent.relationship}</td>
                     <td>${parent.linked_students || 'No students linked'}</td>
                     <td>
-                        <button class="btn btn-sm btn-action" onclick="sendEmail(${parent.id})" style="border-radius: 25px; margin-right: 4px;" title="Send Email">
-                            <i class="fas fa-envelope"></i>
-                        </button>
-                        <a href="tel:${parent.phone}" class="btn btn-sm btn-action" style="border-radius: 25px; margin-right: 4px;" title="Call">
-                            <i class="fas fa-phone"></i>
-                        </a>
-                        <button class="btn btn-sm btn-action" onclick="viewParentDetails(${parent.id})" style="border-radius: 25px;" title="View Details">
-                            <i class="fas fa-eye"></i>
-                        </button>
+                        <div class="action-buttons-cell">
+                            <button class="btn btn-sm btn-action" onclick="sendEmail(${parent.id})" style="border-radius: 25px;" title="Send Email">
+                                <i class="fas fa-envelope"></i>
+                            </button>
+                            <a href="tel:${parent.phone}" class="btn btn-sm btn-action" style="border-radius: 25px;" title="Call">
+                                <i class="fas fa-phone"></i>
+                            </a>
+                            <button class="btn btn-sm btn-action" onclick="viewParentDetails(${parent.id})" style="border-radius: 25px;" title="View Details">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
                     </td>
                 </tr>
             `).join('');
@@ -598,6 +764,7 @@ $teacher_type = $_SESSION['teacher_type'] ?? 'class_teacher';
     <script src="../assets/js/notifications.js"></script>
     
     <!-- Footer -->
-    <?php require_once '../includes/copywrite.php'; ?>
+    
 </body>
+<?php require_once '../includes/copywrite.php'; ?>
 </html>

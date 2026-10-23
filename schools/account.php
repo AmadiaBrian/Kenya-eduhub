@@ -146,7 +146,7 @@ if (empty($_SESSION['csrf_token'])) {
         
         /* Cards */
         .card {
-            background: var(--card-bg);
+            background: var(--bg-color);
             border: 1px solid #e8eaed;
             border-radius: 8px;
             padding: 24px;
@@ -202,14 +202,16 @@ if (empty($_SESSION['csrf_token'])) {
         }
 
         .table thead {
-            background: white;
+            background: #FF6B35 !important;
             border-bottom: 2px solid #000;
         }
 
-        .table th {
+        .table thead th {
+            background: #FF6B35 !important;
             text-align: left;
             padding: 12px;
             font-size: 13px;
+            color: #ffffff !important;
             font-weight: 600;
             color: #000;
             border: 1px solid #000;
@@ -265,8 +267,53 @@ if (empty($_SESSION['csrf_token'])) {
             color: white;
         }
 
+        .action-buttons-cell {
+            display: flex;
+            gap: 4px;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .action-buttons .btn {
+            flex: 1;
+            padding: 12px 24px;
+            border-radius: 25px;
+        }
+
+        @media (max-width: 768px) {
+            .action-buttons {
+                flex-direction: column;
+            }
+        }
+
+        /* Filter Section */
+        .filter-section {
+            background: var(--bg-color);
+            border-radius: 8px;
+            padding: 24px;
+            margin-bottom: 24px;
+            border: 1px solid #e8eaed;
+        }
+
+        .filter-section .card-title {
+            font-size: 18px;
+            font-weight: 500;
+            color: #202124;
+            margin-bottom: 16px;
+        }
+
         .form-control {
             border-radius: 25px;
+            background: var(--bg-color);
+        }
+
+        .form-control:focus {
+            background: var(--bg-color);
         }
 
         /* Responsive */

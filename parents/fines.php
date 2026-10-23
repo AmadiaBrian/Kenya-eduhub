@@ -360,9 +360,9 @@ try {
         }
         
         .table th {
-            background: #f0f0f0;
+            background: #FF6B35 !important;
             font-weight: 600;
-            color: #000;
+            color: #ffffff !important;
             font-size: 12px;
             text-transform: uppercase;
             letter-spacing: 0.5px;

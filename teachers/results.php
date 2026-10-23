@@ -206,6 +206,12 @@ if ($teacher) {
             border-radius: 8px;
             padding: 24px;
             margin-bottom: 24px;
+            width: 100%;
+            max-width: 100%;
+        }
+
+        .card-body {
+            padding: 0;
         }
         
         .card-title {
@@ -245,7 +251,18 @@ if ($teacher) {
         .btn-primary:hover {
             background: #e55a2b;
         }
-        
+
+        /* Icon colors - Google Search Console style (gray) */
+        .fa-search, .fa-sms, .fa-award, .fa-chart-line, .fa-download,
+        .fa-print, .fa-filter, .fa-redo, .fa-trash, .fa-edit, .fa-plus,
+        .fa-user-graduate, .fa-book, .fa-calendar-alt, .fa-calendar-check,
+        .fa-calendar, .fa-users, .fa-clipboard-list, .fa-money-bill-wave,
+        .fa-check-circle, .fa-exclamation-circle, .fa-exclamation-triangle,
+        .fa-info-circle, .fa-spinner, .fa-file, .fa-times, .fa-home,
+        .fa-user, .fa-sign-out-alt {
+            color: #5f6368;
+        }
+
         .table {
             width: 100%;
             border-collapse: collapse;
@@ -260,18 +277,20 @@ if ($teacher) {
         }
         
         .table thead {
-            background: #f0f0f0;
+            background: #FF6B35 !important;
             border-bottom: 2px solid #000;
         }
-        
-        .table th {
+
+        .table thead th {
+            background: #FF6B35 !important;
             text-align: left;
             padding: 12px;
             font-size: 13px;
             font-weight: 600;
-            color: #000;
+            color: #ffffff !important;
             border: 1px solid #000;
             border-bottom: 2px solid #000;
+            text-transform: uppercase;
         }
         
         .table td {
