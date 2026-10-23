@@ -74,6 +74,12 @@ if ($teacher && $teacher['teacher_type'] === 'subject_teacher') {
             border-radius: 8px;
             padding: 24px;
             margin-bottom: 24px;
+            width: 100%;
+            max-width: 100%;
+        }
+
+        .card-body {
+            padding: 0;
         }
 
         .card-title {
@@ -152,18 +158,20 @@ if ($teacher && $teacher['teacher_type'] === 'subject_teacher') {
         }
 
         .table thead {
-            background: #f0f0f0;
+            background: #FF6B35 !important;
             border-bottom: 2px solid #000;
         }
 
-        .table th {
+        .table thead th {
+            background: #FF6B35 !important;
             text-align: left;
             padding: 12px;
             font-size: 13px;
             font-weight: 600;
-            color: #000;
+            color: #ffffff !important;
             border: 1px solid #000;
             border-bottom: 2px solid #000;
+            text-transform: uppercase;
         }
 
         .table td {
@@ -201,6 +209,16 @@ if ($teacher && $teacher['teacher_type'] === 'subject_teacher') {
             background: #FF6B35;
             color: white;
             border-color: #FF6B35;
+        }
+
+        /* Icon colors - Google Search Console style (gray) */
+        .fa-plus, .fa-edit, .fa-trash, .fa-download, .fa-print, .fa-filter,
+        .fa-calendar, .fa-calendar-alt, .fa-calendar-check, .fa-check-circle,
+        .fa-exclamation-circle, .fa-exclamation-triangle, .fa-info-circle,
+        .fa-search, .fa-sms, .fa-award, .fa-chart-line, .fa-redo,
+        .fa-user-graduate, .fa-book, .fa-users, .fa-clipboard-list,
+        .fa-money-bill-wave, .fa-home, .fa-user, .fa-sign-out-alt {
+            color: #5f6368;
         }
     </style>
 </head>

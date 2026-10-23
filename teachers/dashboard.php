@@ -193,6 +193,8 @@ try {
             border-radius: 8px;
             padding: 24px;
             margin-bottom: 24px;
+            width: 100%;
+            max-width: 100%;
         }
         
         .card-title {
@@ -471,6 +473,16 @@ try {
             .stat-value {
                 font-size: 24px;
             }
+        }
+
+        /* Icon colors - Google Search Console style (gray) */
+        .fa-plus, .fa-edit, .fa-trash, .fa-download, .fa-print, .fa-filter,
+        .fa-calendar, .fa-calendar-alt, .fa-calendar-check, .fa-check-circle,
+        .fa-exclamation-circle, .fa-exclamation-triangle, .fa-info-circle,
+        .fa-search, .fa-sms, .fa-award, .fa-chart-line, .fa-redo,
+        .fa-user-graduate, .fa-book, .fa-users, .fa-clipboard-list,
+        .fa-money-bill-wave, .fa-home, .fa-user, .fa-sign-out-alt {
+            color: #5f6368;
         }
     </style>
 </head>

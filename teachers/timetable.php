@@ -124,16 +124,17 @@ foreach ($days_order as $day) {
         }
 
         .table thead {
-            background: #f0f0f0;
+            background: #FF6B35 !important;
             border-bottom: 2px solid #000;
         }
 
-        .table th {
+        .table thead th {
+            background: #FF6B35 !important;
             border: 1px solid #000;
             border-bottom: 2px solid #000;
             padding: 12px;
             font-weight: 600;
-            color: #000;
+            color: #ffffff !important;
             font-size: 13px;
             text-transform: uppercase;
         }
@@ -188,6 +189,16 @@ foreach ($days_order as $day) {
         .badge-break {
             background: #fce8e6;
             color: #c5221f;
+        }
+
+        /* Icon colors - Google Search Console style (gray) */
+        .fa-plus, .fa-edit, .fa-trash, .fa-download, .fa-print, .fa-filter,
+        .fa-calendar, .fa-calendar-alt, .fa-calendar-check, .fa-check-circle,
+        .fa-exclamation-circle, .fa-exclamation-triangle, .fa-info-circle,
+        .fa-search, .fa-sms, .fa-award, .fa-chart-line, .fa-redo,
+        .fa-user-graduate, .fa-book, .fa-users, .fa-clipboard-list,
+        .fa-money-bill-wave, .fa-home, .fa-user, .fa-sign-out-alt {
+            color: #5f6368;
         }
     </style>
 </head>
