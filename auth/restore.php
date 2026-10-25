@@ -336,9 +336,12 @@ $csrf_token = generateCSRFLite();
         }
 
         .alert-error {
-            background: var(--gsc-error-bg);
-            color: var(--gsc-error);
-            border: 1px solid var(--gsc-error-bg);
+            background: #fce8e6;
+            color: #c5221f;
+            border: 1px solid #fce8e6;
+            border-radius: 25px;
+            padding: 12px 16px;
+            margin-bottom: 24px;
         }
 
         .form-group {
@@ -355,19 +358,20 @@ $csrf_token = generateCSRFLite();
 
         .form-control {
             width: 100%;
-            padding: 10px 12px;
-            font-size: 14px;
-            border: 1px solid var(--gsc-border);
-            border-radius: 20px;
+            padding: 13px 15px;
+            font-size: 16px;
+            border: 1px solid #dadce0;
+            border-radius: 25px;
             font-family: inherit;
             transition: border-color 0.2s, box-shadow 0.2s;
-            background: var(--gsc-white);
+            background: #f8f9fa;
         }
 
         .form-control:focus {
             outline: none;
-            border-color: var(--gsc-blue);
-            box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.2);
+            border-color: #FF6B35;
+            box-shadow: 0 0 0 2px rgba(255, 107, 53, 0.2);
+            background: #f8f9fa;
         }
 
         .form-control::placeholder {
@@ -413,7 +417,40 @@ $csrf_token = generateCSRFLite();
             text-align: center;
         }
 
+        /* Responsive - Mobile */
+        @media (max-width: 768px) {
+            .restore-container {
+                padding: 16px;
+            }
+
+            .restore-card {
+                padding: 24px 20px;
+                max-width: 100%;
+            }
+
+            .restore-header h1 {
+                font-size: 22px;
+            }
+
+            .restore-header p {
+                font-size: 14px;
+            }
+
+            .form-control {
+                font-size: 16px; /* Prevent zoom on iOS */
+            }
+
+            .btn-primary {
+                font-size: 14px;
+                padding: 12px 20px;
+            }
+        }
+
         @media (max-width: 480px) {
+            .restore-container {
+                padding: 12px;
+            }
+
             .restore-card {
                 padding: 20px 16px;
             }
@@ -422,13 +459,13 @@ $csrf_token = generateCSRFLite();
                 font-size: 20px;
             }
 
-            body {
-                padding: 16px;
+            .restore-header p {
+                font-size: 13px;
             }
         }
     </style>
 </head>
-<body>
+<body class="login-page">
     <div class="restore-container">
         <div class="restore-header">
             <a href="../index.php" class="restore-logo">

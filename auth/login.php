@@ -172,14 +172,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         } else {
                             deleteRememberCookie($user['id'], $conn);
                         }
-                        
-                        // Redirect based on user role
+
+                        // If admin, show choice modal instead of redirecting
                         if ($user['role'] === 'admin') {
-                            header("Location: ../admin");
+                            $_SESSION['pending_admin_redirect'] = true;
+                            $_SESSION['user_id'] = $user['id'];
+                            $_SESSION['user_email'] = $user['email'];
+                            $_SESSION['user_name'] = $user['name'] ?? $user['full_name'];
+                            $_SESSION['user_role'] = $user['role'] ?? 'user';
+                            $_SESSION['session_timeout'] = 480;
+                            $_SESSION['last_activity'] = time();
+                            // Continue to render page with modal (don't exit)
                         } else {
+                            // Redirect based on user role
                             header("Location: ../dashboard");
+                            exit();
                         }
-                        exit();
                     } else {
                         error_log("Auth Login - Invalid password");
                         // Record failed login attempt (only for non-admin users)
@@ -309,11 +317,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             outline: none;
             transition: border-color 0.2s, box-shadow 0.2s;
             font-family: inherit;
+            background: #f8f9fa;
         }
-        
+
         .form-control:focus {
             border-color: #FF6B35;
             box-shadow: 0 0 0 2px rgba(255, 107, 53, 0.2);
+            background: #f8f9fa;
         }
         
         .form-control::placeholder {
@@ -343,7 +353,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         .alert-error {
             padding: 12px 16px;
-            border-radius: 8px;
+            border-radius: 25px;
             margin-bottom: 24px;
             font-size: 14px;
             font-weight: 500;
@@ -351,10 +361,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             color: #c5221f;
             border: 1px solid #fce8e6;
         }
-        
+
         .alert-success {
             padding: 12px 16px;
-            border-radius: 8px;
+            border-radius: 25px;
             margin-bottom: 24px;
             font-size: 14px;
             font-weight: 500;
@@ -418,15 +428,62 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         .login-links a:hover {
             text-decoration: underline;
         }
-        
-        @media (max-width: 480px) {
+
+        /* Responsive - Mobile */
+        @media (max-width: 768px) {
             .login-card {
                 padding: 32px 24px 24px;
+                max-width: 100%;
+            }
+
+            .auth-brand-logo {
+                font-size: 1.3rem;
+            }
+
+            .auth-brand-logo .logo-circle {
+                width: 45px;
+                height: 45px;
+            }
+
+            .login-card h3 {
+                font-size: 20px;
+            }
+
+            .form-control {
+                font-size: 16px; /* Prevent zoom on iOS */
+            }
+
+            .btn-primary {
+                font-size: 14px;
+                padding: 12px 20px;
+            }
+
+            .login-links {
+                font-size: 13px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .login-card {
+                padding: 24px 20px 20px;
+            }
+
+            .auth-brand-logo {
+                font-size: 1.2rem;
+            }
+
+            .auth-brand-logo .logo-circle {
+                width: 40px;
+                height: 40px;
+            }
+
+            .login-card h3 {
+                font-size: 18px;
             }
         }
     </style>
 </head>
-<body>
+<body class="login-page">
     <main class="login-card" role="main" aria-label="User Login Form">
         <div class="auth-brand-logo" aria-label="Kenya EduHub Logo">
             <?php require_once '../includes/logo.php'; ?>
@@ -529,5 +586,203 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <!-- Footer -->
     <?php require_once '../includes/copywrite.php'; ?>
+
+    <!-- Admin Dashboard Choice Modal -->
+    <?php if (isset($_SESSION['pending_admin_redirect'])): ?>
+    <div id="adminChoiceModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-close" onclick="closeModal()">
+                    <i class="fas fa-times"></i>
+                </div>
+                <div class="modal-logo">
+                    <?php require_once '../includes/logo.php'; ?>
+                </div>
+                <h2>Admin Account Detected</h2>
+                <p>You're logging in as an administrator. Which dashboard would you like to access?</p>
+            </div>
+            <div class="modal-body">
+                <button onclick="redirectToDashboard('admin')" class="modal-btn primary">
+                    <span>Admin Dashboard</span>
+                </button>
+                <button onclick="redirectToDashboard('user')" class="modal-btn secondary">
+                    <span>User Dashboard</span>
+                </button>
+            </div>
+        </div>
+    </div>
+    <style>
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            animation: fadeIn 0.2s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+            max-width: 400px;
+            width: 90%;
+            animation: slideUp 0.2s ease;
+            overflow: hidden;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .modal-header {
+            text-align: center;
+            padding: 24px 24px 16px;
+            position: relative;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #5f6368;
+            transition: background 0.2s ease;
+        }
+
+        .modal-close:hover {
+            background: #f1f3f4;
+        }
+
+        .modal-logo {
+            margin-bottom: 16px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .modal-logo img {
+            height: 48px;
+            width: auto;
+        }
+
+        .modal-header h2 {
+            font-size: 20px;
+            font-weight: 500;
+            color: #202124;
+            margin-bottom: 8px;
+        }
+
+        .modal-header p {
+            font-size: 14px;
+            color: #5f6368;
+            line-height: 1.5;
+        }
+
+        .modal-body {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            padding: 16px 24px 24px;
+        }
+
+        .modal-btn {
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s ease, box-shadow 0.2s ease;
+            border: none;
+            font-family: 'Google Sans', 'Roboto', 'Segoe UI', Arial, sans-serif;
+        }
+
+        .modal-btn.primary {
+            background: #FF6B35;
+            color: #ffffff;
+        }
+
+        .modal-btn.primary:hover {
+            background: #e55a2b;
+            box-shadow: 0 2px 8px rgba(255, 107, 53, 0.3);
+        }
+
+        .modal-btn.secondary {
+            background: #f8f9fa;
+            color: #202124;
+            border: 2px solid #e8eaed;
+        }
+
+        .modal-btn.secondary:hover {
+            background: #e8eaed;
+            border-color: #FF6B35;
+        }
+
+        @media (max-width: 480px) {
+            .modal-content {
+                max-width: 100%;
+                margin: 0 16px;
+            }
+
+            .modal-header {
+                padding: 20px 20px 12px;
+            }
+
+            .modal-header h2 {
+                font-size: 18px;
+            }
+
+            .modal-header p {
+                font-size: 13px;
+            }
+
+            .modal-logo img {
+                height: 40px;
+            }
+
+            .modal-body {
+                padding: 12px 20px 20px;
+            }
+
+            .modal-btn {
+                padding: 12px 20px;
+            }
+        }
+    </style>
+    <script>
+        function redirectToDashboard(type) {
+            if (type === 'admin') {
+                window.location.href = '../admin';
+            } else {
+                window.location.href = '../dashboard';
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('adminChoiceModal').style.display = 'none';
+        }
+    </script>
+    <?php
+        unset($_SESSION['pending_admin_redirect']);
+    ?>
+    <?php endif; ?>
 </body>
 </html>

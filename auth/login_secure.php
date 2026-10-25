@@ -176,17 +176,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         input.form-control {
             height: 48px;
             font-size: 1rem;
-            border-radius: 0.625rem;
-            border: 1.8px solid #ced4da;
+            border-radius: 25px;
+            border: 1px solid #dadce0;
+            background: #f8f9fa;
+            color: #202124;
             transition: border-color 0.3s ease, box-shadow 0.3s ease;
             will-change: border-color, box-shadow;
         }
 
         input.form-control:focus {
-            border-color: #4ea1ff;
-            box-shadow: 0 0 8px #4ea1ff88;
+            border-color: #FF6B35;
+            box-shadow: 0 0 0 2px rgba(255, 107, 53, 0.2);
             outline: none;
             transform: translateZ(0);
+            background: #f8f9fa;
         }
 
         /* Password toggle button */
@@ -337,13 +340,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         /* Responsive */
+        @media (max-width: 768px) {
+            .login-card {
+                padding: 32px 24px 24px;
+                max-width: 100%;
+            }
+
+            .login-card h3 {
+                font-size: 20px;
+            }
+
+            .form-control {
+                font-size: 16px; /* Prevent zoom on iOS */
+            }
+
+            button.btn-primary {
+                font-size: 14px;
+                padding: 12px 20px;
+                height: auto;
+            }
+        }
+
         @media (max-width: 480px) {
             .login-card {
-                padding: 2rem 1.5rem 2rem;
+                padding: 24px 20px 20px;
             }
-            button.btn-primary {
-                font-size: 1rem;
-                height: 44px;
+
+            .login-card h3 {
+                font-size: 18px;
             }
         }
 
@@ -404,7 +428,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     </style>
 </head>
-<body>
+<body class="login-page">
     <main class="login-card" role="main" aria-label="User Login Form">
         <div class="logo-img">
             <div class="auth-brand-logo" aria-label="Kenya EduHub Logo">

@@ -233,11 +233,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['new_password']) && $s
             outline: none;
             transition: border-color 0.2s, box-shadow 0.2s;
             font-family: inherit;
+            background: #f8f9fa;
         }
 
         .form-control:focus {
             border-color: #FF6B35;
             box-shadow: 0 0 0 2px rgba(255, 107, 53, 0.2);
+            background: #f8f9fa;
         }
 
         .form-control::placeholder {
@@ -267,7 +269,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['new_password']) && $s
 
         .alert-error {
             padding: 12px 16px;
-            border-radius: 8px;
+            border-radius: 25px;
             margin-bottom: 24px;
             font-size: 14px;
             font-weight: 500;
@@ -278,7 +280,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['new_password']) && $s
 
         .alert-success {
             padding: 12px 16px;
-            border-radius: 8px;
+            border-radius: 25px;
             margin-bottom: 24px;
             font-size: 14px;
             font-weight: 500;
@@ -303,14 +305,61 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['new_password']) && $s
             text-decoration: underline;
         }
 
-        @media (max-width: 480px) {
+        /* Responsive - Mobile */
+        @media (max-width: 768px) {
             .login-card {
                 padding: 32px 24px 24px;
+                max-width: 100%;
+            }
+
+            .auth-brand-logo {
+                font-size: 1.3rem;
+            }
+
+            .auth-brand-logo .logo-circle {
+                width: 45px;
+                height: 45px;
+            }
+
+            .login-card h3 {
+                font-size: 20px;
+            }
+
+            .form-control {
+                font-size: 16px; /* Prevent zoom on iOS */
+            }
+
+            .btn-primary {
+                font-size: 14px;
+                padding: 12px 20px;
+            }
+
+            .login-links {
+                font-size: 13px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .login-card {
+                padding: 24px 20px 20px;
+            }
+
+            .auth-brand-logo {
+                font-size: 1.2rem;
+            }
+
+            .auth-brand-logo .logo-circle {
+                width: 40px;
+                height: 40px;
+            }
+
+            .login-card h3 {
+                font-size: 18px;
             }
         }
     </style>
 </head>
-<body>
+<body class="login-page">
     <main class="login-card" role="main" aria-label="Password Reset Form">
         <div class="auth-brand-logo" aria-label="Kenya EduHub Logo">
             <?php require_once '../includes/logo.php'; ?>

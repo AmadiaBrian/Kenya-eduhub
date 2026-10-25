@@ -117,7 +117,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             font-size: 1rem;
             border-radius: 25px;
             border: 1px solid #dadce0;
-            background: #ffffff;
+            background: #f8f9fa;
             color: #202124;
             transition: border-color 0.2s, box-shadow 0.2s;
         }
@@ -131,13 +131,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         input.form-control:-webkit-autofill:hover,
         input.form-control:-webkit-autofill:focus {
             -webkit-text-fill-color: #202124;
-            -webkit-box-shadow: 0 0 0 1000px #ffffff inset;
+            -webkit-box-shadow: 0 0 0 1000px #f8f9fa inset;
             transition: background-color 5000s ease-in-out 0s;
         }
 
         input.form-control:focus {
             border-color: #FF6B35;
             box-shadow: 0 0 0 2px rgba(255, 107, 53, 0.2);
+            background: #f8f9fa;
         }
 
         /* Button */
@@ -170,32 +171,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         /* Alert styling */
         .alert {
             background-color: #000;
-            border-radius: 0;
-            padding: 0.9rem 1rem;
-            margin-bottom: 1.5rem;
+            border-radius: 25px;
+            padding: 12px 16px;
+            margin-bottom: 24px;
             text-align: center;
-            font-weight: 600;
+            font-weight:600;
             box-shadow: none;
             user-select: none;
             animation: none;
         }
 
         .alert-success {
-            background-color: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
+            background-color: #e6f4ea;
+            color: #137333;
+            border: 1px solid #e6f4ea;
         }
 
         .alert-warning {
-            background-color: #fff3cd;
-            color: #856404;
-            border: 1px solid #ffeeba;
+            background-color: #fef7e0;
+            color: #b06000;
+            border: 1px solid #fef7e0;
         }
 
         .alert-error {
-            background-color: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
+            background-color: #fce8e6;
+            color: #c5221f;
+            border: 1px solid #fce8e6;
         }
 
         /* Animations */
@@ -211,13 +212,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         /* Responsive */
+        @media (max-width: 768px) {
+            .login-card {
+                padding: 32px 24px 24px;
+                max-width: 100%;
+            }
+
+            .login-card h3 {
+                font-size: 20px;
+            }
+
+            .form-control {
+                font-size: 16px; /* Prevent zoom on iOS */
+            }
+
+            button.btn-primary {
+                font-size: 14px;
+                padding: 12px 20px;
+                height: auto;
+            }
+        }
+
         @media (max-width: 480px) {
             .login-card {
-                padding: 2rem 1.5rem 2rem;
+                padding: 24px 20px 20px;
             }
-            button.btn-primary {
-                font-size: 1rem;
-                height: 44px;
+
+            .login-card h3 {
+                font-size: 18px;
             }
         }
 
@@ -262,7 +284,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     </style>
 </head>
-<body>
+<body class="login-page">
     <main class="login-card" role="main" aria-label="Password Reset Form">
         <div class="text-center mb-4">
             <div class="auth-brand-logo" aria-label="Kenya EduHub Logo">

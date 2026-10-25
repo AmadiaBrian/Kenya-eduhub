@@ -473,7 +473,7 @@ $csrf_token = generateCSRFLite();
             
             .main-content {
                 margin-left: 0;
-                padding: 16px;
+                padding: 0;
                 padding-top: calc(var(--header-height) + 16px);
             }
             
@@ -1299,23 +1299,23 @@ $csrf_token = generateCSRFLite();
 
         @media (max-width: 480px) {
             .stats-grid {
-                grid-template-columns: 1fr !important;
-                gap: 16px !important;
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 12px !important;
             }
         }
         
         .stat-card {
             background: var(--bg-color, #f8f9fa);
-            border: 1px solid #e0e0e0;
+            border: 1px solid #e8eaed;
             border-radius: 8px;
             padding: 20px;
             text-align: left;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+            box-shadow: none;
             transition: box-shadow 0.3s ease;
         }
 
         .stat-card:hover {
-            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
         .stat-card h3 {
@@ -1431,7 +1431,7 @@ $csrf_token = generateCSRFLite();
             align-items: center;
             gap: 12px;
             padding: 16px;
-            border-radius: 8px;
+            border-radius: 25px;
             text-decoration: none;
             transition: all 0.3s ease;
             border: 1px solid transparent;
@@ -1602,6 +1602,41 @@ $csrf_token = generateCSRFLite();
         .dark-mode .quick-link-card:nth-child(6) i {
             color: #333333 !important;
         }
+
+        /* Mobile quick links */
+        @media (max-width: 768px) {
+            #quickLinksSection {
+                width: 100% !important;
+                max-width: 100% !important;
+                padding: 20px 16px !important;
+            }
+
+            #quickLinksSection > div:last-child {
+                grid-template-columns: 1fr !important;
+                gap: 12px !important;
+            }
+
+            .quick-link-card {
+                width: 100% !important;
+            }
+
+            #uploadSectionContent {
+                width: 100% !important;
+                max-width: 100% !important;
+                padding: 20px 16px !important;
+            }
+
+            #uploadSectionContent form > div[style*="grid-template-columns"] {
+                grid-template-columns: 1fr !important;
+                gap: 12px !important;
+            }
+
+            #uploadSectionContent input,
+            #uploadSectionContent select,
+            #uploadSectionContent textarea {
+                width: 100% !important;
+            }
+        }
         
         .alert {
             padding: 15px 20px;
@@ -1616,7 +1651,7 @@ $csrf_token = generateCSRFLite();
         }
     </style>
 </head>
-<body class="<?php echo $dark_mode_class; ?>">
+<body class="<?php echo $dark_mode_class; ?> dashboard-page">
     <!-- Header -->
     <header class="header">
         <div class="header-left">
@@ -1821,7 +1856,7 @@ $csrf_token = generateCSRFLite();
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
                         <div>
                             <label style="display: block; margin-bottom: 8px; font-weight: 500; color: var(--text-color);">Resource Title *</label>
-                            <input type="text" name="title" required style="width: 100%; padding: 12px; border: 1px solid var(--form-border-color); border-radius: 25px; font-size: 14px; background: var(--card-bg); color: var(--text-color);">
+                            <input type="text" name="title" required placeholder="Enter resource title" style="width: 100%; padding: 12px; border: 1px solid var(--form-border-color); border-radius: 25px; font-size: 14px; background: var(--card-bg); color: var(--text-color);">
                         </div>
                         <div>
                             <label style="display: block; margin-bottom: 8px; font-weight: 500; color: var(--text-color);">Education Level *</label>
@@ -2112,9 +2147,13 @@ $csrf_token = generateCSRFLite();
                                 <div style="display: flex; gap: 8px;">
                                     <?php if ($user_upload_count >= 2 || $resource['user_id'] == $user_id): ?>
                                         <a href="#" onclick="downloadResource(<?php echo $resource['id']; ?>, this)" class="btn btn-download">Download</a>
+                                    <?php elseif ($user_upload_count == 1): ?>
+                                        <button onclick="scrollToUploadSection()" class="btn btn-download locked-button">
+                                            <i class="fas fa-lock"></i> Upload 1 more resource to download
+                                        </button>
                                     <?php else: ?>
                                         <button onclick="scrollToUploadSection()" class="btn btn-download locked-button">
-                                            <i class="fas fa-lock"></i> Upload 2 resources to unlock
+                                            <i class="fas fa-lock"></i> Upload 2 resources to download
                                         </button>
                                     <?php endif; ?>
                                 </div>
@@ -2213,7 +2252,7 @@ $csrf_token = generateCSRFLite();
         
         // Scroll to upload section
         function scrollToUploadSection() {
-            const uploadSection = document.getElementById('uploadSection');
+            const uploadSection = document.getElementById('uploadSectionContent');
             if (uploadSection) {
                 uploadSection.scrollIntoView({ behavior: 'smooth' });
             }

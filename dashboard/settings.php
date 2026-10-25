@@ -670,8 +670,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             background: var(--card-bg);
             color: var(--text-color);
             transition: border-color 0.2s;
+            box-sizing: border-box;
         }
-        
+
         .form-control:focus {
             outline: none;
             border-color: var(--primary-color);
@@ -683,6 +684,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         .dark-mode .form-control:focus {
             border-color: var(--primary-gold);
+        }
+
+        .dark-mode .form-control::placeholder {
+            color: rgba(255, 255, 255, 0.5);
         }
         
         .form-check {
@@ -778,20 +783,32 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             .sidebar {
                 transform: translateX(-256px);
             }
-            
+
             .sidebar.show {
                 transform: translateX(0);
             }
-            
+
             .main-content {
                 margin-left: 0;
-                padding: 16px;
+                padding: 0;
                 padding-top: calc(var(--header-height) + 16px);
+            }
+
+            .card {
+                width: 100% !important;
+                max-width: 100% !important;
+                margin: 0 0 16px 0 !important;
+                padding: 20px 16px !important;
+            }
+
+            .form-control,
+            .gsc-form-input {
+                width: 100% !important;
             }
         }
     </style>
 </head>
-<body class="<?php echo $dark_mode_class; ?>">
+<body class="<?php echo $dark_mode_class; ?> dashboard-page">
     <!-- Header -->
     <header class="header">
         <div class="header-left">
@@ -1243,6 +1260,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         .dark-mode .gsc-form-input:focus {
             border-color: #8ab4f8;
             box-shadow: 0 0 0 2px rgba(138, 180, 248, 0.2);
+        }
+
+        .dark-mode .gsc-form-input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
         }
 
         .dark-mode .gsc-form-hint {
