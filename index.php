@@ -274,12 +274,28 @@ try {
         }
 
         .dark-mode .hero {
-            background: #1a1a1a;
+            background: #0d0d0d;
+        }
+
+        .dark-mode .hero-overlay {
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.85) 0%, rgba(255, 107, 53, 0.3) 50%, rgba(0, 128, 0, 0.3) 100%);
+        }
+
+        .dark-mode .hero-overlay::before {
+            background: radial-gradient(circle at 30% 50%, rgba(255, 107, 53, 0.2) 0%, transparent 50%);
         }
 
         .dark-mode .hero-stats {
-            background: #2a2a2a;
-            border-color: #3a3a3a;
+            background: rgba(30, 30, 30, 0.6);
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .dark-mode .hero-stat-number {
+            color: #ffffff;
+        }
+
+        .dark-mode .hero-stat-label {
+            color: rgba(255, 255, 255, 0.8);
         }
 
         .dark-mode .features {
@@ -294,6 +310,15 @@ try {
         .dark-mode .stats {
             background: #1a1a1a;
             border-top-color: #2a2a2a;
+        }
+
+        .dark-mode .stat-item {
+            background: #2a2a2a;
+            border-color: #3a3a3a;
+        }
+
+        .dark-mode .stat-item:hover {
+            border-color: #FF6B35;
         }
 
         .dark-mode footer {
@@ -778,15 +803,72 @@ try {
         .hero {
             background: var(--bg-color);
             color: var(--text-color);
-            padding: 64px 0;
+            padding: 80px 0 100px;
             position: relative;
             overflow: hidden;
             transition: background 0.3s ease;
+            min-height: 700px;
+            display: flex;
+            align-items: center;
+        }
+
+        /* Hero Slideshow */
+        .hero-slideshow {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        .hero-slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            opacity: 0;
+            transform: scale(1.05);
+            transition: opacity 1.2s cubic-bezier(0.4, 0, 0.2, 1), transform 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .hero-slide.active {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .hero-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.7) 0%, rgba(255, 107, 53, 0.4) 50%, rgba(0, 128, 0, 0.5) 100%);
+            z-index: 2;
+        }
+
+        .hero-overlay::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 30% 50%, rgba(255, 107, 53, 0.15) 0%, transparent 50%);
+            animation: pulse 8s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.5; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(1.1); }
         }
 
         .hero-content {
             position: relative;
-            z-index: 2;
+            z-index: 3;
             max-width: 1200px;
             margin: 0 auto;
             padding: 0 16px;
@@ -796,15 +878,15 @@ try {
         .hero h1 {
             font-size: clamp(2.5rem, 5vw, 4.5rem);
             font-weight: 700;
-            margin-bottom: var(--gov-spacing-lg);
-            line-height: 1.2;
-            color: var(--text-white);
+            margin-bottom: 24px;
+            line-height: 1.1;
+            color: #ffffff;
             font-family: var(--font-heading);
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-            animation: fadeInUp 1s ease-out;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+            animation: slideUp 0.8s ease-out 0.2s both;
         }
 
-        @keyframes fadeInUp {
+        @keyframes slideUp {
             from {
                 opacity: 0;
                 transform: translateY(30px);
@@ -837,9 +919,17 @@ try {
         }
 
         .hero-subtitle {
-            font-size: clamp(1.1rem, 2vw, 1.5rem);
-            margin-bottom: var(--gov-spacing-xl);
+            font-size: clamp(1rem, 2vw, 1.25rem);
+            color: rgba(255, 255, 255, 0.95);
+            margin-bottom: 40px;
+            line-height: 1.7;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
             opacity: 0.95;
+            text-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+            animation: slideUp 0.8s ease-out 0.4s both;
+        }
             line-height: 1.6;
             color: var(--text-cream);
             font-family: var(--font-body);
@@ -854,13 +944,46 @@ try {
 
         .hero-stats {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 24px;
-            margin: 32px 0;
-            padding: 24px;
-            background: #f8f9fa;
-            border-radius: 8px;
-            border: 1px solid #e8eaed;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 20px;
+            margin: 40px 0;
+            padding: 28px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(20px);
+            animation: slideUp 0.8s ease-out 0.6s both;
+        }
+
+        .hero-stat {
+            text-align: center;
+            padding: 12px;
+            border-radius: 12px;
+            transition: transform 0.3s ease, background 0.3s ease;
+        }
+
+        .hero-stat:hover {
+            transform: translateY(-4px);
+            background: rgba(255, 255, 255, 0.12);
+        }
+
+        .hero-stat-number {
+            font-size: 2.8rem;
+            font-weight: 800;
+            color: #ffffff;
+            display: block;
+            margin-bottom: 6px;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+            letter-spacing: -1px;
+        }
+
+        .hero-stat-label {
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.9);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            font-weight: 600;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
         }
 
         .hero-stat {
@@ -888,48 +1011,55 @@ try {
             display: flex;
             gap: 16px;
             justify-content: center;
+            align-items: center;
             flex-wrap: wrap;
-            margin-top: var(--gov-spacing-xl);
+            margin-top: 40px;
+            animation: slideUp 0.8s ease-out 0.8s both;
         }
 
         .cta-btn {
-            padding: 10px 24px;
+            padding: 16px 32px;
             border: none;
-            border-radius: 25px;
-            font-size: 14px;
-            font-weight: 500;
+            border-radius: 50px;
+            font-size: 15px;
+            font-weight: 600;
             text-decoration: none;
-            transition: all 0.2s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             cursor: pointer;
             display: inline-flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
             position: relative;
             overflow: hidden;
             font-family: var(--font-body);
+            letter-spacing: 0.3px;
         }
 
         .cta-btn.primary {
-            background: var(--primary-orange);
-            color: white;
-            border: 1px solid var(--primary-orange);
+            background: #ffffff;
+            color: #FF6B35;
+            border: 2px solid #ffffff;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
         }
 
         .cta-btn.primary:hover {
-            background: #e55a2b;
-            border-color: #e55a2b;
-            box-shadow: 0 1px 3px 0 rgba(60,64,67,0.3), 0 4px 8px 3px rgba(60,64,67,0.15);
+            background: transparent;
+            color: #ffffff;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
         }
 
         .cta-btn.secondary {
             background: transparent;
-            color: var(--primary-orange);
-            border: 1px solid var(--border-color);
+            color: #ffffff;
+            border: 2px solid rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(10px);
         }
 
         .cta-btn.secondary:hover {
-            background: #f8f9fa;
-            border-color: var(--primary-orange);
+            background: rgba(255, 255, 255, 0.1);
+            border-color: #ffffff;
+            transform: translateY(-2px);
         }
 
         /* Government Services Section */
@@ -1014,10 +1144,10 @@ try {
 
         /* Government Stats Section */
         .stats {
-            background: #ffffff;
-            color: var(--text-color);
-            padding: 64px 0;
-            border-top: 1px solid var(--border-color);
+            background: #f8f9fa;
+            color: #202124;
+            padding: 80px 0;
+            border-top: 1px solid #e8eaed;
         }
 
         .stats .container {
@@ -1027,74 +1157,47 @@ try {
         }
 
         .stats .section-title {
-            color: var(--gov-white);
-            margin-bottom: var(--gov-spacing-xl);
+            color: #202124;
+            margin-bottom: 48px;
+            font-size: 2.25rem;
+            font-weight: 600;
+            text-align: center;
         }
 
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
             gap: 24px;
         }
 
         .stat-item {
             text-align: center;
-            padding: var(--gov-spacing-lg);
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: var(--gov-border-radius-lg);
-            backdrop-filter: blur(10px);
-            transition: all 0.4s ease;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .stat-item::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
-            transition: left 0.6s ease;
+            padding: 32px 20px;
+            background: #f8f9fa;
+            border: 1px solid #e8eaed;
+            border-radius: 12px;
+            transition: border-color 0.2s ease, transform 0.2s ease;
         }
 
         .stat-item:hover {
-            transform: translateY(-10px) scale(1.05);
-            background: rgba(255, 255, 255, 0.08);
-            border-color: var(--gov-primary);
-            box-shadow: 0 15px 35px rgba(0, 102, 204, 0.4);
-        }
-
-        .stat-item:hover::before {
-            left: 100%;
-        }
-
-        .stat-item:hover h3 {
-            color: var(--gov-primary-light);
-            transform: scale(1.1);
-        }
-
-        .stat-item:hover p {
-            color: #ffffff;
-            transform: translateY(-2px);
+            border-color: #FF6B35;
+            transform: translateY(-4px);
         }
 
         .stat-item h3 {
-            font-size: 2.5rem;
+            font-size: 2.75rem;
             font-weight: 700;
-            margin-bottom: var(--gov-spacing-sm);
-            color: var(--gov-white);
-            transition: all 0.3s ease;
+            margin-bottom: 8px;
+            color: #FF6B35;
+            line-height: 1;
         }
 
         .stat-item p {
-            font-size: 1rem;
+            font-size: 0.875rem;
+            color: #5f6368;
+            font-weight: 500;
             text-transform: uppercase;
-            letter-spacing: 1px;
-            opacity: 0.9;
-            transition: all 0.3s ease;
+            letter-spacing: 0.5px;
         }
 
         /* Footer */
@@ -1476,145 +1579,178 @@ try {
                 font-size: 2rem;
                 line-height: 1.3;
             }
-            
+
+            .hero-content {
+                max-width: 100%;
+                padding: 0;
+            }
+
+            .hero {
+                min-height: 500px;
+                padding: 48px 0;
+            }
+
             .hero-subtitle {
                 font-size: 1rem;
                 padding: 0 1rem;
             }
-            
+
             .hero-stats {
-                grid-template-columns: 1fr 1fr;
+                grid-template-columns: 1fr;
                 gap: 1rem;
-                padding: 1.5rem;
+                padding: 1.5rem 1rem;
+                margin: 24px 0;
+                width: 100%;
             }
-            
+
             .hero-stat-number {
                 font-size: 2rem;
             }
-            
+
             .hero-stat-label {
                 font-size: 0.8rem;
             }
-            
+
             .cta-buttons {
                 flex-direction: column;
                 align-items: center;
                 gap: 1rem;
                 padding: 0 1rem;
             }
-            
+
             .cta-btn {
                 width: 100%;
                 max-width: 280px;
                 justify-content: center;
                 padding: 1rem 1.5rem;
             }
-            
+
             .section-title {
                 font-size: 1.8rem;
                 padding: 0 1rem;
             }
-            
+
             .section-subtitle {
                 font-size: 1rem;
                 padding: 0 1rem;
             }
-            
+
             .features {
-                padding: 3rem 1rem;
+                padding: 3rem 0;
             }
-            
+
+            .features .container,
+            .stats .container {
+                max-width: 100%;
+                padding: 0 1rem;
+            }
+
             .features-grid {
                 grid-template-columns: 1fr;
                 gap: 24px;
             }
-            
+
             .feature-card {
                 padding: 24px;
+                width: 100%;
             }
-            
+
             .feature-icon {
                 font-size: 28px;
                 margin-bottom: 20px;
             }
-            
+
             .feature-card h3 {
                 font-size: 1.1rem;
             }
-            
+
             .feature-card p {
                 font-size: 0.9rem;
             }
-            
+
             .stats {
-                padding: 3rem 1rem;
+                padding: 3rem 0;
             }
-            
+
+            .stats .container {
+                max-width: 100%;
+                padding: 0 1rem;
+            }
+
             .stats-grid {
-                grid-template-columns: 1fr 1fr;
+                grid-template-columns: 1fr;
                 gap: 1rem;
             }
-            
+
             .stat-item {
                 padding: 1.5rem;
+                width: 100%;
             }
-            
+
             .stat-item h3 {
                 font-size: 2rem;
             }
-            
+
             .stat-item p {
                 font-size: 0.85rem;
             }
 
             .footer-grid {
-                grid-template-columns: 1fr 1fr;
+                grid-template-columns: 1fr !important;
                 gap: 2rem;
             }
-            
+
+            .footer-content {
+                max-width: 100% !important;
+                padding: 0 1rem;
+            }
+
             .footer-brand {
                 grid-column: 1 / -1;
                 text-align: left;
                 padding-left: 0;
             }
-            
+
             .footer-logo {
                 justify-content: flex-start;
             }
-            
+
             .footer-description {
-                display: none;
+                display: block !important;
             }
-            
+
             .footer-contact {
                 justify-content: flex-start;
             }
-            
+
             .footer-bottom {
                 flex-direction: column;
                 text-align: center;
                 gap: 1rem;
             }
         }
-        
+
         @media (max-width: 480px) {
             .footer-grid {
                 grid-template-columns: 1fr;
                 gap: 1.5rem;
             }
-            
+
             .hero-stats {
                 grid-template-columns: 1fr;
+                padding: 1rem;
+                gap: 0.75rem;
             }
-            
+
             .stats-grid {
                 grid-template-columns: 1fr;
+                gap: 0.75rem;
             }
-            
+
             .hero h1 {
                 font-size: 1.8rem;
             }
-            
+
             .section-title {
                 font-size: 1.5rem;
             }
@@ -1722,10 +1858,15 @@ try {
 
     <!-- Hero Section -->
     <header class="hero" role="banner">
+        <div class="hero-slideshow">
+            <div class="hero-slide active" style="background-image: url('assets/images/back.jpg');"></div>
+            <div class="hero-slide" style="background-image: url('assets/images/Anjeline-C0XI691E.jpg');"></div>
+        </div>
+        <div class="hero-overlay"></div>
         <div class="hero-content">
-            <h1 itemprop="description" style="font-size: 36px; font-weight: 400; color: var(--text-color); margin-bottom: 16px;">Kenya's Complete Education Management Platform</h1>
-            <p class="hero-subtitle" style="font-size: 16px; color: var(--text-secondary); margin-bottom: 32px;">Connecting schools, students, parents, and teachers with comprehensive management tools and free educational resources for academic excellence.</p>
-            
+            <h1 itemprop="description" style="font-size: 36px; font-weight: 400; color: #ffffff; margin-bottom: 16px; text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);">Kenya's Complete Education Management Platform</h1>
+            <p class="hero-subtitle" style="font-size: 16px; color: #ffffff; margin-bottom: 32px; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);">Connecting schools, students, parents, and teachers with comprehensive management tools and free educational resources for academic excellence.</p>
+
             <div class="hero-stats">
                 <div class="hero-stat">
                     <span class="hero-stat-number"><?php echo $total_users; ?>+</span>
@@ -1744,7 +1885,7 @@ try {
                     <span class="hero-stat-label">Institutions</span>
                 </div>
             </div>
-            
+
             <div class="cta-buttons">
                 <a href="auth/register" class="cta-btn primary">
                     <i class="fas fa-download"></i>
@@ -2011,6 +2152,30 @@ try {
     </footer>
     
     <script>
+        // Hero Slideshow
+        document.addEventListener('DOMContentLoaded', function() {
+            const slides = document.querySelectorAll('.hero-slide');
+            let currentSlide = 0;
+            const slideInterval = 5000; // 5 seconds per slide
+
+            function showSlide(index) {
+                slides.forEach((slide, i) => {
+                    slide.classList.remove('active');
+                    if (i === index) {
+                        slide.classList.add('active');
+                    }
+                });
+            }
+
+            function nextSlide() {
+                currentSlide = (currentSlide + 1) % slides.length;
+                showSlide(currentSlide);
+            }
+
+            // Start slideshow
+            setInterval(nextSlide, slideInterval);
+        });
+
         // Add mobile menu functionality
         const mobileMenuToggle = document.getElementById('mobileMenuToggle');
         const navButtons = document.getElementById('navButtons');
@@ -2120,17 +2285,6 @@ try {
         // Observe feature cards and stat items
         document.querySelectorAll('.feature-card, .stat-item').forEach(el => {
             observer.observe(el);
-        });
-        
-        // Add hover effect for CTA buttons
-        document.querySelectorAll('.cta-btn').forEach(btn => {
-            btn.addEventListener('mouseenter', function() {
-                this.style.transform = 'translateY(-4px) scale(1.05)';
-            });
-            
-            btn.addEventListener('mouseleave', function() {
-                this.style.transform = 'translateY(0) scale(1)';
-            });
         });
     </script>
     

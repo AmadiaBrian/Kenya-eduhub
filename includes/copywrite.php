@@ -22,12 +22,16 @@
     }
 
     /* Fix for flex-centered login pages - footer should be at bottom */
-    body > .kenya-eduhub-footer-unique-2026 {
+    body.login-page > .kenya-eduhub-footer-unique-2026 {
         position: fixed;
         bottom: 0;
         left: 0;
         right: 0;
         z-index: 1;
+    }
+
+    body.dashboard-page > .kenya-eduhub-footer-unique-2026 {
+        position: static;
     }
 
     .kenya-eduhub-footer-text-unique-2026 {
@@ -72,6 +76,14 @@
         .kenya-eduhub-footer-text-unique-2026 {
             gap: 4px;
         }
+
+        /* Keep footer in one line on login and dashboard pages on mobile */
+        body.login-page .kenya-eduhub-footer-text-unique-2026,
+        body.dashboard-page .kenya-eduhub-footer-text-unique-2026 {
+            flex-direction: row;
+            flex-wrap: wrap;
+            gap: 4px;
+        }
     }
 
     @media (max-width: 480px) {
@@ -83,6 +95,14 @@
         .kenya-eduhub-footer-text-unique-2026 {
             flex-direction: column;
             gap: 2px;
+        }
+
+        /* Keep footer in one line on login pages even on small screens */
+        body.login-page .kenya-eduhub-footer-text-unique-2026,
+        body.dashboard-page .kenya-eduhub-footer-text-unique-2026 {
+            flex-direction: row;
+            flex-wrap: wrap;
+            gap: 4px;
         }
     }
 </style>

@@ -370,6 +370,7 @@ if (isset($_POST['change_password'])) {
             background: var(--card-bg);
             color: var(--text-color);
             transition: border-color 0.2s;
+            box-sizing: border-box;
         }
         
         .form-control:focus {
@@ -384,7 +385,11 @@ if (isset($_POST['change_password'])) {
         .dark-mode .form-control:focus {
             border-color: var(--primary-gold);
         }
-        
+
+        .dark-mode .form-control::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
         .btn {
             padding: 10px 24px;
             border: none;
@@ -475,25 +480,37 @@ if (isset($_POST['change_password'])) {
             .sidebar {
                 transform: translateX(-256px);
             }
-            
+
             .sidebar.show {
                 transform: translateX(0);
             }
-            
+
             .main-content {
                 margin-left: 0;
-                padding: 16px;
+                padding: 0;
                 padding-top: calc(var(--header-height) + 16px);
             }
-            
+
             .profile-header {
                 flex-direction: column;
                 text-align: center;
+                padding: 0 16px;
+            }
+
+            .card {
+                width: 100% !important;
+                max-width: 100% !important;
+                margin: 0 0 16px 0 !important;
+                padding: 20px 16px !important;
+            }
+
+            .form-control {
+                width: 100% !important;
             }
         }
     </style>
 </head>
-<body class="<?php echo $dark_mode_class; ?>">
+<body class="<?php echo $dark_mode_class; ?> dashboard-page">
     <!-- Header -->
     <header class="header">
         <div class="header-left">
@@ -572,11 +589,11 @@ if (isset($_POST['change_password'])) {
                 <form method="POST">
                     <div class="form-group">
                         <label for="name">Full Name</label>
-                        <input type="text" id="name" name="name" class="form-control" value="<?php echo htmlspecialchars($user['name'] ?? ''); ?>" required>
+                        <input type="text" id="name" name="name" class="form-control" value="<?php echo htmlspecialchars($user['name'] ?? ''); ?>" placeholder="Enter your full name" required>
                     </div>
                     <div class="form-group">
                         <label for="email">Email Address</label>
-                        <input type="email" id="email" name="email" class="form-control" value="<?php echo htmlspecialchars($user['email'] ?? ''); ?>" required>
+                        <input type="email" id="email" name="email" class="form-control" value="<?php echo htmlspecialchars($user['email'] ?? ''); ?>" placeholder="Enter your email address" required>
                     </div>
                     <button type="submit" class="btn btn-primary">
                         <i class="fas fa-save"></i> Update Profile
@@ -606,15 +623,15 @@ if (isset($_POST['change_password'])) {
                 <form method="POST">
                     <div class="form-group">
                         <label for="current_password">Current Password</label>
-                        <input type="password" id="current_password" name="current_password" class="form-control" required>
+                        <input type="password" id="current_password" name="current_password" class="form-control" placeholder="Enter your current password" required>
                     </div>
                     <div class="form-group">
                         <label for="new_password">New Password</label>
-                        <input type="password" id="new_password" name="new_password" class="form-control" required>
+                        <input type="password" id="new_password" name="new_password" class="form-control" placeholder="Enter your new password" required>
                     </div>
                     <div class="form-group">
                         <label for="confirm_password">Confirm New Password</label>
-                        <input type="password" id="confirm_password" name="confirm_password" class="form-control" required>
+                        <input type="password" id="confirm_password" name="confirm_password" class="form-control" placeholder="Confirm your new password" required>
                     </div>
                     <button type="submit" name="change_password" class="btn btn-primary">
                         <i class="fas fa-key"></i> Change Password
