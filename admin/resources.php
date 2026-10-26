@@ -122,19 +122,24 @@ $subjects = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 $total_resources_count = 0;
 $total_downloads = 0;
 $featured_count = 0;
+$total_file_size = 0;
 
 try {
     $stmt = $conn->prepare("SELECT COUNT(*) as total FROM resources");
     $stmt->execute();
     $total_resources_count = $stmt->get_result()->fetch_assoc()['total'];
-    
+
     $stmt = $conn->prepare("SELECT SUM(downloads) as total FROM resources");
     $stmt->execute();
     $total_downloads = $stmt->get_result()->fetch_assoc()['total'] ?? 0;
-    
+
     $stmt = $conn->prepare("SELECT COUNT(*) as total FROM resources WHERE featured = 1");
     $stmt->execute();
     $featured_count = $stmt->get_result()->fetch_assoc()['total'];
+
+    $stmt = $conn->prepare("SELECT SUM(file_size) as total FROM resources");
+    $stmt->execute();
+    $total_file_size = $stmt->get_result()->fetch_assoc()['total'] ?? 0;
 } catch (Exception $e) {
     // Keep defaults if queries fail
 }
@@ -283,6 +288,7 @@ try {
             font-weight: 400;
             color: #202124;
             margin-bottom: 24px;
+            text-align: center;
         }
         
         .header {
@@ -370,28 +376,61 @@ try {
         
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
             margin-bottom: 30px;
         }
-        
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
         .stat-card {
-            background: #f8f9fa;
-            padding: 25px;
-            border-radius: 8px;
+            background: var(--card-bg);
+            padding: 24px;
+            border-radius: 12px;
             border: 1px solid #e8eaed;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            transition: transform 0.2s, box-shadow 0.2s;
         }
-        
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255, 107, 53, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 12px;
+        }
+
+        .stat-icon i {
+            font-size: 20px;
+            color: #FF6B35;
+        }
+
         .stat-card h3 {
-            font-size: 36px;
-            font-weight: 400;
-            color: var(--primary-color);
-            margin-bottom: 5px;
+            font-size: 32px;
+            font-weight: 700;
+            color: #202124;
+            margin-bottom: 4px;
         }
-        
+
         .stat-card p {
             font-size: 14px;
-            color: var(--secondary-color);
+            color: #5f6368;
+            margin: 0;
         }
         
         .card {
@@ -406,14 +445,15 @@ try {
             padding: 20px 25px;
             border-bottom: 1px solid #e8eaed;
             display: flex;
-            justify-content: space-between;
+            justify-content: center;
             align-items: center;
         }
-        
+
         .card-header h2 {
             font-size: 20px;
             font-weight: 500;
             color: #202124;
+            text-align: center;
         }
         
         .btn {
@@ -493,7 +533,7 @@ try {
             align-items: center;
             background: white;
             border: 1px solid #e8eaed;
-            border-radius: 8px;
+            border-radius: 25px;
             padding: 8px 12px;
             width: 300px;
         }
@@ -557,7 +597,7 @@ try {
         }
     </style>
 </head>
-<body>
+<body class="dashboard-page">
     <!-- Header -->
     <?php require_once 'includes/header.php'; ?>
 
@@ -580,28 +620,47 @@ try {
         <!-- Statistics -->
         <div class="stats-grid">
             <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-file-alt"></i>
+                </div>
                 <h3><?php echo $total_resources_count; ?></h3>
                 <p>Total Resources</p>
             </div>
             <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-download"></i>
+                </div>
                 <h3><?php echo $total_downloads; ?></h3>
                 <p>Total Downloads</p>
             </div>
             <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-star"></i>
+                </div>
                 <h3><?php echo $featured_count; ?></h3>
                 <p>Featured Resources</p>
             </div>
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-hdd"></i>
+                </div>
+                <h3><?php echo formatFileSize($total_file_size); ?></h3>
+                <p>Total Storage</p>
+            </div>
         </div>
 
-        <div class="card">
+        <!-- Search & Filter -->
+        <div class="card mb-4">
             <div class="card-header">
-                <h2>All Resources</h2>
-                <div style="display: flex; gap: 12px; align-items: center;">
-                    <div class="search-box">
+                <h2>Search & Filter</h2>
+            </div>
+            <div class="card-body">
+                <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+                    <div class="search-box" style="flex: 1; min-width: 200px;">
                         <i class="fas fa-search"></i>
-                        <input type="text" placeholder="Search resources..." value="<?php echo htmlspecialchars($search); ?>">
+                        <input type="text" id="searchInput" placeholder="Search resources..." value="<?php echo htmlspecialchars($search); ?>">
                     </div>
-                    <select class="filter-select">
+                    <select class="filter-select" id="subjectFilter">
                         <option value="">All Subjects</option>
                         <?php foreach ($subjects as $subject): ?>
                             <option value="<?php echo htmlspecialchars($subject['subject']); ?>" <?php echo $subject_filter === $subject['subject'] ? 'selected' : ''; ?>>
@@ -610,6 +669,12 @@ try {
                         <?php endforeach; ?>
                     </select>
                 </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h2>All Resources</h2>
             </div>
             <div class="card-body" style="padding: 25px;">
                 <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px;">
@@ -727,10 +792,30 @@ try {
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        // Real-time search
+        const searchInput = document.getElementById('searchInput');
+        const subjectFilter = document.getElementById('subjectFilter');
+
+        if (searchInput) {
+            searchInput.addEventListener('input', function(e) {
+                const searchValue = e.target.value;
+                const subjectValue = subjectFilter ? subjectFilter.value : '';
+                window.location.href = '?search=' + encodeURIComponent(searchValue) + '&subject=' + encodeURIComponent(subjectValue);
+            });
+        }
+
+        if (subjectFilter) {
+            subjectFilter.addEventListener('change', function(e) {
+                const searchValue = searchInput ? searchInput.value : '';
+                const subjectValue = e.target.value;
+                window.location.href = '?search=' + encodeURIComponent(searchValue) + '&subject=' + encodeURIComponent(subjectValue);
+            });
+        }
+
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
             const mainContent = document.getElementById('mainContent');
-            
+
             if (window.innerWidth <= 768) {
                 sidebar.classList.toggle('show');
             } else {
@@ -738,7 +823,7 @@ try {
                 mainContent.classList.toggle('expanded');
             }
         }
-        
+
         function toggleSidebarSection(element) {
             element.classList.toggle('collapsed');
             const links = element.nextElementSibling;

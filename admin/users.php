@@ -103,11 +103,12 @@ $stmt->execute();
 $recent_users = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 
 // Get total users count for statistics
-$stmt = $conn->prepare("SELECT COUNT(*) as total, SUM(CASE WHEN is_verified = 1 THEN 1 ELSE 0 END) as active FROM users");
+$stmt = $conn->prepare("SELECT COUNT(*) as total, SUM(CASE WHEN is_verified = 1 THEN 1 ELSE 0 END) as active, SUM(CASE WHEN role = 'admin' THEN 1 ELSE 0 END) as admins FROM users");
 $stmt->execute();
 $stats = $stmt->get_result()->fetch_assoc();
 $total_users_count = $stats['total'];
 $total_active_users = $stats['active'];
+$total_admin_users = $stats['admins'];
 ?>
 
 <!DOCTYPE html>
@@ -125,24 +126,30 @@ $total_active_users = $stats['active'];
             --primary-color: #1a73e8;
             --secondary-color: #5f6368;
             --bg-color: #f8f9fa;
-            --card-bg: #ffffff;
+            --card-bg: #f8f9fa;
             --sidebar-width: 256px;
             --header-height: 64px;
+            --primary-orange: #FF6B35;
+            --primary-gold: #ffc107;
+            --text-color: #202124;
+            --border-color: #e8eaed;
+            --form-border-color: #dadce0;
+            --card-hover-bg: #f8f9fa;
         }
-        
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         body {
             background: var(--bg-color);
             font-family: 'Google Sans', 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             font-size: 14px;
-            color: #202124;
+            color: var(--text-color);
         }
-        
+
         .sidebar {
             position: fixed;
             top: var(--header-height);
@@ -150,66 +157,27 @@ $total_active_users = $stats['active'];
             width: var(--sidebar-width);
             height: calc(100vh - var(--header-height));
             background: var(--bg-color);
+            border-right: 1px solid var(--border-color);
             overflow-y: auto;
             transition: transform 0.3s ease;
             z-index: 999;
             scrollbar-width: none;
             -ms-overflow-style: none;
         }
-        
+
         .sidebar::-webkit-scrollbar {
             display: none;
         }
-        
+
         .sidebar.collapsed {
             transform: translateX(-256px);
         }
-        
-        .sidebar-section {
-            padding: 12px 0;
-        }
-        
-        .sidebar-title {
-            padding: 8px 24px;
-            font-size: 12px;
-            font-weight: 500;
-            color: #5f6368;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            cursor: pointer;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            user-select: none;
-        }
-        
-        .sidebar-title:hover {
-            background: #f1f3f4;
-        }
-        
-        .sidebar-title .chevron {
-            transition: transform 0.3s ease;
-        }
-        
-        .sidebar-title.collapsed .chevron {
-            transform: rotate(-90deg);
-        }
-        
-        .sidebar-links {
-            max-height: 1000px;
-            overflow: hidden;
-            transition: max-height 0.3s ease;
-        }
-        
-        .sidebar-links.collapsed {
-            max-height: 0;
-        }
-        
+
         .nav-link {
             display: flex;
             align-items: center;
             padding: 10px 24px;
-            color: #5f6368;
+            color: var(--secondary-color);
             text-decoration: none;
             transition: background 0.2s;
             border: none;
@@ -219,16 +187,16 @@ $total_active_users = $stats['active'];
             cursor: pointer;
             font-size: 14px;
         }
-        
+
         .nav-link:hover {
             background: #f1f3f4;
         }
-        
+
         .nav-link.active {
             background: #e8f0fe;
             color: var(--primary-color);
         }
-        
+
         .nav-link i {
             margin-right: 12px;
             font-size: 18px;
@@ -236,25 +204,30 @@ $total_active_users = $stats['active'];
             text-align: center;
             color: #FF6B35;
         }
-        
+
+        .nav-link.active i {
+            color: var(--primary-color);
+        }
+
         .main-content {
             margin-left: var(--sidebar-width);
             margin-top: var(--header-height);
             padding: 24px;
             transition: margin-left 0.3s ease;
         }
-        
+
         .main-content.expanded {
             margin-left: 0;
         }
-        
+
         .page-title {
             font-size: 22px;
             font-weight: 400;
-            color: #202124;
+            color: var(--text-color);
             margin-bottom: 24px;
+            text-align: center;
         }
-        
+
         .header {
             position: fixed !important;
             top: 0;
@@ -262,19 +235,19 @@ $total_active_users = $stats['active'];
             right: 0;
             height: var(--header-height);
             background: var(--card-bg);
-            border-bottom: 1px solid #e8eaed;
+            border-bottom: 1px solid var(--border-color);
             display: flex;
             align-items: center;
             padding: 0 24px;
             z-index: 1000;
         }
-        
+
         .header-left {
             display: flex;
             align-items: center;
             gap: 16px;
         }
-        
+
         .menu-btn {
             background: none;
             border: none;
@@ -283,37 +256,38 @@ $total_active_users = $stats['active'];
             border-radius: 50%;
             color: #5f6368;
             transition: background 0.2s;
+            font-size: 18px;
         }
-        
+
         .menu-btn:hover {
             background: #f1f3f4;
         }
-        
+
         .logo {
             display: flex;
             align-items: center;
             gap: 8px;
             font-size: 18px;
             font-weight: 400;
-            color: #202124;
+            color: var(--text-color);
         }
-        
+
         .logo i {
-            color: var(--primary-color);
+            color: var(--primary-orange);
         }
-        
+
         .header-right {
             margin-left: auto;
             display: flex;
             align-items: center;
             gap: 16px;
         }
-        
+
         .user-avatar {
             width: 32px;
             height: 32px;
             border-radius: 50%;
-            background: var(--primary-color);
+            background: var(--primary-orange);
             color: white;
             display: flex;
             align-items: center;
@@ -321,71 +295,95 @@ $total_active_users = $stats['active'];
             font-weight: 500;
             font-size: 14px;
         }
-        
+
         @media (max-width: 768px) {
             .sidebar {
                 transform: translateX(-256px);
             }
-            
+
             .sidebar.show {
                 transform: translateX(0);
             }
-            
+
             .main-content {
                 margin-left: 0;
                 padding: 16px;
                 padding-top: calc(var(--header-height) + 16px);
             }
         }
-        
+
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
         }
-        
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 16px !important;
+            }
+        }
+
         .stat-card {
-            background: transparent;
-            padding: 25px;
-            border-radius: 8px;
+            background: var(--bg-color, #f8f9fa);
             border: 1px solid #e8eaed;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: none;
+            transition: box-shadow 0.3s ease;
         }
-        
+
+        .stat-card:hover {
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
         .stat-card h3 {
-            font-size: 36px;
-            font-weight: 400;
-            color: var(--primary-color);
-            margin-bottom: 5px;
+            font-size: 32px;
+            font-weight: 700;
+            color: #202124;
+            margin-bottom: 4px;
+            text-align: center;
         }
-        
+
         .stat-card p {
             font-size: 14px;
-            color: var(--secondary-color);
+            color: #5f6368;
+            margin: 0;
+            font-weight: 500;
+            text-align: center;
         }
-        
+
+        .stat-card i {
+            color: var(--primary-orange) !important;
+        }
+
         .card {
-            background: transparent;
+            background: var(--card-bg);
             border-radius: 8px;
-            border: 1px solid #e8eaed;
+            border: 1px solid var(--border-color);
             overflow: hidden;
+            transition: background 0.3s ease, border-color 0.3s ease;
         }
-        
+
         .card-header {
             background: transparent;
             padding: 20px 25px;
-            border-bottom: 1px solid #e8eaed;
+            border-bottom: 1px solid var(--border-color);
             display: flex;
-            justify-content: space-between;
+            justify-content: center;
             align-items: center;
         }
-        
+
         .card-header h2 {
             font-size: 20px;
             font-weight: 500;
-            color: #202124;
+            color: var(--text-color);
+            text-align: center;
         }
-        
+
         .btn {
             padding: 10px 24px;
             border: none;
@@ -393,105 +391,166 @@ $total_active_users = $stats['active'];
             cursor: pointer;
             font-size: 14px;
             font-weight: 500;
-            transition: background 0.2s;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
         }
-        
+
         .btn-primary {
-            background: #FF6B35;
+            background: var(--primary-orange);
             color: white;
         }
-        
+
         .btn-primary:hover {
             background: #e55a2b;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 107, 53, 0.4);
         }
-        
+
         .btn-sm {
             padding: 6px 12px;
             font-size: 12px;
         }
-        
+
         .btn-action {
-            background: #f8f9fa;
-            color: #000;
+            background: #f1f3f4;
+            color: #202124;
             border: 1px solid #000;
             cursor: pointer;
+            transition: all 0.3s ease;
         }
-        
+
         .btn-action:hover {
-            background: #e9ecef;
+            background: var(--primary-orange);
+            color: white;
+            border-color: #000;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 107, 53, 0.4);
         }
 
         .table-responsive {
             overflow-x: auto;
         }
-        
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            background: white;
-            border: 1px solid #000;
-        }
-        
-        thead {
-            background: #f0f0f0;
-            border-bottom: 2px solid #000;
-        }
-        
-        th {
-            padding: 12px 15px;
-            text-align: left;
-            font-weight: 500;
-            font-size: 13px;
-            color: #000;
-            border: 1px solid #000;
-            border-bottom: 2px solid #000;
-        }
-        
-        td {
-            padding: 12px 15px;
-            font-size: 13px;
-            border: 1px solid #000;
-            color: #000;
-        }
-        
-        tbody tr:hover {
-            background: #f8f9fa;
-        }
-        
+
         .status-badge {
             padding: 4px 12px;
             border-radius: 16px;
             font-size: 12px;
             font-weight: 500;
         }
-        
+
         .status-active {
             background: #e6f4ea;
             color: #137333;
         }
-        
+
         .status-inactive {
             background: #fce8e6;
             color: #c5221f;
         }
-        
+
         .status-suspended {
             background: #fef7e0;
             color: #f9ab00;
         }
-        
+
         .nav-back {
             margin-bottom: 20px;
         }
-        
+
         .nav-back a {
             color: var(--primary-color);
             text-decoration: none;
             font-size: 14px;
         }
+
+        input[type="text"] {
+            padding: 8px 12px;
+            border: 1px solid #e8eaed;
+            border-radius: 25px;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.2s;
+            background: var(--bg-color);
+            color: var(--text-color);
+        }
+
+        input[type="text"]:focus {
+            border-color: var(--primary-orange);
+            box-shadow: 0 0 0 2px rgba(255, 107, 53, 0.2);
+        }
+
+        /* PDF-style table */
+        .pdf-table {
+            border: 2px solid #000;
+            border-collapse: collapse;
+            background: #ffffff;
+            font-family: 'Times New Roman', Times, serif;
+        }
+
+        .pdf-table thead {
+            background: #f0f0f0;
+            border-bottom: 2px solid #000;
+        }
+
+        .pdf-table th {
+            border: 1px solid #000;
+            padding: 12px 15px;
+            text-align: left;
+            font-weight: bold;
+            font-size: 14px;
+            color: #000;
+            background: #f0f0f0;
+        }
+
+        .pdf-table td {
+            border: 1px solid #000;
+            padding: 12px 15px;
+            font-size: 12px;
+            color: #000;
+            font-family: 'Times New Roman', Times, serif;
+        }
+
+        .pdf-table tbody tr:nth-child(even) {
+            background: #fafafa;
+        }
+
+        .pdf-table tbody tr:hover {
+            background: #e8e8e8;
+        }
+
+        /* Dark mode PDF table */
+        .dark-mode .pdf-table {
+            border: 2px solid var(--primary-gold);
+            background: #1a1a1a;
+        }
+
+        .dark-mode .pdf-table thead {
+            background: #252525;
+            border-bottom: 2px solid var(--primary-gold);
+        }
+
+        .dark-mode .pdf-table th {
+            border: 1px solid #ffc107;
+            color: #ffffff;
+            background: #252525;
+        }
+
+        .dark-mode .pdf-table td {
+            border: 1px solid #ffc107;
+            color: #ffffff;
+        }
+
+        .dark-mode .pdf-table tbody tr:nth-child(even) {
+            background: #2a2a2a;
+        }
+
+        .dark-mode .pdf-table tbody tr:hover {
+            background: #3a3a3a;
+        }
     </style>
 </head>
-<body>
+<body class="dashboard-page">
     <!-- Header -->
     <?php require_once 'includes/header.php'; ?>
     
@@ -508,27 +567,41 @@ $total_active_users = $stats['active'];
         <!-- Statistics -->
         <div class="stats-grid">
             <div class="stat-card">
-                <h3><?php echo $total_users_count; ?></h3>
-                <p>Total Users</p>
+                <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
+                    <h3><?php echo $total_users_count; ?></h3>
+                    <p>Total Users</p>
+                </div>
             </div>
             <div class="stat-card">
-                <h3><?php echo $total_active_users; ?></h3>
-                <p>Active Users</p>
+                <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
+                    <h3><?php echo $total_active_users; ?></h3>
+                    <p>Active Users</p>
+                </div>
             </div>
             <div class="stat-card">
-                <h3><?php echo $total_users_count - $total_active_users; ?></h3>
-                <p>Inactive Users</p>
+                <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
+                    <h3><?php echo $total_users_count - $total_active_users; ?></h3>
+                    <p>Inactive Users</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
+                    <h3><?php echo $total_admin_users; ?></h3>
+                    <p>Admin Users</p>
+                </div>
             </div>
         </div>
-        
-        <!-- Users Table -->
-        <div class="card">
+
+        <!-- Search and Filter Section -->
+        <div class="card" style="margin-bottom: 24px;">
             <div class="card-header">
-                <h2>All Users</h2>
-                <form method="GET" style="display: flex; gap: 10px;">
-                    <input type="text" name="search" placeholder="Search users..." 
+                <h2>Search & Filter</h2>
+            </div>
+            <div class="card-body">
+                <form method="GET" style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
+                    <input type="text" name="search" placeholder="Search users..."
                            value="<?php echo htmlspecialchars($search); ?>"
-                           style="padding: 8px 12px; border: 1px solid #e8eaed; border-radius: 4px;">
+                           style="padding: 8px 12px; border: 1px solid #e8eaed; border-radius: 25px; flex: 1; min-width: 200px; background: var(--bg-color); color: var(--text-color);">
                     <button type="submit" class="btn btn-primary btn-sm">
                         <i class="fas fa-search"></i> Search
                     </button>
@@ -539,8 +612,15 @@ $total_active_users = $stats['active'];
                     <?php endif; ?>
                 </form>
             </div>
+        </div>
+
+        <!-- Users Table -->
+        <div class="card">
+            <div class="card-header">
+                <h2>All Users</h2>
+            </div>
             <div class="table-responsive">
-                <table>
+                <table class="pdf-table">
                     <thead>
                         <tr>
                             <th>ID</th>
@@ -659,7 +739,15 @@ $total_active_users = $stats['active'];
         }
 
         function performToggleStatus(id, status) {
-            fetch('api/users.php?action=toggle_status&id=' + id + '&status=' + status + '&csrf_token=' + window.currentCSRFToken)
+            const formData = new FormData();
+            formData.append('action', 'toggle_verification');
+            formData.append('user_id', id);
+            formData.append('csrf_token', window.currentCSRFToken);
+
+            fetch('../api/users.php', {
+                method: 'POST',
+                body: formData
+            })
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
@@ -669,7 +757,7 @@ $total_active_users = $stats['active'];
                             statusBadge.className = 'status-badge ' + (status == 1 ? 'status-active' : 'status-inactive');
                             statusBadge.textContent = status == 1 ? 'Verified' : 'Not Verified';
                         }
-                        
+
                         // Update the button icon
                         const button = document.querySelector(`button[onclick*="toggleUserStatus(${id}"]`);
                         if (button) {
@@ -678,7 +766,7 @@ $total_active_users = $stats['active'];
                                 icon.className = 'fas fa-' + (status == 1 ? 'ban' : 'check');
                             }
                         }
-                        
+
                         // Show success message in modal
                         showResultModal(data.message, true);
                     } else {
@@ -723,9 +811,17 @@ $total_active_users = $stats['active'];
                     modal.hide();
                 }
             }
-            
-            // Perform delete via AJAX
-            fetch('api/users.php?action=delete&id=' + id + '&csrf_token=' + window.currentCSRFToken)
+
+            // Perform delete via AJAX using POST
+            const formData = new FormData();
+            formData.append('action', 'delete_user');
+            formData.append('user_id', id);
+            formData.append('csrf_token', window.currentCSRFToken);
+
+            fetch('../api/users.php', {
+                method: 'POST',
+                body: formData
+            })
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {

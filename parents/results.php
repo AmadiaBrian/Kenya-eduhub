@@ -341,7 +341,7 @@ if ($parent) {
         
         .form-control {
             border: 1px solid #dadce0;
-            border-radius: 8px;
+            border-radius: 25px;
             padding: 10px 12px;
             font-size: 14px;
             background: var(--bg-color);
@@ -354,7 +354,7 @@ if ($parent) {
         
         .btn {
             padding: 10px 24px;
-            border-radius: 4px;
+            border-radius: 25px;
             font-size: 14px;
             font-weight: 500;
             border: none;
@@ -375,44 +375,45 @@ if ($parent) {
             width: 100%;
             border-collapse: collapse;
             background: white;
-            border: 1px solid #000;
+            border: 2px solid #000;
             margin: 0;
+            font-family: 'Times New Roman', Times, serif;
         }
-        
+
         .table-responsive {
             width: 100%;
             overflow-x: auto;
         }
-        
+
         .table thead {
-            background: #FF6B35 !important;
+            background: #f0f0f0;
             border-bottom: 2px solid #000;
         }
 
         .table thead th {
-            background: #FF6B35 !important;
+            background: #f0f0f0;
             text-align: left;
             padding: 12px;
             font-size: 13px;
-            font-weight: 600;
-            color: #ffffff !important;
-            border: 1px solid #000;
+            font-weight: bold;
+            color: #000;
+            border: 2px solid #000;
             border-bottom: 2px solid #000;
         }
-        
+
         .table td {
             padding: 12px;
             font-size: 13px;
             color: #000;
-            border: 1px solid #000;
+            border: 2px solid #000;
         }
-        
+
         .table tbody tr:nth-child(even) {
-            background: #f9f9f9;
+            background: #fafafa;
         }
-        
+
         .table tbody tr:hover {
-            background: #f0f0f0;
+            background: #f8f9fa;
         }
         
         /* Responsive */
@@ -561,7 +562,7 @@ if ($parent) {
         }
     </style>
 </head>
-<body>
+<body class="dashboard-page">
     <!-- Header -->
     <?php require_once 'includes/header.php'; ?>
     

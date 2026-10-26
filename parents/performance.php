@@ -430,42 +430,32 @@ try {
             width: 100%;
             border-collapse: collapse;
             background: white;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border: 2px solid #000;
+            margin: 0;
+            font-family: 'Times New Roman', Times, serif;
         }
 
         .table th,
         .table td {
             padding: 12px 16px;
             text-align: left;
-            border: 1px solid #000;
-            border-bottom: 1px solid #000;
-            border-right: 1px solid #000;
+            border: 2px solid #000;
         }
 
         .table th {
-            background: #FF6B35 !important;
-            font-weight: 600;
-            color: #ffffff !important;
-            font-size: 12px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            border-top: 2px solid #000;
-        }
-
-        .table th:last-child {
-            border-right: 2px solid #000;
-        }
-
-        .table td:last-child {
-            border-right: 2px solid #000;
-        }
-
-        .table tbody tr:last-child td {
+            background: #f0f0f0;
+            font-weight: bold;
+            color: #000;
+            font-size: 13px;
             border-bottom: 2px solid #000;
         }
 
+        .table tbody tr:nth-child(even) {
+            background: #fafafa;
+        }
+
         .table tbody tr:hover {
-            background: #f9f9f9;
+            background: #f8f9fa;
         }
 
         .table-responsive {
@@ -477,10 +467,14 @@ try {
         .pdf-document {
             background: var(--bg-color);
             border: none;
-            padding: 30px;
+            padding: 0;
             margin-bottom: 25px;
             box-shadow: none;
             border-radius: 0;
+        }
+
+        .pdf-header {
+            padding: 20px;
         }
         
         .pdf-header {
@@ -640,28 +634,47 @@ try {
             }
             
             .main-content {
-                margin-left: 0;
-                padding: 10px;
+                margin-left: 0 !important;
+                padding: 0 !important;
+                width: 100% !important;
             }
-            
+
             .filters {
                 flex-direction: column;
+                padding: 20px !important;
             }
-            
+
             .card {
-                padding: 10px;
-                margin-bottom: 15px;
+                padding: 0 !important;
+                margin: 0 !important;
+                width: 100% !important;
+                border: none !important;
             }
-            
+
+            .card-title {
+                padding: 20px !important;
+            }
+
+            .pdf-document {
+                width: 100% !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+
+            .pdf-header {
+                padding: 20px !important;
+                width: 100% !important;
+            }
+
             .table-responsive {
                 overflow-x: auto;
-                margin: 0 -10px;
-                padding: 0 10px;
-                width: 100%;
+                margin: 0 !important;
+                padding: 0 20px 20px 20px !important;
+                width: 100% !important;
             }
-            
+
             .table {
-                min-width: 100vw;
+                width: 100% !important;
                 width: 100%;
             }
             
@@ -688,7 +701,7 @@ try {
         }
     </style>
 </head>
-<body>
+<body class="dashboard-page">
     <!-- Header -->
     <?php require_once 'includes/header.php'; ?>
     
@@ -705,9 +718,9 @@ try {
             View academic performance records
         </p>
         
-        <div class="card">
-            <h2 class="card-title">Filter Performance Records</h2>
-            <div class="filters">
+        <div class="card" style="padding: 0;">
+            <h2 class="card-title" style="padding: 20px;">Filter Performance Records</h2>
+            <div class="filters" style="padding: 0 20px 20px 20px;">
                 <div class="filter-group">
                     <label>Select Child</label>
                     <select class="form-control" id="childFilter" onchange="applyFilters()">
@@ -752,9 +765,9 @@ try {
         </div>
         
         <!-- Quick Access -->
-        <div class="card">
-            <h2 class="card-title">Quick Access</h2>
-            <div class="quick-access-grid">
+        <div class="card" style="padding: 0;">
+            <h2 class="card-title" style="padding: 20px;">Quick Access</h2>
+            <div class="quick-access-grid" style="padding: 0 20px 20px 20px;">
                 <a href="dashboard" class="quick-access-item">
                     <div class="quick-access-icon">
                         <i class="fas fa-home"></i>
@@ -836,13 +849,13 @@ try {
                         <?php if ($hasMultipleTerms): ?>
                             <div style="display: flex; flex-direction: column; gap: 20px;">
                                 <?php foreach ($groupedByTerm as $term => $records): ?>
-                                    <div class="card">
-                                        <div class="card-header" style="background-color: #e8f0fe; font-weight: bold;">
+                                    <div class="card" style="padding: 0;">
+                                        <div class="card-header" style="background-color: #e8f0fe; font-weight: bold; padding: 20px;">
                                             <i class="fas fa-calendar"></i> <?php echo htmlspecialchars($term); ?> (<?php echo count($records); ?> records)
                                         </div>
-                                        <div class="card-body">
+                                        <div class="card-body" style="padding: 0 20px 20px 20px;">
                                             <div class="table-responsive" style="overflow-x: auto;">
-                                                <table class="table">
+                                                <table class="table" style="width: 100%;">
                                                     <thead>
                                                         <tr>
                                                             <th>Subject</th>
@@ -881,8 +894,8 @@ try {
                                 <?php endforeach; ?>
                             </div>
                         <?php else: ?>
-                            <div class="table-responsive" style="overflow-x: auto;">
-                                <table class="table">
+                            <div class="table-responsive" style="overflow-x: auto; padding: 0 20px 20px 20px;">
+                                <table class="table" style="width: 100%;">
                                     <thead>
                                         <tr>
                                             <th>Subject</th>

@@ -15,7 +15,7 @@ define('MPESA_ENVIRONMENT', 'sandbox');
 // Base URL for M-Pesa callbacks
 // For local testing, use a tunneling service like ngrok
 // For production, use your actual domain with HTTPS
-define('MPESA_CALLBACK_BASE_URL', 'https://unexplaining-lesli-nonabsolutely.ngrok-free.dev');
+define('MPESA_CALLBACK_BASE_URL', 'https://2f34-154-159-237-4.ngrok-free.app');
 
 // M-Pesa API Credentials
 // Sandbox credentials (for testing)

@@ -278,25 +278,18 @@ try {
             }
         }
 
-        @media (max-width: 480px) {
-            .stats-grid {
-                grid-template-columns: 1fr !important;
-                gap: 16px !important;
-            }
-        }
-
         .stat-card {
-            background: #f5f5f5;
-            border: 1px solid #e0e0e0;
+            background: var(--bg-color, #f8f9fa);
+            border: 1px solid #e8eaed;
             border-radius: 8px;
             padding: 20px;
             text-align: left;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+            box-shadow: none;
             transition: box-shadow 0.3s ease;
         }
 
         .stat-card:hover {
-            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
         .stat-card h3 {
@@ -761,7 +754,7 @@ try {
         }
         
         .card-body {
-            padding: 24px;
+            padding: 0;
             background: var(--card-bg);
         }
         
@@ -933,6 +926,7 @@ try {
         
         .table-responsive {
             overflow-x: auto;
+            width: 100%;
         }
         
         table {
@@ -969,72 +963,101 @@ try {
         }
 
         /* PDF-style table */
-        .pdf-table {
-            border: 2px solid #000;
+        table.pdf-table {
+            border: 2px solid #000 !important;
             border-collapse: collapse;
-            background: #ffffff;
-            font-family: 'Times New Roman', Times, serif;
+            background: #ffffff !important;
+            font-family: 'Times New Roman', Times, serif !important;
         }
 
-        .pdf-table thead {
-            background: #f0f0f0;
-            border-bottom: 2px solid #000;
+        table.pdf-table thead {
+            background: #f0f0f0 !important;
+            border-bottom: 2px solid #000 !important;
         }
 
-        .pdf-table th {
-            border: 1px solid #000;
+        table.pdf-table th {
+            border: 1px solid #000 !important;
             padding: 12px 15px;
             text-align: left;
             font-weight: bold;
             font-size: 14px;
-            color: #000;
-            background: #f0f0f0;
+            color: #000 !important;
+            background: #f0f0f0 !important;
         }
 
-        .pdf-table td {
-            border: 1px solid #000;
+        table.pdf-table td {
+            border: 1px solid #000 !important;
             padding: 12px 15px;
             font-size: 12px;
-            color: #000;
-            font-family: 'Times New Roman', Times, serif;
+            color: #000 !important;
+            font-family: 'Times New Roman', Times, serif !important;
         }
 
-        .pdf-table tbody tr:nth-child(even) {
-            background: #fafafa;
+        table.pdf-table tbody tr:nth-child(even) {
+            background: #fafafa !important;
         }
 
-        .pdf-table tbody tr:hover {
-            background: #e8e8e8;
+        table.pdf-table tbody tr:hover {
+            background: #e8e8e8 !important;
         }
 
         /* Dark mode PDF table */
-        .dark-mode .pdf-table {
-            border: 2px solid var(--primary-gold);
-            background: #1a1a1a;
+        .dark-mode table.pdf-table {
+            border: 2px solid var(--primary-gold) !important;
+            background: #1a1a1a !important;
         }
 
-        .dark-mode .pdf-table thead {
-            background: #252525;
-            border-bottom: 2px solid var(--primary-gold);
+        .dark-mode table.pdf-table thead {
+            background: #252525 !important;
+            border-bottom: 2px solid var(--primary-gold) !important;
         }
 
-        .dark-mode .pdf-table th {
-            border: 1px solid #ffc107;
-            color: #ffffff;
-            background: #252525;
+        .dark-mode table.pdf-table th {
+            border: 1px solid #ffc107 !important;
+            color: #ffffff !important;
+            background: #252525 !important;
         }
 
-        .dark-mode .pdf-table td {
-            border: 1px solid #ffc107;
-            color: #ffffff;
+        .dark-mode table.pdf-table td {
+            border: 1px solid #ffc107 !important;
+            color: #ffffff !important;
         }
 
-        .dark-mode .pdf-table tbody tr:nth-child(even) {
-            background: #2a2a2a;
+        .dark-mode table.pdf-table tbody tr:nth-child(even) {
+            background: #2a2a2a !important;
         }
 
-        .dark-mode .pdf-table tbody tr:hover {
-            background: #3a3a3a;
+        .dark-mode table.pdf-table tbody tr:hover {
+            background: #3a3a3a !important;
+        }
+
+        /* Mobile upload form styling */
+        @media (max-width: 768px) {
+            #uploadForm input[type="text"],
+            #uploadForm select,
+            #uploadForm textarea {
+                width: 100% !important;
+                margin: 0;
+                display: block;
+            }
+
+            #uploadForm > div > div {
+                width: 100%;
+            }
+
+            /* Make upload section card full width on mobile */
+            #uploadSection {
+                width: 100% !important;
+                margin-left: 0 !important;
+                margin-right: 0 !important;
+                padding: 15px !important;
+            }
+
+            /* Make main content full width on mobile */
+            .main-content {
+                margin-left: 0 !important;
+                padding: 15px !important;
+            }
         }
     </style>
 </head>
@@ -1055,36 +1078,44 @@ try {
         <!-- Statistics -->
         <div class="stats-grid">
             <div class="stat-card">
-                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
-                    <i class="fas fa-users" style="color: #FF6B35; font-size: 28px;"></i>
-                    <div>
+                <div style="display: flex; flex-direction: column; align-items: center; gap: 12px;">
+                    <div style="width: 40px; height: 40px; border-radius: 50%; background: rgba(255, 107, 53, 0.1); display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-users" style="color: #FF6B35; font-size: 20px;"></i>
+                    </div>
+                    <div style="text-align: center;">
                         <h3><?php echo $total_users; ?></h3>
                         <p>Total Users</p>
                     </div>
                 </div>
             </div>
             <div class="stat-card">
-                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
-                    <i class="fas fa-folder-open" style="color: #FF6B35; font-size: 28px;"></i>
-                    <div>
+                <div style="display: flex; flex-direction: column; align-items: center; gap: 12px;">
+                    <div style="width: 40px; height: 40px; border-radius: 50%; background: rgba(255, 107, 53, 0.1); display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-folder-open" style="color: #FF6B35; font-size: 20px;"></i>
+                    </div>
+                    <div style="text-align: center;">
                         <h3><?php echo $total_resources; ?></h3>
                         <p>Total Resources</p>
                     </div>
                 </div>
             </div>
             <div class="stat-card">
-                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
-                    <i class="fas fa-download" style="color: #FF6B35; font-size: 28px;"></i>
-                    <div>
+                <div style="display: flex; flex-direction: column; align-items: center; gap: 12px;">
+                    <div style="width: 40px; height: 40px; border-radius: 50%; background: rgba(255, 107, 53, 0.1); display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-download" style="color: #FF6B35; font-size: 20px;"></i>
+                    </div>
+                    <div style="text-align: center;">
                         <h3><?php echo $total_downloads; ?></h3>
                         <p>Total Downloads</p>
                     </div>
                 </div>
             </div>
             <div class="stat-card">
-                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
-                    <i class="fas fa-clock" style="color: #FF6B35; font-size: 28px;"></i>
-                    <div>
+                <div style="display: flex; flex-direction: column; align-items: center; gap: 12px;">
+                    <div style="width: 40px; height: 40px; border-radius: 50%; background: rgba(255, 107, 53, 0.1); display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-clock" style="color: #FF6B35; font-size: 20px;"></i>
+                    </div>
+                    <div style="text-align: center;">
                         <h3><?php echo $recent_uploads; ?></h3>
                         <p>Recent Uploads</p>
                     </div>
@@ -1103,54 +1134,52 @@ try {
             <div class="card-header">
                 <h2>Recent Users</h2>
             </div>
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table class="pdf-table">
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Name</th>
-                                <th>Email</th>
-                                <th>Role</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php if (!empty($recent_users)): ?>
-                                <?php foreach ($recent_users as $recent_user): ?>
-                                    <tr>
-                                        <td><?php echo htmlspecialchars($recent_user['id']); ?></td>
-                                        <td><?php echo htmlspecialchars($recent_user['name'] ?? 'N/A'); ?></td>
-                                        <td><?php echo htmlspecialchars($recent_user['email'] ?? 'N/A'); ?></td>
-                                        <td><?php echo htmlspecialchars($recent_user['role'] ?? 'user'); ?></td>
-                                    </tr>
-                                <?php endforeach; ?>
-                            <?php else: ?>
+            <div class="table-responsive">
+                <table class="pdf-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php if (!empty($recent_users)): ?>
+                            <?php foreach ($recent_users as $recent_user): ?>
                                 <tr>
-                                    <td colspan="4">No users found</td>
+                                    <td><?php echo htmlspecialchars($recent_user['id']); ?></td>
+                                    <td><?php echo htmlspecialchars($recent_user['name'] ?? 'N/A'); ?></td>
+                                    <td><?php echo htmlspecialchars($recent_user['email'] ?? 'N/A'); ?></td>
+                                    <td><?php echo htmlspecialchars($recent_user['role'] ?? 'user'); ?></td>
                                 </tr>
-                            <?php endif; ?>
-                        </tbody>
-                    </table>
-                </div>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <tr>
+                                <td colspan="4">No users found</td>
+                            </tr>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
             </div>
         </div>
         
         <!-- Upload Section -->
-        <div style="margin-top: 30px; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 25px;">
+        <div id="uploadSection" style="margin-top: 30px; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 25px;">
             <div style="display: flex; justify-content: center; margin-bottom: 24px;">
                 <h2 style="font-size: 22px; font-weight: 400; color: var(--text-color);">Upload Resource</h2>
             </div>
                 <form id="uploadForm" enctype="multipart/form-data">
                     <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div style="display: flex; flex-direction: column; gap: 20px;">
                         <div>
                             <label style="display: block; margin-bottom: 8px; font-weight: 500; color: var(--text-color);">Resource Title *</label>
-                            <input type="text" name="title" required style="width: 100%; padding: 12px; border: 1px solid var(--form-border-color); border-radius: 25px; font-size: 14px; background: var(--card-bg); color: var(--text-color);">
+                            <input type="text" name="title" required placeholder="Enter resource title" style="width: 100%; padding: 12px; border: 1px solid var(--form-border-color); border-radius: 25px; font-size: 14px; background: var(--card-bg); color: var(--text-color);">
                         </div>
                         <div>
                             <label style="display: block; margin-bottom: 8px; font-weight: 500; color: var(--text-color);">Education Level *</label>
                             <select name="level" required style="width: 100%; padding: 12px; border: 1px solid var(--form-border-color); border-radius: 25px; font-size: 14px; background: var(--card-bg); color: var(--text-color);">
-                                <option value="">Select Level</option>
+                                <option value="">Select education level</option>
                                 <option value="Primary">Primary School</option>
                                 <option value="Secondary">Secondary School</option>
                                 <option value="College">College</option>
@@ -1164,7 +1193,7 @@ try {
                         <div>
                             <label style="display: block; margin-bottom: 8px; font-weight: 500; color: var(--text-color);">File Type *</label>
                             <select name="type" required style="width: 100%; padding: 12px; border: 1px solid var(--form-border-color); border-radius: 25px; font-size: 14px; background: var(--card-bg); color: var(--text-color);">
-                                <option value="">Select File Type</option>
+                                <option value="">Select file type</option>
                                 <option value="PDF">PDF Document</option>
                                 <option value="DOC">Word Document (.doc/.docx)</option>
                                 <option value="PPT">PowerPoint (.ppt/.pptx)</option>

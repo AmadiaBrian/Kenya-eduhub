@@ -53,3 +53,28 @@
 
 2026-07-30 05:42:22 - B2C Result: 
 2026-07-30 05:42:22 - B2C Result withdrawal not found. ConversationID: , OriginatorConversationID: 
+2026-10-26 17:01:40 - B2C Result: {"Result":{"ResultType":0,"ResultCode":0,"ResultDesc":"The service request is processed successfully.","OriginatorConversationID":"b65b-47a4-8a4a-570cbac644af811726","ConversationID":"AG_20261026_0100100314rhmo3ptn2n","TransactionID":"UJQ030FOXO","ResultParameters":{"ResultParameter":[{"Key":"TransactionAmount","Value":10},{"Key":"TransactionReceipt","Value":"UJQ030FOXO"},{"Key":"ReceiverPartyPublicName","Value":"254708374149 - John Doe"},{"Key":"TransactionCompletedDateTime","Value":"26.10.2026 19:01:07"},{"Key":"B2CUtilityAccountAvailableFunds","Value":2199115.67},{"Key":"B2CWorkingAccountAvailableFunds","Value":1084459.00},{"Key":"B2CRecipientIsRegisteredCustomer","Value":"Y"},{"Key":"B2CChargesPaidAccountAvailableFunds","Value":-2420.00}]},"ReferenceData":{"ReferenceItem":{"Key":"QueueTimeoutURL","Value":"https:\/\/internalsandbox.safaricom.co.ke\/mpesa\/b2cresults\/v1\/submit"}}}}
+2026-10-26 17:01:40 - B2C Success: Ksh 10.00 sent to 254708374149 - John Doe, TransactionID: UJQ030FOXO, WithdrawalID: 143
+2026-10-26 17:01:43 - SMS sent via Text SMS: Array
+(
+    [success] => 1
+    [message_id] => 950832948
+    [response] => Array
+        (
+            [responses] => Array
+                (
+                    [0] => Array
+                        (
+                            [response-code] => 200
+                            [response-description] => Success
+                            [mobile] => 254745959757
+                            [messageid] => 950832948
+                            [networkid] => 1
+                        )
+
+                )
+
+        )
+
+)
+

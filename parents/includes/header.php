@@ -91,7 +91,7 @@
         width: 32px;
         height: 32px;
         border-radius: 50%;
-        background: var(--primary-color);
+        background: #FF6B35;
         color: white;
         display: flex;
         align-items: center;

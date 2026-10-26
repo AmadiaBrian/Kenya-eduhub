@@ -187,6 +187,12 @@ try {
     error_log("Failed to fetch school events: " . $e->getMessage());
 }
 
+// Load calendar helpers
+require_once __DIR__ . '/../includes/calendar_helpers.php';
+
+// Update active term based on current date
+updateActiveTerm($pdo, $school_id);
+
 // Get Current Academic Status
 $current_status = [
     'current_year' => date('Y'),
@@ -817,9 +823,22 @@ try {
                                 <td><?php echo date('M j, Y', strtotime($term['start_date'])); ?></td>
                                 <td><?php echo date('M j, Y', strtotime($term['end_date'])); ?></td>
                                 <td>
-                                    <span class="status-badge status-<?php echo $term['status']; ?>">
-                                        <?php echo ucfirst($term['status']); ?>
-                                    </span>
+                                    <?php
+                                    $today = date('Y-m-d');
+                                    $start_date = $term['start_date'];
+                                    $end_date = $term['end_date'];
+
+                                    if ($today < $start_date) {
+                                        // Term hasn't started yet
+                                        echo '<span class="status-badge status-break">Coming</span>';
+                                    } elseif ($today > $end_date) {
+                                        // Term has ended
+                                        echo '<span class="status-badge" style="background: #e8eaed; color: #5f6368;">Past</span>';
+                                    } else {
+                                        // Today is within the term's date range
+                                        echo '<span class="status-badge status-in-session">Current</span>';
+                                    }
+                                    ?>
                                 </td>
                                 <td>
                                     <div class="action-buttons-cell">

@@ -141,7 +141,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             width: 32px;
             height: 32px;
             border-radius: 50%;
-            background: var(--primary-color);
+            background: #FF6B35;
             color: white;
             display: flex;
             align-items: center;
@@ -267,7 +267,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             width: 80px;
             height: 80px;
             border-radius: 50%;
-            background: var(--primary-color);
+            background: #FF6B35;
             color: white;
             display: flex;
             align-items: center;
@@ -346,11 +346,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         
         .btn-primary {
-            background: var(--primary-color);
+            background: #FF6B35;
             color: white;
-            border-color: var(--primary-color);
+            border-color: #FF6B35;
         }
-        
+
         .btn-primary:hover {
             background: #e55a2b;
             border-color: #e55a2b;
@@ -400,22 +400,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             .sidebar {
                 transform: translateX(-256px);
             }
-            
+
             .sidebar.show {
                 transform: translateX(0);
             }
-            
+
             .main-content {
                 margin-left: 0;
             }
-            
+
             .profile-header {
                 flex-direction: column;
                 text-align: center;
             }
-            
+
             .form-grid {
                 grid-template-columns: 1fr;
+            }
+
+            .btn {
+                width: 100% !important;
             }
         }
 
@@ -423,7 +427,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         .fa-save { color: #00AC47; }
     </style>
 </head>
-<body>
+<body class="dashboard-page">
     <!-- Header -->
     <?php require_once 'includes/header.php'; ?>
     

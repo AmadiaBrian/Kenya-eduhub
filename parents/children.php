@@ -258,7 +258,7 @@ try {
             width: 50px;
             height: 50px;
             border-radius: 50%;
-            background: var(--primary-color);
+            background: #FF6B35;
             color: white;
             display: flex;
             align-items: center;
@@ -324,23 +324,23 @@ try {
         }
         
         .btn-primary {
-            background: var(--primary-color);
+            background: #FF6B35;
             color: white;
-            border-color: var(--primary-color);
+            border-color: #FF6B35;
         }
-        
+
         .btn-primary:hover {
             background: #e55a2b;
             border-color: #e55a2b;
             color: white;
         }
-        
+
         .btn-outline {
             background: transparent;
-            color: var(--primary-color);
-            border-color: var(--primary-color);
+            color: #FF6B35;
+            border-color: #FF6B35;
         }
-        
+
         .btn-outline:hover {
             background: #fff3e0;
         }
@@ -350,17 +350,25 @@ try {
             .sidebar {
                 transform: translateX(-256px);
             }
-            
+
             .sidebar.show {
                 transform: translateX(0);
             }
-            
+
             .main-content {
                 margin-left: 0;
             }
-            
+
             .children-grid {
                 grid-template-columns: 1fr;
+            }
+
+            .btn {
+                width: 100% !important;
+            }
+
+            .child-actions {
+                flex-direction: column;
             }
         }
 
@@ -369,7 +377,7 @@ try {
         .fa-money-bill-wave { color: #FFBA00; }
     </style>
 </head>
-<body>
+<body class="dashboard-page">
     <!-- Header -->
     <?php require_once 'includes/header.php'; ?>
     

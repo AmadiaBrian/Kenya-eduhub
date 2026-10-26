@@ -143,3 +143,42 @@ if (!function_exists('checkDateInTerm')) {
         }
     }
 }
+
+if (!function_exists('updateActiveTerm')) {
+    /**
+     * Update the is_active flag in terms table based on current date
+     * Marks the term containing today's date as active, all others as inactive
+     * @param PDO $pdo Database connection
+     * @param int $school_id School ID
+     * @return bool True if update was successful
+     */
+    function updateActiveTerm($pdo, $school_id) {
+        try {
+            $today = date('Y-m-d');
+            
+            // First, mark all terms for this school as inactive
+            $stmt = $pdo->prepare("UPDATE terms SET is_active = 0 WHERE school_id = ?");
+            $stmt->execute([$school_id]);
+            
+            // Find the term that contains today's date
+            $stmt = $pdo->prepare("SELECT id FROM terms WHERE school_id = ? AND start_date <= ? AND end_date >= ? LIMIT 1");
+            $stmt->execute([$school_id, $today, $today]);
+            $term = $stmt->fetch();
+            
+            if ($term) {
+                // Mark this term as active
+                $stmt = $pdo->prepare("UPDATE terms SET is_active = 1 WHERE id = ?");
+                $stmt->execute([$term['id']]);
+                error_log("Updated active term to ID: {$term['id']} for school ID: $school_id");
+                return true;
+            } else {
+                // No term is currently active
+                error_log("No active term found for school ID: $school_id on date: $today");
+                return false;
+            }
+        } catch (PDOException $e) {
+            error_log("Failed to update active term: " . $e->getMessage());
+            return false;
+        }
+    }
+}
