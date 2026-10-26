@@ -69,4 +69,7 @@ function cleanupPendingWithdrawals(PDO $pdo): int {
 
 // Run cleanup on every page load to ensure pending transactions are deleted within 3 minutes
 cleanupPendingWithdrawals($pdo);
+
+// Note: To update active term based on current date, call updateActiveTerm($pdo, $school_id) where needed
+// This function is available in includes/calendar_helpers.php
 ?>

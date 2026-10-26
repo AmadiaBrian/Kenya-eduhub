@@ -611,10 +611,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['ac
         .main-content {
             margin-left: var(--sidebar-width);
             margin-top: var(--header-height);
-            padding: 24px;
+            padding: 16px;
             transition: margin-left 0.3s ease;
         }
-        
+
         .main-content.expanded {
             margin-left: 0;
         }
@@ -697,22 +697,77 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['ac
             .sidebar {
                 transform: translateX(-256px);
             }
-            
+
             .sidebar.show {
                 transform: translateX(0);
             }
-            
+
             .main-content {
                 margin-left: 0;
                 padding: 16px;
                 padding-top: calc(var(--header-height) + 16px);
             }
+
+            /* Force oval inputs on mobile - override Bootstrap */
+            input[type="text"],
+            input[type="email"],
+            input[type="number"],
+            input[type="password"],
+            select,
+            textarea,
+            .form-control,
+            .form-select {
+                border-radius: 25px !important;
+                background: var(--bg-color) !important;
+                color: var(--text-color) !important;
+                border: 1px solid #dadce0 !important;
+            }
+
+            /* Force full width buttons on mobile */
+            .btn,
+            button[type="submit"],
+            button[type="button"] {
+                width: 100% !important;
+                display: block !important;
+            }
+
+            /* Center card headers on mobile */
+            .card-header {
+                justify-content: center !important;
+                text-align: center !important;
+            }
+
+            .card-header h2 {
+                text-align: center !important;
+            }
+
+            /* Single column layout on mobile */
+            .settings-grid {
+                grid-template-columns: 1fr !important;
+            }
+
+            .row {
+                display: flex !important;
+                flex-direction: column !important;
+                gap: 16px !important;
+            }
+
+            .col-md-6 {
+                width: 100% !important;
+                flex: 1 !important;
+            }
+
+            /* Override Bootstrap row */
+            .row > div {
+                width: 100% !important;
+                margin-bottom: 16px !important;
+            }
         }
         
         .settings-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-            gap: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
             margin-bottom: 32px;
         }
         
@@ -728,14 +783,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['ac
             padding: 20px 25px;
             border-bottom: 1px solid #e8eaed;
             display: flex;
-            justify-content: space-between;
+            justify-content: center;
             align-items: center;
         }
-        
+
         .card-header h2 {
             font-size: 20px;
             font-weight: 500;
             color: #202124;
+            text-align: center;
         }
         
         .card-body {
@@ -750,22 +806,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['ac
             font-size: 14px;
             font-weight: 500;
             transition: background 0.2s;
+            width: 100%;
         }
-        
+
         .btn-primary {
             background: #FF6B35;
             color: white;
         }
-        
+
         .btn-primary:hover {
             background: #e55a2b;
         }
-        
+
         .btn-secondary {
             background: #f1f3f4;
             color: #202124;
         }
-        
+
         .btn-secondary:hover {
             background: #e8eaed;
         }
@@ -781,6 +838,78 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['ac
             font-weight: 500;
             color: #202124;
         }
+
+        /* PDF-style table */
+        .pdf-table {
+            border: 2px solid #000 !important;
+            border-collapse: collapse !important;
+            background: #ffffff !important;
+            font-family: 'Times New Roman', Times, serif !important;
+        }
+
+        .pdf-table thead {
+            background: #f0f0f0 !important;
+            border-bottom: 2px solid #000 !important;
+        }
+
+        .pdf-table th {
+            border: 1px solid #000 !important;
+            padding: 12px 15px !important;
+            text-align: left !important;
+            font-weight: bold !important;
+            font-size: 14px !important;
+            color: #000 !important;
+            background: #f0f0f0 !important;
+        }
+
+        .pdf-table td {
+            border: 1px solid #000 !important;
+            padding: 12px 15px !important;
+            font-size: 12px !important;
+            color: #000 !important;
+            font-family: 'Times New Roman', Times, serif !important;
+        }
+
+        .pdf-table tbody tr:nth-child(even) {
+            background: #fafafa !important;
+        }
+
+        .pdf-table tbody tr:hover {
+            background: #e8e8e8 !important;
+        }
+
+        /* Make backup section full width */
+        #backupSection {
+            width: 100%;
+        }
+
+        /* Make email section full width */
+        #emailSection {
+            width: 100%;
+        }
+
+        /* Mobile: Make backup form buttons full width */
+        @media (max-width: 768px) {
+            #backupSection .btn {
+                width: 100% !important;
+            }
+        }
+
+        /* Center all card headers */
+        .card-header {
+            justify-content: center !important;
+            text-align: center !important;
+        }
+
+        .card-header h2,
+        .card-header h3,
+        .card-header h4,
+        .card-header h5,
+        .card-header h6 {
+            text-align: center !important;
+        }
+
+
         
         .form-group input,
         .form-group select,
@@ -788,19 +917,63 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['ac
             width: 100%;
             padding: 10px 14px;
             border: 1px solid #dadce0;
-            border-radius: 4px;
+            border-radius: 25px;
             font-size: 14px;
             font-family: inherit;
-            background: white;
-            color: #202124;
+            background: var(--bg-color);
+            color: var(--text-color);
             transition: border-color 0.2s;
         }
-        
+
         .form-group input:focus,
         .form-group select:focus,
         .form-group textarea:focus {
             outline: none;
             border-color: var(--primary-color);
+        }
+
+        /* Bootstrap form-control override */
+        .form-control,
+        .form-select {
+            border-radius: 25px !important;
+            background: var(--bg-color) !important;
+            color: var(--text-color) !important;
+        }
+
+        /* Mobile-specific high-priority overrides */
+        @media (max-width: 768px) {
+            input.form-control,
+            select.form-control,
+            select.form-select,
+            textarea.form-control,
+            input[type="text"].form-control,
+            input[type="email"].form-control,
+            input[type="number"].form-control,
+            input[type="password"].form-control {
+                border-radius: 25px !important;
+                background: #f8f9fa !important;
+                color: #202124 !important;
+                -webkit-appearance: none !important;
+                appearance: none !important;
+            }
+
+            button.btn,
+            button.btn-primary,
+            button.btn-secondary,
+            button.btn-outline-primary {
+                width: 100% !important;
+                display: block !important;
+                margin: 0 !important;
+            }
+
+            .card-header {
+                justify-content: center !important;
+                text-align: center !important;
+            }
+
+            .card-header h2 {
+                text-align: center !important;
+            }
         }
         
         .form-group textarea {
@@ -923,8 +1096,163 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['ac
             }
         }
     </style>
+    <style>
+        /* COMPLETE OVERRIDE - Disable Bootstrap form styles */
+        .form-control, .form-select, .form-check-input {
+            border-radius: 25px !important;
+            background: #f8f9fa !important;
+            color: #202124 !important;
+            border: 1px solid #dadce0 !important;
+        }
+
+        .btn {
+            width: 100% !important;
+            border-radius: 25px !important;
+        }
+
+        .card-header {
+            justify-content: center !important;
+            text-align: center !important;
+        }
+
+        .card-header h2 {
+            text-align: center !important;
+        }
+
+        @media (max-width: 768px) {
+            .form-control, .form-select, .form-check-input {
+                border-radius: 25px !important;
+                background: #f8f9fa !important;
+                color: #202124 !important;
+                border: 1px solid #dadce0 !important;
+            }
+
+            .btn {
+                width: 100% !important;
+                margin-bottom: 12px !important;
+            }
+
+            .card-header {
+                justify-content: center !important;
+                text-align: center !important;
+            }
+
+            .row {
+                display: flex !important;
+                flex-direction: column !important;
+            }
+
+            .col-md-6 {
+                width: 100% !important;
+            }
+
+            /* Ensure backup button spacing on mobile */
+            .btn-success {
+                margin-top: 12px !important;
+            }
+
+            /* Fix toggle switch visibility on mobile - iOS-style toggle */
+            .form-check-input[type="checkbox"] {
+                appearance: none !important;
+                -webkit-appearance: none !important;
+                -moz-appearance: none !important;
+                width: 50px !important;
+                height: 28px !important;
+                background: #ccc !important;
+                border-radius: 50px !important;
+                position: relative !important;
+                cursor: pointer !important;
+                outline: none !important;
+                border: none !important;
+                transition: background 0.3s ease !important;
+                box-shadow: inset 0 2px 4px rgba(0,0,0,0.1) !important;
+            }
+
+            .form-check-input[type="checkbox"]::before {
+                content: "" !important;
+                position: absolute !important;
+                width: 24px !important;
+                height: 24px !important;
+                border-radius: 50% !important;
+                background: white !important;
+                top: 2px !important;
+                left: 2px !important;
+                transition: transform 0.3s ease !important;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.2) !important;
+            }
+
+            .form-check-input[type="checkbox"]:checked {
+                background: #34C759 !important;
+            }
+
+            .form-check-input[type="checkbox"]:checked::before {
+                transform: translateX(22px) !important;
+            }
+
+            .form-check {
+                display: flex !important;
+                align-items: center !important;
+                justify-content: space-between !important;
+                gap: 16px !important;
+                margin-bottom: 16px !important;
+            }
+
+            .form-check-label {
+                font-size: 16px !important;
+                font-weight: 500 !important;
+                color: #333333 !important;
+                cursor: pointer !important;
+            }
+
+            /* Make backup section full width on mobile */
+            #backupSection {
+                width: 100% !important;
+                margin-left: 0 !important;
+                margin-right: 0 !important;
+            }
+
+            /* PDF-style table */
+            .pdf-table {
+                border: 2px solid #000 !important;
+                border-collapse: collapse !important;
+                background: #ffffff !important;
+                font-family: 'Times New Roman', Times, serif !important;
+            }
+
+            .pdf-table thead {
+                background: #f0f0f0 !important;
+                border-bottom: 2px solid #000 !important;
+            }
+
+            .pdf-table th {
+                border: 1px solid #000 !important;
+                padding: 12px 15px !important;
+                text-align: left !important;
+                font-weight: bold !important;
+                font-size: 14px !important;
+                color: #000 !important;
+                background: #f0f0f0 !important;
+            }
+
+            .pdf-table td {
+                border: 1px solid #000 !important;
+                padding: 12px 15px !important;
+                font-size: 12px !important;
+                color: #000 !important;
+                font-family: 'Times New Roman', Times, serif !important;
+            }
+
+            .pdf-table tbody tr:nth-child(even) {
+                background: #fafafa !important;
+            }
+
+            .pdf-table tbody tr:hover {
+                background: #e8e8e8 !important;
+            }
+        }
+    </style>
 </head>
-<body>
+<body class="dashboard-page">
     <!-- Header -->
     <?php require_once 'includes/header.php'; ?>
     
@@ -966,32 +1294,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['ac
                         
                         <div class="mb-3">
                             <label class="form-label">Site Name</label>
-                            <input type="text" class="form-control" id="site_name" name="site_name" value="<?php echo htmlspecialchars($site_settings['site_name'] ?? 'Kenya EduHub'); ?>" required>
+                            <input type="text" id="site_name" name="site_name" value="<?php echo htmlspecialchars($site_settings['site_name'] ?? 'Kenya EduHub'); ?>" placeholder="Enter site name" required style="width: 100%; padding: 10px 14px; border: 1px solid #dadce0; border-radius: 25px; font-size: 14px; background: #f8f9fa; color: #202124;">
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label">Site Description</label>
-                            <textarea class="form-control" id="site_description" name="site_description" placeholder="Enter site description..."><?php echo htmlspecialchars($site_settings['site_description'] ?? 'Educational resource management system for Kenyan schools'); ?></textarea>
+                            <textarea id="site_description" name="site_description" placeholder="Enter site description..." style="width: 100%; padding: 10px 14px; border: 1px solid #dadce0; border-radius: 25px; font-size: 14px; background: #f8f9fa; color: #202124; resize: vertical;"><?php echo htmlspecialchars($site_settings['site_description'] ?? 'Educational resource management system for Kenyan schools'); ?></textarea>
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label">Admin Email</label>
-                            <input type="email" class="form-control" id="admin_email" name="admin_email" value="<?php echo htmlspecialchars($site_settings['admin_email'] ?? 'admin@kenyaeduhub.com'); ?>" required>
+                            <input type="email" id="admin_email" name="admin_email" value="<?php echo htmlspecialchars($site_settings['admin_email'] ?? 'admin@kenyaeduhub.com'); ?>" placeholder="Enter admin email" required style="width: 100%; padding: 10px 14px; border: 1px solid #dadce0; border-radius: 25px; font-size: 14px; background: #f8f9fa; color: #202124;">
                         </div>
 
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Max File Size (MB)</label>
-                                <input type="number" class="form-control" id="max_file_size" name="max_file_size" value="<?php echo htmlspecialchars($site_settings['max_file_size'] ?? 10); ?>" min="1" max="100">
+                                <input type="number" id="max_file_size" name="max_file_size" value="<?php echo htmlspecialchars($site_settings['max_file_size'] ?? 10); ?>" min="1" max="100" placeholder="Enter max file size" style="width: 100%; padding: 10px 14px; border: 1px solid #dadce0; border-radius: 25px; font-size: 14px; background: #f8f9fa; color: #202124;">
                             </div>
 
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Allowed Extensions</label>
-                                <input type="text" class="form-control" id="allowed_extensions" name="allowed_extensions" value="<?php echo htmlspecialchars($site_settings['allowed_extensions'] ?? 'pdf,doc,docx,ppt,pptx,xls,xlsx,txt'); ?>">
+                                <input type="text" id="allowed_extensions" name="allowed_extensions" value="<?php echo htmlspecialchars($site_settings['allowed_extensions'] ?? 'pdf,doc,docx,ppt,pptx,xls,xlsx,txt'); ?>" placeholder="e.g., pdf,doc,docx" style="width: 100%; padding: 10px 14px; border: 1px solid #dadce0; border-radius: 25px; font-size: 14px; background: #f8f9fa; color: #202124;">
                             </div>
                         </div>
 
-                        <button type="submit" class="btn btn-primary">
+                        <button type="submit" style="width: 100%; padding: 10px 24px; border: none; border-radius: 25px; cursor: pointer; font-size: 14px; font-weight: 500; background: #FF6B35; color: white; margin-bottom: 30px;">
                             <i class="fas fa-save me-2"></i> Save Changes
                         </button>
                     </form>
@@ -1025,16 +1353,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['ac
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Session Timeout (minutes)</label>
-                                <input type="number" class="form-control" id="session_timeout" name="session_timeout" value="<?php echo htmlspecialchars($system_settings['session_timeout'] ?? 30); ?>" min="5" max="120">
+                                <input type="number" class="form-control" id="session_timeout" name="session_timeout" value="<?php echo htmlspecialchars($system_settings['session_timeout'] ?? 30); ?>" min="5" max="120" placeholder="Enter session timeout">
                             </div>
 
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Max Login Attempts</label>
-                                <input type="number" class="form-control" id="max_login_attempts" name="max_login_attempts" value="<?php echo htmlspecialchars($system_settings['max_login_attempts'] ?? 5); ?>" min="3" max="10">
+                                <input type="number" class="form-control" id="max_login_attempts" name="max_login_attempts" value="<?php echo htmlspecialchars($system_settings['max_login_attempts'] ?? 5); ?>" min="3" max="10" placeholder="Enter max attempts">
                             </div>
                         </div>
 
-                        <button type="submit" class="btn btn-primary">
+                        <button type="submit" class="btn btn-primary" style="margin-bottom: 30px;">
                             <i class="fas fa-save me-2"></i> Save Changes
                         </button>
                     </form>
@@ -1042,69 +1370,80 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['ac
             </div>
 
             <!-- Backup Settings -->
-            <div class="card mb-4">
+            <div class="card mb-4" id="backupSection">
                 <div class="card-header">
                     <i class="fas fa-database me-2"></i> Backup Settings
                 </div>
-                <div class="card-body">
-                    <form method="POST">
-                        <input type="hidden" name="action" value="update_backup_settings">
-                        <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
-                        
-                        <div class="mb-3">
-                            <div class="form-check form-switch">
-                                <input class="form-check-input" type="checkbox" id="backup_enabled" name="backup_enabled" <?php echo ($backup_settings['backup_enabled'] ?? 0) ? 'checked' : ''; ?>>
-                                <label class="form-check-label" for="backup_enabled">Enable Backups</label>
-                            </div>
-                        </div>
+                <div class="card-body" style="padding: 0;">
+                    <div class="card mb-3" style="background: var(--bg-color); padding: 20px; border-radius: 8px;">
+                        <form method="POST">
+                            <input type="hidden" name="action" value="update_backup_settings">
+                            <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
 
-                        <div class="mb-3">
-                            <label class="form-label">Backup Frequency</label>
-                            <select class="form-select" id="backup_frequency" name="backup_frequency">
-                                <option value="hourly" <?php echo ($backup_settings['backup_frequency'] ?? 'daily') === 'hourly' ? 'selected' : ''; ?>>Hourly</option>
-                                <option value="daily" <?php echo ($backup_settings['backup_frequency'] ?? 'daily') === 'daily' ? 'selected' : ''; ?>>Daily</option>
-                                <option value="weekly" <?php echo ($backup_settings['backup_frequency'] ?? 'daily') === 'weekly' ? 'selected' : ''; ?>>Weekly</option>
-                                <option value="monthly" <?php echo ($backup_settings['backup_frequency'] ?? 'daily') === 'monthly' ? 'selected' : ''; ?>>Monthly</option>
-                            </select>
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">Backup Path</label>
-                            <input type="text" class="form-control" id="backup_path" name="backup_path" value="<?php echo htmlspecialchars($backup_settings['backup_path'] ?? '../backups'); ?>" placeholder="Enter backup directory path">
-                            <small class="text-muted">Relative or absolute path to store backup files</small>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Retention Period (days)</label>
-                                <input type="number" class="form-control" id="backup_retention_days" name="backup_retention_days" value="<?php echo htmlspecialchars($backup_settings['backup_retention_days'] ?? 7); ?>" min="1" max="365">
-                                <small class="text-muted">How long to keep backup files</small>
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">&nbsp;</label>
-                                <div class="form-check form-switch mt-2">
-                                    <input class="form-check-input" type="checkbox" id="auto_backup" name="auto_backup" <?php echo ($backup_settings['auto_backup'] ?? 0) ? 'checked' : ''; ?>>
-                                    <label class="form-check-label" for="auto_backup">Auto Backup</label>
+                            <div class="mb-3">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="backup_enabled" name="backup_enabled" <?php echo ($backup_settings['backup_enabled'] ?? 0) ? 'checked' : ''; ?>>
+                                    <label class="form-check-label" for="backup_enabled">Enable Backups</label>
                                 </div>
-                                <small class="text-muted">Automatically create backups on schedule</small>
                             </div>
-                        </div>
 
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-save me-2"></i> Save Changes
-                        </button>
-                        <button type="button" class="btn btn-success ms-2" onclick="triggerBackup()">
-                            <i class="fas fa-download me-2"></i> Backup Now
-                        </button>
-                    </form>
-                    
+                            <div class="mb-3">
+                                <label class="form-label">Backup Frequency</label>
+                                <select class="form-select" id="backup_frequency" name="backup_frequency">
+                                    <option value="hourly" <?php echo ($backup_settings['backup_frequency'] ?? 'daily') === 'hourly' ? 'selected' : ''; ?>>Hourly</option>
+                                    <option value="daily" <?php echo ($backup_settings['backup_frequency'] ?? 'daily') === 'daily' ? 'selected' : ''; ?>>Daily</option>
+                                    <option value="weekly" <?php echo ($backup_settings['backup_frequency'] ?? 'daily') === 'weekly' ? 'selected' : ''; ?>>Weekly</option>
+                                    <option value="monthly" <?php echo ($backup_settings['backup_frequency'] ?? 'daily') === 'monthly' ? 'selected' : ''; ?>>Monthly</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Backup Path</label>
+                                <input type="text" class="form-control" id="backup_path" name="backup_path" value="<?php echo htmlspecialchars($backup_settings['backup_path'] ?? '../backups'); ?>" placeholder="Enter backup directory path">
+                                <small class="text-muted">Relative or absolute path to store backup files</small>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Retention Period (days)</label>
+                                    <input type="number" class="form-control" id="backup_retention_days" name="backup_retention_days" value="<?php echo htmlspecialchars($backup_settings['backup_retention_days'] ?? 7); ?>" min="1" max="365" placeholder="Enter retention days">
+                                    <small class="text-muted">How long to keep backup files</small>
+                                </div>
+
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">&nbsp;</label>
+                                    <div class="form-check form-switch mt-2">
+                                        <input class="form-check-input" type="checkbox" id="auto_backup" name="auto_backup" <?php echo ($backup_settings['auto_backup'] ?? 0) ? 'checked' : ''; ?>>
+                                        <label class="form-check-label" for="auto_backup">Auto Backup</label>
+                                    </div>
+                                    <small class="text-muted">Automatically create backups on schedule</small>
+                                </div>
+                            </div>
+
+                            <div style="margin-bottom: 20px;">
+                                <button type="submit" class="btn btn-primary" style="width: 100%;">
+                                    <i class="fas fa-save me-2"></i> Save Changes
+                                </button>
+                            </div>
+                            <div style="margin-bottom: 20px;">
+                                <button type="button" class="btn btn-success" onclick="triggerBackup()" style="width: 100%;">
+                                    <i class="fas fa-download me-2"></i> Backup Now
+                                </button>
+                            </div>
+                            <div>
+                                <button type="button" class="btn btn-danger" onclick="clearBackups()" style="width: 100%;">
+                                    <i class="fas fa-trash me-2"></i> Clear Backups
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
                     <!-- Recent Backups -->
                     <?php if (!empty($backup_files)): ?>
                     <div class="mt-4">
                         <h6 class="mb-3">Recent Backups</h6>
                         <div class="table-responsive">
-                            <table class="table table-sm">
+                            <table class="pdf-table">
                                 <thead>
                                     <tr>
                                         <th>File Name</th>
@@ -1139,16 +1478,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['ac
             </div>
 
             <!-- Email Settings -->
-            <div class="card mb-4">
+            <div class="card mb-4" id="emailSection">
                 <div class="card-header">
                     <i class="fas fa-envelope me-2"></i> Email SMTP Settings
                 </div>
-                <div class="card-body">
+                <div class="card-body" style="padding: 0;">
                     <!-- Current Settings Display -->
-                    <div id="currentSmtpSettings" class="mb-4" style="display: <?php echo !empty($smtp_settings) ? 'block' : 'none'; ?>;">
-                        <h5 class="mb-3">Current SMTP Settings</h5>
-                        <div class="table-responsive">
-                            <table class="table">
+                    <div class="card mb-3" id="currentSmtpSettings" style="display: <?php echo !empty($smtp_settings) ? 'block' : 'none'; ?>; background: var(--bg-color); padding: 0; border-radius: 8px;">
+                        <h5 class="mb-3" style="padding: 20px 20px 10px 20px;">Current SMTP Settings</h5>
+                        <div class="table-responsive" style="width: 100%;">
+                            <table class="pdf-table" style="width: 100%;">
                                 <tr>
                                     <td><strong>SMTP Host:</strong></td>
                                     <td><?php echo htmlspecialchars($smtp_settings['smtp_host'] ?? '-'); ?></td>
@@ -1185,9 +1524,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['ac
                             </table>
                         </div>
                     </div>
-                    
-                    <form method="POST">
-                        <input type="hidden" name="action" value="update_email_settings">
+
+                    <div class="card mb-3" style="background: var(--bg-color); padding: 20px; border-radius: 8px;">
+                        <form method="POST">
+                            <input type="hidden" name="action" value="update_email_settings">
                         <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
                         
                         <div class="mb-3">
@@ -1198,12 +1538,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['ac
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">SMTP Port</label>
-                                <input type="number" class="form-control" id="smtp_port" name="smtp_port" value="<?php echo htmlspecialchars($smtp_settings['smtp_port'] ?? 587); ?>">
+                                <input type="number" class="form-control" id="smtp_port" name="smtp_port" value="<?php echo htmlspecialchars($smtp_settings['smtp_port'] ?? 587); ?>" placeholder="Enter SMTP port">
                             </div>
 
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Encryption</label>
                                 <select class="form-control" id="encryption" name="encryption">
+                                    <option value="">Select encryption</option>
                                     <option value="tls" <?php echo ($smtp_settings['encryption'] ?? 'tls') === 'tls' ? 'selected' : ''; ?>>TLS</option>
                                     <option value="ssl" <?php echo ($smtp_settings['encryption'] ?? '') === 'ssl' ? 'selected' : ''; ?>>SSL</option>
                                 </select>
@@ -1227,17 +1568,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['ac
                             <input type="password" class="form-control" id="smtp_password" name="smtp_password" placeholder="Enter SMTP password" value="<?php echo htmlspecialchars($smtp_settings['smtp_password'] ?? ''); ?>">
                         </div>
 
-                        <div style="display: flex; gap: 12px; justify-content: flex-end; margin-top: 24px; padding-top: 20px; border-top: 1px solid #e8eaed;">
-                            <button type="button" class="btn btn-secondary">Cancel</button>
-                            <button type="button" class="btn btn-outline-primary" onclick="testSmtpConnection()">
-                                <i class="fas fa-vial"></i> Test Connection
-                            </button>
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-save"></i> Save Changes
-                            </button>
+                        <div style="margin-top: 24px; padding-top: 20px; border-top: 1px solid #e8eaed;">
+                            <div style="margin-bottom: 12px;">
+                                <button type="button" class="btn btn-secondary" style="width: 100%;">Cancel</button>
+                            </div>
+                            <div style="margin-bottom: 12px;">
+                                <button type="button" class="btn btn-success" onclick="testSmtpConnection()" style="width: 100%;">
+                                    <i class="fas fa-vial"></i> Test Connection
+                                </button>
+                            </div>
+                            <div>
+                                <button type="submit" class="btn btn-primary" style="width: 100%;">
+                                    <i class="fas fa-save"></i> Save Changes
+                                </button>
+                            </div>
                         </div>
                     </form>
-                    
+                    </div>
+
                     <!-- Terminal Output Section -->
                     <div class="mt-4">
                         <h5 class="mb-2">SMTP Connection Test Output</h5>
@@ -1277,177 +1625,235 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['ac
                             <input type="number" class="form-control" id="backup_retention" name="backup_retention" value="30" min="7" max="365">
                         </div>
 
-                        <div style="display: flex; gap: 12px; justify-content: flex-end; margin-top: 24px; padding-top: 20px; border-top: 1px solid #e8eaed;">
-                            <button type="button" class="btn btn-secondary">
-                                <i class="fas fa-trash"></i> Clear Backups
-                            </button>
-                            <button type="button" class="btn btn-primary">
-                                <i class="fas fa-download"></i> Download Backup
-                            </button>
+                        <div style="margin-top: 24px; padding-top: 20px; border-top: 1px solid #e8eaed;">
+                            <div style="margin-bottom: 12px;">
+                                <button type="button" class="btn btn-secondary" style="width: 100%;">
+                                    <i class="fas fa-trash"></i> Clear Backups
+                                </button>
+                            </div>
+                            <div>
+                                <button type="button" class="btn btn-primary" style="width: 100%;">
+                                    <i class="fas fa-download"></i> Download Backup
+                                </button>
+                            </div>
                         </div>
                     </form>
                 </div>
             </div>
 
-            <!-- SMS Settings -->
+            <!-- Current SMS Settings -->
+            <div class="card mb-4" id="currentSmsSettings" style="display: <?php echo !empty($sms_settings) ? 'block' : 'none'; ?>;">
+                <div class="card-header">
+                    <i class="fas fa-sms me-2"></i> Current SMS Settings
+                </div>
+                <div class="card-body" style="padding: 0;">
+                    <div class="table-responsive" style="width: 100%;">
+                        <table class="pdf-table" style="width: 100%;">
+                            <tr>
+                                <td><strong>SMS Provider:</strong></td>
+                                <td><?php echo htmlspecialchars($sms_settings['sms_provider'] ?? '-'); ?></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Mobitech API Key:</strong></td>
+                                <td>
+                                    <span id="displayMobitechKey">••••••••••••••••</span>
+                                    <button type="button" class="btn btn-sm btn-link" onclick="toggleMobitechKey()" style="padding: 0; margin-left: 10px;">
+                                        <i class="fas fa-eye" id="displayMobitechKeyIcon"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>Mobitech Sender ID:</strong></td>
+                                <td><?php echo htmlspecialchars($sms_settings['mobitech_sender_id'] ?? '-'); ?></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Text SMS API Key:</strong></td>
+                                <td>
+                                    <span id="displayTextsmsKey">••••••••••••••••</span>
+                                    <button type="button" class="btn btn-sm btn-link" onclick="toggleTextsmsKey()" style="padding: 0; margin-left: 10px;">
+                                        <i class="fas fa-eye" id="displayTextsmsKeyIcon"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>Text SMS Partner ID:</strong></td>
+                                <td><?php echo htmlspecialchars($sms_settings['textsms_partner_id'] ?? '-'); ?></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Text SMS Sender ID:</strong></td>
+                                <td><?php echo htmlspecialchars($sms_settings['textsms_sender_id'] ?? '-'); ?></td>
+                            </tr>
+                            <tr>
+                                <td><strong>SMS Enabled:</strong></td>
+                                <td><?php echo ($sms_settings['sms_enabled'] ?? 0) ? 'Yes' : 'No'; ?></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Last Updated:</strong></td>
+                                <td><?php echo !empty($sms_settings['updated_at']) ? date('Y-m-d H:i:s', strtotime($sms_settings['updated_at'])) : '-'; ?></td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SMS Provider Selection -->
             <div class="card mb-4">
                 <div class="card-header">
-                    <i class="fas fa-sms me-2"></i> SMS Settings
+                    <i class="fas fa-sms me-2"></i> SMS Provider
                 </div>
-                <div class="card-body">
-                    <!-- Current Settings Display -->
-                    <div id="currentSmsSettings" class="mb-4" style="display: <?php echo !empty($sms_settings) ? 'block' : 'none'; ?>;">
-                        <h5 class="mb-3">Current SMS Settings</h5>
-                        <div class="table-responsive">
-                            <table class="table">
-                                <tr>
-                                    <td><strong>SMS Provider:</strong></td>
-                                    <td><?php echo htmlspecialchars($sms_settings['sms_provider'] ?? '-'); ?></td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Mobitech API Key:</strong></td>
-                                    <td>
-                                        <span id="displayMobitechKey">••••••••••••••••</span>
-                                        <button type="button" class="btn btn-sm btn-link" onclick="toggleMobitechKey()" style="padding: 0; margin-left: 10px;">
-                                            <i class="fas fa-eye" id="displayMobitechKeyIcon"></i>
-                                        </button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Mobitech Sender ID:</strong></td>
-                                    <td><?php echo htmlspecialchars($sms_settings['mobitech_sender_id'] ?? '-'); ?></td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Text SMS API Key:</strong></td>
-                                    <td>
-                                        <span id="displayTextsmsKey">••••••••••••••••</span>
-                                        <button type="button" class="btn btn-sm btn-link" onclick="toggleTextsmsKey()" style="padding: 0; margin-left: 10px;">
-                                            <i class="fas fa-eye" id="displayTextsmsKeyIcon"></i>
-                                        </button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Text SMS Partner ID:</strong></td>
-                                    <td><?php echo htmlspecialchars($sms_settings['textsms_partner_id'] ?? '-'); ?></td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Text SMS Sender ID:</strong></td>
-                                    <td><?php echo htmlspecialchars($sms_settings['textsms_sender_id'] ?? '-'); ?></td>
-                                </tr>
-                                <tr>
-                                    <td><strong>SMS Enabled:</strong></td>
-                                    <td><?php echo ($sms_settings['sms_enabled'] ?? 0) ? 'Yes' : 'No'; ?></td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Last Updated:</strong></td>
-                                    <td><?php echo !empty($sms_settings['updated_at']) ? date('Y-m-d H:i:s', strtotime($sms_settings['updated_at'])) : '-'; ?></td>
-                                </tr>
-                            </table>
+                <div class="card-body" style="background: var(--bg-color); padding: 20px;">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="card p-3" style="border: 2px solid <?php echo ($sms_settings['sms_provider'] ?? 'mobitech') === 'mobitech' ? '#007bff' : '#e0e0e0'; ?>; cursor: pointer;" id="mobitechCard" onclick="selectSmsProvider('mobitech')">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="sms_provider" value="mobitech" id="mobitechProvider" <?php echo ($sms_settings['sms_provider'] ?? 'mobitech') === 'mobitech' ? 'checked' : ''; ?>>
+                                    <label class="form-check-label" for="mobitechProvider">
+                                        <strong>Mobitech</strong>
+                                        <br><small class="text-muted">Reliable SMS gateway for Kenya</small>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card p-3" style="border: 2px solid <?php echo ($sms_settings['sms_provider'] ?? 'mobitech') === 'textsms' ? '#007bff' : '#e0e0e0'; ?>; cursor: pointer;" id="textsmsCard" onclick="selectSmsProvider('textsms')">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="sms_provider" value="textsms" id="textsmsProvider" <?php echo ($sms_settings['sms_provider'] ?? 'mobitech') === 'textsms' ? 'checked' : ''; ?>>
+                                    <label class="form-check-label" for="textsmsProvider">
+                                        <strong>Text SMS</strong>
+                                        <br><small class="text-muted">Alternative SMS provider</small>
+                                    </label>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    
-                    <form method="POST">
-                        <input type="hidden" name="action" value="update_sms_settings">
-                        <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
-                        
-                        <div class="mb-3">
-                            <label class="form-label">SMS Provider</label>
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="card p-3" style="border: 2px solid #e0e0e0; cursor: pointer;" id="mobitechCard" onclick="selectSmsProvider('mobitech')">
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="radio" name="sms_provider" value="mobitech" id="mobitechProvider" <?php echo ($sms_settings['sms_provider'] ?? 'mobitech') === 'mobitech' ? 'checked' : ''; ?>>
-                                            <label class="form-check-label" for="mobitechProvider">
-                                                <strong>Mobitech</strong>
-                                                <br><small class="text-muted">Reliable SMS gateway for Kenya</small>
-                                            </label>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="card p-3" style="border: 2px solid #e0e0e0; cursor: pointer;" id="textsmsCard" onclick="selectSmsProvider('textsms')">
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="radio" name="sms_provider" value="textsms" id="textsmsProvider" <?php echo ($sms_settings['sms_provider'] ?? 'mobitech') === 'textsms' ? 'checked' : ''; ?>>
-                                            <label class="form-check-label" for="textsmsProvider">
-                                                <strong>Text SMS</strong>
-                                                <br><small class="text-muted">Alternative SMS provider</small>
-                                            </label>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                </div>
+            </div>
+
+            <!-- SMS Settings Form -->
+            <form method="POST">
+                <input type="hidden" name="action" value="update_sms_settings">
+                <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
+
+                <!-- Mobitech API Key -->
+                <div class="card mb-4" id="mobitechFields">
+                    <div class="card-header">
+                        <i class="fas fa-key me-2"></i> Mobitech API Key
+                    </div>
+                    <div class="card-body" style="background: var(--bg-color); padding: 20px;">
+                        <label class="form-label">Mobitech API Key</label>
+                        <input type="password" class="form-control" id="mobitech_api_key" name="mobitech_api_key" placeholder="Enter your Mobitech API key" value="<?php echo htmlspecialchars($sms_settings['mobitech_api_key'] ?? ''); ?>">
+                        <small class="text-muted">Get your API key from <a href="https://mobitech.co.ke" target="_blank">Mobitech</a></small>
+                    </div>
+                </div>
+
+                <!-- Mobitech Sender ID -->
+                <div class="card mb-4" id="mobitechSenderIdField">
+                    <div class="card-header">
+                        <i class="fas fa-id-card me-2"></i> Mobitech Sender ID
+                    </div>
+                    <div class="card-body" style="background: var(--bg-color); padding: 20px;">
+                        <label class="form-label">Mobitech Sender ID</label>
+                        <input type="text" class="form-control" id="mobitech_sender_id" name="mobitech_sender_id" placeholder="Enter your Mobitech sender ID" maxlength="11" value="<?php echo htmlspecialchars($sms_settings['mobitech_sender_id'] ?? ''); ?>">
+                        <small class="text-muted">Your unique sender ID for Mobitech (max 11 characters)</small>
+                    </div>
+                </div>
+
+                <!-- Text SMS API Key -->
+                <div class="card mb-4" id="textsmsFields" style="display: none;">
+                    <div class="card-header">
+                        <i class="fas fa-key me-2"></i> Text SMS API Key
+                    </div>
+                    <div class="card-body" style="background: var(--bg-color); padding: 20px;">
+                        <label class="form-label">Text SMS API Key</label>
+                        <input type="password" class="form-control" id="textsms_api_key" name="textsms_api_key" placeholder="Enter your Text SMS API key" value="<?php echo htmlspecialchars($sms_settings['textsms_api_key'] ?? ''); ?>">
+                        <small class="text-muted">Get your API key from <a href="https://textsms.co.ke" target="_blank">Text SMS</a></small>
+                    </div>
+                </div>
+
+                <!-- Text SMS Partner ID -->
+                <div class="card mb-4" id="textsmsPartnerIdField" style="display: none;">
+                    <div class="card-header">
+                        <i class="fas fa-id-badge me-2"></i> Text SMS Partner ID
+                    </div>
+                    <div class="card-body" style="background: var(--bg-color); padding: 20px;">
+                        <label class="form-label">Text SMS Partner ID</label>
+                        <input type="text" class="form-control" id="textsms_partner_id" name="textsms_partner_id" placeholder="Enter your Partner ID" value="<?php echo htmlspecialchars($sms_settings['textsms_partner_id'] ?? ''); ?>">
+                        <small class="text-muted">Your Partner ID from Text SMS account</small>
+                    </div>
+                </div>
+
+                <!-- Text SMS Sender ID -->
+                <div class="card mb-4" id="textsmsSenderIdField" style="display: none;">
+                    <div class="card-header">
+                        <i class="fas fa-id-card me-2"></i> Text SMS Sender ID
+                    </div>
+                    <div class="card-body" style="background: var(--bg-color); padding: 20px;">
+                        <label class="form-label">Text SMS Sender ID</label>
+                        <input type="text" class="form-control" id="textsms_sender_id" name="textsms_sender_id" placeholder="Enter your Text SMS sender ID" maxlength="11" value="<?php echo htmlspecialchars($sms_settings['textsms_sender_id'] ?? ''); ?>">
+                        <small class="text-muted">Your unique sender ID for Text SMS (max 11 characters)</small>
+                    </div>
+                </div>
+
+                <!-- SMS Enabled Toggle -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <i class="fas fa-toggle-on me-2"></i> SMS Notifications
+                    </div>
+                    <div class="card-body" style="background: var(--bg-color); padding: 20px;">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="sms_enabled" name="sms_enabled" value="1" <?php echo ($sms_settings['sms_enabled'] ?? 0) ? 'checked' : ''; ?>>
+                            <label class="form-check-label" for="sms_enabled">
+                                <strong>Enable SMS Notifications</strong>
+                            </label>
                         </div>
-                        
-                        <div class="mb-3" id="mobitechFields">
-                            <label class="form-label">Mobitech API Key</label>
-                            <input type="password" class="form-control" id="mobitech_api_key" name="mobitech_api_key" placeholder="Enter your Mobitech API key" value="<?php echo htmlspecialchars($sms_settings['mobitech_api_key'] ?? ''); ?>">
-                            <small class="text-muted">Get your API key from <a href="https://mobitech.co.ke" target="_blank">Mobitech</a></small>
+                        <small class="text-muted">Turn on to send SMS notifications from admin panel</small>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <i class="fas fa-cog me-2"></i> Actions
+                    </div>
+                    <div class="card-body" style="background: var(--bg-color); padding: 20px;">
+                        <div style="margin-bottom: 12px;">
+                            <button type="button" class="btn btn-secondary" style="width: 100%;">Cancel</button>
                         </div>
-                        
-                        <div class="mb-3" id="mobitechSenderIdField">
-                            <label class="form-label">Mobitech Sender ID</label>
-                            <input type="text" class="form-control" id="mobitech_sender_id" name="mobitech_sender_id" placeholder="Enter your Mobitech sender ID" maxlength="11" value="<?php echo htmlspecialchars($sms_settings['mobitech_sender_id'] ?? ''); ?>">
-                            <small class="text-muted">Your unique sender ID for Mobitech (max 11 characters)</small>
-                        </div>
-                        
-                        <div class="mb-3" id="textsmsFields" style="display: none;">
-                            <label class="form-label">Text SMS API Key</label>
-                            <input type="password" class="form-control" id="textsms_api_key" name="textsms_api_key" placeholder="Enter your Text SMS API key" value="<?php echo htmlspecialchars($sms_settings['textsms_api_key'] ?? ''); ?>">
-                            <small class="text-muted">Get your API key from <a href="https://textsms.co.ke" target="_blank">Text SMS</a></small>
-                        </div>
-                        
-                        <div class="mb-3" id="textsmsPartnerIdField" style="display: none;">
-                            <label class="form-label">Text SMS Partner ID</label>
-                            <input type="text" class="form-control" id="textsms_partner_id" name="textsms_partner_id" placeholder="Enter your Partner ID" value="<?php echo htmlspecialchars($sms_settings['textsms_partner_id'] ?? ''); ?>">
-                            <small class="text-muted">Your Partner ID from Text SMS account</small>
-                        </div>
-                        
-                        <div class="mb-3" id="textsmsSenderIdField" style="display: none;">
-                            <label class="form-label">Text SMS Sender ID</label>
-                            <input type="text" class="form-control" id="textsms_sender_id" name="textsms_sender_id" placeholder="Enter your Text SMS sender ID" maxlength="11" value="<?php echo htmlspecialchars($sms_settings['textsms_sender_id'] ?? ''); ?>">
-                            <small class="text-muted">Your unique sender ID for Text SMS (max 11 characters)</small>
-                        </div>
-                        
-                        <div class="mb-3">
-                            <div class="form-check form-switch">
-                                <input class="form-check-input" type="checkbox" id="sms_enabled" name="sms_enabled" value="1" <?php echo ($sms_settings['sms_enabled'] ?? 0) ? 'checked' : ''; ?>>
-                                <label class="form-check-label" for="sms_enabled">
-                                    <strong>Enable SMS Notifications</strong>
-                                </label>
-                            </div>
-                            <small class="text-muted">Turn on to send SMS notifications from admin panel</small>
-                        </div>
-                        
-                        <div style="display: flex; gap: 12px; justify-content: flex-end; margin-top: 24px; padding-top: 20px; border-top: 1px solid #e8eaed;">
-                            <button type="button" class="btn btn-secondary">Cancel</button>
-                            <button type="button" class="btn btn-outline-primary" onclick="checkSmsBalance()">
+                        <div style="margin-bottom: 12px;">
+                            <button type="button" class="btn btn-outline-primary" onclick="checkSmsBalance()" style="width: 100%;">
                                 <i class="fas fa-wallet"></i> Check Balance
                             </button>
-                            <button type="submit" class="btn btn-primary">
+                        </div>
+                        <div>
+                            <button type="submit" class="btn btn-primary" style="width: 100%;">
                                 <i class="fas fa-save"></i> Save Changes
                             </button>
                         </div>
-                    </form>
-                    
-                    <!-- Balance Display -->
-                    <div id="smsBalanceDisplay" class="mt-4" style="display: none;">
-                        <h5 class="mb-3">SMS Balance</h5>
-                        <div class="table-responsive">
-                            <table class="table">
-                                <tr>
-                                    <td><strong>Mobitech Balance:</strong></td>
-                                    <td id="mobitechBalance">-</td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Text SMS Balance:</strong></td>
-                                    <td id="textsmsBalance">-</td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Last Checked:</strong></td>
-                                    <td id="balanceLastChecked">-</td>
-                                </tr>
-                            </table>
-                        </div>
+                    </div>
+                </div>
+            </form>
+
+            <!-- SMS Balance Display -->
+            <div class="card mb-4" id="smsBalanceDisplay" style="display: none;">
+                <div class="card-header">
+                    <i class="fas fa-wallet me-2"></i> SMS Balance
+                </div>
+                <div class="card-body" style="background: var(--bg-color); padding: 20px;">
+                    <div class="table-responsive">
+                        <table class="pdf-table">
+                            <tr>
+                                <td><strong>Mobitech Balance:</strong></td>
+                                <td id="mobitechBalance">-</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Text SMS Balance:</strong></td>
+                                <td id="textsmsBalance">-</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Last Checked:</strong></td>
+                                <td id="balanceLastChecked">-</td>
+                            </tr>
+                        </table>
                     </div>
                 </div>
             </div>
@@ -1608,7 +2014,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['ac
                 btn.disabled = false;
             });
         }
-        
+
+        function clearBackups() {
+            if (!confirm('Are you sure you want to delete all backup files? This action cannot be undone.')) {
+                return;
+            }
+
+            const btn = event.target;
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Clearing Backups...';
+            btn.disabled = true;
+
+            fetch('backup.php?ajax=1&action=clear', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Backups cleared successfully!\n\nDeleted: ' + data.deleted_count + ' files');
+                    location.reload();
+                } else {
+                    alert('Failed to clear backups: ' + (data.error || 'Unknown error'));
+                }
+            })
+            .catch(error => {
+                alert('Failed to clear backups: ' + error.message);
+            })
+            .finally(() => {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            });
+        }
+
         function formatBytes(bytes) {
             if (bytes === 0) return '0 Bytes';
             const k = 1024;

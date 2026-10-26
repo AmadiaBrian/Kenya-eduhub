@@ -440,7 +440,7 @@ try {
             width: 50px;
             height: 50px;
             border-radius: 50%;
-            background: var(--primary-color);
+            background: #FF6B35;
             color: white;
             display: flex;
             align-items: center;
@@ -517,47 +517,48 @@ try {
             color: #5f6368;
         }
         
-        /* Table */
+        /* Table - PDF Style */
         .table {
             width: 100%;
             border-collapse: collapse;
             background: white;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border: 2px solid #000;
+            margin: 0;
+            font-family: 'Times New Roman', Times, serif;
         }
-        
-        .table th,
-        .table td {
-            padding: 12px 16px;
-            text-align: left;
-            border: 1px solid #000;
-            border-bottom: 1px solid #000;
-            border-right: 1px solid #000;
-        }
-        
-        .table th {
-            background: #FF6B35 !important;
-            font-weight: 600;
-            color: #ffffff !important;
-            font-size: 12px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            border-top: 2px solid #000;
-        }
-        
-        .table th:last-child {
-            border-right: 2px solid #000;
-        }
-        
-        .table td:last-child {
-            border-right: 2px solid #000;
-        }
-        
-        .table tbody tr:last-child td {
+
+        .table thead {
+            background: #f0f0f0;
             border-bottom: 2px solid #000;
         }
-        
+
+        .table th {
+            background: #f0f0f0;
+            border: 2px solid #000;
+            border-bottom: 2px solid #000;
+            padding: 12px;
+            font-weight: bold;
+            color: #000;
+        }
+
+        .table td {
+            padding: 12px;
+            border: 2px solid #000;
+            color: #000;
+            font-size: 13px;
+        }
+
+        .table tbody tr:nth-child(even) {
+            background: #fafafa;
+        }
+
         .table tbody tr:hover {
-            background: #f9f9f9;
+            background: #f8f9fa;
+        }
+
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
         }
         
         /* Quick Access */
@@ -725,7 +726,7 @@ try {
         .quick-access-item:nth-child(6) .quick-access-icon { background: #fce8e6; color: #4285F4; }
     </style>
 </head>
-<body>
+<body class="dashboard-page">
     <!-- Header -->
     <?php require_once 'includes/header.php'; ?>
     

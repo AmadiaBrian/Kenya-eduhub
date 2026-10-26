@@ -59,7 +59,7 @@ require_once __DIR__ . '/../config.php';
         }
     </style>
 </head>
-<body>
+<body class="login-page">
     <div class="error-container">
         <div class="error-code">404</div>
         <div class="error-message">Page Not Found</div>

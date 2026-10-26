@@ -285,104 +285,96 @@ try {
         /* Stats Grid */
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 16px;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 24px;
             margin-bottom: 24px;
         }
-        
+
         .stat-card {
             background: var(--bg-color);
             border: 1px solid #e8eaed;
-            border-radius: 12px;
+            border-radius: 8px;
             padding: 24px;
+            transition: box-shadow 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
             text-align: center;
-            transition: all 0.2s ease;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
         }
 
         .stat-card:hover {
-            box-shadow: 0 4px 12px rgba(0,0,0,0.12);
-            transform: translateY(-2px);
-        }
-
-        .stat-icon {
-            width: 48px;
-            height: 48px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 16px auto;
-            font-size: 24px;
-        }
-
-        .stat-card:nth-child(1) .stat-icon { background: #e8f0fe; color: #4285F4; }
-        .stat-card:nth-child(2) .stat-icon { background: #fce8e6; color: #EA4335; }
-        .stat-card:nth-child(3) .stat-icon { background: #e6f4ea; color: #00AC47; }
-        .stat-card:nth-child(4) .stat-icon { background: #fef7e0; color: #FFBA00; }
-        .stat-card:nth-child(5) .stat-icon { background: #fce8e6; color: #EA4335; }
-        .stat-card:nth-child(6) .stat-icon { background: #e6f4ea; color: #00AC47; }
-
-        .stat-value {
-            font-size: 32px;
-            font-weight: 600;
-            color: #202124;
-            margin-bottom: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
         }
 
         .stat-label {
             font-size: 14px;
             color: #5f6368;
-            font-weight: 500;
-            margin-bottom: 4px;
+            margin-bottom: 8px;
         }
 
-        .stat-sublabel {
+        .stat-value {
+            font-size: 32px;
+            font-weight: 400;
+            color: #202124;
+            margin-bottom: 8px;
+        }
+
+        .stat-change {
             font-size: 12px;
-            color: #9aa0a6;
+            color: #5f6368;
+        }
+
+        .stat-change.positive {
+            color: #1e8e3e;
+        }
+
+        .stat-change.negative {
+            color: #d93025;
         }
         
-        /* Table */
+        /* Table - PDF Style */
         .table {
             width: 100%;
             border-collapse: collapse;
             background: white;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border: 2px solid #000;
+            margin: 0;
+            font-family: 'Times New Roman', Times, serif;
         }
-        
-        .table th,
-        .table td {
-            padding: 12px 16px;
-            text-align: left;
-            border: 1px solid #000;
-            border-bottom: 1px solid #000;
-            border-right: 1px solid #000;
-        }
-        
-        .table th {
-            background: #FF6B35 !important;
-            font-weight: 600;
-            color: #ffffff !important;
-            font-size: 12px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            border-top: 2px solid #000;
-        }
-        
-        .table th:last-child {
-            border-right: 2px solid #000;
-        }
-        
-        .table td:last-child {
-            border-right: 2px solid #000;
-        }
-        
-        .table tbody tr:last-child td {
+
+        .table thead {
+            background: #f0f0f0;
             border-bottom: 2px solid #000;
         }
-        
+
+        .table th {
+            background: #f0f0f0;
+            border: 2px solid #000;
+            border-bottom: 2px solid #000;
+            padding: 12px;
+            font-weight: bold;
+            color: #000;
+        }
+
+        .table td {
+            padding: 12px;
+            border: 2px solid #000;
+            color: #000;
+            font-size: 13px;
+        }
+
+        .table tbody tr:nth-child(even) {
+            background: #fafafa;
+        }
+
         .table tbody tr:hover {
-            background: #f9f9f9;
+            background: #f8f9fa;
+        }
+
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
         }
         
         /* Buttons */
@@ -511,33 +503,55 @@ try {
             
             .main-content {
                 margin-left: 0;
-                padding: 16px;
+                padding: 0 !important;
             }
-            
+
             .header {
                 padding: 0 16px;
             }
-            
+
             .logo span {
                 font-size: 16px;
             }
-            
+
             .stats-grid {
                 grid-template-columns: repeat(2, 1fr);
-                gap: 12px;
+                gap: 8px;
             }
-            
-            .card {
-                padding: 16px;
+
+            .stat-card {
+                padding: 12px;
             }
-            
-            .card-title {
+
+            .stat-value {
+                font-size: 20px;
+            }
+
+            .stat-label {
+                font-size: 11px;
+            }
+
+            .stat-icon {
+                width: 40px;
+                height: 40px;
                 font-size: 16px;
             }
-            
+
+            .card {
+                padding: 0 !important;
+                margin: 0 !important;
+                width: 100% !important;
+            }
+
+            .card-title {
+                padding: 20px !important;
+                font-size: 16px;
+            }
+
             .table-responsive {
                 overflow-x: auto;
                 -webkit-overflow-scrolling: touch;
+                padding: 0 20px 20px 20px !important;
             }
             
             .table {
@@ -565,7 +579,7 @@ try {
         .fa-info-circle { color: #4285F4; }
     </style>
 </head>
-<body>
+<body class="dashboard-page">
     <!-- Header -->
     <?php require_once 'includes/header.php'; ?>
     
@@ -648,52 +662,38 @@ try {
             <!-- Fine Statistics -->
             <div class="stats-grid">
                 <div class="stat-card">
-                    <div class="stat-icon">
-                        <i class="fas fa-book"></i>
-                    </div>
-                    <div class="stat-value"><?php echo $fine_stats['total_fines']; ?></div>
                     <div class="stat-label">Total Fines</div>
-                    <div class="stat-sublabel">For your children</div>
+                    <div class="stat-value"><?php echo $fine_stats['total_fines']; ?></div>
+                    <div class="stat-change">For your children</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-icon">
-                        <i class="fas fa-money-bill-wave"></i>
-                    </div>
-                    <div class="stat-value"><?php echo number_format($fine_stats['total_amount'], 2); ?></div>
                     <div class="stat-label">Total Amount</div>
-                    <div class="stat-sublabel">Currency units</div>
+                    <div class="stat-value"><?php echo number_format($fine_stats['total_amount'], 2); ?></div>
+                    <div class="stat-change">Currency units</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-icon">
-                        <i class="fas fa-check-circle"></i>
-                    </div>
-                    <div class="stat-value"><?php echo number_format($fine_stats['total_paid'], 2); ?></div>
                     <div class="stat-label">Amount Paid</div>
-                    <div class="stat-sublabel">Already settled</div>
+                    <div class="stat-value"><?php echo number_format($fine_stats['total_paid'], 2); ?></div>
+                    <div class="stat-change">Already settled</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-icon">
-                        <i class="fas fa-exclamation-circle"></i>
-                    </div>
-                    <div class="stat-value"><?php echo number_format($fine_stats['unpaid_amount'], 2); ?></div>
                     <div class="stat-label">Outstanding</div>
-                    <div class="stat-sublabel">Remaining balance</div>
+                    <div class="stat-value"><?php echo number_format($fine_stats['unpaid_amount'], 2); ?></div>
+                    <div class="stat-change <?php echo $fine_stats['unpaid_amount'] > 0 ? 'negative' : 'positive'; ?>">
+                        <?php echo $fine_stats['unpaid_amount'] > 0 ? 'Remaining balance' : 'Fully paid'; ?>
+                    </div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-icon">
-                        <i class="fas fa-clock"></i>
-                    </div>
-                    <div class="stat-value"><?php echo $fine_stats['unpaid_count']; ?></div>
                     <div class="stat-label">Unpaid Fines</div>
-                    <div class="stat-sublabel">Pending payment</div>
+                    <div class="stat-value"><?php echo $fine_stats['unpaid_count']; ?></div>
+                    <div class="stat-change <?php echo $fine_stats['unpaid_count'] > 0 ? 'negative' : 'positive'; ?>">
+                        <?php echo $fine_stats['unpaid_count'] > 0 ? 'Pending payment' : 'All paid'; ?>
+                    </div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-icon">
-                        <i class="fas fa-check-double"></i>
-                    </div>
-                    <div class="stat-value"><?php echo $fine_stats['paid_count']; ?></div>
                     <div class="stat-label">Paid Fines</div>
-                    <div class="stat-sublabel">Completed</div>
+                    <div class="stat-value"><?php echo $fine_stats['paid_count']; ?></div>
+                    <div class="stat-change positive">Completed</div>
                 </div>
             </div>
             

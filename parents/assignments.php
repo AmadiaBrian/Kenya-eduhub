@@ -84,7 +84,6 @@ if (!empty($class_ids)) {
             display: flex;
             align-items: center;
             padding: 0 24px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
             position: fixed;
             top: 0;
             left: 0;
@@ -431,15 +430,48 @@ if (!empty($class_ids)) {
             .sidebar {
                 transform: translateX(-256px);
             }
-            
+
             .sidebar.show {
                 transform: translateX(0);
             }
-            
+
             .main-content {
                 margin-left: 0;
+                padding: 0 !important;
             }
-            
+
+            .page-title {
+                padding: 16px 20px !important;
+            }
+
+            .page-subtitle {
+                padding: 0 20px 16px 20px !important;
+            }
+
+            .card {
+                padding: 0 !important;
+                margin: 0 !important;
+                width: 100% !important;
+            }
+
+            .card-title {
+                padding: 20px !important;
+            }
+
+            .assignments-grid {
+                padding: 0 20px 20px 20px !important;
+                grid-template-columns: 1fr !important;
+            }
+
+            .assignment-card {
+                width: 100% !important;
+            }
+
+            .form-control {
+                border-radius: 25px !important;
+                background: var(--bg-color) !important;
+            }
+
             .btn {
                 width: 100%;
             }
@@ -454,7 +486,7 @@ if (!empty($class_ids)) {
         .fa-file { color: #5f6368; }
     </style>
 </head>
-<body>
+<body class="dashboard-page">
     <!-- Header -->
     <?php require_once 'includes/header.php'; ?>
     
@@ -470,17 +502,16 @@ if (!empty($class_ids)) {
             View syllabus, sentiments, notes, and holiday assignments for your children
         </p>
         
-        <div class="card">
-            <h2 class="card-title">Recent Assignments</h2>
-            
-            <!-- Search and Filter -->
-            <div style="display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap;">
+        <!-- Search and Filter Section -->
+        <div class="card" style="padding: 0; margin-bottom: 24px;">
+            <h2 class="card-title" style="padding: 20px;">Search & Filter</h2>
+            <div style="display: flex; gap: 12px; flex-wrap: wrap; padding: 0 20px 20px 20px;">
                 <div style="flex: 1; min-width: 200px;">
-                    <input type="text" id="searchInput" class="form-control" placeholder="Search assignments..." style="width: 100%; padding: 10px; border: 1px solid #dadce0; border-radius: 8px; background: var(--bg-color);">
+                    <input type="text" id="searchInput" class="form-control" placeholder="Search assignments..." style="width: 100%; padding: 10px; border: 1px solid #dadce0; border-radius: 25px; background: var(--bg-color);">
                 </div>
                 <?php if (count($children) > 1): ?>
                     <div style="min-width: 150px;">
-                        <select id="filterChild" class="form-control" style="padding: 10px; border: 1px solid #dadce0; border-radius: 8px; background: var(--bg-color);">
+                        <select id="filterChild" class="form-control" style="padding: 10px; border: 1px solid #dadce0; border-radius: 25px; background: var(--bg-color);">
                             <option value="">All Children</option>
                             <?php foreach ($children as $child): ?>
                                 <option value="<?php echo $child['class_id']; ?>"><?php echo htmlspecialchars($child['first_name'] . ' ' . $child['last_name']); ?> (<?php echo htmlspecialchars($child['class_name']); ?>)</option>
@@ -489,7 +520,7 @@ if (!empty($class_ids)) {
                     </div>
                 <?php endif; ?>
                 <div style="min-width: 150px;">
-                    <select id="filterType" class="form-control" style="padding: 10px; border: 1px solid #dadce0; border-radius: 8px;">
+                    <select id="filterType" class="form-control" style="padding: 10px; border: 1px solid #dadce0; border-radius: 25px; background: var(--bg-color);">
                         <option value="">All Types</option>
                         <option value="syllabus">Syllabus</option>
                         <option value="sentiment">Sentiment</option>
@@ -498,7 +529,7 @@ if (!empty($class_ids)) {
                     </select>
                 </div>
                 <div style="min-width: 150px;">
-                    <select id="sortBy" class="form-control" style="padding: 10px; border: 1px solid #dadce0; border-radius: 8px;">
+                    <select id="sortBy" class="form-control" style="padding: 10px; border: 1px solid #dadce0; border-radius: 25px; background: var(--bg-color);">
                         <option value="date-desc">Newest First</option>
                         <option value="date-asc">Oldest First</option>
                         <option value="title-asc">Title A-Z</option>
@@ -506,11 +537,16 @@ if (!empty($class_ids)) {
                     </select>
                 </div>
             </div>
-            
+        </div>
+
+        <!-- Assignments Section -->
+        <div class="card" style="padding: 0;">
+            <h2 class="card-title" style="padding: 20px;">Recent Assignments</h2>
+
             <?php if (empty($assignments)): ?>
-                <p class="text-muted">No assignments found for your children.</p>
+                <p class="text-muted" style="padding: 0 20px 20px 20px;">No assignments found for your children.</p>
             <?php else: ?>
-                <div class="assignments-grid" id="assignmentsGrid">
+                <div class="assignments-grid" id="assignmentsGrid" style="padding: 0 20px 20px 20px;">
                     <?php foreach ($assignments as $assignment): ?>
                         <?php
                         $badge_class = 'badge-syllabus';
@@ -578,7 +614,7 @@ if (!empty($class_ids)) {
                         </div>
                     <?php endforeach; ?>
                 </div>
-                <p style="color: #666; font-size: 12px; margin-top: 10px;">Total assignments: <span id="totalCount"><?php echo count($assignments); ?></span></p>
+                <p style="color: #666; font-size: 12px; margin-top: 10px; padding: 0 20px 20px 20px;">Total assignments: <span id="totalCount"><?php echo count($assignments); ?></span></p>
             <?php endif; ?>
         </div>
     </main>

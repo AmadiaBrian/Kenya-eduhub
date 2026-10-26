@@ -381,6 +381,10 @@ try {
             margin-bottom: 16px;
             text-align: center;
         }
+
+        .btn {
+            border-radius: 25px;
+        }
         
         /* Fee Summary */
         .fee-summary {
@@ -395,6 +399,7 @@ try {
             padding: 20px;
             background: #f8f9fa;
             border-radius: 8px;
+            border: 1px solid #e8eaed;
         }
         
         .fee-summary-label {
@@ -490,49 +495,50 @@ try {
             box-shadow: 0 0 0 2px rgba(255, 107, 53, 0.2);
         }
         
-        /* Table */
+        /* Table - PDF Style */
         .table {
             width: 100%;
             border-collapse: collapse;
             background: white;
-            border: 1px solid #000;
+            border: 2px solid #000;
             margin: 0;
+            font-family: 'Times New Roman', Times, serif;
         }
-        
+
         .table-responsive {
             width: 100%;
             overflow-x: auto;
         }
-        
+
         .table thead {
-            background: #FF6B35 !important;
+            background: #f0f0f0;
             border-bottom: 2px solid #000;
         }
 
         .table thead th {
-            background: #FF6B35 !important;
+            background: #f0f0f0;
             text-align: left;
             padding: 12px;
             font-size: 13px;
-            font-weight: 600;
-            color: #ffffff !important;
-            border: 1px solid #000;
+            font-weight: bold;
+            color: #000;
+            border: 2px solid #000;
             border-bottom: 2px solid #000;
         }
-        
+
         .table td {
             padding: 12px;
             font-size: 13px;
             color: #000;
-            border: 1px solid #000;
+            border: 2px solid #000;
         }
-        
+
         .table tbody tr:nth-child(even) {
-            background: #f9f9f9;
+            background: #fafafa;
         }
-        
+
         .table tbody tr:hover {
-            background: #f0f0f0;
+            background: #f8f9fa;
         }
         
         /* Responsive */
@@ -550,13 +556,23 @@ try {
             }
             
             .fee-summary {
-                grid-template-columns: 1fr;
+                grid-template-columns: repeat(2, 1fr);
             }
             
             .table-responsive {
                 overflow-x: auto;
             }
-            
+
+            .card {
+                width: 100% !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+
+            .card-title {
+                padding: 20px !important;
+            }
+
             .quick-access-grid {
                 grid-template-columns: repeat(3, 1fr);
                 gap: 8px;
@@ -602,7 +618,7 @@ try {
         .quick-access-item:nth-child(6) .quick-access-icon { background: #fce8e6; color: #4285F4; }
     </style>
 </head>
-<body>
+<body class="dashboard-page">
     <!-- Header -->
     <?php require_once 'includes/header.php'; ?>
     
@@ -681,10 +697,10 @@ try {
             </div>
             <?php if ($selected_child_id): ?>
             <div class="filter-group" style="margin-top: 15px;">
-                <button class="btn" onclick="generateFeeStatement(<?php echo $selected_child_id; ?>)" style="background-color: #ff6600; color: white; border: none; width: 100%; margin-bottom: 10px;">
+                <button class="btn" onclick="generateFeeStatement(<?php echo $selected_child_id; ?>)" style="background-color: #ff6600; color: white; border: none; width: 100%; margin-bottom: 10px; border-radius: 25px;">
                     <i class="fas fa-file-invoice"></i> Generate Fee Statement
                 </button>
-                <button class="btn" onclick="generateFeeStructure(<?php echo $selected_child_id; ?>)" style="background-color: #ff6600; color: white; border: none; width: 100%;">
+                <button class="btn" onclick="generateFeeStructure(<?php echo $selected_child_id; ?>)" style="background-color: #ff6600; color: white; border: none; width: 100%; border-radius: 25px;">
                     <i class="fas fa-list-alt"></i> Fee Structure Document
                 </button>
             </div>
@@ -733,62 +749,69 @@ try {
                 </a>
             </div>
         </div>
-        
+
         <?php if ($selected_child_id && !empty($fee_data)): ?>
             <!-- Payment Form -->
-            <div class="card">
-                <h2 class="card-title">Pay Fees via M-Pesa</h2>
-                <form id="mpesaPaymentForm">
-                    <div class="filter-group">
-                        <label for="payment_fee_type">Fee Type</label>
-                        <select class="form-control" id="payment_fee_type" name="fee_type" onchange="updatePaymentAmount()">
-                            <option value="Tuition">Tuition</option>
-                            <?php foreach($fee_data['fee_structures'] as $fs): ?>
-                                <?php if($fs['fee_type'] !== 'Tuition'): ?>
-                                    <option value="<?php echo htmlspecialchars($fs['fee_type']); ?>"><?php echo htmlspecialchars($fs['fee_type']); ?></option>
-                                <?php endif; ?>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-                    <div class="filter-group">
-                        <label for="payment_term">Term</label>
-                        <select class="form-control" id="payment_term" name="term" onchange="updatePaymentAmount()">
-                            <?php foreach($terms as $term): ?>
-                                <option value="<?php echo htmlspecialchars($term); ?>" <?php echo $active_term === $term ? 'selected' : ''; ?>><?php echo htmlspecialchars($term); ?></option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-                    <div class="filter-group">
-                        <label for="payment_year">Year</label>
-                        <select class="form-control" id="payment_year" name="year" onchange="updatePaymentAmount()">
-                            <?php 
-                            $current_year = date('Y');
-                            for($y = $current_year; $y <= $current_year + 1; $y++): ?>
-                                <option value="<?php echo $y; ?>" <?php echo $y == $current_year ? 'selected' : ''; ?>><?php echo $y; ?></option>
-                            <?php endfor; ?>
-                        </select>
-                    </div>
-                    <div class="filter-group">
-                        <label for="payment_amount">Amount (KES)</label>
-                        <input type="number" class="form-control" id="payment_amount" name="amount" min="1" required placeholder="Enter amount" style="background: var(--bg-color);">
-                        <small style="color: #5f6368; font-size: 11px;">Amount auto-filled based on balance. You can change it if needed.</small>
-                    </div>
-                    <div class="filter-group">
-                        <label for="payment_phone">M-Pesa Phone Number</label>
-                        <input type="tel" class="form-control" id="payment_phone" name="phone" required value="<?php echo htmlspecialchars($_SESSION['parent_phone'] ?? ''); ?>" placeholder="2547XXXXXXXX">
-                        <small style="color: #5f6368; font-size: 11px;">For sandbox testing, use a registered test number (e.g., 254700000000)</small>
-                    </div>
-                    <input type="hidden" id="payment_student_id" name="student_id" value="<?php echo $selected_child_id; ?>">
-                    <button type="submit" class="btn btn-primary" style="background: #FF6B35; border: none; padding: 12px 24px; border-radius: 25px; color: white; font-weight: 500; cursor: pointer; width: 100%;">
-                        <img src="https://upload.wikimedia.org/wikipedia/commons/1/15/M-PESA_LOGO-01.svg" alt="M-Pesa" style="height: 24px; width: auto; margin-right: 8px; vertical-align: middle;"> Pay with M-Pesa
-                    </button>
-                </form>
-                <div id="paymentMessage" style="margin-top: 16px; display: none;"></div>
+            <div class="card" style="padding: 0;">
+                <h2 class="card-title" style="padding: 20px;">Pay Fees via M-Pesa</h2>
+                <div style="padding: 0 20px 20px 20px;">
+                    <form id="mpesaPaymentForm">
+                        <div class="filter-group">
+                            <label for="payment_fee_type">Fee Type</label>
+                            <select class="form-control" id="payment_fee_type" name="fee_type" onchange="updatePaymentAmount()">
+                                <option value="Tuition">Tuition</option>
+                                <?php foreach($fee_data['fee_structures'] as $fs): ?>
+                                    <?php if($fs['fee_type'] !== 'Tuition'): ?>
+                                        <option value="<?php echo htmlspecialchars($fs['fee_type']); ?>"><?php echo htmlspecialchars($fs['fee_type']); ?></option>
+                                    <?php endif; ?>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label for="payment_term">Term</label>
+                            <select class="form-control" id="payment_term" name="term" onchange="updatePaymentAmount()">
+                                <?php foreach($terms as $term): ?>
+                                    <option value="<?php echo htmlspecialchars($term); ?>" <?php echo $active_term === $term ? 'selected' : ''; ?>><?php echo htmlspecialchars($term); ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label for="payment_year">Year</label>
+                            <select class="form-control" id="payment_year" name="year" onchange="updatePaymentAmount()">
+                                <?php
+                                $current_year = date('Y');
+                                for($y = $current_year; $y <= $current_year + 1; $y++): ?>
+                                    <option value="<?php echo $y; ?>" <?php echo $y == $current_year ? 'selected' : ''; ?>><?php echo $y; ?></option>
+                                <?php endfor; ?>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label for="payment_amount">Amount (KES)</label>
+                            <input type="number" class="form-control" id="payment_amount" name="amount" min="1" required placeholder="Enter amount" style="background: var(--bg-color);">
+                            <small style="color: #5f6368; font-size: 11px;">Amount auto-filled based on balance. You can change it if needed.</small>
+                        </div>
+                        <div class="filter-group">
+                            <label for="payment_phone">M-Pesa Phone Number</label>
+                            <input type="tel" class="form-control" id="payment_phone" name="phone" required value="<?php echo htmlspecialchars($_SESSION['parent_phone'] ?? ''); ?>" placeholder="2547XXXXXXXX">
+                            <small style="color: #5f6368; font-size: 11px;">For sandbox testing, use a registered test number (e.g., 254700000000)</small>
+                        </div>
+                        <input type="hidden" id="payment_student_id" name="student_id" value="<?php echo $selected_child_id; ?>">
+                        <button type="submit" class="btn btn-primary" style="background: #FF6B35; border: none; padding: 12px 24px; border-radius: 25px; color: white; font-weight: 500; cursor: pointer; width: 100%;">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/1/15/M-PESA_LOGO-01.svg" alt="M-Pesa" style="height: 24px; width: auto; margin-right: 8px; vertical-align: middle;"> Pay with M-Pesa
+                        </button>
+                    </form>
+                    <div id="paymentMessage" style="margin-top: 16px; display: none;"></div>
+                </div>
             </div>
+
+            <br>
+            <br>
+            <br>
+            <br>
 
             <div class="card">
                 <h2 class="card-title">Fee Summary - <?php echo htmlspecialchars($fee_data['current_year']); ?></h2>
-                
+
                 <!-- Term-wise Balances -->
                 <div class="fee-summary">
                     <?php foreach ($fee_data['term_balances'] as $term => $data): ?>
@@ -802,32 +825,27 @@ try {
                         </div>
                     </div>
                     <?php endforeach; ?>
-                </div>
-                
-                <!-- Year Total -->
-                <div style="margin-top: 24px; padding: 16px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #FF6B35;">
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <div>
-                            <div style="font-size: 14px; color: #5f6368; margin-bottom: 4px;">Year Total Balance</div>
-                            <div style="font-size: 12px; color: #5f6368;">
-                                Total Paid: KES <?php echo number_format($fee_data['year_total_paid']); ?> / 
-                                Total Fees: KES <?php echo number_format($fee_data['year_total_fees']); ?>
-                            </div>
-                        </div>
-                        <div style="font-size: 28px; font-weight: 500; color: <?php echo $fee_data['year_balance'] > 0 ? '#c5221f' : '#137333'; ?>;">
+
+                    <!-- Year Total -->
+                    <div class="fee-summary-item">
+                        <div class="fee-summary-label">Year Total Balance</div>
+                        <div class="fee-summary-value <?php echo $fee_data['year_balance'] > 0 ? 'due' : 'paid'; ?>">
                             KES <?php echo number_format($fee_data['year_balance']); ?>
+                        </div>
+                        <div class="fee-summary-label" style="font-size: 10px; margin-top: 4px;">
+                            Paid: <?php echo number_format($fee_data['year_total_paid']); ?> / <?php echo number_format($fee_data['year_total_fees']); ?>
                         </div>
                     </div>
                 </div>
             </div>
             
-            <div class="card">
-                <h2 class="card-title">Fee Structure Status</h2>
+            <div class="card" style="padding: 0;">
+                <h2 class="card-title" style="padding: 20px;">Fee Structure Status</h2>
                 <?php if (empty($fee_data['fee_structure_status'])): ?>
-                    <p class="text-muted">No fee structures found for this student.</p>
+                    <p class="text-muted" style="padding: 20px;">No fee structures found for this student.</p>
                 <?php else: ?>
-                    <div class="table-responsive">
-                        <table class="table">
+                    <div class="table-responsive" style="padding: 0 20px 20px 20px;">
+                        <table class="table" style="width: 100%;">
                             <thead>
                                 <tr>
                                     <th>Fee Type</th>
@@ -865,13 +883,13 @@ try {
                 <?php endif; ?>
             </div>
             
-            <div class="card">
-                <h2 class="card-title">Payment History</h2>
+            <div class="card" style="padding: 0;">
+                <h2 class="card-title" style="padding: 20px;">Payment History</h2>
                 <?php if (empty($fee_data['payments'])): ?>
-                    <p class="text-muted">No payment records found.</p>
+                    <p class="text-muted" style="padding: 20px;">No payment records found.</p>
                 <?php else: ?>
-                    <div class="table-responsive">
-                        <table class="table">
+                    <div class="table-responsive" style="padding: 0 20px 20px 20px;">
+                        <table class="table" style="width: 100%;">
                             <thead>
                                 <tr>
                                     <th>Date</th>
@@ -897,7 +915,7 @@ try {
                                             </span>
                                         </td>
                                         <td>
-                                            <button class="btn btn-sm" onclick="generateReceipt(<?php echo $payment['id']; ?>)" style="background-color: #ff6600; color: white; border: none;">
+                                            <button class="btn btn-sm" onclick="generateReceipt(<?php echo $payment['id']; ?>)" style="background-color: #ff6600; color: white; border: none; border-radius: 25px;">
                                                 <i class="fas fa-print"></i> Receipt
                                             </button>
                                         </td>
@@ -911,10 +929,10 @@ try {
             
             <!-- Reminder History Card -->
             <?php if (!empty($reminder_history)): ?>
-                <div class="card">
-                    <h2 class="card-title">Payment Reminders</h2>
-                    <div class="table-responsive">
-                        <table class="table">
+                <div class="card" style="padding: 0;">
+                    <h2 class="card-title" style="padding: 20px;">Payment Reminders</h2>
+                    <div class="table-responsive" style="padding: 0 20px 20px 20px;">
+                        <table class="table" style="width: 100%;">
                             <thead>
                                 <tr>
                                     <th>Date</th>

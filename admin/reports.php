@@ -33,6 +33,9 @@ $most_downloaded = [];
 $total_users = 0;
 $total_resources = 0;
 $total_downloads = 0;
+$active_users = 0;
+$inactive_users = 0;
+$admin_users = 0;
 
 // Get report data
 try {
@@ -45,26 +48,26 @@ try {
             'count' => rand(0, 5) // Random registration count for demo
         ];
     }
-    
+
     // Check if resources table exists and get data
     $resources_table_exists = $conn->query("SHOW TABLES LIKE 'resources'")->num_rows > 0;
-    
+
     if ($resources_table_exists) {
         // Resource uploads by subject
         $stmt = $conn->prepare("
-            SELECT subject, COUNT(*) as count 
-            FROM resources 
-            GROUP BY subject 
+            SELECT subject, COUNT(*) as count
+            FROM resources
+            GROUP BY subject
             ORDER BY count DESC
         ");
         $stmt->execute();
         $resources_by_subject = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
-        
+
         // Most downloaded resources
         $stmt = $conn->prepare("
-            SELECT title, downloads, subject 
-            FROM resources 
-            ORDER BY downloads DESC 
+            SELECT title, downloads, subject
+            FROM resources
+            ORDER BY downloads DESC
             LIMIT 10
         ");
         $stmt->execute();
@@ -78,25 +81,46 @@ try {
             ['subject' => 'History', 'count' => 15],
             ['subject' => 'Geography', 'count' => 12]
         ];
-        
+
         $most_downloaded = [
             ['title' => 'Mathematics Form 1', 'downloads' => 156, 'subject' => 'Mathematics'],
             ['title' => 'English Grammar Guide', 'downloads' => 134, 'subject' => 'English'],
             ['title' => 'Science Lab Manual', 'downloads' => 98, 'subject' => 'Science']
         ];
     }
-    
+
     // System statistics
     $stmt = $conn->prepare("SELECT COUNT(*) as total FROM users");
     $stmt->execute();
     $total_users = $stmt->get_result()->fetch_assoc()['total'];
-    
+
+    // Active users count - check if status column exists
+    $status_column_exists = $conn->query("SHOW COLUMNS FROM users LIKE 'status'")->num_rows > 0;
+    if ($status_column_exists) {
+        $stmt = $conn->prepare("SELECT COUNT(*) as total FROM users WHERE status = 'active'");
+        $stmt->execute();
+        $active_users = $stmt->get_result()->fetch_assoc()['total'];
+
+        $stmt = $conn->prepare("SELECT COUNT(*) as total FROM users WHERE status = 'inactive'");
+        $stmt->execute();
+        $inactive_users = $stmt->get_result()->fetch_assoc()['total'];
+    } else {
+        // If status column doesn't exist, assume all users are active
+        $active_users = $total_users;
+        $inactive_users = 0;
+    }
+
+    // Admin users count
+    $stmt = $conn->prepare("SELECT COUNT(*) as total FROM users WHERE role = 'admin'");
+    $stmt->execute();
+    $admin_users = $stmt->get_result()->fetch_assoc()['total'];
+
     // Handle resources table that might not exist
     if ($resources_table_exists) {
         $stmt = $conn->prepare("SELECT COUNT(*) as total FROM resources");
         $stmt->execute();
         $total_resources = $stmt->get_result()->fetch_assoc()['total'];
-        
+
         $stmt = $conn->prepare("SELECT SUM(downloads) as total FROM resources");
         $stmt->execute();
         $total_downloads = $stmt->get_result()->fetch_assoc()['total'] ?? 0;
@@ -104,7 +128,7 @@ try {
         $total_resources = 0;
         $total_downloads = 0;
     }
-    
+
 } catch (Exception $e) {
     $error = "Error generating reports: " . $e->getMessage();
 }
@@ -253,6 +277,7 @@ try {
             font-weight: 400;
             color: #202124;
             margin-bottom: 24px;
+            text-align: center;
         }
         
         .header {
@@ -340,28 +365,61 @@ try {
         
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
             margin-bottom: 30px;
         }
-        
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
         .stat-card {
-            background: transparent;
-            padding: 25px;
-            border-radius: 8px;
+            background: var(--card-bg);
+            padding: 24px;
+            border-radius: 12px;
             border: 1px solid #e8eaed;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            transition: transform 0.2s, box-shadow 0.2s;
         }
-        
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255, 107, 53, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 12px;
+        }
+
+        .stat-icon i {
+            font-size: 20px;
+            color: #FF6B35;
+        }
+
         .stat-card h3 {
-            font-size: 36px;
-            font-weight: 400;
-            color: var(--primary-color);
-            margin-bottom: 5px;
+            font-size: 32px;
+            font-weight: 700;
+            color: #202124;
+            margin-bottom: 4px;
         }
-        
+
         .stat-card p {
             font-size: 14px;
-            color: var(--secondary-color);
+            color: #5f6368;
+            margin: 0;
         }
         
         .card {
@@ -376,14 +434,15 @@ try {
             padding: 20px 25px;
             border-bottom: 1px solid #e8eaed;
             display: flex;
-            justify-content: space-between;
+            justify-content: center;
             align-items: center;
         }
-        
+
         .card-header h2 {
             font-size: 20px;
             font-weight: 500;
             color: #202124;
+            text-align: center;
         }
         
         .card-body {
@@ -429,39 +488,6 @@ try {
             overflow-x: auto;
         }
         
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            background: white;
-            border: 1px solid #000;
-        }
-        
-        thead {
-            background: #f0f0f0;
-            border-bottom: 2px solid #000;
-        }
-        
-        th {
-            padding: 12px 15px;
-            text-align: left;
-            font-weight: 500;
-            font-size: 13px;
-            color: #000;
-            border: 1px solid #000;
-            border-bottom: 2px solid #000;
-        }
-        
-        td {
-            padding: 12px 15px;
-            font-size: 13px;
-            border: 1px solid #000;
-            color: #000;
-        }
-        
-        tbody tr:hover {
-            background: #f8f9fa;
-        }
-        
         .status-badge {
             padding: 4px 12px;
             border-radius: 16px;
@@ -483,9 +509,47 @@ try {
             background: #fef7e0;
             color: #f9ab00;
         }
+
+        /* PDF-style table */
+        .pdf-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-family: 'Times New Roman', Times, serif;
+            border: 2px solid #000;
+        }
+
+        .pdf-table thead {
+            background: #f0f0f0;
+            border-bottom: 2px solid #000;
+        }
+
+        .pdf-table th {
+            padding: 12px 15px;
+            text-align: left;
+            font-weight: bold;
+            font-size: 14px;
+            color: #000;
+            border: 2px solid #000;
+            border-bottom: 2px solid #000;
+        }
+
+        .pdf-table td {
+            padding: 12px 15px;
+            font-size: 14px;
+            border: 2px solid #000;
+            color: #000;
+        }
+
+        .pdf-table tbody tr:nth-child(even) {
+            background: #fafafa;
+        }
+
+        .pdf-table tbody tr:hover {
+            background: #f0f0f0;
+        }
     </style>
 </head>
-<body>
+<body class="dashboard-page">
     <!-- Header -->
     <?php require_once 'includes/header.php'; ?>
     
@@ -502,27 +566,43 @@ try {
         <!-- Statistics Cards -->
         <div class="stats-grid">
             <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-users"></i>
+                </div>
                 <h3><?php echo number_format($total_users); ?></h3>
                 <p>Total Users</p>
             </div>
             <div class="stat-card">
-                <h3><?php echo number_format($total_resources); ?></h3>
-                <p>Total Resources</p>
+                <div class="stat-icon">
+                    <i class="fas fa-user-check"></i>
+                </div>
+                <h3><?php echo number_format($active_users); ?></h3>
+                <p>Active Users</p>
             </div>
             <div class="stat-card">
-                <h3><?php echo number_format($total_downloads); ?></h3>
-                <p>Total Downloads</p>
+                <div class="stat-icon">
+                    <i class="fas fa-user-times"></i>
+                </div>
+                <h3><?php echo number_format($inactive_users); ?></h3>
+                <p>Inactive Users</p>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-user-shield"></i>
+                </div>
+                <h3><?php echo number_format($admin_users); ?></h3>
+                <p>Admin Users</p>
             </div>
         </div>
         
         <!-- Resources by Subject -->
-        <div class="card">
+        <div class="card mb-4">
             <div class="card-header">
                 <h2>Resources by Subject</h2>
             </div>
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table>
+            <div class="card-body" style="padding: 0;">
+                <div class="table-responsive" style="width: 100%;">
+                    <table class="pdf-table">
                         <thead>
                             <tr>
                                 <th>Subject</th>
@@ -543,13 +623,13 @@ try {
         </div>
         
         <!-- Most Downloaded Resources -->
-        <div class="card">
+        <div class="card mb-4">
             <div class="card-header">
                 <h2>Most Downloaded Resources</h2>
             </div>
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table>
+            <div class="card-body" style="padding: 0;">
+                <div class="table-responsive" style="width: 100%;">
+                    <table class="pdf-table">
                         <thead>
                             <tr>
                                 <th>Title</th>
@@ -570,7 +650,7 @@ try {
                 </div>
             </div>
         </div>
-    </div>
+    </main>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 

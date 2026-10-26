@@ -17,7 +17,8 @@ $allowed_routes = [
     'performance',
     'results',
     'children',
-    'assignments'
+    'assignments',
+    'calendar'
 ];
 
 // Validate route
@@ -146,41 +147,7 @@ if ($route === 'login') {
             flex-direction: column;
             align-items: center;
         }
-        
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: #202124;
-            margin-bottom: 8px;
-        }
-        
-        .logo-circle {
-            width: 50px;
-            height: 50px;
-            background: #FFD700;
-            border: 3px solid #FF6B35;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-right: 2px;
-            flex-shrink: 0;
-        }
-        
-        .logo-circle span {
-            font-weight: bold;
-            font-size: 24px;
-        }
-        
-        .logo p {
-            font-size: 16px;
-            color: #5f6368;
-            margin-bottom: 40px;
-        }
-        
+
         .login-form {
             width: 100%;
         }
@@ -207,11 +174,13 @@ if ($route === 'login') {
             outline: none;
             transition: border-color 0.2s, box-shadow 0.2s;
             font-family: inherit;
+            background: var(--card-bg, #f8f9fa);
         }
-        
+
         .form-control:focus {
             border-color: #FF6B35;
             box-shadow: 0 0 0 2px rgba(255, 107, 53, 0.2);
+            background: var(--card-bg, #f8f9fa);
         }
         
         .form-control::placeholder {
@@ -306,80 +275,92 @@ if ($route === 'login') {
                 padding: 24px 20px;
                 max-width: 100%;
             }
-            
-            .logo {
-                font-size: 1.25rem;
-                gap: 0.5rem;
-            }
-            
-            .logo div:first-child {
-                width: 40px;
-                height: 40px;
-            }
-            
-            .logo div:first-child span {
-                font-size: 20px;
-            }
-            
-            .logo div:first-child span span:first-child {
-                font-size: 24px;
-            }
-            
+
             h1 {
                 font-size: 20px !important;
             }
-            
+
             p {
                 font-size: 14px !important;
             }
-            
+
             .form-control {
                 padding: 12px 14px;
                 font-size: 15px;
             }
-            
+
             .btn-primary {
                 padding: 11px 20px;
                 font-size: 14px;
             }
-            
+
             .back-link {
                 margin-top: 32px;
             }
         }
         
+        @media (max-width: 768px) {
+            .login-container {
+                padding: 32px 24px 24px;
+                max-width: 100%;
+            }
+
+            h1 {
+                font-size: 20px !important;
+            }
+
+            .form-control {
+                font-size: 16px;
+            }
+
+            .btn-primary {
+                font-size: 14px;
+                padding: 12px 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .login-container {
+                padding: 24px 20px 20px;
+            }
+
+            h1 {
+                font-size: 18px !important;
+            }
+
+            p {
+                font-size: 14px !important;
+            }
+
+            .form-control {
+                padding: 12px 14px;
+                font-size: 15px;
+            }
+
+            .btn-primary {
+                padding: 11px 20px;
+                font-size: 14px;
+            }
+
+            .back-link {
+                margin-top: 32px;
+            }
+        }
+
         @media (max-width: 360px) {
             .login-container {
                 padding: 20px 16px;
             }
-            
-            .logo {
-                font-size: 1.1rem;
-                gap: 0.4rem;
-            }
-            
-            .logo div:first-child {
-                width: 36px;
-                height: 36px;
-            }
-            
-            .logo div:first-child span {
-                font-size: 18px;
-            }
-            
-            .logo div:first-child span span:first-child {
-                font-size: 22px;
-            }
-            
+
             h1 {
                 font-size: 18px !important;
             }
-            
+
             .form-control {
                 padding: 11px 12px;
                 font-size: 14px;
             }
-            
+
             .btn-primary {
                 padding: 10px 16px;
                 font-size: 13px;
@@ -387,7 +368,7 @@ if ($route === 'login') {
         }
     </style>
 </head>
-<body>
+<body class="login-page">
     <div class="login-container">
         <div class="logo">
             <?php require_once '../includes/logo.php'; ?>

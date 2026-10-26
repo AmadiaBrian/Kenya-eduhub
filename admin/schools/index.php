@@ -369,23 +369,42 @@ $active_schools = count(array_filter($schools, fn($s) => $s['status'] === 'activ
 
         @media (max-width: 480px) {
             .stats-grid {
-                grid-template-columns: 1fr !important;
+                grid-template-columns: repeat(2, 1fr) !important;
                 gap: 16px !important;
             }
         }
 
         .stat-card {
-            background: #ffffff;
-            border: 1px solid #dadce0;
-            border-radius: 8px;
-            padding: 20px;
-            text-align: left;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
-            transition: box-shadow 0.3s ease;
+            background: var(--card-bg);
+            padding: 24px;
+            border-radius: 12px;
+            border: 1px solid #e8eaed;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            transition: transform 0.2s, box-shadow 0.2s;
         }
 
         .stat-card:hover {
-            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255, 107, 53, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 12px;
+        }
+
+        .stat-icon i {
+            font-size: 20px;
+            color: #FF6B35;
         }
 
         .stat-card h3 {
@@ -399,11 +418,6 @@ $active_schools = count(array_filter($schools, fn($s) => $s['status'] === 'activ
             font-size: 14px;
             color: #5f6368;
             margin: 0;
-            font-weight: 500;
-        }
-
-        .stat-card i {
-            color: var(--primary-orange);
         }
 
         /* Dark mode stat cards */
@@ -515,73 +529,81 @@ $active_schools = count(array_filter($schools, fn($s) => $s['status'] === 'activ
             overflow-x: auto;
         }
 
-        table {
+        /* PDF-style table */
+        .pdf-table {
             width: 100%;
             border-collapse: collapse;
-            background: white;
-            border: 2px solid #000;
             font-family: 'Times New Roman', Times, serif;
+            border: 2px solid #000;
         }
 
-        thead {
+        .pdf-table thead {
             background: #f0f0f0;
             border-bottom: 2px solid #000;
         }
 
-        th {
+        .pdf-table th {
             padding: 12px 15px;
             text-align: left;
             font-weight: bold;
             font-size: 14px;
             color: #000;
-            border: 1px solid #000;
+            border: 2px solid #000;
             border-bottom: 2px solid #000;
-            background: #f0f0f0;
         }
 
-        td {
+        .pdf-table th:last-child {
+            width: 200px;
+            min-width: 200px;
+        }
+
+        .pdf-table td {
             padding: 12px 15px;
-            font-size: 12px;
-            border: 1px solid #000;
+            font-size: 14px;
+            border: 2px solid #000;
             color: #000;
-            font-family: 'Times New Roman', Times, serif;
         }
 
-        tbody tr:nth-child(even) {
+        .pdf-table td:last-child {
+            width: 200px;
+            min-width: 200px;
+        }
+
+        .pdf-table tbody tr:nth-child(even) {
             background: #fafafa;
         }
 
-        tbody tr:hover {
-            background: #e8e8e8;
+        .pdf-table tbody tr:hover {
+            background: #f0f0f0;
         }
 
         /* Dark mode PDF table */
-        .dark-mode table {
+        .dark-mode .pdf-table {
             border: 2px solid var(--primary-gold);
             background: #1a1a1a;
         }
 
-        .dark-mode thead {
+        .dark-mode .pdf-table thead {
             background: #252525;
             border-bottom: 2px solid var(--primary-gold);
         }
 
-        .dark-mode th {
-            border: 1px solid var(--primary-gold);
+        .dark-mode .pdf-table th {
+            border: 2px solid var(--primary-gold);
             color: #ffffff;
             background: #252525;
         }
 
-        .dark-mode td {
-            border: 1px solid var(--primary-gold);
+        .dark-mode .pdf-table td {
+            border: 2px solid var(--primary-gold);
             color: #ffffff;
         }
 
-        .dark-mode tbody tr:nth-child(even) {
+        .dark-mode .pdf-table tbody tr:nth-child(even) {
             background: #2a2a2a;
         }
 
-        .dark-mode tbody tr:hover {
+        .dark-mode .pdf-table tbody tr:hover {
             background: #3a3a3a;
         }
         
@@ -616,9 +638,41 @@ $active_schools = count(array_filter($schools, fn($s) => $s['status'] === 'activ
             text-decoration: none;
             font-size: 14px;
         }
+
+        /* Action buttons container */
+        .action-buttons {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+
+        .action-buttons .btn {
+            width: auto;
+        }
+
+        @media (max-width: 768px) {
+            .action-buttons {
+                display: flex !important;
+                gap: 4px !important;
+                flex-wrap: wrap !important;
+                flex-direction: row !important;
+            }
+
+            .action-buttons .btn {
+                width: auto !important;
+                padding: 4px 8px !important;
+                font-size: 11px !important;
+            }
+
+            .pdf-table th:last-child,
+            .pdf-table td:last-child {
+                width: 250px !important;
+                min-width: 250px !important;
+            }
+        }
     </style>
 </head>
-<body>
+<body class="dashboard-page">
     <!-- Header -->
     <?php require_once '../includes/header.php'; ?>
     
@@ -636,40 +690,32 @@ $active_schools = count(array_filter($schools, fn($s) => $s['status'] === 'activ
         <!-- Statistics -->
         <div class="stats-grid">
             <div class="stat-card">
-                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
-                    <i class="fas fa-school" style="color: #FF6B35; font-size: 28px;"></i>
-                    <div>
-                        <h3><?php echo $total_schools; ?></h3>
-                        <p>Total Schools</p>
-                    </div>
+                <div class="stat-icon">
+                    <i class="fas fa-school"></i>
                 </div>
+                <h3><?php echo $total_schools; ?></h3>
+                <p>Total Schools</p>
             </div>
             <div class="stat-card">
-                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
-                    <i class="fas fa-check-circle" style="color: #FF6B35; font-size: 28px;"></i>
-                    <div>
-                        <h3><?php echo $active_schools; ?></h3>
-                        <p>Active Schools</p>
-                    </div>
+                <div class="stat-icon">
+                    <i class="fas fa-check-circle"></i>
                 </div>
+                <h3><?php echo $active_schools; ?></h3>
+                <p>Active Schools</p>
             </div>
             <div class="stat-card">
-                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
-                    <i class="fas fa-user-graduate" style="color: #FF6B35; font-size: 28px;"></i>
-                    <div>
-                        <h3><?php echo $total_students; ?></h3>
-                        <p>Total Students</p>
-                    </div>
+                <div class="stat-icon">
+                    <i class="fas fa-user-graduate"></i>
                 </div>
+                <h3><?php echo $total_students; ?></h3>
+                <p>Total Students</p>
             </div>
             <div class="stat-card">
-                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
-                    <i class="fas fa-chalkboard-teacher" style="color: #FF6B35; font-size: 28px;"></i>
-                    <div>
-                        <h3><?php echo $total_teachers; ?></h3>
-                        <p>Total Teachers</p>
-                    </div>
+                <div class="stat-icon">
+                    <i class="fas fa-chalkboard-teacher"></i>
                 </div>
+                <h3><?php echo $total_teachers; ?></h3>
+                <p>Total Teachers</p>
             </div>
         </div>
         
@@ -677,12 +723,14 @@ $active_schools = count(array_filter($schools, fn($s) => $s['status'] === 'activ
         <div class="card">
             <div class="card-header">
                 <h2>All Schools</h2>
-                <button class="btn btn-primary" onclick="window.location.href='../schools-add'">
+            </div>
+            <div class="card-body" style="padding: 20px;">
+                <button class="btn btn-primary" onclick="window.location.href='../schools-add'" style="width: 100%;">
                     <i class="fas fa-plus"></i> Add New School
                 </button>
             </div>
-            <div class="table-responsive">
-                <table>
+            <div class="table-responsive" style="padding: 0 20px 20px 20px;">
+                <table class="pdf-table">
                     <thead>
                         <tr>
                             <th>School Code</th>
@@ -721,24 +769,26 @@ $active_schools = count(array_filter($schools, fn($s) => $s['status'] === 'activ
                                         </span>
                                     </td>
                                     <td>
-                                        <button class="btn btn-sm btn-action" onclick="viewSchool(<?php echo $school['id']; ?>)">
-                                            <i class="fas fa-eye"></i>
-                                        </button>
-                                        <button class="btn btn-sm btn-action" onclick="editSchool(<?php echo $school['id']; ?>)">
-                                            <i class="fas fa-edit"></i>
-                                        </button>
-                                        <button class="btn btn-sm btn-action" onclick="managePin(<?php echo $school['id']; ?>, '<?php echo htmlspecialchars($school['school_name']); ?>')" title="Manage PIN">
-                                            <i class="fas fa-key"></i>
-                                        </button>
-                                        <?php if ($school['status'] === 'active'): ?>
-                                            <button class="btn btn-sm btn-action" onclick="toggleStatus(<?php echo $school['id']; ?>, 'inactive')" title="Deactivate">
-                                                <i class="fas fa-pause"></i>
+                                        <div class="action-buttons">
+                                            <button class="btn btn-sm btn-action" onclick="viewSchool(<?php echo $school['id']; ?>)">
+                                                <i class="fas fa-eye"></i>
                                             </button>
-                                        <?php else: ?>
-                                            <button class="btn btn-sm btn-action" onclick="toggleStatus(<?php echo $school['id']; ?>, 'active')" title="Activate">
-                                                <i class="fas fa-play"></i>
+                                            <button class="btn btn-sm btn-action" onclick="editSchool(<?php echo $school['id']; ?>)">
+                                                <i class="fas fa-edit"></i>
                                             </button>
-                                        <?php endif; ?>
+                                            <button class="btn btn-sm btn-action" onclick="managePin(<?php echo $school['id']; ?>, '<?php echo htmlspecialchars($school['school_name']); ?>')" title="Manage PIN">
+                                                <i class="fas fa-key"></i>
+                                            </button>
+                                            <?php if ($school['status'] === 'active'): ?>
+                                                <button class="btn btn-sm btn-action" onclick="toggleStatus(<?php echo $school['id']; ?>, 'inactive')" title="Deactivate">
+                                                    <i class="fas fa-pause"></i>
+                                                </button>
+                                            <?php else: ?>
+                                                <button class="btn btn-sm btn-action" onclick="toggleStatus(<?php echo $school['id']; ?>, 'active')" title="Activate">
+                                                    <i class="fas fa-play"></i>
+                                                </button>
+                                            <?php endif; ?>
+                                        </div>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>
