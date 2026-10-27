@@ -576,6 +576,139 @@ try {
             font-size: 14px;
             color: #202124;
         }
+
+        .main-content {
+            margin-bottom: 20px;
+        }
+
+        .page-title {
+            font-size: 22px;
+            font-weight: 400;
+            color: #202124;
+            margin-bottom: 60px;
+            text-align: center;
+        }
+
+        .card {
+            background: var(--bg-color);
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 500;
+            color: #202124;
+            margin-bottom: 16px;
+            text-align: center;
+        }
+
+        .form-control {
+            border: 1px solid #dadce0;
+            border-radius: 25px;
+            padding: 10px 12px;
+            font-size: 14px;
+            background: var(--bg-color);
+        }
+
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.2);
+            background: var(--bg-color);
+        }
+
+        .btn {
+            padding: 10px 24px;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: 500;
+            border: none;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn-primary {
+            background: #FF6B35;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #e55a2b;
+        }
+
+        .btn-success {
+            background: #137333;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #0d5e2e;
+        }
+
+        .btn-action {
+            background: transparent;
+            color: #FF6B35;
+            border: none;
+            cursor: pointer;
+            margin-right: 4px;
+            padding: 0;
+        }
+
+        .btn-action:hover {
+            color: #e55a2b;
+        }
+
+        .action-buttons-cell {
+            display: flex;
+            gap: 4px;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border: 2px solid #000;
+            margin: 0;
+            font-family: 'Times New Roman', Times, serif;
+        }
+
+        .table thead {
+            background: #f0f0f0;
+            border-bottom: 2px solid #000;
+        }
+
+        .table thead th {
+            background: #f0f0f0;
+            border: 2px solid #000;
+            border-bottom: 2px solid #000;
+            padding: 12px;
+            font-weight: bold;
+            color: #000;
+        }
+
+        .table td {
+            padding: 12px;
+            border: 2px solid #000;
+            color: #000;
+            font-size: 13px;
+        }
+
+        .table tbody tr:nth-child(even) {
+            background: #fafafa;
+        }
+
+        .table tbody tr:hover {
+            background: #f8f9fa;
+        }
+
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+            margin: 0;
+            padding: 0;
+        }
         
         /* Google Search Console Modal Styles */
         .modal {
@@ -740,7 +873,7 @@ try {
         
         .btn {
             padding: 10px 24px;
-            border-radius: 4px;
+            border-radius: 25px;
             font-size: 14px;
             font-weight: 500;
             border: none;
@@ -781,19 +914,17 @@ try {
         }
         
         .table thead {
-            background: #FF6B35 !important;
+            background: #f0f0f0;
             border-bottom: 2px solid #000;
         }
 
         .table thead th {
-            background: #FF6B35 !important;
-            border: 1px solid #000;
+            background: #f0f0f0;
+            border: 2px solid #000;
             border-bottom: 2px solid #000;
             padding: 12px;
-            font-weight: 600;
-            color: #ffffff !important;
-            font-size: 13px;
-            text-transform: uppercase;
+            font-weight: bold;
+            color: #000;
         }
         
         .table td {
@@ -877,74 +1008,79 @@ try {
             color: white;
         }
         
-        .btn-action {
-            background: #f8f9fa;
-            color: #000;
-            border: 1px solid #000;
-            cursor: pointer;
-            margin-right: 4px;
-        }
-
-        .btn-action:hover {
-            background: #e9ecef;
-        }
-
-        .action-buttons-cell {
-            display: flex;
-            gap: 4px;
-        }
-
-        /* Action Buttons */
-        .action-buttons {
-            display: flex;
-            gap: 12px;
-            margin-bottom: 24px;
-        }
-
-        .action-buttons .btn {
-            flex: 1;
-            padding: 12px 24px;
-            border-radius: 25px;
-        }
-
+        /* Responsive */
         @media (max-width: 768px) {
-            .action-buttons {
-                flex-direction: column;
+            html, body {
+                overflow-x: hidden;
+                position: relative;
             }
-        }
 
-        /* Filter Section */
-        .filter-section {
-            background: var(--bg-color);
-            border-radius: 8px;
-            padding: 24px;
-            margin-bottom: 24px;
-            border: 1px solid #e8eaed;
-        }
-
-        .filter-section .card-title {
-            font-size: 18px;
-            font-weight: 500;
-            color: #202124;
-            margin-bottom: 16px;
-        }
-        
-        @media (max-width: 768px) {
             .main-content {
                 margin-left: 0;
+                padding: 0;
+            }
+
+            .page-title {
+                font-size: 22px;
+                font-weight: 400;
+                margin-bottom: 24px;
                 padding: 16px;
             }
-            
+
+            .card {
+                padding: 16px;
+                margin: 0 16px 16px 16px;
+            }
+
+            .card[style*="padding: 0"] {
+                padding: 0 !important;
+                margin: 0 8px 16px 8px !important;
+            }
+
+            .card:nth-last-child(1) {
+                margin: 0 0 16px 0 !important;
+            }
+
             .btn {
                 width: 100%;
             }
-            
+
             .table-responsive {
-                margin: 0 -16px;
-                padding: 0 16px;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                border-radius: 8px;
+                width: 100%;
+                margin: 0;
+                padding: 0;
+            }
+
+            .table {
+                min-width: 600px;
+                width: 100%;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+                padding: 16px;
+                margin-bottom: 16px;
+            }
+
+            .d-flex.flex-column {
+                gap: 8px;
+                padding: 16px;
+                margin-bottom: 16px;
+            }
+
+            .btn {
+                width: 100%;
+            }
+
+            .table-responsive {
+                margin: 0;
+                padding: 0;
                 overflow-x: auto;
             }
-            
+
             .table {
                 width: 100%;
                 min-width: 600px;
@@ -964,64 +1100,145 @@ try {
         .fa-trash { color: #EA4335; }
     </style>
 </head>
-<body>
+<body class="dashboard-page">
     <?php require_once 'includes/header.php'; ?>
     <?php $active_page = 'timetable'; require_once 'includes/sidebar.php'; ?>
     
     <br>
-    <br>
-    <br>
-    <br>
-    
+
     <!-- Main Content -->
     <div class="main-content" id="mainContent">
+        <h1 class="page-title">Timetable Management</h1>
         <!-- Calendar Status -->
-        <div style="margin-bottom: 24px;">
+        <div class="card" style="background: rgba(255, 107, 53, 0.85); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.3); box-shadow: 0 8px 32px rgba(255, 107, 53, 0.3); padding: 40px; min-height: 150px;">
             <?php if ($calendar_status['is_holiday']): ?>
-                <div style="background: #fce8e6; border: 1px solid #e0e0e0; padding: 16px; border-radius: 8px;">
-                    <div style="display: flex; align-items: center; gap: 12px;">
-                        <i class="fas fa-exclamation-triangle" style="color: #c5221f; font-size: 20px;"></i>
-                        <div>
-                            <strong style="color: #c5221f;">School is on Holiday</strong>
-                            <p style="margin: 4px 0 0 0; color: #5f6368; font-size: 14px;">
-                                <?php echo htmlspecialchars($calendar_status['current_holiday']['holiday_name']); ?> 
-                                (<?php echo date('M j, Y', strtotime($calendar_status['current_holiday']['start_date'])); ?> - 
-                                <?php echo date('M j, Y', strtotime($calendar_status['current_holiday']['end_date'])); ?>)
-                            </p>
-                        </div>
+                <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 12px;">
+                    <i class="fas fa-umbrella-beach" style="color: white; font-size: 32px;"></i>
+                    <div>
+                        <p style="color: white; font-weight: 600; margin: 0; font-size: 16px;">
+                            School is on Holiday
+                        </p>
+                        <p style="color: white; margin: 6px 0 0 0; font-size: 14px;">
+                            <?php echo htmlspecialchars($calendar_status['current_holiday']['holiday_name']); ?>
+                        </p>
+                        <p style="color: white; margin: 4px 0 0 0; font-size: 13px; opacity: 0.9;">
+                            <?php echo date('M j, Y', strtotime($calendar_status['current_holiday']['start_date'])); ?> -
+                            <?php echo date('M j, Y', strtotime($calendar_status['current_holiday']['end_date'])); ?>
+                        </p>
                     </div>
+                </div>
+                <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.3);">
+                    <p style="color: white; margin: 0; font-size: 13px;">
+                        <i class="fas fa-calendar-alt" style="margin-right: 8px;"></i>
+                        Academic Year: <?php echo $calendar_status['current_year']; ?>
+                    </p>
+                    <p style="color: white; margin: 8px 0 0 0; font-size: 13px;">
+                        <i class="fas fa-clock" style="margin-right: 8px;"></i>
+                        Today: <?php echo date('F j, Y'); ?>
+                    </p>
                 </div>
             <?php elseif ($calendar_status['school_status'] === 'break'): ?>
-                <div style="background: #fef7e0; border: 1px solid #e0e0e0; padding: 16px; border-radius: 8px;">
-                    <div style="display: flex; align-items: center; gap: 12px;">
-                        <i class="fas fa-info-circle" style="color: #f9ab00; font-size: 20px;"></i>
-                        <div>
-                            <strong style="color: #b06000;">School is on Break</strong>
-                            <p style="margin: 4px 0 0 0; color: #5f6368; font-size: 14px;">No active term is currently set. Please activate a term in the Calendar.</p>
-                        </div>
+                <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 12px;">
+                    <i class="fas fa-pause-circle" style="color: white; font-size: 32px;"></i>
+                    <div>
+                        <p style="color: white; font-weight: 600; margin: 0; font-size: 16px;">
+                            School is on Break
+                        </p>
+                        <p style="color: white; margin: 6px 0 0 0; font-size: 14px;">No active term is currently set. Please activate a term in the Calendar.</p>
                     </div>
                 </div>
+                <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.3);">
+                    <p style="color: white; margin: 0; font-size: 13px;">
+                        <i class="fas fa-calendar-alt" style="margin-right: 8px;"></i>
+                        Academic Year: <?php echo $calendar_status['current_year']; ?>
+                    </p>
+                    <p style="color: white; margin: 8px 0 0 0; font-size: 13px;">
+                        <i class="fas fa-clock" style="margin-right: 8px;"></i>
+                        Today: <?php echo date('F j, Y'); ?>
+                    </p>
+                </div>
             <?php else: ?>
-                <div style="background: #e6f4ea; border: 1px solid #e0e0e0; padding: 16px; border-radius: 8px;">
-                    <div style="display: flex; align-items: center; gap: 12px;">
-                        <i class="fas fa-check-circle" style="color: #137333; font-size: 20px;"></i>
-                        <div>
-                            <strong style="color: #137333;">School is In Session</strong>
-                            <p style="margin: 4px 0 0 0; color: #5f6368; font-size: 14px;">
-                                <?php if ($calendar_status['current_term']): ?>
-                                    Active Term: <?php echo htmlspecialchars($calendar_status['current_term']['term_name']); ?> 
-                                    (<?php echo date('M j, Y', strtotime($calendar_status['current_term']['start_date'])); ?> - 
-                                    <?php echo date('M j, Y', strtotime($calendar_status['current_term']['end_date'])); ?>)
-                                <?php else: ?>
-                                    Year: <?php echo $calendar_status['current_year']; ?>
-                                <?php endif; ?>
-                            </p>
-                        </div>
+                <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 12px;">
+                    <i class="fas fa-school" style="color: white; font-size: 32px;"></i>
+                    <div>
+                        <p style="color: white; font-weight: 600; margin: 0; font-size: 16px;">
+                            School is in Session
+                        </p>
+                        <p style="color: white; margin: 6px 0 0 0; font-size: 14px;">
+                            <?php if ($calendar_status['current_term']): ?>
+                                Active Term: <?php echo htmlspecialchars($calendar_status['current_term']['term_name']); ?>
+                            <?php else: ?>
+                                Year: <?php echo $calendar_status['current_year']; ?>
+                            <?php endif; ?>
+                        </p>
                     </div>
+                </div>
+                <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.3);">
+                    <p style="color: white; margin: 0; font-size: 13px;">
+                        <i class="fas fa-calendar-alt" style="margin-right: 8px;"></i>
+                        Academic Year: <?php echo $calendar_status['current_year']; ?>
+                    </p>
+                    <p style="color: white; margin: 8px 0 0 0; font-size: 13px;">
+                        <i class="fas fa-clock" style="margin-right: 8px;"></i>
+                        Today: <?php echo date('F j, Y'); ?>
+                    </p>
                 </div>
             <?php endif; ?>
         </div>
-        
+
+        <!-- Timetable Statistics -->
+        <div class="card">
+            <h2 class="card-title">Timetable Statistics</h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px;">
+                <?php
+                $totalTimetables = 0;
+                $activeTimetables = 0;
+                $totalAssignments = 0;
+                $totalSlots = 0;
+
+                try {
+                    // Count timetables
+                    $stmt = $pdo->prepare("SELECT COUNT(*) as count FROM timetables WHERE school_id = ?");
+                    $stmt->execute([$school_id]);
+                    $totalTimetables = $stmt->fetch()['count'];
+
+                    // Count active timetables
+                    $stmt = $pdo->prepare("SELECT COUNT(*) as count FROM timetables WHERE school_id = ? AND status = 'active'");
+                    $stmt->execute([$school_id]);
+                    $activeTimetables = $stmt->fetch()['count'];
+
+                    // Count assignments
+                    $stmt = $pdo->prepare("SELECT COUNT(*) as count FROM timetable_assignments WHERE school_id = ?");
+                    $stmt->execute([$school_id]);
+                    $totalAssignments = $stmt->fetch()['count'];
+
+                    // Count time slots
+                    $stmt = $pdo->prepare("SELECT COUNT(*) as count FROM timetable_slots WHERE school_id = ?");
+                    $stmt->execute([$school_id]);
+                    $totalSlots = $stmt->fetch()['count'];
+                } catch (PDOException $e) {
+                    error_log("Failed to fetch timetable stats: " . $e->getMessage());
+                }
+                ?>
+                <div style="background: #e8f0fe; padding: 16px; border-radius: 8px; text-align: center;">
+                    <div style="font-size: 24px; font-weight: 600; color: #1967d2;"><?php echo $totalTimetables; ?></div>
+                    <div style="font-size: 12px; color: #5f6368;">Total Timetables</div>
+                </div>
+                <div style="background: #e6f4ea; padding: 16px; border-radius: 8px; text-align: center;">
+                    <div style="font-size: 24px; font-weight: 600; color: #137333;"><?php echo $activeTimetables; ?></div>
+                    <div style="font-size: 12px; color: #5f6368;">Active Timetables</div>
+                </div>
+                <div style="background: #fef7e0; padding: 16px; border-radius: 8px; text-align: center;">
+                    <div style="font-size: 24px; font-weight: 600; color: #b06000;"><?php echo $totalAssignments; ?></div>
+                    <div style="font-size: 12px; color: #5f6368;">Total Assignments</div>
+                </div>
+                <div style="background: #fce8e6; padding: 16px; border-radius: 8px; text-align: center;">
+                    <div style="font-size: 24px; font-weight: 600; color: #c5221f;"><?php echo $totalSlots; ?></div>
+                    <div style="font-size: 12px; color: #5f6368;">Time Slots</div>
+                </div>
+            </div>
+        </div>
+
         <?php if (isset($success)): ?>
             <div class="alert alert-success">
                 <?php echo htmlspecialchars($success); ?>
@@ -1058,28 +1275,28 @@ try {
                     </div>
                     
                     <!-- Assignment Form -->
-                    <div style="margin-bottom: 24px; padding: 16px; background: #f8f9fa; border: 1px solid #e0e0e0; border-radius: 8px;">
-                        <h4 style="margin: 0 0 16px 0; font-size: 16px; font-weight: 500;">Assign Subject & Teacher to Time Slot</h4>
+                    <div class="card">
+                        <h2 class="card-title">Assign Subject & Teacher to Time Slot</h2>
                         <form method="POST" onsubmit="return validateAssignmentForm(event)">
                             <input type="hidden" name="timetable_id" value="<?php echo $selected_timetable_id; ?>">
                             <input type="hidden" name="class_id" value="<?php echo $selected_timetable['class_id']; ?>">
-                            <div class="row">
-                                <div class="col-md-3 mb-3">
+                            <div class="row mb-3" style="gap: 12px;">
+                                <div class="col-md-3">
                                     <label class="form-label">Time Slot *</label>
-                                    <select class="form-control" name="slot_id" required onchange="checkAllConflicts()">
+                                    <select class="form-control" name="slot_id" required onchange="checkAllConflicts()" style="border-radius: 25px; border: 1px solid #dadce0;">
                                         <option value="">Select Time Slot</option>
                                         <?php foreach ($time_slots as $slot): ?>
                                             <option value="<?php echo $slot['id']; ?>">
-                                                <?php echo htmlspecialchars($slot['day_of_week']); ?> - 
-                                                <?php echo htmlspecialchars($slot['start_time']); ?> to 
+                                                <?php echo htmlspecialchars($slot['day_of_week']); ?> -
+                                                <?php echo htmlspecialchars($slot['start_time']); ?> to
                                                 <?php echo htmlspecialchars($slot['end_time']); ?>
                                             </option>
                                         <?php endforeach; ?>
                                     </select>
                                 </div>
-                                <div class="col-md-3 mb-3">
+                                <div class="col-md-3">
                                     <label class="form-label">Stream *</label>
-                                    <select class="form-control" name="stream_id" required onchange="checkStreamConflict(this)">
+                                    <select class="form-control" name="stream_id" required onchange="checkStreamConflict(this)" style="border-radius: 25px; border: 1px solid #dadce0;">
                                         <option value="">Select Stream</option>
                                         <?php foreach ($streams as $stream): ?>
                                             <option value="<?php echo $stream['id']; ?>"><?php echo htmlspecialchars($stream['stream_name']); ?></option>
@@ -1087,18 +1304,18 @@ try {
                                     </select>
                                     <div id="stream-conflict-error" class="text-danger mt-1" style="font-size: 0.875rem;"></div>
                                 </div>
-                                <div class="col-md-3 mb-3">
+                                <div class="col-md-3">
                                     <label class="form-label">Subject *</label>
-                                    <select class="form-control" name="subject_id" required>
+                                    <select class="form-control" name="subject_id" required style="border-radius: 25px; border: 1px solid #dadce0;">
                                         <option value="">Select Subject</option>
                                         <?php foreach ($subjects as $subject): ?>
                                             <option value="<?php echo $subject['id']; ?>"><?php echo htmlspecialchars($subject['subject_name']); ?></option>
                                         <?php endforeach; ?>
                                     </select>
                                 </div>
-                                <div class="col-md-3 mb-3">
+                                <div class="col-md-3">
                                     <label class="form-label">Teacher *</label>
-                                    <select class="form-control" name="teacher_id" required onchange="checkTeacherConflict(this)">
+                                    <select class="form-control" name="teacher_id" required onchange="checkTeacherConflict(this)" style="border-radius: 25px; border: 1px solid #dadce0;">
                                         <option value="">Select Teacher</option>
                                         <?php foreach ($teachers as $teacher): ?>
                                             <option value="<?php echo $teacher['id']; ?>">
@@ -1109,13 +1326,11 @@ try {
                                     <div id="teacher-conflict-error" class="text-danger mt-1" style="font-size: 0.875rem;"></div>
                                 </div>
                             </div>
-                            <div class="row">
-                                <div class="col-md-12 mb-3">
-                                    <label class="form-label">Notes</label>
-                                    <textarea class="form-control" name="notes" rows="2" placeholder="Optional notes..."></textarea>
-                                </div>
+                            <div class="mb-3">
+                                <label class="form-label">Notes</label>
+                                <textarea class="form-control" name="notes" rows="2" placeholder="Optional notes..." style="border-radius: 25px; border: 1px solid #dadce0;"></textarea>
                             </div>
-                            <button type="submit" name="create_assignment" class="btn btn-primary">
+                            <button type="submit" name="create_assignment" class="btn btn-primary" style="border-radius: 25px;">
                                 <i class="fas fa-plus me-2"></i> Add Assignment
                             </button>
                         </form>
@@ -1127,39 +1342,42 @@ try {
                         No assignments found for this timetable. Create time slots and assign subjects/teachers to them.
                     </div>
                 <?php else: ?>
-                    <div class="table-responsive">
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th>Day</th>
-                                    <th>Time</th>
-                                    <th>Stream</th>
-                                    <th>Subject</th>
-                                    <th>Teacher</th>
-                                    <th>Notes</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php foreach ($timetable_assignments as $assignment): ?>
+                    <div class="card" style="padding: 0;">
+                        <h2 class="card-title" style="padding: 24px 24px 16px 24px;">All Assignments</h2>
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
                                     <tr>
-                                        <td><?php echo htmlspecialchars($assignment['day_of_week']); ?></td>
-                                        <td><?php echo htmlspecialchars($assignment['start_time']); ?> - <?php echo htmlspecialchars($assignment['end_time']); ?></td>
-                                        <td><?php echo htmlspecialchars($assignment['stream_name']); ?></td>
-                                        <td><?php echo htmlspecialchars($assignment['subject_name']); ?></td>
-                                        <td><?php echo htmlspecialchars($assignment['teacher_name']); ?></td>
-                                        <td><?php echo htmlspecialchars($assignment['notes'] ?? '-'); ?></td>
-                                        <td>
-                                            <div class="action-buttons-cell">
-                                                <button type="button" class="btn btn-sm btn-action" onclick="confirmDeleteAssignment(<?php echo $assignment['id']; ?>)">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                            </div>
-                                        </td>
+                                        <th>Day</th>
+                                        <th>Time</th>
+                                        <th>Stream</th>
+                                        <th>Subject</th>
+                                        <th>Teacher</th>
+                                        <th>Notes</th>
+                                        <th>Actions</th>
                                     </tr>
-                                <?php endforeach; ?>
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody>
+                                    <?php foreach ($timetable_assignments as $assignment): ?>
+                                        <tr>
+                                            <td><?php echo htmlspecialchars($assignment['day_of_week']); ?></td>
+                                            <td><?php echo htmlspecialchars($assignment['start_time']); ?> - <?php echo htmlspecialchars($assignment['end_time']); ?></td>
+                                            <td><?php echo htmlspecialchars($assignment['stream_name']); ?></td>
+                                            <td><?php echo htmlspecialchars($assignment['subject_name']); ?></td>
+                                            <td><?php echo htmlspecialchars($assignment['teacher_name']); ?></td>
+                                            <td><?php echo htmlspecialchars($assignment['notes'] ?? '-'); ?></td>
+                                            <td>
+                                                <div class="action-buttons-cell">
+                                                    <button type="button" class="btn btn-sm btn-action" onclick="confirmDeleteAssignment(<?php echo $assignment['id']; ?>)">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 <?php endif; ?>
             </div>
@@ -1169,37 +1387,37 @@ try {
         <div class="card">
             <h2 class="card-title">Create New Timetable</h2>
             <form method="POST">
-                <div class="row">
-                    <div class="col-md-6 mb-3">
+                <div class="row mb-3" style="gap: 12px;">
+                    <div class="col-md-6">
                         <label class="form-label">Timetable Name *</label>
-                        <input type="text" class="form-control" name="name" required placeholder="e.g., Grade 10 Weekly Timetable">
+                        <input type="text" class="form-control" name="name" required placeholder="e.g., Grade 10 Weekly Timetable" style="border-radius: 25px; border: 1px solid #dadce0;">
                     </div>
-                    <div class="col-md-6 mb-3">
+                    <div class="col-md-6">
                         <label class="form-label">Timetable Type</label>
-                        <select class="form-control" name="timetable_type">
+                        <select class="form-control" name="timetable_type" style="border-radius: 25px; border: 1px solid #dadce0;">
                             <option value="weekly">Weekly</option>
                             <option value="daily">Daily</option>
                             <option value="exam">Exam</option>
                         </select>
                     </div>
                 </div>
-                <div class="row">
-                    <div class="col-md-4 mb-3">
+                <div class="row mb-3" style="gap: 12px;">
+                    <div class="col-md-4">
                         <label class="form-label">Year *</label>
-                        <input type="number" class="form-control" name="year" value="<?php echo date('Y'); ?>" required>
+                        <input type="number" class="form-control" name="year" value="<?php echo date('Y'); ?>" required style="border-radius: 25px; border: 1px solid #dadce0;">
                     </div>
-                    <div class="col-md-4 mb-3">
+                    <div class="col-md-4">
                         <label class="form-label">Term *</label>
-                        <select class="form-control" name="term" required>
+                        <select class="form-control" name="term" required style="border-radius: 25px; border: 1px solid #dadce0;">
                             <option value="">Select Term</option>
                             <option value="Term 1">Term 1</option>
                             <option value="Term 2">Term 2</option>
                             <option value="Term 3">Term 3</option>
                         </select>
                     </div>
-                    <div class="col-md-4 mb-3">
+                    <div class="col-md-4">
                         <label class="form-label">Class *</label>
-                        <select class="form-control" name="class_id" required>
+                        <select class="form-control" name="class_id" required style="border-radius: 25px; border: 1px solid #dadce0;">
                             <option value="">Select Class</option>
                             <?php foreach ($classes as $class): ?>
                                 <option value="<?php echo $class['id']; ?>"><?php echo htmlspecialchars($class['class_name']); ?></option>
@@ -1207,15 +1425,15 @@ try {
                         </select>
                     </div>
                 </div>
-                <button type="submit" name="create_timetable" class="btn btn-primary">
+                <button type="submit" name="create_timetable" class="btn btn-primary" style="border-radius: 25px;">
                     <i class="fas fa-plus me-2"></i> Create Timetable
                 </button>
             </form>
         </div>
-        
+
         <!-- Timetables List -->
-        <div class="card">
-            <h2 class="card-title">Timetables</h2>
+        <div class="card" style="padding: 0;">
+            <h2 class="card-title" style="padding: 24px 24px 16px 24px;">All Timetables</h2>
             <div class="table-responsive">
                 <table class="table">
                     <thead>
@@ -1250,10 +1468,10 @@ try {
                                     <td>
                                         <div class="action-buttons-cell">
                                             <button class="btn btn-sm btn-action" onclick="viewTimetable(<?php echo $timetable['id']; ?>)">
-                                                <i class="fas fa-eye"></i> View
+                                                <i class="fas fa-eye"></i>
                                             </button>
                                             <button class="btn btn-sm btn-action" onclick="editTimetable(<?php echo $timetable['id']; ?>)">
-                                                <i class="fas fa-edit"></i> Edit
+                                                <i class="fas fa-edit"></i>
                                             </button>
                                             <button type="button" class="btn btn-sm btn-action" onclick="confirmDeleteTimetable(<?php echo $timetable['id']; ?>)">
                                                 <i class="fas fa-trash"></i>
@@ -1269,9 +1487,10 @@ try {
         </div>
         
         <!-- Time Slots Management -->
-        <div class="card">
-            <h2 class="card-title">Time Slots</h2>
-            <div id="slot-break-conflict-error" class="text-danger mb-3" style="font-size: 0.875rem;"></div>
+        <div class="card" style="padding: 0;">
+            <h2 class="card-title" style="padding: 24px 24px 16px 24px;">Time Slots</h2>
+            <div style="padding: 0 24px 24px 24px;">
+                <div id="slot-break-conflict-error" class="text-danger mb-3" style="font-size: 0.875rem;"></div>
             <form method="POST" style="margin-bottom: 20px;">
                 <div class="row">
                     <div class="col-md-6 mb-3">
@@ -1361,38 +1580,40 @@ try {
         </div>
         
         <!-- School Breaks Management -->
-        <div class="card">
-            <h2 class="card-title">School-Wide Breaks</h2>
-            <p style="color: #5f6368; margin-bottom: 20px;">These breaks apply to all timetables in the school (e.g., lunch, short break, recess)</p>
-            <form method="POST" style="margin-bottom: 20px;">
-                <div class="row">
-                    <div class="col-md-3 mb-3">
-                        <label class="form-label">Break Name *</label>
-                        <input type="text" class="form-control" name="break_name" placeholder="e.g., Morning Break" required>
+        <div class="card" style="padding: 0;">
+            <h2 class="card-title" style="padding: 24px 24px 16px 24px;">School-Wide Breaks</h2>
+            <div style="padding: 0 24px 24px 24px;">
+                <p style="color: #5f6368; margin-bottom: 20px;">These breaks apply to all timetables in the school (e.g., lunch, short break, recess)</p>
+                <form method="POST" style="margin-bottom: 20px;">
+                    <div class="row mb-3" style="gap: 12px;">
+                        <div class="col-md-3">
+                            <label class="form-label">Break Name *</label>
+                            <input type="text" class="form-control" name="break_name" placeholder="e.g., Morning Break" required style="border-radius: 25px; border: 1px solid #dadce0;">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Break Type *</label>
+                            <select class="form-control" name="break_type" required style="border-radius: 25px; border: 1px solid #dadce0;">
+                                <option value="short_break">Short Break</option>
+                                <option value="lunch_break">Lunch Break</option>
+                                <option value="recess">Recess</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Start Time *</label>
+                            <input type="time" class="form-control" name="start_time" required style="border-radius: 25px; border: 1px solid #dadce0;">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">End Time *</label>
+                            <input type="time" class="form-control" name="end_time" required style="border-radius: 25px; border: 1px solid #dadce0;">
+                        </div>
                     </div>
-                    <div class="col-md-3 mb-3">
-                        <label class="form-label">Break Type *</label>
-                        <select class="form-control" name="break_type" required>
-                            <option value="short_break">Short Break</option>
-                            <option value="lunch_break">Lunch Break</option>
-                            <option value="recess">Recess</option>
-                            <option value="other">Other</option>
-                        </select>
-                    </div>
-                    <div class="col-md-3 mb-3">
-                        <label class="form-label">Start Time *</label>
-                        <input type="time" class="form-control" name="start_time" required>
-                    </div>
-                    <div class="col-md-3 mb-3">
-                        <label class="form-label">End Time *</label>
-                        <input type="time" class="form-control" name="end_time" required>
-                    </div>
-                </div>
-                <button type="submit" name="create_break" class="btn btn-primary">
-                    <i class="fas fa-plus me-2"></i> Add School Break
-                </button>
-            </form>
-            
+                    <button type="submit" name="create_break" class="btn btn-primary" style="border-radius: 25px;">
+                        <i class="fas fa-plus me-2"></i> Add School Break
+                    </button>
+                </form>
+            </div>
+
             <div class="table-responsive">
                 <table class="table">
                     <thead>

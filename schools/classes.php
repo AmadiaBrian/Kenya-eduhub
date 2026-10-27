@@ -49,12 +49,16 @@ $school_name = $_SESSION['school_name'] ?? 'School';
             font-size: 14px;
             color: #202124;
         }
-        
+
+        .main-content {
+            margin-bottom: 20px;
+        }
+
         .page-title {
             font-size: 22px;
             font-weight: 400;
             color: #202124;
-            margin-bottom: 24px;
+            margin-bottom: 40px;
             text-align: center;
         }
 
@@ -136,15 +140,16 @@ $school_name = $_SESSION['school_name'] ?? 'School';
         }
         
         .btn-action {
-            background: #f8f9fa;
-            color: #000;
-            border: 1px solid #000;
+            background: transparent;
+            color: #FF6B35;
+            border: none;
             cursor: pointer;
             margin-right: 4px;
+            padding: 0;
         }
 
         .btn-action:hover {
-            background: #e9ecef;
+            color: #e55a2b;
         }
 
         .action-buttons-cell {
@@ -188,47 +193,48 @@ $school_name = $_SESSION['school_name'] ?? 'School';
         }
 
         .table {
+            width: 100%;
             border-collapse: collapse;
-            background: var(--bg-color);
-            border: 1px solid #e0e0e0;
-            width: 100%;
+            background: white;
+            border: 2px solid #000;
             margin: 0;
+            font-family: 'Times New Roman', Times, serif;
         }
-        
-        .table-responsive {
-            width: 100%;
-            overflow-x: auto;
-        }
-        
+
         .table thead {
-            background: #FF6B35 !important;
+            background: #f0f0f0;
             border-bottom: 2px solid #000;
         }
 
         .table thead th {
-            background: #FF6B35 !important;
-            border: 1px solid #000;
+            background: #f0f0f0;
+            border: 2px solid #000;
             border-bottom: 2px solid #000;
             padding: 12px;
-            font-weight: 600;
-            color: #ffffff !important;
-            font-size: 13px;
-            text-transform: uppercase;
+            font-weight: bold;
+            color: #000;
         }
-        
+
         .table td {
             padding: 12px;
-            border: 1px solid #000;
+            border: 2px solid #000;
             color: #000;
             font-size: 13px;
         }
-        
+
         .table tbody tr:nth-child(even) {
-            background: #f9f9f9;
+            background: #fafafa;
         }
-        
+
         .table tbody tr:hover {
-            background: #f0f0f0;
+            background: #f8f9fa;
+        }
+
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+            margin: 0;
+            padding: 0;
         }
         
         @media (max-width: 768px) {
@@ -236,25 +242,29 @@ $school_name = $_SESSION['school_name'] ?? 'School';
                 overflow-x: hidden;
                 position: relative;
             }
-            
+
             .main-content {
                 margin-left: 0;
                 padding: 16px;
             }
-            
+
             .page-title {
                 font-size: 22px;
                 font-weight: 400;
-                margin-bottom: 16px;
+                margin-bottom: 24px;
             }
-            
+
             .card {
                 padding: 16px;
                 margin-bottom: 16px;
                 border-radius: 12px;
                 box-shadow: 0 1px 2px rgba(0,0,0,0.05);
             }
-            
+
+            .card[style*="padding: 0"] {
+                padding: 0 !important;
+            }
+
             .btn {
                 width: 100%;
                 padding: 12px 20px;
@@ -263,18 +273,20 @@ $school_name = $_SESSION['school_name'] ?? 'School';
                 border-radius: 8px;
                 height: 40px;
             }
-            
+
             .card-header .btn {
                 width: 100%;
             }
-            
+
             .table-responsive {
                 overflow-x: auto;
                 -webkit-overflow-scrolling: touch;
                 border-radius: 8px;
                 width: 100%;
+                margin: 0 -16px;
+                padding: 0 16px;
             }
-            
+
             .table {
                 min-width: 600px;
                 width: 100%;
@@ -336,7 +348,7 @@ $school_name = $_SESSION['school_name'] ?? 'School';
         .fa-trash { color: #EA4335; }
     </style>
 </head>
-<body>
+<body class="dashboard-page">
 </br>
 </br>
 </br>
@@ -350,76 +362,77 @@ $school_name = $_SESSION['school_name'] ?? 'School';
         <h1 class="page-title">Classes Management</h1>
         
         <!-- Class Statistics -->
-        <div id="classStats" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 24px;">
-            <?php
-            $totalClasses = 0;
-            $totalStreams = 0;
-            $totalStudents = 0;
-            $totalCapacity = 0;
-            
-            try {
-                $stmt = $pdo->prepare("SELECT id, capacity FROM classes WHERE school_id = ?");
-                $stmt->execute([$school_id]);
-                $classes = $stmt->fetchAll();
-                
-                foreach ($classes as $class) {
-                    $totalClasses++;
-                    $totalCapacity += $class['capacity'];
-                    
-                    // Count streams for this class
-                    $streamStmt = $pdo->prepare("SELECT COUNT(*) as count FROM streams WHERE class_id = ?");
-                    $streamStmt->execute([$class['id']]);
-                    $streamCount = $streamStmt->fetch()['count'];
-                    $totalStreams += $streamCount;
-                    
-                    // Count students for this class
-                    $studentStmt = $pdo->prepare("SELECT COUNT(*) as count FROM students WHERE class_id = ?");
-                    $studentStmt->execute([$class['id']]);
-                    $studentCount = $studentStmt->fetch()['count'];
-                    $totalStudents += $studentCount;
+        <div class="card">
+            <h2 class="card-title">Class Statistics</h2>
+            <div id="classStats" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px;">
+                <?php
+                $totalClasses = 0;
+                $totalStreams = 0;
+                $totalStudents = 0;
+                $totalCapacity = 0;
+
+                try {
+                    $stmt = $pdo->prepare("SELECT id, capacity FROM classes WHERE school_id = ?");
+                    $stmt->execute([$school_id]);
+                    $classes = $stmt->fetchAll();
+
+                    foreach ($classes as $class) {
+                        $totalClasses++;
+                        $totalCapacity += $class['capacity'];
+
+                        // Count streams for this class
+                        $streamStmt = $pdo->prepare("SELECT COUNT(*) as count FROM streams WHERE class_id = ?");
+                        $streamStmt->execute([$class['id']]);
+                        $streamCount = $streamStmt->fetch()['count'];
+                        $totalStreams += $streamCount;
+
+                        // Count students for this class
+                        $studentStmt = $pdo->prepare("SELECT COUNT(*) as count FROM students WHERE class_id = ?");
+                        $studentStmt->execute([$class['id']]);
+                        $studentCount = $studentStmt->fetch()['count'];
+                        $totalStudents += $studentCount;
+                    }
+                } catch (PDOException $e) {
+                    error_log("Failed to fetch class stats: " . $e->getMessage());
                 }
-            } catch (PDOException $e) {
-                error_log("Failed to fetch class stats: " . $e->getMessage());
-            }
-            ?>
-            <div style="background: #e8f0fe; padding: 16px; border-radius: 8px; text-align: center;">
-                <div style="font-size: 24px; font-weight: 600; color: #1967d2;"><?php echo $totalClasses; ?></div>
-                <div style="font-size: 12px; color: #5f6368;">Total Classes</div>
-            </div>
-            <div style="background: #e6f4ea; padding: 16px; border-radius: 8px; text-align: center;">
-                <div style="font-size: 24px; font-weight: 600; color: #137333;"><?php echo $totalStreams; ?></div>
-                <div style="font-size: 12px; color: #5f6368;">Total Streams</div>
-            </div>
-            <div style="background: #fef7e0; padding: 16px; border-radius: 8px; text-align: center;">
-                <div style="font-size: 24px; font-weight: 600; color: #b06000;"><?php echo $totalStudents; ?></div>
-                <div style="font-size: 12px; color: #5f6368;">Total Students</div>
-            </div>
-            <div style="background: #fce8e6; padding: 16px; border-radius: 8px; text-align: center;">
-                <div style="font-size: 24px; font-weight: 600; color: #c5221f;"><?php echo $totalCapacity; ?></div>
-                <div style="font-size: 12px; color: #5f6368;">Total Capacity</div>
+                ?>
+                <div style="background: #e8f0fe; padding: 16px; border-radius: 8px; text-align: center;">
+                    <div style="font-size: 24px; font-weight: 600; color: #1967d2;"><?php echo $totalClasses; ?></div>
+                    <div style="font-size: 12px; color: #5f6368;">Total Classes</div>
+                </div>
+                <div style="background: #e6f4ea; padding: 16px; border-radius: 8px; text-align: center;">
+                    <div style="font-size: 24px; font-weight: 600; color: #137333;"><?php echo $totalStreams; ?></div>
+                    <div style="font-size: 12px; color: #5f6368;">Total Streams</div>
+                </div>
+                <div style="background: #fef7e0; padding: 16px; border-radius: 8px; text-align: center;">
+                    <div style="font-size: 24px; font-weight: 600; color: #b06000;"><?php echo $totalStudents; ?></div>
+                    <div style="font-size: 12px; color: #5f6368;">Total Students</div>
+                </div>
+                <div style="background: #fce8e6; padding: 16px; border-radius: 8px; text-align: center;">
+                    <div style="font-size: 24px; font-weight: 600; color: #c5221f;"><?php echo $totalCapacity; ?></div>
+                    <div style="font-size: 12px; color: #5f6368;">Total Capacity</div>
+                </div>
             </div>
         </div>
 
         <!-- Action Buttons -->
-        <div class="action-buttons">
-            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addClassModal">
+        <div class="d-flex flex-column gap-2 mb-3">
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addClassModal" style="border-radius: 25px;">
                 <i class="fas fa-plus me-2"></i> Add Class
             </button>
-            <button class="btn btn-success" onclick="exportClasses()">
+            <button class="btn btn-success" onclick="exportClasses()" style="border-radius: 25px;">
                 <i class="fas fa-download me-2"></i> Export
             </button>
         </div>
 
         <!-- Search and Filter Section -->
-        <div class="filter-section">
-            <div class="card-title">Search & Filter</div>
-            <div class="form-grid">
-                <div class="form-group">
-                    <label>Search</label>
+        <div class="card">
+            <h2 class="card-title">Search & Filter</h2>
+            <div class="row mb-3" style="gap: 12px;">
+                <div class="col-md-4">
                     <input type="text" class="form-control" id="searchClass" placeholder="Search by class name or level..." onkeyup="filterClasses()">
                 </div>
-                <div class="form-group">
-                    <label>Level</label>
+                <div class="col-md-4">
                     <select class="form-control" id="filterClassLevel" onchange="filterClasses()">
                         <option value="">All Levels</option>
                         <option value="Primary">Primary</option>
@@ -427,19 +440,19 @@ $school_name = $_SESSION['school_name'] ?? 'School';
                         <option value="College">College</option>
                     </select>
                 </div>
-                <div class="form-group">
-                    <label>Capacity</label>
+                <div class="col-md-4">
                     <select class="form-control" id="filterClassCapacity" onchange="filterClasses()">
-                            <option value="">All Capacities</option>
-                            <option value="low">Low (&lt;30)</option>
-                            <option value="medium">Medium (30-50)</option>
-                            <option value="high">High (&gt;50)</option>
-                        </select>
-                    </div>
+                        <option value="">All Capacities</option>
+                        <option value="low">Low (&lt;30)</option>
+                        <option value="medium">Medium (30-50)</option>
+                        <option value="high">High (&gt;50)</option>
+                    </select>
+                </div>
             </div>
         </div>
 
-        <div class="card">
+        <div class="card" style="padding: 0;">
+            <h2 class="card-title" style="padding: 24px 24px 16px 24px;">All Classes</h2>
             <div class="table-responsive">
                 <table class="table">
                     <thead>
