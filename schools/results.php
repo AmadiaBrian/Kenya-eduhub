@@ -193,30 +193,22 @@ try {
 
         /* Main Content */
         .main-content {
-            margin-left: var(--sidebar-width);
-            margin-top: var(--header-height);
-            padding: 24px;
-            padding-bottom: 80px;
-            transition: margin-left 0.3s ease;
-        }
-
-        .main-content.expanded {
-            margin-left: 0;
+            margin-bottom: 20px;
         }
 
         .page-title {
             font-size: 22px;
             font-weight: 400;
             color: #202124;
-            margin-bottom: 24px;
+            margin-bottom: 60px;
             text-align: center;
         }
-        
+
         /* Cards */
         .card {
             background: var(--bg-color);
             border: 1px solid #e0e0e0;
-            border-radius: 8px;
+            border-radius: 25px;
             padding: 24px;
             margin-bottom: 24px;
         }
@@ -239,13 +231,13 @@ try {
 
         .form-control:focus {
             border-color: var(--primary-color);
-            box-shadow: 0 0 0 2px rgba(255, 107, 53, 0.2);
+            box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.2);
             background: var(--bg-color);
         }
         
         .btn {
             padding: 10px 24px;
-            border-radius: 4px;
+            border-radius: 25px;
             font-size: 14px;
             font-weight: 500;
             border: none;
@@ -284,7 +276,7 @@ try {
         /* Filter Section */
         .filter-section {
             background: var(--bg-color);
-            border-radius: 8px;
+            border-radius: 25px;
             padding: 24px;
             margin-bottom: 24px;
             border: 1px solid #e8eaed;
@@ -305,56 +297,141 @@ try {
             margin: 0;
         }
 
-        .table-responsive {
+        .table {
             width: 100%;
-            overflow-x: auto;
+            border-collapse: collapse;
+            background: white;
+            border: 2px solid #000;
+            margin: 0;
+            font-family: 'Times New Roman', Times, serif;
         }
 
         .table thead {
-            background: #FF6B35 !important;
+            background: #f0f0f0;
             border-bottom: 2px solid #000;
         }
 
         .table thead th {
-            background: #FF6B35 !important;
-            text-align: left;
+            background: #f0f0f0;
+            border: 2px solid #000;
+            border-bottom: 2px solid #000;
             padding: 12px;
-            font-size: 13px;
-            font-weight: 600;
-            color: #ffffff !important;
-            border: 1px solid #e0e0e0;
-            border-bottom: 2px solid #e0e0e0;
+            font-weight: bold;
+            color: #000;
         }
 
         .table td {
             padding: 12px;
-            font-size: 13px;
+            border: 2px solid #000;
             color: #000;
-            border: 1px solid #e0e0e0;
+            font-size: 13px;
         }
 
         .table tbody tr:nth-child(even) {
-            background: #f9f9f9;
+            background: #fafafa;
         }
 
         .table tbody tr:hover {
-            background: #f0f0f0;
+            background: #f8f9fa;
+        }
+
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+            margin: 0;
+            padding: 0;
+        }
+
+        .btn-action {
+            background: transparent;
+            color: #FF6B35;
+            border: none;
+            cursor: pointer;
+            margin-right: 4px;
+            padding: 0;
+        }
+
+        .btn-action:hover {
+            color: #e55a2b;
+        }
+
+        .action-buttons-cell {
+            display: flex;
+            gap: 4px;
         }
         
         /* Responsive */
         @media (max-width: 768px) {
+            html, body {
+                overflow-x: hidden;
+                position: relative;
+            }
+
             .main-content {
                 margin-left: 0;
+                padding: 0;
+            }
+
+            .page-title {
+                font-size: 22px;
+                font-weight: 400;
+                margin-bottom: 24px;
                 padding: 16px;
-                padding-bottom: 80px;
             }
 
             .card {
                 padding: 16px;
+                margin: 0 16px 16px 16px;
+            }
+
+            .card[style*="padding: 0"] {
+                padding: 0 !important;
+                margin: 0 12px 16px 12px !important;
+            }
+
+            .btn {
+                width: 100%;
+            }
+
+            .action-buttons .btn {
+                width: 100%;
             }
 
             .table-responsive {
+                margin: 0;
+                padding: 0;
                 overflow-x: auto;
+            }
+
+            .table {
+                min-width: 600px;
+                width: 100%;
+            }
+
+            .d-flex.flex-column {
+                gap: 8px;
+                padding: 16px;
+                margin-bottom: 16px;
+            }
+
+            .table td {
+                padding: 4px 6px;
+                font-size: 11px;
+                line-height: 1.2;
+                vertical-align: middle;
+            }
+
+            .table thead th {
+                padding: 4px 6px;
+                font-size: 11px;
+                line-height: 1.2;
+                vertical-align: middle;
+            }
+
+            .table tbody tr {
+                line-height: 1.2;
+            }
+        }
                 width: 100%;
             }
 
@@ -456,7 +533,7 @@ try {
         .fa-trash { color: #EA4335; }
     </style>
 </head>
-<body>
+<body class="dashboard-page">
     <?php require_once 'includes/header.php'; ?>
     <?php $active_page = 'results'; require_once 'includes/sidebar.php'; ?>
     
@@ -468,13 +545,55 @@ try {
         
         <!-- Calendar Status Alert -->
         <?php if ($calendar_status['is_holiday']): ?>
-        <div class="card" style="background: #fff3cd; border: 1px solid #e0e0e0;">
-            <p style="margin: 0; color: #856404;">
-                <i class="fas fa-info-circle"></i>
-                <strong>Holiday Period:</strong> <?php echo htmlspecialchars($calendar_status['holiday_name'] ?? 'Current holiday'); ?>
-                (<?php echo htmlspecialchars($calendar_status['holiday_start'] ?? ''); ?> to <?php echo htmlspecialchars($calendar_status['holiday_end'] ?? ''); ?>)
-            </p>
-        </div>
+            <div class="card" style="background: rgba(255, 107, 53, 0.85); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.3); box-shadow: 0 8px 32px rgba(255, 107, 53, 0.3); padding: 40px; min-height: 150px;">
+                <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 12px;">
+                    <i class="fas fa-umbrella-beach" style="color: white; font-size: 32px;"></i>
+                    <div>
+                        <p style="color: white; font-weight: 600; margin: 0; font-size: 16px;">
+                            School is on Holiday
+                        </p>
+                        <p style="color: white; margin: 6px 0 0 0; font-size: 14px;">
+                            <?php echo htmlspecialchars($calendar_status['current_holiday']['holiday_name']); ?>
+                        </p>
+                        <p style="color: white; margin: 4px 0 0 0; font-size: 13px; opacity: 0.9;">
+                            <?php echo date('M j, Y', strtotime($calendar_status['current_holiday']['start_date'])); ?> -
+                            <?php echo date('M j, Y', strtotime($calendar_status['current_holiday']['end_date'])); ?>
+                        </p>
+                    </div>
+                </div>
+                <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.3);">
+                    <p style="color: white; margin: 0; font-size: 13px;">
+                        <i class="fas fa-calendar-alt" style="margin-right: 8px;"></i>
+                        Academic Year: <?php echo $calendar_status['current_year']; ?>
+                    </p>
+                    <p style="color: white; margin: 8px 0 0 0; font-size: 13px;">
+                        <i class="fas fa-clock" style="margin-right: 8px;"></i>
+                        Today: <?php echo date('F j, Y'); ?>
+                    </p>
+                </div>
+            </div>
+        <?php elseif ($calendar_status['school_status'] === 'break'): ?>
+            <div class="card" style="background: rgba(255, 107, 53, 0.85); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.3); box-shadow: 0 8px 32px rgba(255, 107, 53, 0.3); padding: 40px; min-height: 150px;">
+                <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 12px;">
+                    <i class="fas fa-pause-circle" style="color: white; font-size: 32px;"></i>
+                    <div>
+                        <p style="color: white; font-weight: 600; margin: 0; font-size: 16px;">
+                            School is on Break
+                        </p>
+                        <p style="color: white; margin: 6px 0 0 0; font-size: 14px;">No active term is currently set. Please activate a term in the Calendar.</p>
+                    </div>
+                </div>
+                <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.3);">
+                    <p style="color: white; margin: 0; font-size: 13px;">
+                        <i class="fas fa-calendar-alt" style="margin-right: 8px;"></i>
+                        Academic Year: <?php echo $calendar_status['current_year']; ?>
+                    </p>
+                    <p style="color: white; margin: 8px 0 0 0; font-size: 13px;">
+                        <i class="fas fa-clock" style="margin-right: 8px;"></i>
+                        Today: <?php echo date('F j, Y'); ?>
+                    </p>
+                </div>
+            </div>
         <?php endif; ?>
         
         <div class="card">
@@ -549,7 +668,7 @@ try {
                 <p class="text-muted">Select filters and click "Load Results" to view student results</p>
             </div>
         </div>
-        
+
         <div class="card" id="noResultsCard" style="display: none;">
             <div class="card-body text-center py-5">
                 <i class="fas fa-inbox fa-4x text-muted mb-3"></i>
@@ -558,7 +677,7 @@ try {
             </div>
         </div>
     </main>
-    
+
     <!-- Footer -->
     <?php require_once '../includes/copywrite.php'; ?>
     
@@ -730,12 +849,6 @@ try {
             // Display separate table for each exam type
             let html = '';
             for (const [examType, records] of Object.entries(groupedByExamType)) {
-                html += `
-                    <h4 style="color: #FF6B35; margin-bottom: 15px; font-weight: 600; margin-top: 30px;">
-                        <i class="fas fa-clipboard-list me-2"></i>${examType}
-                    </h4>
-                `;
-
                 // Process records for this exam type
                 const groupedByStudent = {};
                 const allSubjects = new Set();
@@ -760,23 +873,25 @@ try {
                 const sortedSubjects = Array.from(allSubjects).sort();
 
                 html += `
-                    <div class="table-responsive" style="overflow-x: auto;">
-                        <table class="table" style="min-width: 1200px;">
-                            <thead>
-                                <tr>
-                                    <th>Rank</th>
-                                    <th>Admission No</th>
-                                    <th>Student Name</th>
-                                    <th>Class</th>
-                                    <th>Stream</th>
-                                    ${sortedSubjects.map(subject => `<th title="${subject}">${abbreviateSubject(subject)}</th>`).join('')}
-                                    <th>Total Marks</th>
-                                    <th>Average</th>
-                                    <th>Total Points</th>
-                                    <th>Grade</th>
-                                </tr>
-                            </thead>
-                            <tbody>
+                    <div class="card" style="padding: 0;">
+                        <h4 class="card-title" style="padding: 24px 24px 16px 24px;">${examType}</h4>
+                        <div class="table-responsive">
+                            <table class="table" style="min-width: 1200px;">
+                                <thead>
+                                    <tr>
+                                        <th>Rank</th>
+                                        <th>Admission No</th>
+                                        <th>Student Name</th>
+                                        <th>Class</th>
+                                        <th>Stream</th>
+                                        ${sortedSubjects.map(subject => `<th title="${subject}">${abbreviateSubject(subject)}</th>`).join('')}
+                                        <th>Total Marks</th>
+                                        <th>Average</th>
+                                        <th>Total Points</th>
+                                        <th>Grade</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
                 `;
 
                 // Calculate total marks and points for each student to determine rank
@@ -921,6 +1036,7 @@ try {
                                     </tbody>
                                 </table>
                             </div>
+                        </div>
                 `;
             }
 

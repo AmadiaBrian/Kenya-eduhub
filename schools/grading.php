@@ -413,20 +413,138 @@ if (isset($_GET['delete_aggregate']) && isset($_GET['aggregate_id'])) {
             font-size: 14px;
             color: #202124;
         }
-        
+
         .main-content {
-            margin-left: var(--sidebar-width);
-            margin-top: var(--header-height);
-            padding: 24px;
-            transition: margin-left 0.3s ease;
+            margin-bottom: 20px;
         }
-        
+
+        .page-title {
+            font-size: 22px;
+            font-weight: 400;
+            color: #202124;
+            margin-bottom: 60px;
+            text-align: center;
+        }
+
         .card {
             background: var(--bg-color);
             border: 1px solid #e0e0e0;
-            border-radius: 8px;
+            border-radius: 25px;
             padding: 24px;
             margin-bottom: 24px;
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 500;
+            color: #202124;
+            margin-bottom: 16px;
+            text-align: center;
+        }
+
+        .form-control {
+            border: 1px solid #dadce0;
+            border-radius: 25px;
+            padding: 10px 12px;
+            font-size: 14px;
+            background: var(--bg-color);
+        }
+
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.2);
+            background: var(--bg-color);
+        }
+
+        .btn {
+            padding: 10px 24px;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: 500;
+            border: none;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn-primary {
+            background: #FF6B35;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #e55a2b;
+        }
+
+        .btn-success {
+            background: #137333;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #0d5e2e;
+        }
+
+        .btn-action {
+            background: transparent;
+            color: #FF6B35;
+            border: none;
+            cursor: pointer;
+            margin-right: 4px;
+            padding: 0;
+        }
+
+        .btn-action:hover {
+            color: #e55a2b;
+        }
+
+        .action-buttons-cell {
+            display: flex;
+            gap: 4px;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border: 2px solid #000;
+            margin: 0;
+            font-family: 'Times New Roman', Times, serif;
+        }
+
+        .table thead {
+            background: #f0f0f0;
+            border-bottom: 2px solid #000;
+        }
+
+        .table thead th {
+            background: #f0f0f0;
+            border: 2px solid #000;
+            border-bottom: 2px solid #000;
+            padding: 12px;
+            font-weight: bold;
+            color: #000;
+        }
+
+        .table td {
+            padding: 12px;
+            border: 2px solid #000;
+            color: #000;
+            font-size: 13px;
+        }
+
+        .table tbody tr:nth-child(even) {
+            background: #fafafa;
+        }
+
+        .table tbody tr:hover {
+            background: #f8f9fa;
+        }
+
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+            margin: 0;
+            padding: 0;
         }
         
         .btn-primary {
@@ -454,7 +572,7 @@ if (isset($_GET['delete_aggregate']) && isset($_GET['aggregate_id'])) {
             background: white;
             color: #FF6B35;
             border: 1px solid #FF6B35;
-            border-radius: 4px;
+            border-radius: 25px;
             box-shadow: 0 1px 2px rgba(60,64,67,0.1);
             transition: all 0.2s ease;
             font-family: 'Google Sans', 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -468,37 +586,17 @@ if (isset($_GET['delete_aggregate']) && isset($_GET['aggregate_id'])) {
             box-shadow: 0 1px 3px rgba(60,64,67,0.15);
         }
 
-        .btn-danger {
-            background: whitesmoke !important;
-            color: #000 !important;
-            border: 2px solid #000 !important;
-            border-radius: 4px;
-            box-shadow: none;
-            transition: all 0.2s ease;
-            font-family: 'Google Sans', 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            font-weight: 500;
-        }
-
-        .btn-danger:hover {
-            background: #e8eaed !important;
-            border-color: #000 !important;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-        }
-
-        .btn-danger:active {
-            background: #dadce0 !important;
-        }
-        
         .btn-action {
-            background: #f8f9fa;
-            color: #000;
-            border: 1px solid #000;
+            background: transparent;
+            color: #FF6B35;
+            border: none;
             cursor: pointer;
             margin-right: 4px;
+            padding: 0;
         }
 
         .btn-action:hover {
-            background: #e9ecef;
+            color: #e55a2b;
         }
 
         .action-buttons-cell {
@@ -528,7 +626,7 @@ if (isset($_GET['delete_aggregate']) && isset($_GET['aggregate_id'])) {
         /* Filter Section */
         .filter-section {
             background: var(--bg-color);
-            border-radius: 8px;
+            border-radius: 25px;
             padding: 24px;
             margin-bottom: 24px;
             border: 1px solid #e8eaed;
@@ -545,7 +643,7 @@ if (isset($_GET['delete_aggregate']) && isset($_GET['aggregate_id'])) {
             background: whitesmoke !important;
             color: #000 !important;
             border: 2px solid #000 !important;
-            border-radius: 4px;
+            border-radius: 25px;
             box-shadow: none;
             transition: all 0.2s ease;
             font-family: 'Google Sans', 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -561,13 +659,13 @@ if (isset($_GET['delete_aggregate']) && isset($_GET['aggregate_id'])) {
         .btn-sm {
             padding: 6px 12px;
             font-size: 12px;
-            border-radius: 6px;
+            border-radius: 25px;
             font-weight: 500;
         }
-        
+
         .btn {
             padding: 10px 20px;
-            border-radius: 8px;
+            border-radius: 25px;
             font-size: 14px;
             font-weight: 600;
             border: none;
@@ -585,7 +683,7 @@ if (isset($_GET['delete_aggregate']) && isset($_GET['aggregate_id'])) {
         
         .alert {
             padding: 12px 16px;
-            border-radius: 4px;
+            border-radius: 25px;
             margin-bottom: 16px;
         }
         
@@ -605,7 +703,7 @@ if (isset($_GET['delete_aggregate']) && isset($_GET['aggregate_id'])) {
             font-size: 22px;
             font-weight: 400;
             color: #202124;
-            margin-bottom: 24px;
+            margin-bottom: 60px;
             text-align: center;
         }
 
@@ -627,7 +725,7 @@ if (isset($_GET['delete_aggregate']) && isset($_GET['aggregate_id'])) {
 
         .form-control:focus {
             border-color: var(--primary-color);
-            box-shadow: 0 0 0 2px rgba(255, 107, 53, 0.2);
+            box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.2);
             background: var(--bg-color);
         }
         
@@ -707,136 +805,132 @@ if (isset($_GET['delete_aggregate']) && isset($_GET['aggregate_id'])) {
             font-style: italic;
         }
 
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+            margin: 0;
+            padding: 0;
+        }
+
         .table {
             width: 100%;
             border-collapse: collapse;
-            background: var(--bg-color);
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        }
-
-        .table th,
-        .table td {
-            padding: 12px 16px;
-            text-align: left;
-            border: 1px solid #e0e0e0;
-            border-bottom: 1px solid #e0e0e0;
-            border-right: 1px solid #e0e0e0;
-            font-size: 14px;
+            background: white;
+            border: 2px solid #000;
+            margin: 0;
+            font-family: 'Times New Roman', Times, serif;
         }
 
         .table thead {
-            background: #FF6B35 !important;
-        }
-
-        .table thead th {
-            background: #FF6B35 !important;
-            font-weight: 600;
-            color: #ffffff !important;
-            font-size: 15px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            border-top: 1px solid #000;
+            background: #f0f0f0;
             border-bottom: 2px solid #000;
         }
 
-        .table th:last-child {
-            border-right: 1px solid #e0e0e0;
+        .table thead th {
+            background: #f0f0f0;
+            border: 2px solid #000;
+            border-bottom: 2px solid #000;
+            padding: 12px;
+            font-weight: bold;
+            color: #000;
         }
 
-        .table td:last-child {
-            border-right: 1px solid #e0e0e0;
+        .table td {
+            padding: 12px;
+            border: 2px solid #000;
+            color: #000;
+            font-size: 13px;
         }
 
-        .table tbody tr:last-child td {
-            border-bottom: 1px solid #e0e0e0;
+        .table tbody tr:nth-child(even) {
+            background: #fafafa;
         }
 
         .table tbody tr:hover {
-            background: #f1f3f4;
+            background: #f8f9fa;
         }
-        
-        .table-responsive {
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-        }
-        
+
         .btn {
             padding: 10px 24px;
-            border-radius: 8px;
+            border-radius: 25px;
             font-size: 14px;
             font-weight: 500;
             border: none;
             cursor: pointer;
             transition: background 0.2s;
         }
-        
-        /* Mobile */
+
+        /* Responsive */
         @media (max-width: 768px) {
+            html, body {
+                overflow-x: hidden;
+                position: relative;
+            }
+
             .main-content {
                 margin-left: 0;
+                padding: 0;
+            }
+
+            .page-title {
+                font-size: 22px;
+                font-weight: 400;
+                margin-bottom: 24px;
                 padding: 16px;
             }
-            
+
             .card {
-                text-align: left;
+                padding: 16px;
+                margin: 0 16px 16px 16px;
             }
-            
-            .card form {
-                text-align: left;
+
+            .card[style*="padding: 0"] {
+                padding: 0 !important;
+                margin: 0 0 16px 0 !important;
             }
-            
-            .row {
-                flex-direction: column;
-            }
-            
-            .col-md-6 {
-                width: 100%;
-                max-width: 100%;
-                margin-bottom: 12px;
-            }
-            
-            .form-control {
-                border-radius: 8px;
-            }
-            
+
             .btn {
                 width: 100%;
-                border-radius: 8px;
-                padding: 12px 16px;
-                font-size: 16px;
             }
-            
-            .table {
-                font-size: 12px;
-                min-width: 600px;
-            }
-            
-            .table th,
-            .table td {
-                padding: 8px 10px;
-            }
-            
+
             .table-responsive {
-                margin: 0 -16px;
-                padding: 0 16px;
+                margin: 0;
+                padding: 0;
                 overflow-x: auto;
             }
-        }
 
-        /* Icon colors */
-        .quick-access-item:nth-child(1) .quick-access-icon { background: #e8f0fe; color: #4285F4; }
-        .quick-access-item:nth-child(2) .quick-access-icon { background: #fce8e6; color: #EA4335; }
-        .quick-access-item:nth-child(3) .quick-access-icon { background: #e6f4ea; color: #00AC47; }
-        .quick-access-item:nth-child(4) .quick-access-icon { background: #fef7e0; color: #FFBA00; }
-        .quick-access-item:nth-child(5) .quick-access-icon { background: #e8f0fe; color: #0066DA; }
-        .quick-access-item:nth-child(6) .quick-access-icon { background: #fce8e6; color: #4285F4; }
-        .fa-plus { color: #00AC47; }
-        .fa-download { color: #4285F4; }
-        .fa-edit { color: #0066DA; }
-        .fa-trash { color: #EA4335; }
+            .table {
+                min-width: 600px;
+                width: 100%;
+            }
+
+            .d-flex.flex-column {
+                gap: 8px;
+                padding: 16px;
+                margin-bottom: 16px;
+            }
+
+            .table td {
+                padding: 4px 6px;
+                font-size: 11px;
+                line-height: 1.2;
+                vertical-align: middle;
+            }
+
+            .table thead th {
+                padding: 4px 6px;
+                font-size: 11px;
+                line-height: 1.2;
+                vertical-align: middle;
+            }
+
+            .table tbody tr {
+                line-height: 1.2;
+            }
+        }
     </style>
 </head>
-<body>
+<body class="dashboard-page">
     <?php require_once 'includes/header.php'; ?>
     <?php $active_page = 'grading'; require_once 'includes/sidebar.php'; ?>
     
@@ -895,12 +989,12 @@ if (isset($_GET['delete_aggregate']) && isset($_GET['aggregate_id'])) {
             </form>
         </div>
         
-        <div class="card">
-            <h2 class="card-title">Current Grading Scales</h2>
-
-            <?php if (empty($grading_scales)): ?>
-                <p class="text-center text-muted">No grading scales defined yet</p>
-            <?php else: ?>
+        <div class="card" style="padding: 0;">
+            <h2 class="card-title" style="padding: 24px 24px 16px 24px;">Current Grading Scales</h2>
+            <div style="padding: 0 24px 24px 24px;">
+                <?php if (empty($grading_scales)): ?>
+                    <p class="text-center text-muted">No grading scales defined yet</p>
+                <?php else: ?>
                 <?php
                 // Group grading scales by subject
                 $grouped_scales = [];
@@ -997,11 +1091,12 @@ if (isset($_GET['delete_aggregate']) && isset($_GET['aggregate_id'])) {
             </form>
         </div>
 
-        <div class="card">
-            <h2 class="card-title">Current Aggregate Points Distribution</h2>
-
+        <div class="card" style="padding: 0;">
+            <h2 class="card-title" style="padding: 24px 24px 16px 24px;">Current Aggregate Points Distribution</h2>
             <?php if (empty($aggregate_distribution)): ?>
-                <p class="text-center text-muted">No aggregate points distribution defined yet</p>
+                <div style="padding: 0 24px 24px 24px;">
+                    <p class="text-center text-muted">No aggregate points distribution defined yet</p>
+                </div>
             <?php else: ?>
                 <div class="table-responsive">
                     <table class="table">

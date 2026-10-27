@@ -47,6 +47,11 @@ try {
     $all_streams = [];
 }
 
+// Get selected filters
+$selected_class = $_GET['class_id'] ?? '';
+$selected_stream = $_GET['stream_id'] ?? '';
+$selected_date = $_GET['date'] ?? date('Y-m-d');
+
 // Fetch streams for selected class
 $streams = [];
 if ($selected_class) {
@@ -58,11 +63,6 @@ if ($selected_class) {
         $streams = [];
     }
 }
-
-// Get selected filters
-$selected_class = $_GET['class_id'] ?? '';
-$selected_stream = $_GET['stream_id'] ?? '';
-$selected_date = $_GET['date'] ?? date('Y-m-d');
 
 // Fetch students based on filters
 $students = [];
@@ -168,18 +168,22 @@ try {
             color: #202124;
         }
 
+        .main-content {
+            margin-bottom: 20px;
+        }
+
         .page-title {
             font-size: 22px;
             font-weight: 400;
             color: #202124;
-            margin-bottom: 24px;
+            margin-bottom: 60px;
             text-align: center;
         }
 
         .card {
             background: var(--bg-color);
             border: 1px solid #e8eaed;
-            border-radius: 8px;
+            border-radius: 25px;
             padding: 24px;
             margin-bottom: 24px;
         }
@@ -208,7 +212,7 @@ try {
 
         .btn {
             padding: 10px 24px;
-            border-radius: 4px;
+            border-radius: 25px;
             font-size: 14px;
             font-weight: 500;
             border: none;
@@ -218,18 +222,90 @@ try {
         }
 
         @media (max-width: 768px) {
-            .btn {
-                width: 100% !important;
+            html, body {
+                overflow-x: hidden;
+                position: relative;
             }
-            
+
+            .main-content {
+                margin-left: 0;
+                padding: 0;
+            }
+
+            .page-title {
+                font-size: 22px;
+                font-weight: 400;
+                margin-bottom: 24px;
+                padding: 16px;
+            }
+
+            .card {
+                padding: 16px;
+                margin: 0 16px 16px 16px;
+            }
+
+            .card[style*="padding: 0"] {
+                padding: 0 !important;
+                margin: 0 12px 16px 12px !important;
+            }
+
+            .btn {
+                width: 100%;
+            }
+
             .card-header {
                 flex-direction: column !important;
                 align-items: stretch !important;
             }
-            
+
             .card-header .d-flex {
                 flex-direction: column !important;
                 width: 100% !important;
+            }
+
+            .table-responsive {
+                margin: 0;
+                padding: 0;
+                overflow-x: auto;
+            }
+
+            .table {
+                min-width: 600px;
+                width: 100%;
+            }
+
+            .d-flex.flex-column {
+                gap: 8px;
+                padding: 16px;
+                margin-bottom: 16px;
+            }
+
+            .table td {
+                padding: 4px 6px;
+                font-size: 11px;
+                line-height: 1.2;
+                vertical-align: middle;
+            }
+
+            .table thead th {
+                padding: 4px 6px;
+                font-size: 11px;
+                line-height: 1.2;
+                vertical-align: middle;
+            }
+
+            .table tbody tr {
+                line-height: 1.2;
+            }
+
+            .quick-access-grid {
+                display: grid !important;
+                grid-template-columns: repeat(3, 1fr) !important;
+                gap: 8px !important;
+            }
+
+            .quick-access-item {
+                padding: 12px !important;
             }
         }
 
@@ -274,7 +350,7 @@ try {
         /* Filter Section */
         .filter-section {
             background: var(--bg-color);
-            border-radius: 8px;
+            border-radius: 25px;
             padding: 24px;
             margin-bottom: 24px;
             border: 1px solid #e8eaed;
@@ -306,47 +382,66 @@ try {
         }
 
         .table {
-            border-collapse: collapse;
-            background: #f8f9fa;
-            border: 1px solid #e0e0e0;
             width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border: 2px solid #000;
             margin: 0;
+            font-family: 'Times New Roman', Times, serif;
+        }
+
+        .table thead {
+            background: #f0f0f0;
+            border-bottom: 2px solid #000;
+        }
+
+        .table thead th {
+            background: #f0f0f0;
+            border: 2px solid #000;
+            border-bottom: 2px solid #000;
+            padding: 12px;
+            font-weight: bold;
+            color: #000;
+        }
+
+        .table td {
+            padding: 12px;
+            border: 2px solid #000;
+            color: #000;
+            font-size: 13px;
+        }
+
+        .table tbody tr:nth-child(even) {
+            background: #fafafa;
+        }
+
+        .table tbody tr:hover {
+            background: #f8f9fa;
         }
 
         .table-responsive {
             width: 100%;
             overflow-x: auto;
+            margin: 0;
+            padding: 0;
         }
 
-        .table thead {
-            background: #FF6B35 !important;
-            border-bottom: 2px solid #000;
+        .btn-action {
+            background: transparent;
+            color: #FF6B35;
+            border: none;
+            cursor: pointer;
+            margin-right: 4px;
+            padding: 0;
         }
 
-        .table thead th {
-            background: #FF6B35 !important;
-            border: 1px solid #000;
-            border-bottom: 2px solid #000;
-            padding: 12px;
-            font-weight: 600;
-            color: #ffffff !important;
-            font-size: 13px;
-            text-transform: uppercase;
+        .btn-action:hover {
+            color: #e55a2b;
         }
 
-        .table td {
-            padding: 12px;
-            border: 1px solid #e0e0e0;
-            color: #202124;
-            font-size: 13px;
-        }
-
-        .table tbody tr:nth-child(even) {
-            background: #f8f9fa;
-        }
-
-        .table tbody tr:hover {
-            background: #f1f3f4;
+        .action-buttons-cell {
+            display: flex;
+            gap: 4px;
         }
 
         @media (max-width: 768px) {
@@ -474,7 +569,8 @@ try {
             align-items: center;
             padding: 20px;
             background: #f8f9fa;
-            border-radius: 8px;
+            border-radius: 25px;
+            border: 1px solid #e8eaed;
             text-decoration: none;
             transition: all 0.2s;
         }
@@ -517,7 +613,7 @@ try {
         .fa-trash { color: #EA4335; }
     </style>
 </head>
-<body>
+<body class="dashboard-page">
     <?php require_once 'includes/header.php'; ?>
     <?php $active_page = 'attendance'; require_once 'includes/sidebar.php'; ?>
     
@@ -529,31 +625,57 @@ try {
         
         <!-- Calendar Status Alert -->
         <?php if ($calendar_status['is_holiday']): ?>
-            <div style="background: #fce8e6; border: 1px solid #e0e0e0; padding: 16px; border-radius: 8px; margin-bottom: 24px;">
-                <div style="display: flex; align-items: center; gap: 12px;">
-                    <i class="fas fa-exclamation-triangle" style="color: #c5221f; font-size: 20px;"></i>
+            <div class="card" style="background: rgba(255, 107, 53, 0.85); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.3); box-shadow: 0 8px 32px rgba(255, 107, 53, 0.3); padding: 40px; min-height: 150px;">
+                <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 12px;">
+                    <i class="fas fa-umbrella-beach" style="color: white; font-size: 32px;"></i>
                     <div>
-                        <strong style="color: #c5221f;">School is on Holiday</strong>
-                        <p style="margin: 4px 0 0 0; color: #5f6368; font-size: 14px;">
-                            <?php echo htmlspecialchars($calendar_status['current_holiday']['holiday_name']); ?> 
-                            (<?php echo date('M j, Y', strtotime($calendar_status['current_holiday']['start_date'])); ?> - 
-                            <?php echo date('M j, Y', strtotime($calendar_status['current_holiday']['end_date'])); ?>)
+                        <p style="color: white; font-weight: 600; margin: 0; font-size: 16px;">
+                            School is on Holiday
+                        </p>
+                        <p style="color: white; margin: 6px 0 0 0; font-size: 14px;">
+                            <?php echo htmlspecialchars($calendar_status['current_holiday']['holiday_name']); ?>
+                        </p>
+                        <p style="color: white; margin: 4px 0 0 0; font-size: 13px; opacity: 0.9;">
+                            <?php echo date('M j, Y', strtotime($calendar_status['current_holiday']['start_date'])); ?> -
+                            <?php echo date('M j, Y', strtotime($calendar_status['current_holiday']['end_date'])); ?>
                         </p>
                     </div>
                 </div>
+                <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.3);">
+                    <p style="color: white; margin: 0; font-size: 13px;">
+                        <i class="fas fa-calendar-alt" style="margin-right: 8px;"></i>
+                        Academic Year: <?php echo $calendar_status['current_year']; ?>
+                    </p>
+                    <p style="color: white; margin: 8px 0 0 0; font-size: 13px;">
+                        <i class="fas fa-clock" style="margin-right: 8px;"></i>
+                        Today: <?php echo date('F j, Y'); ?>
+                    </p>
+                </div>
             </div>
         <?php elseif ($calendar_status['school_status'] === 'break'): ?>
-            <div style="background: #fef7e0; border: 1px solid #e0e0e0; padding: 16px; border-radius: 8px; margin-bottom: 24px;">
-                <div style="display: flex; align-items: center; gap: 12px;">
-                    <i class="fas fa-info-circle" style="color: #f9ab00; font-size: 20px;"></i>
+            <div class="card" style="background: rgba(255, 107, 53, 0.85); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.3); box-shadow: 0 8px 32px rgba(255, 107, 53, 0.3); padding: 40px; min-height: 150px;">
+                <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 12px;">
+                    <i class="fas fa-pause-circle" style="color: white; font-size: 32px;"></i>
                     <div>
-                        <strong style="color: #b06000;">School is on Break</strong>
-                        <p style="margin: 4px 0 0 0; color: #5f6368; font-size: 14px;">No active term is currently set. Please activate a term in the Calendar.</p>
+                        <p style="color: white; font-weight: 600; margin: 0; font-size: 16px;">
+                            School is on Break
+                        </p>
+                        <p style="color: white; margin: 6px 0 0 0; font-size: 14px;">No active term is currently set. Please activate a term in the Calendar.</p>
                     </div>
+                </div>
+                <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.3);">
+                    <p style="color: white; margin: 0; font-size: 13px;">
+                        <i class="fas fa-calendar-alt" style="margin-right: 8px;"></i>
+                        Academic Year: <?php echo $calendar_status['current_year']; ?>
+                    </p>
+                    <p style="color: white; margin: 8px 0 0 0; font-size: 13px;">
+                        <i class="fas fa-clock" style="margin-right: 8px;"></i>
+                        Today: <?php echo date('F j, Y'); ?>
+                    </p>
                 </div>
             </div>
         <?php endif; ?>
-        
+
         <!-- Attendance Statistics -->
         <div id="attendanceStats" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 24px;">
             <?php
@@ -699,13 +821,11 @@ try {
 
         <!-- Attendance Table -->
         <?php if ($selected_class && !empty($students)): ?>
-        <div class="card">
-            <div class="card-title">Mark Attendance - <?php echo htmlspecialchars($selected_date); ?></div>
-                </div>
-            </div>
+        <div class="card" style="padding: 0;">
+            <div class="card-title" style="padding: 24px 24px 16px 24px;">Mark Attendance - <?php echo htmlspecialchars($selected_date); ?></div>
             <div class="table-responsive">
                 <form id="attendanceForm">
-                    <table class="table">
+                    <table class="table" style="min-width: 800px;">
                             <thead>
                                 <tr>
                                     <th>Adm No</th>
@@ -742,8 +862,8 @@ try {
                             </tbody>
                         </table>
                     </form>
+                </div>
             </div>
-        </div>
         <?php elseif ($selected_class): ?>
         <div class="card">
             <div class="card-body text-center py-5">
@@ -764,10 +884,10 @@ try {
 
         <!-- Past Attendance Records -->
         <?php if (!empty($past_attendance)): ?>
-        <div class="card">
-            <div class="card-title">Past Attendance Records</div>
+        <div class="card" style="padding: 0;">
+            <div class="card-title" style="padding: 24px 24px 16px 24px;">Past Attendance Records</div>
             <div class="table-responsive">
-                <table class="table">
+                <table class="table" style="min-width: 800px;">
                         <thead>
                             <tr>
                                 <th>Date</th>
@@ -787,27 +907,14 @@ try {
                                 <td><?php echo htmlspecialchars($record['first_name'] . ' ' . $record['last_name']); ?></td>
                                 <td><?php echo htmlspecialchars($record['class_name']); ?></td>
                                 <td><?php echo htmlspecialchars($record['stream_name'] ?? '-'); ?></td>
-                                <td>
-                                    <span class="badge 
-                                        <?php 
-                                        echo match($record['status']) {
-                                            'present' => 'bg-success',
-                                            'absent' => 'bg-danger',
-                                            'late' => 'bg-warning',
-                                            'excused' => 'bg-info',
-                                            default => 'bg-secondary'
-                                        };
-                                        ?>">
-                                        <?php echo ucfirst(htmlspecialchars($record['status'])); ?>
-                                    </span>
-                                </td>
+                                <td><?php echo ucfirst(htmlspecialchars($record['status'])); ?></td>
                                 <td><?php echo htmlspecialchars($record['remarks'] ?? '-'); ?></td>
                             </tr>
                             <?php endforeach; ?>
                         </tbody>
                     </table>
             </div>
-            <p class="text-muted mt-2">Showing last 100 records. Use date filters to narrow down results.</p>
+            <p class="text-muted mt-2" style="padding: 0 24px 24px 24px;">Showing last 100 records. Use date filters to narrow down results.</p>
         </div>
         <?php elseif ($selected_class): ?>
         <div class="card">

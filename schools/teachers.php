@@ -49,12 +49,17 @@ $school_name = $_SESSION['school_name'] ?? 'School';
             font-size: 14px;
             color: #202124;
         }
+
+        .main-content {
+            margin-bottom: 20px;
+        }
         
         .page-title {
             font-size: 22px;
             font-weight: 400;
             color: #202124;
-            margin-bottom: 24px;
+            margin-bottom: 40px;
+            text-align: center;
         }
         
         /* Cards */
@@ -145,15 +150,16 @@ $school_name = $_SESSION['school_name'] ?? 'School';
         }
 
         .btn-action {
-            background: #f8f9fa;
-            color: #000;
-            border: 1px solid #000;
+            background: transparent;
+            color: #FF6B35;
+            border: none;
             cursor: pointer;
             margin-right: 4px;
+            padding: 0;
         }
 
         .btn-action:hover {
-            background: #e9ecef;
+            color: #e55a2b;
         }
 
         .action-buttons-cell {
@@ -162,47 +168,48 @@ $school_name = $_SESSION['school_name'] ?? 'School';
         }
 
         .table {
+            width: 100%;
             border-collapse: collapse;
             background: white;
-            border: 1px solid #000;
-            width: 100%;
+            border: 2px solid #000;
             margin: 0;
+            font-family: 'Times New Roman', Times, serif;
         }
-        
-        .table-responsive {
-            width: 100%;
-            overflow-x: auto;
-        }
-        
+
         .table thead {
-            background: #FF6B35 !important;
+            background: #f0f0f0;
             border-bottom: 2px solid #000;
         }
 
         .table thead th {
-            background: #FF6B35 !important;
-            border: 1px solid #000;
+            background: #f0f0f0;
+            border: 2px solid #000;
             border-bottom: 2px solid #000;
             padding: 12px;
-            font-weight: 600;
-            color: #ffffff !important;
-            font-size: 13px;
-            text-transform: uppercase;
+            font-weight: bold;
+            color: #000;
         }
-        
+
         .table td {
             padding: 12px;
-            border: 1px solid #000;
+            border: 2px solid #000;
             color: #000;
             font-size: 13px;
         }
-        
+
         .table tbody tr:nth-child(even) {
-            background: #f9f9f9;
+            background: #fafafa;
         }
-        
+
         .table tbody tr:hover {
-            background: #f0f0f0;
+            background: #f8f9fa;
+        }
+
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+            margin: 0;
+            padding: 0;
         }
         
         /* Responsive */
@@ -211,25 +218,29 @@ $school_name = $_SESSION['school_name'] ?? 'School';
                 overflow-x: hidden;
                 position: relative;
             }
-            
+
             .main-content {
                 margin-left: 0;
                 padding: 16px;
             }
-            
+
             .page-title {
                 font-size: 22px;
                 font-weight: 400;
-                margin-bottom: 16px;
+                margin-bottom: 24px;
             }
-            
+
             .card {
                 padding: 16px;
                 margin-bottom: 16px;
                 border-radius: 12px;
                 box-shadow: 0 1px 2px rgba(0,0,0,0.05);
             }
-            
+
+            .card[style*="padding: 0"] {
+                padding: 0 !important;
+            }
+
             .btn {
                 width: 100%;
                 padding: 12px 20px;
@@ -238,18 +249,20 @@ $school_name = $_SESSION['school_name'] ?? 'School';
                 border-radius: 8px;
                 height: 40px;
             }
-            
+
             .card-header .btn {
                 width: 100%;
             }
-            
+
             .table-responsive {
                 overflow-x: auto;
                 -webkit-overflow-scrolling: touch;
                 border-radius: 8px;
                 width: 100%;
+                margin: 0 -16px;
+                padding: 0 16px;
             }
-            
+
             .table {
                 min-width: 600px;
                 width: 100%;
@@ -333,6 +346,7 @@ $school_name = $_SESSION['school_name'] ?? 'School';
             align-items: center;
             padding: 20px;
             background: #f8f9fa;
+            border: 1px solid #e8eaed;
             border-radius: 8px;
             text-decoration: none;
             transition: all 0.2s;
@@ -412,7 +426,7 @@ $school_name = $_SESSION['school_name'] ?? 'School';
         }
     </style>
 </head>
-<body>
+<body class="dashboard-page">
 </br>
 </br>
 </br>
@@ -425,131 +439,127 @@ $school_name = $_SESSION['school_name'] ?? 'School';
         <h1 class="page-title">Teachers Management</h1>
         
         <!-- Quick Access -->
-        <div class="card">
-            <h2 class="card-title">Quick Access</h2>
-            <div class="quick-access-grid">
-                <a href="dashboard" class="quick-access-item">
-                    <div class="quick-access-icon">
-                        <i class="fas fa-home"></i>
-                    </div>
-                    <div class="quick-access-label">Dashboard</div>
-                </a>
-                <a href="students" class="quick-access-item">
-                    <div class="quick-access-icon">
-                        <i class="fas fa-user-graduate"></i>
-                    </div>
-                    <div class="quick-access-label">Students</div>
-                </a>
-                <a href="classes" class="quick-access-item">
-                    <div class="quick-access-icon">
-                        <i class="fas fa-chalkboard"></i>
-                    </div>
-                    <div class="quick-access-label">Classes</div>
-                </a>
-                <a href="attendance" class="quick-access-item">
-                    <div class="quick-access-icon">
-                        <i class="fas fa-calendar-check"></i>
-                    </div>
-                    <div class="quick-access-label">Attendance</div>
-                </a>
-                <a href="performance" class="quick-access-item">
-                    <div class="quick-access-icon">
-                        <i class="fas fa-chart-line"></i>
-                    </div>
-                    <div class="quick-access-label">Performance</div>
-                </a>
-                <a href="fees" class="quick-access-item">
-                    <div class="quick-access-icon">
-                        <i class="fas fa-money-bill-wave"></i>
-                    </div>
-                    <div class="quick-access-label">Fees</div>
-                </a>
-            </div>
+        <h2 class="card-title">Quick Access</h2>
+        <div class="quick-access-grid">
+            <a href="dashboard" class="quick-access-item">
+                <div class="quick-access-icon">
+                    <i class="fas fa-home"></i>
+                </div>
+                <div class="quick-access-label">Dashboard</div>
+            </a>
+            <a href="students" class="quick-access-item">
+                <div class="quick-access-icon">
+                    <i class="fas fa-user-graduate"></i>
+                </div>
+                <div class="quick-access-label">Students</div>
+            </a>
+            <a href="classes" class="quick-access-item">
+                <div class="quick-access-icon">
+                    <i class="fas fa-chalkboard"></i>
+                </div>
+                <div class="quick-access-label">Classes</div>
+            </a>
+            <a href="attendance" class="quick-access-item">
+                <div class="quick-access-icon">
+                    <i class="fas fa-calendar-check"></i>
+                </div>
+                <div class="quick-access-label">Attendance</div>
+            </a>
+            <a href="performance" class="quick-access-item">
+                <div class="quick-access-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <div class="quick-access-label">Performance</div>
+            </a>
+            <a href="fees" class="quick-access-item">
+                <div class="quick-access-icon">
+                    <i class="fas fa-money-bill-wave"></i>
+                </div>
+                <div class="quick-access-label">Fees</div>
+            </a>
         </div>
         
         <!-- Teacher Statistics -->
-        <div id="teacherStats" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 24px;">
-            <?php
-            $totalTeachers = 0;
-            $classTeachers = 0;
-            $subjectTeachers = 0;
-            $activeTeachers = 0;
-            
-            try {
-                $stmt = $pdo->prepare("SELECT teacher_type, status FROM teachers WHERE school_id = ?");
-                $stmt->execute([$school_id]);
-                $teachers = $stmt->fetchAll();
-                
-                foreach ($teachers as $teacher) {
-                    $totalTeachers++;
-                    if ($teacher['teacher_type'] === 'class_teacher') $classTeachers++;
-                    if ($teacher['teacher_type'] === 'subject_teacher') $subjectTeachers++;
-                    if ($teacher['status'] === 'active') $activeTeachers++;
+        <div class="card">
+            <h2 class="card-title">Teacher Statistics</h2>
+            <div id="teacherStats" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px;">
+                <?php
+                $totalTeachers = 0;
+                $classTeachers = 0;
+                $subjectTeachers = 0;
+                $activeTeachers = 0;
+
+                try {
+                    $stmt = $pdo->prepare("SELECT teacher_type, status FROM teachers WHERE school_id = ?");
+                    $stmt->execute([$school_id]);
+                    $teachers = $stmt->fetchAll();
+
+                    foreach ($teachers as $teacher) {
+                        $totalTeachers++;
+                        if ($teacher['teacher_type'] === 'class_teacher') $classTeachers++;
+                        if ($teacher['teacher_type'] === 'subject_teacher') $subjectTeachers++;
+                        if ($teacher['status'] === 'active') $activeTeachers++;
+                    }
+                } catch (PDOException $e) {
+                    error_log("Failed to fetch teacher stats: " . $e->getMessage());
                 }
-            } catch (PDOException $e) {
-                error_log("Failed to fetch teacher stats: " . $e->getMessage());
-            }
-            ?>
-            <div style="background: #e8f0fe; padding: 16px; border-radius: 8px; text-align: center;">
-                <div style="font-size: 24px; font-weight: 600; color: #1967d2;"><?php echo $totalTeachers; ?></div>
-                <div style="font-size: 12px; color: #5f6368;">Total Teachers</div>
-            </div>
-            <div style="background: #e6f4ea; padding: 16px; border-radius: 8px; text-align: center;">
-                <div style="font-size: 24px; font-weight: 600; color: #137333;"><?php echo $classTeachers; ?></div>
-                <div style="font-size: 12px; color: #5f6368;">Class Teachers</div>
-            </div>
-            <div style="background: #fef7e0; padding: 16px; border-radius: 8px; text-align: center;">
-                <div style="font-size: 24px; font-weight: 600; color: #b06000;"><?php echo $subjectTeachers; ?></div>
-                <div style="font-size: 12px; color: #5f6368;">Subject Teachers</div>
-            </div>
-            <div style="background: #fce8e6; padding: 16px; border-radius: 8px; text-align: center;">
-                <div style="font-size: 24px; font-weight: 600; color: #c5221f;"><?php echo $activeTeachers; ?></div>
-                <div style="font-size: 12px; color: #5f6368;">Active</div>
+                ?>
+                <div style="background: #e8f0fe; padding: 16px; border-radius: 8px; text-align: center;">
+                    <div style="font-size: 24px; font-weight: 600; color: #1967d2;"><?php echo $totalTeachers; ?></div>
+                    <div style="font-size: 12px; color: #5f6368;">Total Teachers</div>
+                </div>
+                <div style="background: #e6f4ea; padding: 16px; border-radius: 8px; text-align: center;">
+                    <div style="font-size: 24px; font-weight: 600; color: #137333;"><?php echo $classTeachers; ?></div>
+                    <div style="font-size: 12px; color: #5f6368;">Class Teachers</div>
+                </div>
+                <div style="background: #fef7e0; padding: 16px; border-radius: 8px; text-align: center;">
+                    <div style="font-size: 24px; font-weight: 600; color: #b06000;"><?php echo $subjectTeachers; ?></div>
+                    <div style="font-size: 12px; color: #5f6368;">Subject Teachers</div>
+                </div>
+                <div style="background: #fce8e6; padding: 16px; border-radius: 8px; text-align: center;">
+                    <div style="font-size: 24px; font-weight: 600; color: #c5221f;"><?php echo $activeTeachers; ?></div>
+                    <div style="font-size: 12px; color: #5f6368;">Active</div>
+                </div>
             </div>
         </div>
 
         <!-- Action Buttons -->
-        <div class="action-buttons">
-            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addTeacherModal">
+        <div class="d-flex flex-column gap-2 mb-3">
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addTeacherModal" style="border-radius: 25px;">
                 <i class="fas fa-plus me-2"></i> Add Teacher
             </button>
-            <button class="btn btn-success" onclick="exportTeachers()">
+            <button class="btn btn-success" onclick="exportTeachers()" style="border-radius: 25px;">
                 <i class="fas fa-download me-2"></i> Export
             </button>
         </div>
 
         <!-- Search and Filter Section -->
-        <div class="filter-section">
-            <div class="card-title">Search & Filter</div>
-            <div class="form-grid">
-                <div class="form-group">
-                    <label>Search</label>
+        <div class="card">
+            <h2 class="card-title">Search & Filter</h2>
+            <div class="row mb-3" style="gap: 12px;">
+                <div class="col-md-4">
                     <input type="text" class="form-control" id="searchTeacher" placeholder="Search by name, email, or phone..." onkeyup="filterTeachers()">
                 </div>
-                <div class="form-group">
-                    <label>Teacher Type</label>
+                <div class="col-md-2">
                     <select class="form-control" id="filterTeacherType" onchange="filterTeachers()">
                         <option value="">All Types</option>
                         <option value="class_teacher">Class Teacher</option>
                         <option value="subject_teacher">Subject Teacher</option>
                     </select>
                 </div>
-                <div class="form-group">
-                    <label>Status</label>
+                <div class="col-md-2">
                     <select class="form-control" id="filterTeacherStatus" onchange="filterTeachers()">
                         <option value="">All Status</option>
                         <option value="active">Active</option>
                         <option value="inactive">Inactive</option>
                     </select>
                 </div>
-                <div class="form-group">
-                    <label>Class</label>
+                <div class="col-md-2">
                     <select class="form-control" id="filterTeacherClass" onchange="filterTeachers()">
                         <option value="">All Classes</option>
                     </select>
                 </div>
-                <div class="form-group">
-                    <label>Stream</label>
+                <div class="col-md-2">
                     <select class="form-control" id="filterTeacherStream" onchange="filterTeachers()">
                         <option value="">All Streams</option>
                     </select>
@@ -557,26 +567,26 @@ $school_name = $_SESSION['school_name'] ?? 'School';
             </div>
         </div>
 
-        <div class="card">
-                <div class="table-responsive">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>Name</th>
-                                <th>Email</th>
-                                <th>Phone</th>
-                                <th>ID Number</th>
-                                <th>Type</th>
-                                <th>Assignment</th>
-                                <th>Status</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="teachersTable">
-                            <tr><td colspan="8" class="text-center">Loading...</td></tr>
-                        </tbody>
-                    </table>
-                </div>
+        <div class="card" style="padding: 0;">
+            <h2 class="card-title" style="padding: 24px 24px 16px 24px;">All Teachers</h2>
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                            <th>ID Number</th>
+                            <th>Type</th>
+                            <th>Assignment</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="teachersTable">
+                        <tr><td colspan="8" class="text-center">Loading...</td></tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>

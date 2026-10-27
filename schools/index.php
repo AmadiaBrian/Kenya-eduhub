@@ -98,6 +98,7 @@ if ($route === 'login') {
             display: flex;
             gap: 60px;
             align-items: center;
+            margin-bottom: 60px;
         }
         
         .auth-info {
@@ -530,7 +531,7 @@ if ($route === 'login') {
         }
     </style>
 </head>
-<body>
+<body class="login-page">
     <div class="auth-container">
         <div class="auth-info">
             <?php require_once __DIR__ . '/../includes/logo.php'; ?>
@@ -744,10 +745,13 @@ if ($route === 'login') {
             }
         });
     </script>
+</br>
+</br>
+</br>
+</br>
+    <?php require_once __DIR__ . '/../includes/copywrite.php'; ?>
 </body>
 </html>
-
-<?php require_once __DIR__ . '/../includes/copywrite.php'; ?>
 <?php
     exit;
 }

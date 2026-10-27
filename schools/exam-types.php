@@ -130,77 +130,138 @@ try {
             font-size: 14px;
             color: #202124;
         }
-        
+
+        .main-content {
+            margin-bottom: 20px;
+        }
+
         .page-title {
             font-size: 22px;
             font-weight: 400;
             color: #202124;
-            margin-bottom: 24px;
+            margin-bottom: 60px;
             text-align: center;
         }
 
         .card {
             background: var(--bg-color);
             border: 1px solid #e0e0e0;
-            border-radius: 12px;
-            box-shadow: none;
-            margin-bottom: 20px;
+            border-radius: 8px;
+            padding: 24px;
+            margin-bottom: 24px;
         }
 
-        .card-header {
-            background: var(--bg-color);
-            border-bottom: 1px solid #e0e0e0;
-            padding: 16px 20px;
+        .card-title {
+            font-size: 18px;
             font-weight: 500;
-            color: var(--secondary-color);
-            border-radius: 12px;
+            color: #202124;
+            margin-bottom: 16px;
             text-align: center;
         }
 
-        .card-body {
-            padding: 20px;
-            border-radius: 12px;
+        .form-control {
+            border: 1px solid #dadce0;
+            border-radius: 25px;
+            padding: 10px 12px;
+            font-size: 14px;
+            background: var(--bg-color);
+        }
+
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.2);
+            background: var(--bg-color);
+        }
+
+        .btn {
+            padding: 10px 24px;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 500;
+            border: none;
+            cursor: pointer;
+            transition: background 0.2s;
         }
 
         .btn-primary {
             background: #FF6B35;
-            border: none;
-            border-radius: 12px;
-            padding: 8px 16px;
-            font-weight: 500;
+            color: white;
         }
 
         .btn-primary:hover {
             background: #e55a2b;
         }
 
-        .btn-danger {
-            background: #FF6B35;
-            border: none;
-            border-radius: 12px;
-            padding: 8px 16px;
-            font-weight: 500;
+        .btn-success {
+            background: #137333;
+            color: white;
         }
 
-        .btn-danger:hover {
-            background: #e55a2b;
+        .btn-success:hover {
+            background: #0d5e2e;
         }
 
         .btn-action {
-            background: #f8f9fa;
-            color: #000;
-            border: 1px solid #000;
+            background: transparent;
+            color: #FF6B35;
+            border: none;
             cursor: pointer;
             margin-right: 4px;
+            padding: 0;
         }
 
         .btn-action:hover {
-            background: #e9ecef;
+            color: #e55a2b;
         }
 
         .action-buttons-cell {
             display: flex;
             gap: 4px;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border: 2px solid #000;
+            margin: 0;
+            font-family: 'Times New Roman', Times, serif;
+        }
+
+        .table thead {
+            background: #f0f0f0;
+            border-bottom: 2px solid #000;
+        }
+
+        .table thead th {
+            background: #f0f0f0;
+            border: 2px solid #000;
+            border-bottom: 2px solid #000;
+            padding: 12px;
+            font-weight: bold;
+            color: #000;
+        }
+
+        .table td {
+            padding: 12px;
+            border: 2px solid #000;
+            color: #000;
+            font-size: 13px;
+        }
+
+        .table tbody tr:nth-child(even) {
+            background: #fafafa;
+        }
+
+        .table tbody tr:hover {
+            background: #f8f9fa;
+        }
+
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+            margin: 0;
+            padding: 0;
         }
 
         /* Action Buttons */
@@ -247,15 +308,17 @@ try {
         }
 
         .table thead {
-            background: #FF6B35 !important;
+            background: #f0f0f0;
+            border-bottom: 2px solid #000;
         }
 
         .table thead th {
-            font-weight: 600;
-            color: #ffffff !important;
+            background: #f0f0f0;
+            border: 2px solid #000;
             border-bottom: 2px solid #000;
-            border-right: 1px solid #000;
-            background: #FF6B35 !important;
+            padding: 12px;
+            font-weight: bold;
+            color: #000;
         }
 
         .form-control {
@@ -406,32 +469,56 @@ try {
         @media (max-width: 768px) {
             .main-content {
                 margin-left: 0;
-                padding: 16px;
+                padding: 0;
             }
-            
+
             .page-title {
                 font-size: 22px;
                 font-weight: 400;
-                margin-bottom: 16px;
-            }
-            
-            .card {
+                margin-bottom: 24px;
                 padding: 16px;
             }
-            
+
+            .card {
+                padding: 16px;
+                margin: 0 0 16px 0;
+            }
+
+            .card[style*="padding: 0"] {
+                padding: 0 !important;
+                margin: 0 0 16px 0;
+            }
+
             .btn {
                 width: 100%;
             }
-            
+
             .table-responsive {
-                margin: 0 -16px;
-                padding: 0 16px;
+                margin: 0;
+                padding: 0;
                 overflow-x: auto;
             }
-            
+
             .table {
                 width: 100%;
                 min-width: 600px;
+            }
+
+            .d-flex.flex-column {
+                gap: 8px;
+                padding: 16px;
+                margin-bottom: 16px;
+            }
+
+            /* Statistics cards - 2 per row */
+            .card .card-title + div[style*="display: grid"] {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+
+            /* Alert messages full width */
+            .alert {
+                margin: 16px;
+                border-radius: 8px;
             }
         }
 
@@ -448,16 +535,14 @@ try {
         .fa-trash { color: #EA4335; }
     </style>
 </head>
-<body>
+<body class="dashboard-page">
     <?php require_once 'includes/header.php'; ?>
     <?php $active_page = 'exam-types'; require_once 'includes/sidebar.php'; ?>
     
     <main class="main-content" id="mainContent">
         <div class="container-fluid">
             <h1 class="page-title">Exam Types</h1>
-            
-            <br>
-            
+
             <?php if (!empty($errors)): ?>
                 <div class="alert alert-danger">
                     <?php foreach ($errors as $error): ?>
@@ -465,97 +550,144 @@ try {
                     <?php endforeach; ?>
                 </div>
             <?php endif; ?>
-            
+
             <?php if (!empty($success)): ?>
                 <div class="alert alert-success">
                     <?php echo htmlspecialchars($success); ?>
                 </div>
             <?php endif; ?>
-            
-            <!-- Add Exam Type Card -->
+
+            <!-- Exam Types Statistics -->
             <div class="card">
-                <div class="card-header">
-                    <i class="fas fa-plus me-2"></i>Add New Exam Type
-                </div>
-                <div class="card-body">
-                    <form method="POST">
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Exam Type Name *</label>
-                                <input type="text" class="form-control" name="exam_type_name" placeholder="e.g., CAT, Mid Term, End Term" required>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Exam Type Code *</label>
-                                <input type="text" class="form-control" name="exam_type_code" placeholder="e.g., CAT, MID_TERM, END_TERM" required>
-                            </div>
-                            <div class="col-12 mb-3">
-                                <label class="form-label">Description</label>
-                                <textarea class="form-control" name="description" rows="3" placeholder="Description of this exam type..."></textarea>
-                            </div>
-                            <div class="col-12">
-                                <button type="submit" name="add_exam_type" class="btn btn-primary">
-                                    <i class="fas fa-plus me-2"></i>Add Exam Type
-                                </button>
-                            </div>
-                        </div>
-                    </form>
+                <h2 class="card-title">Exam Types Statistics</h2>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px;">
+                    <?php
+                    $totalExamTypes = 0;
+                    $activeExamTypes = 0;
+                    $inactiveExamTypes = 0;
+
+                    try {
+                        // Count total exam types
+                        $stmt = $pdo->prepare("SELECT COUNT(*) as count FROM exam_types WHERE school_id = ?");
+                        $stmt->execute([$school_id]);
+                        $totalExamTypes = $stmt->fetch()['count'];
+
+                        // Count active exam types
+                        $stmt = $pdo->prepare("SELECT COUNT(*) as count FROM exam_types WHERE school_id = ? AND is_active = 1");
+                        $stmt->execute([$school_id]);
+                        $activeExamTypes = $stmt->fetch()['count'];
+
+                        // Count inactive exam types
+                        $stmt = $pdo->prepare("SELECT COUNT(*) as count FROM exam_types WHERE school_id = ? AND is_active = 0");
+                        $stmt->execute([$school_id]);
+                        $inactiveExamTypes = $stmt->fetch()['count'];
+                    } catch (PDOException $e) {
+                        error_log("Failed to fetch exam types stats: " . $e->getMessage());
+                    }
+                    ?>
+                    <div style="background: #e8f0fe; padding: 16px; border-radius: 8px; text-align: center;">
+                        <div style="font-size: 24px; font-weight: 600; color: #1967d2;"><?php echo $totalExamTypes; ?></div>
+                        <div style="font-size: 12px; color: #5f6368;">Total Exam Types</div>
+                    </div>
+                    <div style="background: #e6f4ea; padding: 16px; border-radius: 8px; text-align: center;">
+                        <div style="font-size: 24px; font-weight: 600; color: #137333;"><?php echo $activeExamTypes; ?></div>
+                        <div style="font-size: 12px; color: #5f6368;">Active Exam Types</div>
+                    </div>
+                    <div style="background: #fef7e0; padding: 16px; border-radius: 8px; text-align: center;">
+                        <div style="font-size: 24px; font-weight: 600; color: #b06000;"><?php echo $inactiveExamTypes; ?></div>
+                        <div style="font-size: 12px; color: #5f6368;">Inactive Exam Types</div>
+                    </div>
+                    <div style="background: #fce8e6; padding: 16px; border-radius: 8px; text-align: center;">
+                        <div style="font-size: 24px; font-weight: 600; color: #c5221f;">1</div>
+                        <div style="font-size: 12px; color: #5f6368;">Default Type</div>
+                    </div>
                 </div>
             </div>
-            
-            <!-- Exam Types List -->
+
+            <!-- Action Buttons -->
+            <div class="d-flex flex-column gap-2 mb-3">
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addExamTypeModal" style="border-radius: 25px;">
+                    <i class="fas fa-plus me-2"></i> Add Exam Type
+                </button>
+                <button class="btn btn-success" onclick="exportExamTypes()" style="border-radius: 25px;">
+                    <i class="fas fa-download me-2"></i> Export
+                </button>
+            </div>
+
+            <!-- Add Exam Type Card -->
             <div class="card">
-                <div class="card-header">
-                    <i class="fas fa-list me-2"></i>Existing Exam Types
-                </div>
-                <div class="card-body">
-                    <?php if (empty($exam_types)): ?>
-                        <div class="empty-state">
-                            <i class="fas fa-clipboard-list"></i>
-                            <h5>No Exam Types Found</h5>
-                            <p>Add your first exam type using the form above.</p>
+                <h2 class="card-title">Add New Exam Type</h2>
+                <form method="POST">
+                    <div class="row mb-3" style="gap: 12px;">
+                        <div class="col-md-6">
+                            <label class="form-label">Exam Type Name *</label>
+                            <input type="text" class="form-control" name="exam_type_name" placeholder="e.g., CAT, Mid Term, End Term" required style="border-radius: 25px; border: 1px solid #dadce0;">
                         </div>
-                    <?php else: ?>
-                        <div class="table-responsive">
-                            <table class="table">
-                                <thead>
+                        <div class="col-md-6">
+                            <label class="form-label">Exam Type Code *</label>
+                            <input type="text" class="form-control" name="exam_type_code" placeholder="e.g., CAT, MID_TERM, END_TERM" required style="border-radius: 25px; border: 1px solid #dadce0;">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <textarea class="form-control" name="description" rows="3" placeholder="Description of this exam type..." style="border-radius: 25px; border: 1px solid #dadce0;"></textarea>
+                    </div>
+                    <button type="submit" name="add_exam_type" class="btn btn-primary" style="border-radius: 25px;">
+                        <i class="fas fa-plus me-2"></i>Add Exam Type
+                    </button>
+                </form>
+            </div>
+
+            <!-- Exam Types List -->
+            <div class="card" style="padding: 0;">
+                <h2 class="card-title" style="padding: 24px 24px 16px 24px;">All Exam Types</h2>
+                <?php if (empty($exam_types)): ?>
+                    <div class="empty-state" style="padding: 24px; text-align: center;">
+                        <i class="fas fa-clipboard-list"></i>
+                        <h5>No Exam Types Found</h5>
+                        <p>Add your first exam type using the form above.</p>
+                    </div>
+                <?php else: ?>
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Code</th>
+                                    <th>Description</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($exam_types as $exam_type): ?>
                                     <tr>
-                                        <th>Name</th>
-                                        <th>Code</th>
-                                        <th>Description</th>
-                                        <th>Status</th>
-                                        <th>Actions</th>
+                                        <td><?php echo htmlspecialchars($exam_type['exam_type_name']); ?></td>
+                                        <td><?php echo htmlspecialchars($exam_type['exam_type_code']); ?></td>
+                                        <td><?php echo htmlspecialchars(substr($exam_type['description'], 0, 50)) . (strlen($exam_type['description']) > 50 ? '...' : ''); ?></td>
+                                        <td>
+                                            <?php if ($exam_type['is_active']): ?>
+                                                <span class="badge badge-success">Active</span>
+                                            <?php else: ?>
+                                                <span class="badge badge-danger">Inactive</span>
+                                            <?php endif; ?>
+                                        </td>
+                                        <td>
+                                            <div class="action-buttons-cell">
+                                                <button class="btn btn-sm btn-action" onclick="editExamType(<?php echo $exam_type['id']; ?>, '<?php echo htmlspecialchars($exam_type['exam_type_name']); ?>', '<?php echo htmlspecialchars($exam_type['exam_type_code']); ?>', '<?php echo htmlspecialchars($exam_type['description']); ?>')">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                                <button class="btn btn-sm btn-action" onclick="openDeleteModal(<?php echo $exam_type['id']; ?>)">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        </td>
                                     </tr>
-                                </thead>
-                                <tbody>
-                                    <?php foreach ($exam_types as $exam_type): ?>
-                                        <tr>
-                                            <td><?php echo htmlspecialchars($exam_type['exam_type_name']); ?></td>
-                                            <td><?php echo htmlspecialchars($exam_type['exam_type_code']); ?></td>
-                                            <td><?php echo htmlspecialchars(substr($exam_type['description'], 0, 50)) . (strlen($exam_type['description']) > 50 ? '...' : ''); ?></td>
-                                            <td>
-                                                <?php if ($exam_type['is_active']): ?>
-                                                    <span class="badge badge-success">Active</span>
-                                                <?php else: ?>
-                                                    <span class="badge badge-danger">Inactive</span>
-                                                <?php endif; ?>
-                                            </td>
-                                            <td>
-                                                <div class="action-buttons-cell">
-                                                    <button class="btn btn-sm btn-action" onclick="editExamType(<?php echo $exam_type['id']; ?>, '<?php echo htmlspecialchars($exam_type['exam_type_name']); ?>', '<?php echo htmlspecialchars($exam_type['exam_type_code']); ?>', '<?php echo htmlspecialchars($exam_type['description']); ?>')">
-                                                        <i class="fas fa-edit"></i>
-                                                    </button>
-                                                    <button class="btn btn-sm btn-action" onclick="openDeleteModal(<?php echo $exam_type['id']; ?>)">
-                                                        <i class="fas fa-trash"></i>
-                                                    </button>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    <?php endforeach; ?>
-                                </tbody>
-                            </table>
-                        </div>
-                    <?php endif; ?>
-                </div>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                <?php endif; ?>
             </div>
         </div>
     </main>
@@ -592,26 +724,58 @@ try {
                         <input type="hidden" name="exam_type_id" id="editExamTypeId">
                         <div class="mb-3">
                             <label class="form-label">Exam Type Name *</label>
-                            <input type="text" class="form-control" name="exam_type_name" id="editExamTypeName" required placeholder="e.g., CAT, Mid Term, End Term">
+                            <input type="text" class="form-control" name="exam_type_name" id="editExamTypeName" required placeholder="e.g., CAT, Mid Term, End Term" style="border-radius: 25px; border: 1px solid #dadce0;">
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Exam Type Code *</label>
-                            <input type="text" class="form-control" name="exam_type_code" id="editExamTypeCode" required placeholder="e.g., CAT, MID_TERM, END_TERM">
+                            <input type="text" class="form-control" name="exam_type_code" id="editExamTypeCode" required placeholder="e.g., CAT, MID_TERM, END_TERM" style="border-radius: 25px; border: 1px solid #dadce0;">
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Description</label>
-                            <textarea class="form-control" name="description" id="editDescription" rows="3" placeholder="Description of this exam type..."></textarea>
+                            <textarea class="form-control" name="description" id="editDescription" rows="3" placeholder="Description of this exam type..." style="border-radius: 25px; border: 1px solid #dadce0;"></textarea>
                         </div>
                     </form>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" form="editForm" name="edit_exam_type" class="btn btn-primary">Update</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="border-radius: 25px;">Cancel</button>
+                    <button type="submit" form="editForm" name="edit_exam_type" class="btn btn-primary" style="border-radius: 25px;">Update</button>
                 </div>
             </div>
         </div>
     </div>
     
+    <!-- Add Exam Type Modal -->
+    <div class="modal fade" id="addExamTypeModal" tabindex="-1" style="backdrop-filter: blur(2px);">
+        <div class="modal-dialog">
+            <div class="modal-content" style="border: none; border-radius: 24px; box-shadow: 0 24px 38px 3px rgba(0,0,0,0.14), 0 9px 46px 8px rgba(0,0,0,0.12);">
+                <div class="modal-header" style="border: none; padding: 24px 32px 0 32px;">
+                    <h5 class="modal-title" style="font-size: 22px; font-weight: 400; color: #202124;">Add New Exam Type</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" style="padding: 24px 32px;">
+                    <form method="POST">
+                        <div class="mb-3">
+                            <label class="form-label" style="font-size: 14px; color: #5f6368; font-weight: 500;">Exam Type Name</label>
+                            <input type="text" class="form-control" name="exam_type_name" required style="border-radius: 25px; border: 1px solid #dadce0;">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label" style="font-size: 14px; color: #5f6368; font-weight: 500;">Exam Type Code</label>
+                            <input type="text" class="form-control" name="exam_type_code" required style="border-radius: 25px; border: 1px solid #dadce0;">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label" style="font-size: 14px; color: #5f6368; font-weight: 500;">Description</label>
+                            <textarea class="form-control" name="description" rows="3" style="border-radius: 25px; border: 1px solid #dadce0;"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer" style="border: none; padding: 0 32px 32px 32px;">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="background: transparent; color: #5f6368; border: none; border-radius: 25px; padding: 10px 24px; font-size: 14px; font-weight: 500; letter-spacing: 0.25px; text-transform: uppercase;">Cancel</button>
+                    <button type="submit" form="editForm" name="add_exam_type" class="btn btn-primary" style="background: #FF6B35; color: white; border: none; border-radius: 25px; padding: 10px 24px; font-size: 14px; font-weight: 500; letter-spacing: 0.25px; text-transform: uppercase;">Add Exam Type</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         function toggleSidebarSection(titleElement) {

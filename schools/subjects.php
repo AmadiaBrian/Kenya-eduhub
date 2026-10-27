@@ -197,12 +197,16 @@ try {
             font-size: 14px;
             color: #202124;
         }
-        
+
+        .main-content {
+            margin-bottom: 20px;
+        }
+
         .page-title {
             font-size: 22px;
             font-weight: 400;
             color: #202124;
-            margin-bottom: 24px;
+            margin-bottom: 60px;
             text-align: center;
         }
 
@@ -284,18 +288,21 @@ try {
         }
         
         .btn-action {
-            background: #f8f9fa;
-            color: #000;
-            border: 1px solid #000;
+            background: transparent;
+            color: #FF6B35;
+            border: none;
             cursor: pointer;
-            padding: 4px 8px;
-            font-size: 11px;
-            height: 20px;
             margin-right: 4px;
+            padding: 0;
         }
 
         .btn-action:hover {
-            background: #e9ecef;
+            color: #e55a2b;
+        }
+
+        .action-buttons-cell {
+            display: flex;
+            gap: 4px;
         }
 
         .action-buttons-cell {
@@ -339,43 +346,33 @@ try {
         }
         
         .table {
-            border-collapse: collapse;
-            background: var(--bg-color);
-            border: 1px solid #e0e0e0;
             width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border: 2px solid #000;
             margin: 0;
             font-family: 'Times New Roman', Times, serif;
         }
 
-        .table-responsive {
-            width: 100%;
-            overflow-x: auto;
-        }
-
         .table thead {
-            background: #FF6B35 !important;
+            background: #f0f0f0;
             border-bottom: 2px solid #000;
         }
 
         .table thead th {
-            background: #FF6B35 !important;
-            border: 1px solid #000;
+            background: #f0f0f0;
+            border: 2px solid #000;
             border-bottom: 2px solid #000;
             padding: 12px;
-            font-weight: 600;
-            color: #ffffff !important;
-            font-size: 12px;
-            text-transform: uppercase;
-            text-align: left;
-            background: #f5f5f5;
+            font-weight: bold;
+            color: #000;
         }
 
         .table td {
-            padding: 10px;
-            border: 1px solid #e0e0e0;
+            padding: 12px;
+            border: 2px solid #000;
             color: #000;
-            font-size: 12px;
-            vertical-align: middle;
+            font-size: 13px;
         }
 
         .table tbody tr:nth-child(even) {
@@ -383,7 +380,14 @@ try {
         }
 
         .table tbody tr:hover {
-            background: #f0f0f0;
+            background: #f8f9fa;
+        }
+
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+            margin: 0;
+            padding: 0;
         }
         
         @media (max-width: 768px) {
@@ -391,25 +395,29 @@ try {
                 overflow-x: hidden;
                 position: relative;
             }
-            
+
             .main-content {
                 margin-left: 0;
                 padding: 16px;
             }
-            
+
             .page-title {
                 font-size: 22px;
                 font-weight: 400;
-                margin-bottom: 16px;
+                margin-bottom: 24px;
             }
-            
+
             .card {
                 padding: 16px;
                 margin-bottom: 16px;
                 border-radius: 12px;
                 box-shadow: 0 1px 2px rgba(0,0,0,0.05);
             }
-            
+
+            .card[style*="padding: 0"] {
+                padding: 0 !important;
+            }
+
             .btn {
                 width: 100%;
                 padding: 12px 20px;
@@ -418,21 +426,23 @@ try {
                 border-radius: 8px;
                 height: 40px;
             }
-            
+
             .card-header .btn {
                 width: 100%;
             }
-            
+
             .d-flex.gap-2 {
                 flex-direction: column;
                 width: 100%;
             }
-            
+
             .table-responsive {
                 overflow-x: auto;
                 -webkit-overflow-scrolling: touch;
                 border-radius: 8px;
                 width: 100%;
+                margin: 0 -16px;
+                padding: 0 16px;
             }
             
             .table {
@@ -496,7 +506,12 @@ try {
         .fa-trash { color: #EA4335; }
     </style>
 </head>
-<body>
+<body class="dashboard-page">
+</br>
+</br>
+</br>
+</br>
+</br>
     <?php require_once 'includes/header.php'; ?>
     <?php $active_page = 'subjects'; require_once 'includes/sidebar.php'; ?>
     
@@ -517,7 +532,58 @@ try {
             </div>
         <?php endif; ?>
 
-        <br>
+        <!-- Subject Statistics -->
+        <div class="card">
+            <h2 class="card-title">Subject Statistics</h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px;">
+                <?php
+                $totalSubjects = 0;
+                $totalCategories = 0;
+                $activeSubjects = 0;
+                $inactiveSubjects = 0;
+
+                try {
+                    // Count categories
+                    $stmt = $pdo->prepare("SELECT COUNT(*) as count FROM subject_categories WHERE school_id = ?");
+                    $stmt->execute([$school_id]);
+                    $totalCategories = $stmt->fetch()['count'];
+
+                    // Count subjects
+                    $stmt = $pdo->prepare("SELECT COUNT(*) as count FROM subjects WHERE school_id = ?");
+                    $stmt->execute([$school_id]);
+                    $totalSubjects = $stmt->fetch()['count'];
+
+                    // Count active subjects
+                    $stmt = $pdo->prepare("SELECT COUNT(*) as count FROM subjects WHERE school_id = ? AND status = 'active'");
+                    $stmt->execute([$school_id]);
+                    $activeSubjects = $stmt->fetch()['count'];
+
+                    // Count inactive subjects
+                    $stmt = $pdo->prepare("SELECT COUNT(*) as count FROM subjects WHERE school_id = ? AND status = 'inactive'");
+                    $stmt->execute([$school_id]);
+                    $inactiveSubjects = $stmt->fetch()['count'];
+                } catch (PDOException $e) {
+                    error_log("Failed to fetch subject stats: " . $e->getMessage());
+                }
+                ?>
+                <div style="background: #e8f0fe; padding: 16px; border-radius: 8px; text-align: center;">
+                    <div style="font-size: 24px; font-weight: 600; color: #1967d2;"><?php echo $totalSubjects; ?></div>
+                    <div style="font-size: 12px; color: #5f6368;">Total Subjects</div>
+                </div>
+                <div style="background: #e6f4ea; padding: 16px; border-radius: 8px; text-align: center;">
+                    <div style="font-size: 24px; font-weight: 600; color: #137333;"><?php echo $totalCategories; ?></div>
+                    <div style="font-size: 12px; color: #5f6368;">Total Categories</div>
+                </div>
+                <div style="background: #fef7e0; padding: 16px; border-radius: 8px; text-align: center;">
+                    <div style="font-size: 24px; font-weight: 600; color: #b06000;"><?php echo $activeSubjects; ?></div>
+                    <div style="font-size: 12px; color: #5f6368;">Active Subjects</div>
+                </div>
+                <div style="background: #fce8e6; padding: 16px; border-radius: 8px; text-align: center;">
+                    <div style="font-size: 24px; font-weight: 600; color: #c5221f;"><?php echo $inactiveSubjects; ?></div>
+                    <div style="font-size: 12px; color: #5f6368;">Inactive Subjects</div>
+                </div>
+            </div>
+        </div>
 
         <!-- Subject Categories Section -->
         <div class="card">
@@ -563,17 +629,17 @@ try {
                         <label class="form-check-label" for="isCompulsory">Mark as Compulsory Category</label>
                     </div>
                 </div>
-                <button type="submit" name="add_category" class="btn btn-primary">
+                <button type="submit" name="add_category" class="btn btn-primary" style="border-radius: 25px;">
                     <i class="fas fa-plus me-2"></i> Add Category
                 </button>
             </form>
         </div>
 
-        <div class="card">
-            <h2 class="card-title">Current Categories</h2>
+        <div class="card" style="padding: 0;">
+            <h2 class="card-title" style="padding: 24px 24px 16px 24px;">Current Categories</h2>
 
             <?php if (empty($categories)): ?>
-                <p class="text-center text-muted">No categories defined yet</p>
+                <p class="text-center text-muted" style="padding: 24px;">No categories defined yet</p>
             <?php else: ?>
                 <div class="table-responsive">
                     <table class="table">
@@ -594,12 +660,12 @@ try {
                                     <td>
                                         <div class="action-buttons-cell">
                                             <button class="btn btn-sm btn-action" onclick="editCategory(<?php echo $category['id']; ?>, '<?php echo htmlspecialchars($category['category_name']); ?>', '<?php echo htmlspecialchars($category['category_code']); ?>', <?php echo $category['is_compulsory']; ?>)">
-                                                <i class="fas fa-edit"></i> Edit
+                                                <i class="fas fa-edit"></i>
                                             </button>
                                             <a href="subjects?delete_category=1&category_id=<?php echo $category['id']; ?>"
                                                class="btn btn-sm btn-action"
                                                onclick="return confirm('Are you sure you want to delete this category?')">
-                                                <i class="fas fa-trash"></i> Delete
+                                                <i class="fas fa-trash"></i>
                                             </a>
                                         </div>
                                     </td>
@@ -625,11 +691,11 @@ try {
                             <input type="hidden" name="category_id" id="editCategoryId">
                             <div class="mb-3">
                                 <label class="form-label">Category Name</label>
-                                <input type="text" class="form-control" name="category_name" id="editCategoryName" required>
+                                <input type="text" class="form-control" name="category_name" id="editCategoryName" required style="border-radius: 25px; border: 1px solid #dadce0;">
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Category Code</label>
-                                <input type="text" class="form-control" name="category_code" id="editCategoryCode" required>
+                                <input type="text" class="form-control" name="category_code" id="editCategoryCode" required style="border-radius: 25px; border: 1px solid #dadce0;">
                             </div>
                             <div class="mb-3">
                                 <div class="form-check">
@@ -682,33 +748,30 @@ try {
         </div>
 
         <!-- Action Buttons -->
-        <div class="action-buttons">
-            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addSubjectModal">
+        <div class="d-flex flex-column gap-2 mb-3">
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addSubjectModal" style="border-radius: 25px;">
                 <i class="fas fa-plus me-2"></i> Add Subject
             </button>
-            <button class="btn btn-success" onclick="exportSubjects()">
+            <button class="btn btn-success" onclick="exportSubjects()" style="border-radius: 25px;">
                 <i class="fas fa-download me-2"></i> Export
             </button>
         </div>
 
         <!-- Search and Filter Section -->
-        <div class="filter-section">
-            <div class="card-title">Search & Filter</div>
-            <div class="form-grid">
-                <div class="form-group">
-                    <label>Search</label>
+        <div class="card">
+            <h2 class="card-title">Search & Filter</h2>
+            <div class="row mb-3" style="gap: 12px;">
+                <div class="col-md-4">
                     <input type="text" class="form-control" id="searchSubject" placeholder="Search by subject name or code..." onkeyup="filterSubjects()">
                 </div>
-                <div class="form-group">
-                    <label>Status</label>
+                <div class="col-md-4">
                     <select class="form-control" id="filterSubjectStatus" onchange="filterSubjects()">
                         <option value="">All Status</option>
                         <option value="active">Active</option>
                         <option value="inactive">Inactive</option>
                     </select>
                 </div>
-                <div class="form-group">
-                    <label>Code</label>
+                <div class="col-md-4">
                     <select class="form-control" id="filterSubjectCode" onchange="filterSubjects()">
                         <option value="">All Codes</option>
                         <option value="has_code">Has Code</option>
@@ -718,7 +781,8 @@ try {
             </div>
         </div>
 
-        <div class="card">
+        <div class="card" style="padding: 0;">
+            <h2 class="card-title" style="padding: 24px 24px 16px 24px;">All Subjects</h2>
             <div class="table-responsive">
                 <table class="table">
                     <thead>
@@ -733,7 +797,7 @@ try {
                     <tbody id="subjectsTable">
                         <tr><td colspan="5" class="text-center">Loading...</td></tr>
                     </tbody>
-                </div>
+                </table>
             </div>
         </div>
     </div>
@@ -750,15 +814,15 @@ try {
                     <form id="addSubjectForm">
                         <div class="mb-3">
                             <label class="form-label" style="font-size: 14px; color: #5f6368; font-weight: 500;">Subject Name</label>
-                            <input type="text" class="form-control" id="subjectName" required style="border-radius: 8px; border: 1px solid #dadce0;">
+                            <input type="text" class="form-control" id="subjectName" required style="border-radius: 25px; border: 1px solid #dadce0;">
                         </div>
                         <div class="mb-3">
                             <label class="form-label" style="font-size: 14px; color: #5f6368; font-weight: 500;">Subject Code (Optional)</label>
-                            <input type="text" class="form-control" id="subjectCode" placeholder="e.g., MATH, ENG" style="border-radius: 8px; border: 1px solid #dadce0;">
+                            <input type="text" class="form-control" id="subjectCode" placeholder="e.g., MATH, ENG" style="border-radius: 25px; border: 1px solid #dadce0;">
                         </div>
                         <div class="mb-3">
                             <label class="form-label" style="font-size: 14px; color: #5f6368; font-weight: 500;">Category</label>
-                            <select class="form-control" id="subjectCategory" style="border-radius: 8px; border: 1px solid #dadce0;">
+                            <select class="form-control" id="subjectCategory" style="border-radius: 25px; border: 1px solid #dadce0;">
                                 <option value="">Select Category (Optional)</option>
                                 <?php foreach ($categories as $cat): ?>
                                     <option value="<?php echo $cat['id']; ?>"><?php echo htmlspecialchars($cat['category_name']); ?> (<?php echo htmlspecialchars($cat['category_code']); ?>)</option>
@@ -767,7 +831,7 @@ try {
                         </div>
                         <div class="mb-3">
                             <label class="form-label" style="font-size: 14px; color: #5f6368; font-weight: 500;">Status</label>
-                            <select class="form-control" id="subjectStatus" style="border-radius: 8px; border: 1px solid #dadce0;">
+                            <select class="form-control" id="subjectStatus" style="border-radius: 25px; border: 1px solid #dadce0;">
                                 <option value="active">Active</option>
                                 <option value="inactive">Inactive</option>
                             </select>
@@ -795,15 +859,15 @@ try {
                         <input type="hidden" id="editSubjectId">
                         <div class="mb-3">
                             <label class="form-label">Subject Name</label>
-                            <input type="text" class="form-control" id="editSubjectName" required>
+                            <input type="text" class="form-control" id="editSubjectName" required style="border-radius: 25px; border: 1px solid #dadce0;">
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Subject Code (Optional)</label>
-                            <input type="text" class="form-control" id="editSubjectCode">
+                            <input type="text" class="form-control" id="editSubjectCode" style="border-radius: 25px; border: 1px solid #dadce0;">
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Category</label>
-                            <select class="form-control" id="editSubjectCategory">
+                            <select class="form-control" id="editSubjectCategory" style="border-radius: 25px; border: 1px solid #dadce0;">
                                 <option value="">Select Category (Optional)</option>
                                 <?php foreach ($categories as $cat): ?>
                                     <option value="<?php echo $cat['id']; ?>"><?php echo htmlspecialchars($cat['category_name']); ?> (<?php echo htmlspecialchars($cat['category_code']); ?>)</option>
@@ -812,7 +876,7 @@ try {
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Status</label>
-                            <select class="form-control" id="editSubjectStatus">
+                            <select class="form-control" id="editSubjectStatus" style="border-radius: 25px; border: 1px solid #dadce0;">
                                 <option value="active">Active</option>
                                 <option value="inactive">Inactive</option>
                             </select>

@@ -55,19 +55,24 @@ try {
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         body {
             background: #f8f9fa;
             font-family: 'Google Sans', 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             font-size: 14px;
             color: #202124;
         }
+
+        .main-content {
+            margin-bottom: 20px;
+        }
         
         .page-title {
             font-size: 22px;
             font-weight: 400;
             color: #202124;
-            margin-bottom: 24px;
+            margin-bottom: 40px;
+            text-align: center;
         }
         
         /* Cards */
@@ -84,13 +89,15 @@ try {
             font-weight: 500;
             color: #202124;
             margin-bottom: 16px;
+            text-align: center;
         }
         
         .form-control {
             border: 1px solid #dadce0;
-            border-radius: 8px;
+            border-radius: 25px;
             padding: 10px 12px;
             font-size: 14px;
+            background: #f8f9fa;
         }
         
         .form-control:focus {
@@ -106,6 +113,14 @@ try {
             border: none;
             cursor: pointer;
             transition: background 0.2s;
+        }
+
+        .btn-full-width {
+            width: 100%;
+        }
+
+        .card-header .btn {
+            flex: 1;
         }
         
         .btn-primary {
@@ -155,57 +170,61 @@ try {
         }
         
         .btn-action {
-            background: #f8f9fa;
-            color: #000;
-            border: 1px solid #000;
+            background: transparent;
+            color: #FF6B35;
+            border: none;
             cursor: pointer;
+            margin-right: 4px;
+            padding: 0;
         }
-        
+
         .btn-action:hover {
-            background: #e9ecef;
+            color: #e55a2b;
         }
         
         .table {
+            width: 100%;
             border-collapse: collapse;
             background: white;
-            border: 1px solid #000;
-            width: 100%;
+            border: 2px solid #000;
             margin: 0;
+            font-family: 'Times New Roman', Times, serif;
         }
-        
-        .table-responsive {
-            width: 100%;
-            overflow-x: auto;
-        }
-        
+
         .table thead {
             background: #f0f0f0;
             border-bottom: 2px solid #000;
         }
-        
-        .table th {
-            border: 1px solid #000;
+
+        .table thead th {
+            background: #f0f0f0;
+            border: 2px solid #000;
             border-bottom: 2px solid #000;
             padding: 12px;
-            font-weight: 600;
+            font-weight: bold;
             color: #000;
-            font-size: 13px;
-            text-transform: uppercase;
         }
-        
+
         .table td {
             padding: 12px;
-            border: 1px solid #000;
+            border: 2px solid #000;
             color: #000;
             font-size: 13px;
         }
-        
+
         .table tbody tr:nth-child(even) {
-            background: #f9f9f9;
+            background: #fafafa;
         }
-        
+
         .table tbody tr:hover {
-            background: #f0f0f0;
+            background: #f8f9fa;
+        }
+
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+            margin: 0;
+            padding: 0;
         }
         
         /* Responsive */
@@ -214,25 +233,29 @@ try {
                 overflow-x: hidden;
                 position: relative;
             }
-            
+
             .main-content {
                 margin-left: 0;
                 padding: 16px;
             }
-            
+
             .page-title {
                 font-size: 22px;
                 font-weight: 400;
-                margin-bottom: 16px;
+                margin-bottom: 24px;
             }
-            
+
             .card {
                 padding: 16px;
                 margin-bottom: 16px;
                 border-radius: 12px;
                 box-shadow: 0 1px 2px rgba(0,0,0,0.05);
             }
-            
+
+            .card[style*="padding: 0"] {
+                padding: 0 !important;
+            }
+
             .btn {
                 width: 100%;
                 padding: 12px 20px;
@@ -241,50 +264,44 @@ try {
                 border-radius: 8px;
                 height: 40px;
             }
-            
+
             .card-header .btn {
                 width: 100%;
             }
-            
+
             .table-responsive {
                 overflow-x: auto;
                 -webkit-overflow-scrolling: touch;
                 border-radius: 8px;
                 width: 100%;
+                margin: 0 -16px;
+                padding: 0 16px;
             }
-            
+
             .table {
                 min-width: 600px;
                 width: 100%;
                 font-size: 12px;
             }
-            
+
             .table th,
             .table td {
                 padding: 8px 6px;
                 font-size: 11px;
             }
-            
-            .btn {
-                padding: 10px 20px;
-                font-size: 14px;
-                font-weight: 500;
-                border-radius: 8px;
-                height: 40px;
-            }
-            
+
             .form-control {
                 padding: 12px;
                 font-size: 16px;
                 border-radius: 8px;
                 border: 1px solid #dadce0;
             }
-            
+
             .form-control:focus {
                 border-color: var(--primary-color);
                 box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.2);
             }
-            
+
             .card-header {
                 flex-direction: column;
                 gap: 12px;
@@ -405,6 +422,7 @@ try {
             align-items: center;
             padding: 20px;
             background: #f8f9fa;
+            border: 1px solid #e8eaed;
             border-radius: 8px;
             text-decoration: none;
             transition: all 0.2s;
@@ -448,7 +466,12 @@ try {
         .fa-trash { color: #EA4335; }
     </style>
 </head>
-<body>
+<body class="dashboard-page">
+</br>
+</br>
+</br>
+</br>
+</br>
     <?php require_once 'includes/header.php'; ?>
     <?php $active_page = 'students'; require_once 'includes/sidebar.php'; ?>
     
@@ -457,159 +480,164 @@ try {
         <h1 class="page-title">Students Management</h1>
         
         <!-- Quick Access -->
-        <div class="card">
-            <h2 class="card-title">Quick Access</h2>
-            <div class="quick-access-grid">
-                <a href="dashboard" class="quick-access-item">
-                    <div class="quick-access-icon">
-                        <i class="fas fa-home"></i>
-                    </div>
-                    <div class="quick-access-label">Dashboard</div>
-                </a>
-                <a href="teachers" class="quick-access-item">
-                    <div class="quick-access-icon">
-                        <i class="fas fa-chalkboard-teacher"></i>
-                    </div>
-                    <div class="quick-access-label">Teachers</div>
-                </a>
-                <a href="classes" class="quick-access-item">
-                    <div class="quick-access-icon">
-                        <i class="fas fa-chalkboard"></i>
-                    </div>
-                    <div class="quick-access-label">Classes</div>
-                </a>
-                <a href="attendance" class="quick-access-item">
-                    <div class="quick-access-icon">
-                        <i class="fas fa-calendar-check"></i>
-                    </div>
-                    <div class="quick-access-label">Attendance</div>
-                </a>
-                <a href="performance" class="quick-access-item">
-                    <div class="quick-access-icon">
-                        <i class="fas fa-chart-line"></i>
-                    </div>
-                    <div class="quick-access-label">Performance</div>
-                </a>
-                <a href="fees" class="quick-access-item">
-                    <div class="quick-access-icon">
-                        <i class="fas fa-money-bill-wave"></i>
-                    </div>
-                    <div class="quick-access-label">Fees</div>
-                </a>
-            </div>
+        <h2 class="card-title">Quick Access</h2>
+        <div class="quick-access-grid">
+            <a href="dashboard" class="quick-access-item">
+                <div class="quick-access-icon">
+                    <i class="fas fa-home"></i>
+                </div>
+                <div class="quick-access-label">Dashboard</div>
+            </a>
+            <a href="teachers" class="quick-access-item">
+                <div class="quick-access-icon">
+                    <i class="fas fa-chalkboard-teacher"></i>
+                </div>
+                <div class="quick-access-label">Teachers</div>
+            </a>
+            <a href="classes" class="quick-access-item">
+                <div class="quick-access-icon">
+                    <i class="fas fa-chalkboard"></i>
+                </div>
+                <div class="quick-access-label">Classes</div>
+            </a>
+            <a href="attendance" class="quick-access-item">
+                <div class="quick-access-icon">
+                    <i class="fas fa-calendar-check"></i>
+                </div>
+                <div class="quick-access-label">Attendance</div>
+            </a>
+            <a href="performance" class="quick-access-item">
+                <div class="quick-access-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <div class="quick-access-label">Performance</div>
+            </a>
+            <a href="fees" class="quick-access-item">
+                <div class="quick-access-icon">
+                    <i class="fas fa-money-bill-wave"></i>
+                </div>
+                <div class="quick-access-label">Fees</div>
+            </a>
         </div>
         
         <!-- Student Statistics -->
-        <div id="studentStats" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 24px;">
-            <?php
-            $totalStudents = 0;
-            $maleStudents = 0;
-            $femaleStudents = 0;
-            $activeStudents = 0;
-            $inactiveStudents = 0;
-            
-            try {
-                $stmt = $pdo->prepare("SELECT gender, status FROM students WHERE school_id = ?");
-                $stmt->execute([$school_id]);
-                $students = $stmt->fetchAll();
-                
-                foreach ($students as $student) {
-                    $totalStudents++;
-                    if ($student['gender'] === 'Male') $maleStudents++;
-                    if ($student['gender'] === 'Female') $femaleStudents++;
-                    if ($student['status'] === 'active') $activeStudents++;
-                    if ($student['status'] === 'inactive') $inactiveStudents++;
+        <div class="card">
+            <h2 class="card-title">Student Statistics</h2>
+            <div id="studentStats" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px;">
+                <?php
+                $totalStudents = 0;
+                $maleStudents = 0;
+                $femaleStudents = 0;
+                $activeStudents = 0;
+                $inactiveStudents = 0;
+
+                try {
+                    $stmt = $pdo->prepare("SELECT gender, status FROM students WHERE school_id = ?");
+                    $stmt->execute([$school_id]);
+                    $students = $stmt->fetchAll();
+
+                    foreach ($students as $student) {
+                        $totalStudents++;
+                        if ($student['gender'] === 'Male') $maleStudents++;
+                        if ($student['gender'] === 'Female') $femaleStudents++;
+                        if ($student['status'] === 'active') $activeStudents++;
+                        if ($student['status'] === 'inactive') $inactiveStudents++;
+                    }
+                } catch (PDOException $e) {
+                    error_log("Failed to fetch student stats: " . $e->getMessage());
                 }
-            } catch (PDOException $e) {
-                error_log("Failed to fetch student stats: " . $e->getMessage());
-            }
-            ?>
-            <div style="background: #e8f0fe; padding: 16px; border-radius: 8px; text-align: center;">
-                <div style="font-size: 24px; font-weight: 600; color: #1967d2;"><?php echo $totalStudents; ?></div>
-                <div style="font-size: 12px; color: #5f6368;">Total Students</div>
-            </div>
-            <div style="background: #e8f0fe; padding: 16px; border-radius: 8px; text-align: center;">
-                <div style="font-size: 24px; font-weight: 600; color: #1967d2;"><?php echo $maleStudents; ?></div>
-                <div style="font-size: 12px; color: #5f6368;">Male</div>
-            </div>
-            <div style="background: #fce8e6; padding: 16px; border-radius: 8px; text-align: center;">
-                <div style="font-size: 24px; font-weight: 600; color: #c5221f;"><?php echo $femaleStudents; ?></div>
-                <div style="font-size: 12px; color: #5f6368;">Female</div>
-            </div>
-            <div style="background: #e6f4ea; padding: 16px; border-radius: 8px; text-align: center;">
-                <div style="font-size: 24px; font-weight: 600; color: #137333;"><?php echo $activeStudents; ?></div>
-                <div style="font-size: 12px; color: #5f6368;">Active</div>
-            </div>
-            <div style="background: #f1f3f4; padding: 16px; border-radius: 8px; text-align: center;">
-                <div style="font-size: 24px; font-weight: 600; color: #5f6368;"><?php echo $inactiveStudents; ?></div>
-                <div style="font-size: 12px; color: #5f6368;">Inactive</div>
+                ?>
+                <div style="background: #e8f0fe; padding: 16px; border-radius: 8px; text-align: center;">
+                    <div style="font-size: 24px; font-weight: 600; color: #1967d2;"><?php echo $totalStudents; ?></div>
+                    <div style="font-size: 12px; color: #5f6368;">Total Students</div>
+                </div>
+                <div style="background: #e8f0fe; padding: 16px; border-radius: 8px; text-align: center;">
+                    <div style="font-size: 24px; font-weight: 600; color: #1967d2;"><?php echo $maleStudents; ?></div>
+                    <div style="font-size: 12px; color: #5f6368;">Male</div>
+                </div>
+                <div style="background: #fce8e6; padding: 16px; border-radius: 8px; text-align: center;">
+                    <div style="font-size: 24px; font-weight: 600; color: #c5221f;"><?php echo $femaleStudents; ?></div>
+                    <div style="font-size: 12px; color: #5f6368;">Female</div>
+                </div>
+                <div style="background: #e6f4ea; padding: 16px; border-radius: 8px; text-align: center;">
+                    <div style="font-size: 24px; font-weight: 600; color: #137333;"><?php echo $activeStudents; ?></div>
+                    <div style="font-size: 12px; color: #5f6368;">Active</div>
+                </div>
+                <div style="background: #f1f3f4; padding: 16px; border-radius: 8px; text-align: center;">
+                    <div style="font-size: 24px; font-weight: 600; color: #5f6368;"><?php echo $inactiveStudents; ?></div>
+                    <div style="font-size: 12px; color: #5f6368;">Inactive</div>
+                </div>
             </div>
         </div>
         
+        <!-- Search and Filter Section -->
         <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
-                <span>All Students</span>
-                <div class="d-flex gap-2 flex-wrap">
-                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addStudentModal">
-                        <i class="fas fa-plus me-2"></i> Add Student
-                    </button>
-                    <button class="btn btn-success" onclick="exportStudents()">
-                        <i class="fas fa-download me-2"></i> Export
-                    </button>
+            <h2 class="card-title">Search & Filter</h2>
+            <div class="row mb-3" style="gap: 12px;">
+                <div class="col-md-4">
+                    <input type="text" class="form-control" id="searchStudent" placeholder="Search by name or admission number..." onkeyup="filterStudents()">
+                </div>
+                <div class="col-md-2">
+                    <select class="form-control" id="filterGender" onchange="filterStudents()">
+                        <option value="">All Genders</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select class="form-control" id="filterStatus" onchange="filterStudents()">
+                        <option value="">All Status</option>
+                        <option value="active">Active</option>
+                        <option value="inactive">Inactive</option>
+                        <option value="transferred">Transferred</option>
+                        <option value="graduated">Graduated</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select class="form-control" id="filterClass" onchange="filterStudents()">
+                        <option value="">All Classes</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select class="form-control" id="filterStream" onchange="filterStudents()">
+                        <option value="">All Streams</option>
+                    </select>
                 </div>
             </div>
-            <div class="card-body">
-                <div class="row mb-3">
-                    <div class="col-md-4">
-                        <input type="text" class="form-control" id="searchStudent" placeholder="Search by name or admission number..." onkeyup="filterStudents()">
-                    </div>
-                    <div class="col-md-2">
-                        <select class="form-control" id="filterGender" onchange="filterStudents()">
-                            <option value="">All Genders</option>
-                            <option value="Male">Male</option>
-                            <option value="Female">Female</option>
-                        </select>
-                    </div>
-                    <div class="col-md-2">
-                        <select class="form-control" id="filterStatus" onchange="filterStudents()">
-                            <option value="">All Status</option>
-                            <option value="active">Active</option>
-                            <option value="inactive">Inactive</option>
-                            <option value="transferred">Transferred</option>
-                            <option value="graduated">Graduated</option>
-                        </select>
-                    </div>
-                    <div class="col-md-2">
-                        <select class="form-control" id="filterClass" onchange="filterStudents()">
-                            <option value="">All Classes</option>
-                        </select>
-                    </div>
-                    <div class="col-md-2">
-                        <select class="form-control" id="filterStream" onchange="filterStudents()">
-                            <option value="">All Streams</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="table-responsive">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>Admission No</th>
-                                <th>Name</th>
-                                <th>Gender</th>
-                                <th>Class</th>
-                                <th>Stream</th>
-                                <th>Parent</th>
-                                <th>Status</th>
-                                <th>Fee Balance</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="studentsTable">
-                            <tr><td colspan="9" class="text-center">Loading...</td></tr>
-                        </tbody>
-                    </table>
-                </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="d-flex flex-column gap-2 mb-3">
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addStudentModal" style="border-radius: 25px;">
+                <i class="fas fa-plus me-2"></i> Add Student
+            </button>
+            <button class="btn btn-success" onclick="exportStudents()" style="border-radius: 25px;">
+                <i class="fas fa-download me-2"></i> Export
+            </button>
+        </div>
+
+        <!-- Students Table Card -->
+        <div class="card" style="padding: 0;">
+            <h2 class="card-title" style="padding: 24px 24px 16px 24px;">All Students</h2>
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Admission No</th>
+                            <th>Name</th>
+                            <th>Gender</th>
+                            <th>Class</th>
+                            <th>Stream</th>
+                            <th>Parent</th>
+                            <th>Status</th>
+                            <th>Fee Balance</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="studentsTable">
+                        <tr><td colspan="9" class="text-center">Loading...</td></tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
@@ -786,12 +814,14 @@ try {
                                 <strong>${balanceText}</strong>
                             </td>
                             <td>
-                                <button class="btn btn-sm btn-action" onclick="editStudent(${student.id})">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                <button class="btn btn-sm btn-action" onclick="deleteStudent(${student.id})">
-                                    <i class="fas fa-trash"></i>
-                                </button>
+                                <div style="display: flex; gap: 4px;">
+                                    <button class="btn btn-sm btn-action" onclick="editStudent(${student.id})">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-action" onclick="deleteStudent(${student.id})">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
                             </td>
                         </tr>
                     `}).join('');

@@ -58,28 +58,21 @@ $calendar_status = getSchoolCalendarStatus($pdo, $_SESSION['school_id']);
         }
         
         .main-content {
-            margin-left: var(--sidebar-width);
-            margin-top: var(--header-height);
-            padding: 24px;
-            transition: margin-left 0.3s ease;
+            margin-bottom: 20px;
         }
-        
-        .main-content.expanded {
-            margin-left: 0;
-        }
-        
+
         .page-title {
             font-size: 22px;
             font-weight: 400;
             color: #202124;
-            margin-bottom: 24px;
+            margin-bottom: 60px;
             text-align: center;
         }
         
         .card {
             background: var(--bg-color);
             border: 1px solid #e0e0e0;
-            border-radius: 8px;
+            border-radius: 25px;
             padding: 24px;
             margin-bottom: 24px;
         }
@@ -108,7 +101,7 @@ $calendar_status = getSchoolCalendarStatus($pdo, $_SESSION['school_id']);
         
         .btn {
             padding: 10px 24px;
-            border-radius: 4px;
+            border-radius: 25px;
             font-size: 14px;
             font-weight: 500;
             border: none;
@@ -166,7 +159,7 @@ $calendar_status = getSchoolCalendarStatus($pdo, $_SESSION['school_id']);
         /* Filter Section */
         .filter-section {
             background: var(--bg-color);
-            border-radius: 8px;
+            border-radius: 25px;
             padding: 24px;
             margin-bottom: 24px;
             border: 1px solid #e8eaed;
@@ -183,71 +176,161 @@ $calendar_status = getSchoolCalendarStatus($pdo, $_SESSION['school_id']);
             background: #d93025;
             color: white;
         }
-        
+
         .btn-danger:hover {
             background: #b92b20;
         }
-        
+
         .table {
             width: 100%;
             border-collapse: collapse;
-            background: var(--bg-color);
-            border: 1px solid #e0e0e0;
+            background: white;
+            border: 2px solid #000;
             margin: 0;
+            font-family: 'Times New Roman', Times, serif;
         }
-        
-        .table-responsive {
-            width: 100%;
-            overflow-x: auto;
-        }
-        
+
         .table thead {
-            background: #FF6B35 !important;
+            background: #f0f0f0;
             border-bottom: 2px solid #000;
         }
 
         .table thead th {
-            background: #FF6B35 !important;
-            text-align: left;
-            padding: 12px;
-            font-size: 13px;
-            font-weight: 600;
-            color: #ffffff !important;
-            border: 1px solid #000;
+            background: #f0f0f0;
+            border: 2px solid #000;
             border-bottom: 2px solid #000;
+            padding: 12px;
+            font-weight: bold;
+            color: #000;
         }
-        
+
         .table td {
             padding: 12px;
+            border: 2px solid #000;
+            color: #000;
             font-size: 13px;
-            color: #202124;
-            border: 1px solid #e0e0e0;
         }
-        
+
         .table tbody tr:nth-child(even) {
+            background: #fafafa;
+        }
+
+        .table tbody tr:hover {
             background: #f8f9fa;
         }
-        
-        .table tbody tr:hover {
-            background: #f1f3f4;
+
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+            margin: 0;
+            padding: 0;
         }
-        
+
+        .btn-action {
+            background: transparent;
+            color: #FF6B35;
+            border: none;
+            cursor: pointer;
+            margin-right: 4px;
+            padding: 0;
+        }
+
+        .btn-action:hover {
+            color: #e55a2b;
+        }
+
+        .action-buttons-cell {
+            display: flex;
+            gap: 4px;
+        }
+
         /* Responsive */
         @media (max-width: 768px) {
+            html, body {
+                overflow-x: hidden;
+                position: relative;
+            }
+
             .main-content {
                 margin-left: 0;
+                padding: 0;
+            }
+
+            .page-title {
+                font-size: 22px;
+                font-weight: 400;
+                margin-bottom: 24px;
                 padding: 16px;
             }
-            
+
             .card {
                 padding: 16px;
+                margin: 0 16px 16px 16px;
             }
-            
+
+            .card[style*="padding: 0"] {
+                padding: 0 !important;
+                margin: 0 12px 16px 12px !important;
+            }
+
+            .btn {
+                width: 100%;
+            }
+
             .table-responsive {
-                margin: 0 -16px;
-                padding: 0 16px;
+                margin: 0;
+                padding: 0;
                 overflow-x: auto;
             }
+
+            .table {
+                min-width: 600px;
+                width: 100%;
+            }
+
+            .d-flex.flex-column {
+                gap: 8px;
+                padding: 16px;
+                margin-bottom: 16px;
+            }
+
+            .table td {
+                padding: 4px 6px;
+                font-size: 11px;
+                line-height: 1.2;
+                vertical-align: middle;
+            }
+
+            .table thead th {
+                padding: 4px 6px;
+                font-size: 11px;
+                line-height: 1.2;
+                vertical-align: middle;
+            }
+
+            .table tbody tr {
+                line-height: 1.2;
+            }
+
+            .quick-access-grid {
+                display: grid !important;
+                grid-template-columns: repeat(3, 1fr) !important;
+                gap: 8px !important;
+            }
+
+            .quick-access-item {
+                padding: 12px !important;
+            }
+
+            .action-buttons {
+                margin: 0 16px 16px 16px;
+            }
+
+            .action-buttons .btn {
+                width: auto;
+                padding: 10px 20px;
+            }
+        }
             
             .table {
                 min-width: 600px;
@@ -280,7 +363,8 @@ $calendar_status = getSchoolCalendarStatus($pdo, $_SESSION['school_id']);
             align-items: center;
             padding: 20px;
             background: #f8f9fa;
-            border-radius: 8px;
+            border-radius: 25px;
+            border: 1px solid #e8eaed;
             text-decoration: none;
             color: #202124;
             transition: all 0.2s;
@@ -315,99 +399,118 @@ $calendar_status = getSchoolCalendarStatus($pdo, $_SESSION['school_id']);
         .fa-trash { color: #EA4335; }
     </style>
 </head>
-<body>
+<body class="dashboard-page">
     <?php require_once 'includes/header.php'; ?>
     <?php $active_page = 'performance'; require_once 'includes/sidebar.php'; ?>
-    
+
     <br>
-    
-  
-</head>
-<body>
-    <?php require_once 'includes/header.php'; ?>
-    <?php $active_page = 'performance'; require_once 'includes/sidebar.php'; ?>
-    
-    <br>
-    
+
     <!-- Main Content -->
     <main class="main-content" id="mainContent">
         <h1 class="page-title">Academic Performance</h1>
         
         <!-- Calendar Status Alert -->
         <?php if ($calendar_status['is_holiday']): ?>
-            <div style="background: #fce8e6; border: 1px solid #e0e0e0; padding: 16px; border-radius: 8px; margin-bottom: 24px;">
-                <div style="display: flex; align-items: center; gap: 12px;">
-                    <i class="fas fa-exclamation-triangle" style="color: #c5221f; font-size: 20px;"></i>
+            <div class="card" style="background: rgba(255, 107, 53, 0.85); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.3); box-shadow: 0 8px 32px rgba(255, 107, 53, 0.3); padding: 40px; min-height: 150px;">
+                <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 12px;">
+                    <i class="fas fa-umbrella-beach" style="color: white; font-size: 32px;"></i>
                     <div>
-                        <strong style="color: #c5221f;">School is on Holiday</strong>
-                        <p style="margin: 4px 0 0 0; color: #5f6368; font-size: 14px;">
-                            <?php echo htmlspecialchars($calendar_status['current_holiday']['holiday_name']); ?> 
-                            (<?php echo date('M j, Y', strtotime($calendar_status['current_holiday']['start_date'])); ?> - 
-                            <?php echo date('M j, Y', strtotime($calendar_status['current_holiday']['end_date'])); ?>)
+                        <p style="color: white; font-weight: 600; margin: 0; font-size: 16px;">
+                            School is on Holiday
+                        </p>
+                        <p style="color: white; margin: 6px 0 0 0; font-size: 14px;">
+                            <?php echo htmlspecialchars($calendar_status['current_holiday']['holiday_name']); ?>
+                        </p>
+                        <p style="color: white; margin: 4px 0 0 0; font-size: 13px; opacity: 0.9;">
+                            <?php echo date('M j, Y', strtotime($calendar_status['current_holiday']['start_date'])); ?> -
+                            <?php echo date('M j, Y', strtotime($calendar_status['current_holiday']['end_date'])); ?>
                         </p>
                     </div>
                 </div>
+                <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.3);">
+                    <p style="color: white; margin: 0; font-size: 13px;">
+                        <i class="fas fa-calendar-alt" style="margin-right: 8px;"></i>
+                        Academic Year: <?php echo $calendar_status['current_year']; ?>
+                    </p>
+                    <p style="color: white; margin: 8px 0 0 0; font-size: 13px;">
+                        <i class="fas fa-clock" style="margin-right: 8px;"></i>
+                        Today: <?php echo date('F j, Y'); ?>
+                    </p>
+                </div>
             </div>
         <?php elseif ($calendar_status['school_status'] === 'break'): ?>
-            <div style="background: #fef7e0; border: 1px solid #e0e0e0; padding: 16px; border-radius: 8px; margin-bottom: 24px;">
-                <div style="display: flex; align-items: center; gap: 12px;">
-                    <i class="fas fa-info-circle" style="color: #f9ab00; font-size: 20px;"></i>
+            <div class="card" style="background: rgba(255, 107, 53, 0.85); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.3); box-shadow: 0 8px 32px rgba(255, 107, 53, 0.3); padding: 40px; min-height: 150px;">
+                <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 12px;">
+                    <i class="fas fa-pause-circle" style="color: white; font-size: 32px;"></i>
                     <div>
-                        <strong style="color: #b06000;">School is on Break</strong>
-                        <p style="margin: 4px 0 0 0; color: #5f6368; font-size: 14px;">No active term is currently set. Please activate a term in the Calendar.</p>
+                        <p style="color: white; font-weight: 600; margin: 0; font-size: 16px;">
+                            School is on Break
+                        </p>
+                        <p style="color: white; margin: 6px 0 0 0; font-size: 14px;">No active term is currently set. Please activate a term in the Calendar.</p>
                     </div>
+                </div>
+                <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.3);">
+                    <p style="color: white; margin: 0; font-size: 13px;">
+                        <i class="fas fa-calendar-alt" style="margin-right: 8px;"></i>
+                        Academic Year: <?php echo $calendar_status['current_year']; ?>
+                    </p>
+                    <p style="color: white; margin: 8px 0 0 0; font-size: 13px;">
+                        <i class="fas fa-clock" style="margin-right: 8px;"></i>
+                        Today: <?php echo date('F j, Y'); ?>
+                    </p>
                 </div>
             </div>
         <?php endif; ?>
-        
+
         <!-- Performance Statistics -->
+        <h2 class="card-title">Performance Statistics</h2>
         <div id="performanceStats" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 24px;">
-            <?php
-            $school_id = $_SESSION['school_id'];
-            $totalRecords = 0;
-            $averageMarks = 0;
-            $highestGrade = 0;
-            $totalStudents = 0;
-            
-            try {
-                $stmt = $pdo->prepare("SELECT pr.marks, pr.student_id FROM academic_performance pr JOIN students s ON pr.student_id = s.id WHERE s.school_id = ?");
-                $stmt->execute([$school_id]);
-                $records = $stmt->fetchAll();
-                
-                $studentIds = [];
-                $totalMarks = 0;
-                foreach ($records as $record) {
-                    $totalRecords++;
-                    $totalMarks += $record['marks'];
-                    if (!in_array($record['student_id'], $studentIds)) {
-                        $studentIds[] = $record['student_id'];
-                    }
-                    if ($record['marks'] > $highestGrade) {
-                        $highestGrade = $record['marks'];
-                    }
+        <?php
+        $school_id = $_SESSION['school_id'];
+        $totalRecords = 0;
+        $averageMarks = 0;
+        $highestGrade = 0;
+        $totalStudents = 0;
+
+        try {
+            $stmt = $pdo->prepare("SELECT pr.marks, pr.student_id FROM academic_performance pr JOIN students s ON pr.student_id = s.id WHERE s.school_id = ?");
+            $stmt->execute([$school_id]);
+            $records = $stmt->fetchAll();
+
+            $studentIds = [];
+            $totalMarks = 0;
+            foreach ($records as $record) {
+                $totalRecords++;
+                $totalMarks += $record['marks'];
+                if (!in_array($record['student_id'], $studentIds)) {
+                    $studentIds[] = $record['student_id'];
                 }
-                $totalStudents = count($studentIds);
-                $averageMarks = $totalRecords > 0 ? round($totalMarks / $totalRecords, 1) : 0;
-            } catch (PDOException $e) {
-                error_log("Failed to fetch performance stats: " . $e->getMessage());
+                if ($record['marks'] > $highestGrade) {
+                    $highestGrade = $record['marks'];
+                }
             }
-            ?>
-            <div style="background: #e8f0fe; padding: 16px; border-radius: 8px; text-align: center;">
-                <div style="font-size: 24px; font-weight: 600; color: #1967d2;"><?php echo $totalRecords; ?></div>
-                <div style="font-size: 12px; color: #5f6368;">Total Records</div>
-            </div>
-            <div style="background: #e6f4ea; padding: 16px; border-radius: 8px; text-align: center;">
-                <div style="font-size: 24px; font-weight: 600; color: #137333;"><?php echo $averageMarks; ?>%</div>
-                <div style="font-size: 12px; color: #5f6368;">Average Marks</div>
-            </div>
-            <div style="background: #fef7e0; padding: 16px; border-radius: 8px; text-align: center;">
-                <div style="font-size: 24px; font-weight: 600; color: #b06000;"><?php echo $highestGrade; ?>%</div>
-                <div style="font-size: 12px; color: #5f6368;">Highest Grade</div>
-            </div>
-            <div style="background: #fce8e6; padding: 16px; border-radius: 8px; text-align: center;">
-                <div style="font-size: 24px; font-weight: 600; color: #c5221f;"><?php echo $totalStudents; ?></div>
-                <div style="font-size: 12px; color: #5f6368;">Students Assessed</div>
-            </div>
+            $totalStudents = count($studentIds);
+            $averageMarks = $totalRecords > 0 ? round($totalMarks / $totalRecords, 1) : 0;
+        } catch (PDOException $e) {
+            error_log("Failed to fetch performance stats: " . $e->getMessage());
+        }
+        ?>
+        <div class="card" style="background: #e8f0fe; padding: 16px; border-radius: 25px; text-align: center; border: 1px solid #d2e3fc;">
+            <div style="font-size: 24px; font-weight: 600; color: #1967d2;"><?php echo $totalRecords; ?></div>
+            <div style="font-size: 12px; color: #5f6368;">Total Records</div>
+        </div>
+        <div class="card" style="background: #e6f4ea; padding: 16px; border-radius: 25px; text-align: center; border: 1px solid #ceead6;">
+            <div style="font-size: 24px; font-weight: 600; color: #137333;"><?php echo $averageMarks; ?>%</div>
+            <div style="font-size: 12px; color: #5f6368;">Average Marks</div>
+        </div>
+        <div class="card" style="background: #fef7e0; padding: 16px; border-radius: 25px; text-align: center; border: 1px solid #fde6a6;">
+            <div style="font-size: 24px; font-weight: 600; color: #b06000;"><?php echo $highestGrade; ?>%</div>
+            <div style="font-size: 12px; color: #5f6368;">Highest Grade</div>
+        </div>
+        <div class="card" style="background: #fce8e6; padding: 16px; border-radius: 25px; text-align: center; border: 1px solid #fad2cf;">
+            <div style="font-size: 24px; font-weight: 600; color: #c5221f;"><?php echo $totalStudents; ?></div>
+            <div style="font-size: 12px; color: #5f6368;">Students Assessed</div>
+        </div>
         </div>
         
         <!-- Quick Access -->
@@ -514,7 +617,8 @@ $calendar_status = getSchoolCalendarStatus($pdo, $_SESSION['school_id']);
             </div>
         </div>
 
-        <div class="card">
+        <div class="card" style="padding: 0;">
+            <h2 class="card-title" style="padding: 24px 24px 16px 24px;">Performance Records</h2>
             <div id="performanceTableContainer">
                 <p class="text-center">Loading performance records...</p>
             </div>
