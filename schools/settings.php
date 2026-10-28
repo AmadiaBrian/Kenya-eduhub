@@ -121,9 +121,9 @@ try {
         .card {
             background: var(--bg-color);
             border: 1px solid #e0e0e0;
-            border-radius: 12px;
+            border-radius: 25px;
             padding: 24px;
-            margin-bottom: 24px;
+            margin: 0 0 24px 0;
         }
 
         .card-title {
@@ -143,7 +143,7 @@ try {
 
         .form-control {
             border: 1px solid #dadce0;
-            border-radius: 20px;
+            border-radius: 25px;
             padding: 10px 12px;
             font-size: 14px;
             background: var(--bg-color);
@@ -156,7 +156,7 @@ try {
 
         .btn {
             padding: 10px 24px;
-            border-radius: 20px;
+            border-radius: 25px;
             font-size: 14px;
             font-weight: 500;
             border: none;
@@ -183,6 +183,17 @@ try {
             background: #fff3e0;
         }
 
+        .btn-outline-secondary {
+            background: white;
+            color: #5f6368;
+            border: 1px solid #dadce0;
+            border-radius: 25px;
+        }
+
+        .btn-outline-secondary:hover {
+            background: #f1f3f4;
+        }
+
         .btn-success {
             background: #1e8e3e;
             color: white;
@@ -204,45 +215,46 @@ try {
         .table {
             border-collapse: collapse;
             background: white;
-            border: 1px solid #000;
+            border: 2px solid #000;
             width: 100%;
             margin: 0;
+            font-family: 'Times New Roman', Times, serif;
         }
 
         .table-responsive {
             width: 100%;
             overflow-x: auto;
+            margin: 0;
+            padding: 0;
         }
 
         .table thead {
-            background: #FF6B35 !important;
+            background: #f0f0f0;
             border-bottom: 2px solid #000;
         }
 
         .table th {
-            border: 1px solid #000;
+            border: 2px solid #000;
             border-bottom: 2px solid #000;
             padding: 12px;
-            font-weight: 600;
-            color: #ffffff !important;
-            font-size: 13px;
-            text-transform: uppercase;
-            background-color: #FF6B35 !important;
+            font-weight: bold;
+            color: #000;
+            white-space: nowrap;
         }
 
         .table td {
             padding: 12px;
-            border: 1px solid #000;
+            border: 2px solid #000;
             color: #000;
             font-size: 13px;
         }
 
         .table tbody tr:nth-child(even) {
-            background: #f9f9f9;
+            background: #fafafa;
         }
 
         .table tbody tr:hover {
-            background: #f0f0f0;
+            background: #f8f9fa;
         }
 
         /* Footer styling */
@@ -288,46 +300,50 @@ try {
 
         @media (max-width: 768px) {
             .main-content {
-                padding: 16px;
+                padding: 0;
                 padding-bottom: 80px;
+                width: 100%;
             }
 
             .page-title {
-                font-size: 22px;
-                font-weight: 400;
-                margin-bottom: 16px;
+                font-size: 18px;
+                padding: 16px;
             }
 
             .card {
                 padding: 16px;
-                margin-bottom: 16px;
-                border-radius: 12px;
+                margin: 0 4px 16px 4px;
             }
 
             .table-responsive {
                 overflow-x: auto;
                 -webkit-overflow-scrolling: touch;
-                border-radius: 8px;
                 width: 100%;
             }
 
             .table {
-                min-width: 600px;
-                width: 100%;
+                font-size: 11px;
+                min-width: 100%;
+            }
+
+            .table th,
+            .table td {
+                padding: 8px 4px;
             }
 
             .btn {
                 padding: 10px 20px;
                 font-size: 14px;
                 font-weight: 500;
-                border-radius: 20px;
+                border-radius: 25px;
                 height: 40px;
+                width: 100% !important;
             }
 
             .form-control {
                 padding: 12px;
                 font-size: 16px;
-                border-radius: 20px;
+                border-radius: 25px;
                 border: 1px solid #dadce0;
             }
 
@@ -335,24 +351,21 @@ try {
                 border-color: var(--primary-color);
                 box-shadow: 0 0 0 2px rgba(255, 107, 53, 0.2);
             }
+
+            .quick-access-grid {
+                display: grid !important;
+                grid-template-columns: repeat(3, 1fr) !important;
+                gap: 8px !important;
+            }
+
+            .quick-access-item {
+                padding: 12px !important;
+            }
         }
 
         @media (max-width: 480px) {
-            .main-content {
-                padding: 12px;
-            }
-
-            .page-title {
-                font-size: 18px;
-                margin-bottom: 16px;
-            }
-
             .card {
                 padding: 12px;
-            }
-
-            .table {
-                min-width: 100%;
             }
         }
     </style>

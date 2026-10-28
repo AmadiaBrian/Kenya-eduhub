@@ -119,9 +119,9 @@ try {
         .card {
             background: var(--bg-color);
             border: 1px solid #e0e0e0;
-            border-radius: 8px;
+            border-radius: 25px;
             padding: 24px;
-            margin-bottom: 24px;
+            margin: 0 0 24px 0;
         }
 
         .card-title {
@@ -137,6 +137,7 @@ try {
             border-radius: 25px;
             padding: 10px 12px;
             font-size: 14px;
+            background: var(--bg-color);
         }
         
         .form-control:focus {
@@ -146,7 +147,7 @@ try {
         
         .btn {
             padding: 10px 24px;
-            border-radius: 20px;
+            border-radius: 25px;
             font-size: 14px;
             font-weight: 500;
             border: none;
@@ -191,84 +192,143 @@ try {
             background: #b92b20;
         }
         
-        .btn-action {
-            background: #f8f9fa;
-            color: #202124;
-            border: 1px solid #e8eaed;
-            cursor: pointer;
-            padding: 4px 8px;
-            font-size: 11px;
-        }
-        
-        .btn-action:hover {
-            background: #e9ecef;
-        }
-        
-        .action-buttons {
-            display: flex;
-            gap: 8px;
-            align-items: center;
-        }
+
         
         .table {
             border-collapse: collapse;
             background: white;
-            border: 1px solid #000;
+            border: 2px solid #000;
             width: 100%;
             margin: 0;
+            font-family: 'Times New Roman', Times, serif;
         }
-        
+
         .table-responsive {
             width: 100%;
             overflow-x: auto;
+            margin: 0;
+            padding: 0;
         }
-        
+
         .table thead {
             background: #f0f0f0;
             border-bottom: 2px solid #000;
         }
-        
+
         .table th {
-            border: 1px solid #000;
+            background: #f0f0f0;
+            border: 2px solid #000;
             border-bottom: 2px solid #000;
             padding: 12px;
-            font-weight: 600;
+            font-weight: bold;
             color: #000;
             font-size: 13px;
-            text-transform: uppercase;
+            white-space: nowrap;
         }
-        
+
+        .table td:nth-child(1) {
+            white-space: nowrap;
+        }
+
+        .table td:nth-child(6) {
+            white-space: nowrap;
+        }
+
         .table td {
             padding: 12px;
-            border: 1px solid #000;
+            border: 2px solid #000;
             color: #000;
             font-size: 13px;
         }
-        
+
         .table tbody tr:nth-child(even) {
-            background: #f9f9f9;
+            background: #fafafa;
         }
-        
+
         .table tbody tr:hover {
-            background: #f0f0f0;
+            background: #f8f9fa;
+        }
+
+        .btn-action {
+            background: transparent;
+            color: #FF6B35;
+            border: none;
+            cursor: pointer;
+            margin-right: 4px;
+            padding: 0;
+        }
+
+        .btn-action:hover {
+            color: #e55a2b;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .action-buttons .btn {
+            flex: 1;
+            padding: 12px 24px;
+            border-radius: 25px;
+        }
+
+        .main-action-buttons {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .main-action-buttons .btn {
+            flex: 1;
+            padding: 12px 24px;
+            border-radius: 25px;
+        }
+
+        @media (max-width: 768px) {
+            .main-action-buttons {
+                flex-direction: column;
+                margin: 0 16px 16px 16px;
+            }
+
+            .main-action-buttons .btn {
+                width: auto;
+                padding: 10px 20px;
+            }
+
+            .action-buttons-cell {
+                flex-direction: row;
+            }
+        }
+
+        .filter-section {
+            background: var(--bg-color);
+            border-radius: 25px;
+            padding: 24px;
+            margin: 0 0 24px 0;
+            border: 1px solid #e0e0e0;
         }
         
         @media (max-width: 768px) {
             .main-content {
-                padding: 16px;
+                padding: 0;
+                width: 100%;
             }
 
             .page-title {
-                font-size: 22px;
-                font-weight: 400;
-                margin-bottom: 16px;
+                font-size: 18px;
+                padding: 16px;
             }
 
             .card {
                 padding: 16px;
-                margin-bottom: 16px;
-                border-radius: 12px;
-                box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+                margin: 0 4px 16px 4px;
+            }
+
+            .filter-section {
+                padding: 16px;
+                margin: 0 4px 16px 4px;
             }
 
             .stats-grid {
@@ -278,8 +338,6 @@ try {
 
             .stat-card {
                 padding: 12px;
-                border-radius: 12px;
-                box-shadow: 0 1px 2px rgba(0,0,0,0.05);
                 text-align: center;
             }
 
@@ -302,22 +360,31 @@ try {
             .table-responsive {
                 overflow-x: auto;
                 -webkit-overflow-scrolling: touch;
-                border-radius: 8px;
                 width: 100%;
             }
 
             .table {
-                min-width: 600px;
-                width: 100%;
+                font-size: 11px;
+                min-width: 100%;
+            }
+
+            .table th {
+                padding: 8px 4px;
+                font-size: 11px;
+            }
+
+            .table td {
+                padding: 8px 4px;
+                font-size: 11px;
             }
 
             .btn {
-                padding: 10px 20px;
-                font-size: 14px;
+                padding: 8px 16px;
+                font-size: 13px;
                 font-weight: 500;
-                border-radius: 20px;
-                height: 40px;
-                width: 100% !important;
+                border-radius: 25px;
+                height: 36px;
+                flex: 1;
             }
 
             .form-control {
@@ -365,20 +432,31 @@ try {
             .stat-icon {
                 margin: 0 auto;
             }
+
+            .quick-access-grid {
+                display: grid !important;
+                grid-template-columns: repeat(3, 1fr) !important;
+                gap: 8px !important;
+            }
+
+            .quick-access-item {
+                padding: 12px !important;
+            }
         }
         
         @media (max-width: 480px) {
             .main-content {
-                padding: 12px;
+                padding: 0;
             }
 
             .page-title {
                 font-size: 18px;
-                margin-bottom: 16px;
+                padding: 16px;
             }
 
             .card {
                 padding: 12px;
+                margin: 0 4px 16px 4px;
             }
 
             .stats-grid {
@@ -421,7 +499,7 @@ try {
         .fa-trash { color: #EA4335; }
     </style>
 </head>
-<body>
+<body class="dashboard-page">
 <?php require_once 'includes/header.php'; ?>
 <?php $active_page = 'parents'; require_once 'includes/sidebar.php'; ?>
 
@@ -431,7 +509,7 @@ try {
         <h1 class="page-title">Parents Management</h1>
         
         <!-- Parent Statistics -->
-        <div class="stats-grid">
+        <div id="feeStats" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 24px;">
             <?php
             $totalParents = 0;
             $totalLinkedStudents = 0;
@@ -465,52 +543,34 @@ try {
                 error_log("Failed to fetch parent stats: " . $e->getMessage());
             }
             ?>
-            <div class="stat-card" style="background: #e8f0fe;">
-                <div class="stat-icon" style="color: #1967d2;">
-                    <i class="fas fa-users"></i>
-                </div>
-                <div class="stat-value"><?php echo $totalParents; ?></div>
-                <div class="stat-label">Total Parents</div>
+            <div style="background: #e8f0fe; padding: 16px; border-radius: 8px; text-align: center;">
+                <div style="font-size: 24px; font-weight: 600; color: #1967d2;"><?php echo $totalParents; ?></div>
+                <div style="font-size: 12px; color: #5f6368;">Total Parents</div>
             </div>
-            <div class="stat-card" style="background: #fce8e6;">
-                <div class="stat-icon" style="color: #c5221f;">
-                    <i class="fas fa-link"></i>
-                </div>
-                <div class="stat-value"><?php echo $totalLinkedStudents; ?></div>
-                <div class="stat-label">Linked Students</div>
+            <div style="background: #e6f4ea; padding: 16px; border-radius: 8px; text-align: center;">
+                <div style="font-size: 24px; font-weight: 600; color: #137333;"><?php echo $totalLinkedStudents; ?></div>
+                <div style="font-size: 12px; color: #5f6368;">Linked Students</div>
             </div>
-            <div class="stat-card" style="background: #fff8e1;">
-                <div class="stat-icon" style="color: #f57c00;">
-                    <i class="fas fa-male"></i>
-                </div>
-                <div class="stat-value"><?php echo $fatherCount; ?></div>
-                <div class="stat-label">Fathers</div>
+            <div style="background: #fef7e0; padding: 16px; border-radius: 8px; text-align: center;">
+                <div style="font-size: 24px; font-weight: 600; color: #b06000;"><?php echo $fatherCount; ?></div>
+                <div style="font-size: 12px; color: #5f6368;">Fathers</div>
             </div>
-            <div class="stat-card" style="background: #e3f2fd;">
-                <div class="stat-icon" style="color: #1976d2;">
-                    <i class="fas fa-female"></i>
-                </div>
-                <div class="stat-value"><?php echo $motherCount; ?></div>
-                <div class="stat-label">Mothers</div>
+            <div style="background: #e8f0fe; padding: 16px; border-radius: 8px; text-align: center;">
+                <div style="font-size: 24px; font-weight: 600; color: #1967d2;"><?php echo $motherCount; ?></div>
+                <div style="font-size: 12px; color: #5f6368;">Mothers</div>
             </div>
-            <div class="stat-card" style="background: #f1f3f4;">
-                <div class="stat-icon" style="color: #5f6368;">
-                    <i class="fas fa-user-shield"></i>
-                </div>
-                <div class="stat-value"><?php echo $guardianCount; ?></div>
-                <div class="stat-label">Guardians</div>
+            <div style="background: #f1f3f4; padding: 16px; border-radius: 8px; text-align: center;">
+                <div style="font-size: 24px; font-weight: 600; color: #5f6368;"><?php echo $guardianCount; ?></div>
+                <div style="font-size: 12px; color: #5f6368;">Guardians</div>
             </div>
-            <div class="stat-card" style="background: #fce8e6;">
-                <div class="stat-icon" style="color: #c5221f;">
-                    <i class="fas fa-user-times"></i>
-                </div>
-                <div class="stat-value"><?php echo $unlinkedParents; ?></div>
-                <div class="stat-label">Unlinked Parents</div>
+            <div style="background: #fce8e6; padding: 16px; border-radius: 8px; text-align: center;">
+                <div style="font-size: 24px; font-weight: 600; color: #c5221f;"><?php echo $unlinkedParents; ?></div>
+                <div style="font-size: 12px; color: #5f6368;">Unlinked Parents</div>
             </div>
         </div>
 
         <!-- Action Buttons -->
-        <div class="mb-4" style="display: flex; gap: 12px; flex-wrap: wrap;">
+        <div class="main-action-buttons">
             <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addParentModal">
                 <i class="fas fa-plus me-2"></i> Add Parent
             </button>
@@ -520,7 +580,7 @@ try {
         </div>
 
         <!-- Filter Section -->
-        <div class="card">
+        <div class="card filter-section">
             <div class="card-title">Filter Parents</div>
             <div class="row">
                 <div class="col-md-4">
@@ -556,7 +616,7 @@ try {
                             <th>Phone</th>
                             <th>ID Number</th>
                             <th>Relationship</th>
-                            <th>Linked Students</th>
+                            <th>Students</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -718,10 +778,10 @@ try {
                             <td>${parent.linked_students || 'No students linked'}</td>
                             <td>
                                 <div class="action-buttons">
-                                    <button class="btn btn-sm btn-action" onclick="editParent(${parent.id})">
+                                    <button class="btn-action" onclick="editParent(${parent.id})">
                                         <i class="fas fa-edit"></i>
                                     </button>
-                                    <button class="btn btn-sm btn-action" onclick="deleteParent(${parent.id})">
+                                    <button class="btn-action" onclick="deleteParent(${parent.id})">
                                         <i class="fas fa-trash"></i>
                                     </button>
                                 </div>

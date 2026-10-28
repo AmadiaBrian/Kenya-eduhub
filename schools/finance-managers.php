@@ -200,10 +200,10 @@ try {
         /* Cards */
         .card {
             background: var(--bg-color);
-            border: 1px solid #e8eaed;
-            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+            border-radius: 25px;
             padding: 24px;
-            margin-bottom: 24px;
+            margin: 0 0 24px 0;
         }
 
         .card-title {
@@ -230,7 +230,7 @@ try {
         
         .btn {
             padding: 4px 8px;
-            border-radius: 4px;
+            border-radius: 25px;
             font-size: 11px;
             font-weight: 500;
             border: none;
@@ -274,10 +274,10 @@ try {
         /* Filter Section */
         .filter-section {
             background: var(--bg-color);
-            border-radius: 8px;
+            border-radius: 25px;
             padding: 24px;
-            margin-bottom: 24px;
-            border: 1px solid #e8eaed;
+            margin: 0 0 24px 0;
+            border: 1px solid #e0e0e0;
         }
 
         .filter-section .card-title {
@@ -296,65 +296,70 @@ try {
             background: #b3261e;
         }
         
-        .btn-action {
-            background: #f8f9fa;
-            color: #202124;
-            border: 1px solid #e8eaed;
-            cursor: pointer;
-            padding: 4px 8px;
-            font-size: 12px;
-        }
-        
-        .btn-action:hover {
-            background: #e9ecef;
-        }
 
-        .btn-action {
-            margin-right: 4px;
-        }
         
         .table {
             width: 100%;
             border-collapse: collapse;
             background: white;
-            border: 1px solid #000;
+            border: 2px solid #000;
             margin: 0;
+            font-family: 'Times New Roman', Times, serif;
         }
 
         .table-responsive {
             width: 100%;
             overflow-x: auto;
+            margin: 0;
+            padding: 0;
         }
 
         .table thead {
-            background: #FF6B35 !important;
+            background: #f0f0f0;
             border-bottom: 2px solid #000;
         }
 
         .table thead th {
-            background: #FF6B35 !important;
-            text-align: left;
-            padding: 12px;
-            font-size: 13px;
-            font-weight: 600;
-            color: #ffffff !important;
-            border: 1px solid #000;
+            background: #f0f0f0;
+            border: 2px solid #000;
             border-bottom: 2px solid #000;
+            padding: 12px;
+            font-weight: bold;
+            color: #000;
+            white-space: nowrap;
         }
 
         .table td {
             padding: 12px;
             font-size: 13px;
             color: #000;
-            border: 1px solid #000;
+            border: 2px solid #000;
         }
 
         .table tbody tr:nth-child(even) {
-            background: #f9f9f9;
+            background: #fafafa;
         }
 
         .table tbody tr:hover {
-            background: #f0f0f0;
+            background: #f8f9fa;
+        }
+
+        .btn-action {
+            background: transparent;
+            color: #FF6B35;
+            border: none;
+            cursor: pointer;
+            margin-right: 4px;
+            padding: 0;
+        }
+
+        .btn-action:hover {
+            color: #e55a2b;
+        }
+
+        .action-buttons-cell {
+            display: flex;
+            gap: 4px;
         }
         
         .badge {
@@ -395,15 +400,28 @@ try {
         /* Responsive */
         @media (max-width: 768px) {
             .main-content {
+                padding: 0;
+                width: 100%;
+            }
+
+            .page-title {
+                font-size: 18px;
                 padding: 16px;
             }
 
             .card {
-                text-align: left;
+                padding: 16px;
+                margin: 0 4px 16px 4px;
             }
 
-            .card form {
-                text-align: left;
+            .filter-section {
+                padding: 16px;
+                margin: 0 4px 16px 4px;
+            }
+
+            .action-buttons {
+                padding: 16px;
+                margin: 0 4px 16px 4px;
             }
 
             .row {
@@ -423,9 +441,9 @@ try {
             }
 
             .btn {
-                width: auto;
-                padding: 4px 8px;
-                font-size: 11px;
+                width: 100% !important;
+                padding: 10px 20px;
+                font-size: 14px;
             }
 
             .table-responsive {
@@ -435,13 +453,28 @@ try {
             }
 
             .table {
-                font-size: 12px;
-                min-width: 600px;
+                font-size: 11px;
+                min-width: 100%;
             }
 
-            .table th,
+            .table thead th {
+                padding: 8px 4px;
+                font-size: 11px;
+            }
+
             .table td {
-                padding: 8px 10px;
+                padding: 8px 4px;
+                font-size: 11px;
+            }
+
+            .quick-access-grid {
+                display: grid !important;
+                grid-template-columns: repeat(3, 1fr) !important;
+                gap: 8px !important;
+            }
+
+            .quick-access-item {
+                padding: 12px !important;
             }
         }
 
@@ -458,7 +491,7 @@ try {
         .fa-trash { color: #EA4335; }
     </style>
 </head>
-<body>
+<body class="dashboard-page">
     <?php require_once 'includes/header.php'; ?>
     </br>
     </br>
@@ -575,15 +608,14 @@ try {
                                                 <input type="hidden" name="finance_manager_id" value="<?php echo $fm['id']; ?>">
                                                 <input type="hidden" name="update_status" value="1">
                                                 <input type="hidden" name="status" value="<?php echo $fm['status'] === 'active' ? 'inactive' : 'active'; ?>">
-                                                <button type="submit" class="btn btn-sm btn-action">
+                                                <button type="submit" class="btn-action">
                                                     <i class="fas <?php echo $fm['status'] === 'active' ? 'fa-ban' : 'fa-check'; ?>"></i>
-                                                    <?php echo $fm['status'] === 'active' ? 'Deactivate' : 'Activate'; ?>
                                                 </button>
                                             </form>
                                             <form method="POST" style="display: inline; margin: 0;" onsubmit="return confirm('Are you sure you want to delete this finance manager?');">
                                                 <input type="hidden" name="finance_manager_id" value="<?php echo $fm['id']; ?>">
                                                 <input type="hidden" name="delete_finance_manager" value="1">
-                                                <button type="submit" class="btn btn-sm btn-action">
+                                                <button type="submit" class="btn-action">
                                                     <i class="fas fa-trash"></i>
                                                 </button>
                                             </form>

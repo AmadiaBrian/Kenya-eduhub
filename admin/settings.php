@@ -74,6 +74,18 @@ try {
     $sms_settings = [];
 }
 
+// Get current M-Pesa settings from database
+$mpesa_settings = [];
+try {
+    $stmt = $conn->prepare("SELECT * FROM admin_mpesa_settings LIMIT 1");
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $mpesa_settings = $result->fetch_assoc();
+} catch (Exception $e) {
+    // Table might not exist yet or other error
+    $mpesa_settings = [];
+}
+
 // Get current site settings from database
 $site_settings = [];
 try {
@@ -430,6 +442,80 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $success = "SMS settings updated successfully!";
                 } catch (Exception $e) {
                     $error = "Error updating SMS settings: " . $e->getMessage();
+                }
+                break;
+            
+            case 'update_mpesa_settings':
+                try {
+                    // Validate CSRF token
+                    if (!validateCSRFLite($_POST['csrf_token'])) {
+                        throw new Exception("Invalid CSRF token");
+                    }
+                    
+                    $environment = $_POST['environment'] ?? 'sandbox';
+                    $callback_base_url = $_POST['callback_base_url'] ?? '';
+                    $consumer_key = $_POST['consumer_key'] ?? '';
+                    $consumer_secret = $_POST['consumer_secret'] ?? '';
+                    $passkey = $_POST['passkey'] ?? '';
+                    $business_shortcode = $_POST['business_shortcode'] ?? '';
+                    $stk_push_url = $_POST['stk_push_url'] ?? '';
+                    $auth_url = $_POST['auth_url'] ?? '';
+                    $b2c_url = $_POST['b2c_url'] ?? '';
+                    $b2c_shortcode = $_POST['b2c_shortcode'] ?? '';
+                    $b2c_initiator_name = $_POST['b2c_initiator_name'] ?? '';
+                    $b2c_initiator_password = $_POST['b2c_initiator_password'] ?? '';
+                    $b2c_command_id = $_POST['b2c_command_id'] ?? 'SalaryPayment';
+                    $transaction_type = $_POST['transaction_type'] ?? 'CustomerPayBillOnline';
+                    $timeout = intval($_POST['timeout'] ?? 30);
+                    
+                    // Create table if it doesn't exist
+                    $conn->query("CREATE TABLE IF NOT EXISTS admin_mpesa_settings (
+                        id INT PRIMARY KEY AUTO_INCREMENT,
+                        environment VARCHAR(20) DEFAULT 'sandbox',
+                        callback_base_url VARCHAR(255),
+                        consumer_key VARCHAR(255),
+                        consumer_secret VARCHAR(255),
+                        passkey VARCHAR(255),
+                        business_shortcode VARCHAR(20),
+                        stk_push_url VARCHAR(255),
+                        auth_url VARCHAR(255),
+                        b2c_url VARCHAR(255),
+                        b2c_shortcode VARCHAR(20),
+                        b2c_initiator_name VARCHAR(100),
+                        b2c_initiator_password VARCHAR(255),
+                        b2c_command_id VARCHAR(50),
+                        transaction_type VARCHAR(50),
+                        timeout INT DEFAULT 30,
+                        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+                    )");
+                    
+                    // Check if settings exist
+                    $stmt = $conn->prepare("SELECT COUNT(*) as count FROM admin_mpesa_settings");
+                    $stmt->execute();
+                    $result = $stmt->get_result();
+                    $row = $result->fetch_assoc();
+                    
+                    if ($row['count'] > 0) {
+                        // Update existing settings
+                        $stmt = $conn->prepare("UPDATE admin_mpesa_settings SET environment = ?, callback_base_url = ?, consumer_key = ?, consumer_secret = ?, passkey = ?, business_shortcode = ?, stk_push_url = ?, auth_url = ?, b2c_url = ?, b2c_shortcode = ?, b2c_initiator_name = ?, b2c_initiator_password = ?, b2c_command_id = ?, transaction_type = ?, timeout = ? WHERE id = 1");
+                        $stmt->bind_param("ssssssssssssssi", $environment, $callback_base_url, $consumer_key, $consumer_secret, $passkey, $business_shortcode, $stk_push_url, $auth_url, $b2c_url, $b2c_shortcode, $b2c_initiator_name, $b2c_initiator_password, $b2c_command_id, $transaction_type, $timeout);
+                        $stmt->execute();
+                    } else {
+                        // Insert new settings
+                        $stmt = $conn->prepare("INSERT INTO admin_mpesa_settings (environment, callback_base_url, consumer_key, consumer_secret, passkey, business_shortcode, stk_push_url, auth_url, b2c_url, b2c_shortcode, b2c_initiator_name, b2c_initiator_password, b2c_command_id, transaction_type, timeout) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                        $stmt->bind_param("ssssssssssssssi", $environment, $callback_base_url, $consumer_key, $consumer_secret, $passkey, $business_shortcode, $stk_push_url, $auth_url, $b2c_url, $b2c_shortcode, $b2c_initiator_name, $b2c_initiator_password, $b2c_command_id, $transaction_type, $timeout);
+                        $stmt->execute();
+                    }
+                    
+                    // Refresh settings
+                    $stmt = $conn->prepare("SELECT * FROM admin_mpesa_settings LIMIT 1");
+                    $stmt->execute();
+                    $result = $stmt->get_result();
+                    $mpesa_settings = $result->fetch_assoc();
+                    
+                    $success = "M-Pesa settings updated successfully!";
+                } catch (Exception $e) {
+                    $error = "Error updating M-Pesa settings: " . $e->getMessage();
                 }
                 break;
         }
@@ -1857,6 +1943,301 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['ac
                     </div>
                 </div>
             </div>
+
+            <!-- Current M-Pesa Settings -->
+            <div class="card mb-4" id="currentMpesaSettings" style="display: <?php echo !empty($mpesa_settings) ? 'block' : 'none'; ?>;">
+                <div class="card-header">
+                    <i class="fas fa-mobile-alt me-2"></i> Current M-Pesa Settings
+                </div>
+                <div class="card-body" style="padding: 0;">
+                    <div class="table-responsive" style="width: 100%;">
+                        <table class="pdf-table" style="width: 100%;">
+                            <tr>
+                                <td><strong>Environment:</strong></td>
+                                <td><?php echo htmlspecialchars($mpesa_settings['environment'] ?? '-'); ?></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Callback Base URL:</strong></td>
+                                <td><?php echo htmlspecialchars($mpesa_settings['callback_base_url'] ?? '-'); ?></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Consumer Key:</strong></td>
+                                <td>
+                                    <span id="displayConsumerKey">••••••••••••••••</span>
+                                    <button type="button" class="btn btn-sm btn-link" onclick="toggleConsumerKey()" style="padding: 0; margin-left: 10px;">
+                                        <i class="fas fa-eye" id="displayConsumerKeyIcon"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>Consumer Secret:</strong></td>
+                                <td>
+                                    <span id="displayConsumerSecret">••••••••••••••••</span>
+                                    <button type="button" class="btn btn-sm btn-link" onclick="toggleConsumerSecret()" style="padding: 0; margin-left: 10px;">
+                                        <i class="fas fa-eye" id="displayConsumerSecretIcon"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>Passkey:</strong></td>
+                                <td>
+                                    <span id="displayPasskey">••••••••••••••••</span>
+                                    <button type="button" class="btn btn-sm btn-link" onclick="togglePasskey()" style="padding: 0; margin-left: 10px;">
+                                        <i class="fas fa-eye" id="displayPasskeyIcon"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>Business Shortcode:</strong></td>
+                                <td><?php echo htmlspecialchars($mpesa_settings['business_shortcode'] ?? '-'); ?></td>
+                            </tr>
+                            <tr>
+                                <td><strong>B2C Shortcode:</strong></td>
+                                <td><?php echo htmlspecialchars($mpesa_settings['b2c_shortcode'] ?? '-'); ?></td>
+                            </tr>
+                            <tr>
+                                <td><strong>B2C Initiator Name:</strong></td>
+                                <td><?php echo htmlspecialchars($mpesa_settings['b2c_initiator_name'] ?? '-'); ?></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Last Updated:</strong></td>
+                                <td><?php echo !empty($mpesa_settings['updated_at']) ? date('Y-m-d H:i:s', strtotime($mpesa_settings['updated_at'])) : '-'; ?></td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- M-Pesa Settings Form -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="fas fa-mobile-alt me-2"></i> M-Pesa Configuration
+                </div>
+                <div class="card-body" style="background: var(--bg-color); padding: 20px;">
+                    <form method="POST">
+                        <input type="hidden" name="action" value="update_mpesa_settings">
+                        <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
+
+                        <!-- Environment Selection -->
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <i class="fas fa-cog me-2"></i> Environment
+                            </div>
+                            <div class="card-body" style="background: var(--bg-color); padding: 20px;">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="card p-3" style="border: 2px solid <?php echo ($mpesa_settings['environment'] ?? 'sandbox') === 'sandbox' ? '#007bff' : '#e0e0e0'; ?>; cursor: pointer;" id="sandboxCard" onclick="selectMpesaEnvironment('sandbox')">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="environment" value="sandbox" id="sandboxEnv" <?php echo ($mpesa_settings['environment'] ?? 'sandbox') === 'sandbox' ? 'checked' : ''; ?>>
+                                                <label class="form-check-label" for="sandboxEnv">
+                                                    <strong>Sandbox</strong>
+                                                    <br><small class="text-muted">For testing and development</small>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="card p-3" style="border: 2px solid <?php echo ($mpesa_settings['environment'] ?? 'sandbox') === 'production' ? '#007bff' : '#e0e0e0'; ?>; cursor: pointer;" id="productionCard" onclick="selectMpesaEnvironment('production')">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="environment" value="production" id="productionEnv" <?php echo ($mpesa_settings['environment'] ?? 'sandbox') === 'production' ? 'checked' : ''; ?>>
+                                                <label class="form-check-label" for="productionEnv">
+                                                    <strong>Production</strong>
+                                                    <br><small class="text-muted">For live payments</small>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Callback Base URL -->
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <i class="fas fa-link me-2"></i> Callback Base URL
+                            </div>
+                            <div class="card-body" style="background: var(--bg-color); padding: 20px;">
+                                <label class="form-label">Callback Base URL</label>
+                                <input type="text" class="form-control" id="callback_base_url" name="callback_base_url" placeholder="https://yourdomain.com" value="<?php echo htmlspecialchars($mpesa_settings['callback_base_url'] ?? ''); ?>">
+                                <small class="text-muted">Base URL for M-Pesa callbacks (use ngrok for local testing)</small>
+                            </div>
+                        </div>
+
+                        <!-- Consumer Key -->
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <i class="fas fa-key me-2"></i> Consumer Key
+                            </div>
+                            <div class="card-body" style="background: var(--bg-color); padding: 20px;">
+                                <label class="form-label">Consumer Key</label>
+                                <input type="password" class="form-control" id="consumer_key" name="consumer_key" placeholder="Enter your Consumer Key" value="<?php echo htmlspecialchars($mpesa_settings['consumer_key'] ?? ''); ?>">
+                                <small class="text-muted">Get your Consumer Key from Safaricom Developer Portal</small>
+                            </div>
+                        </div>
+
+                        <!-- Consumer Secret -->
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <i class="fas fa-key me-2"></i> Consumer Secret
+                            </div>
+                            <div class="card-body" style="background: var(--bg-color); padding: 20px;">
+                                <label class="form-label">Consumer Secret</label>
+                                <input type="password" class="form-control" id="consumer_secret" name="consumer_secret" placeholder="Enter your Consumer Secret" value="<?php echo htmlspecialchars($mpesa_settings['consumer_secret'] ?? ''); ?>">
+                                <small class="text-muted">Get your Consumer Secret from Safaricom Developer Portal</small>
+                            </div>
+                        </div>
+
+                        <!-- Passkey -->
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <i class="fas fa-key me-2"></i> Passkey
+                            </div>
+                            <div class="card-body" style="background: var(--bg-color); padding: 20px;">
+                                <label class="form-label">Passkey</label>
+                                <input type="password" class="form-control" id="passkey" name="passkey" placeholder="Enter your Passkey" value="<?php echo htmlspecialchars($mpesa_settings['passkey'] ?? ''); ?>">
+                                <small class="text-muted">Get your Passkey from Safaricom Developer Portal</small>
+                            </div>
+                        </div>
+
+                        <!-- Business Shortcode -->
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <i class="fas fa-hashtag me-2"></i> Business Shortcode
+                            </div>
+                            <div class="card-body" style="background: var(--bg-color); padding: 20px;">
+                                <label class="form-label">Business Shortcode</label>
+                                <input type="text" class="form-control" id="business_shortcode" name="business_shortcode" placeholder="174379" value="<?php echo htmlspecialchars($mpesa_settings['business_shortcode'] ?? ''); ?>">
+                                <small class="text-muted">Your M-Pesa Paybill/Till Number (STK Push)</small>
+                            </div>
+                        </div>
+
+                        <!-- STK Push URL -->
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <i class="fas fa-link me-2"></i> STK Push URL
+                            </div>
+                            <div class="card-body" style="background: var(--bg-color); padding: 20px;">
+                                <label class="form-label">STK Push URL</label>
+                                <input type="text" class="form-control" id="stk_push_url" name="stk_push_url" placeholder="https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest" value="<?php echo htmlspecialchars($mpesa_settings['stk_push_url'] ?? ''); ?>">
+                                <small class="text-muted">M-Pesa STK Push API endpoint</small>
+                            </div>
+                        </div>
+
+                        <!-- Auth URL -->
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <i class="fas fa-link me-2"></i> Auth URL
+                            </div>
+                            <div class="card-body" style="background: var(--bg-color); padding: 20px;">
+                                <label class="form-label">Auth URL</label>
+                                <input type="text" class="form-control" id="auth_url" name="auth_url" placeholder="https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials" value="<?php echo htmlspecialchars($mpesa_settings['auth_url'] ?? ''); ?>">
+                                <small class="text-muted">M-Pesa OAuth authentication endpoint</small>
+                            </div>
+                        </div>
+
+                        <!-- B2C URL -->
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <i class="fas fa-link me-2"></i> B2C URL
+                            </div>
+                            <div class="card-body" style="background: var(--bg-color); padding: 20px;">
+                                <label class="form-label">B2C URL</label>
+                                <input type="text" class="form-control" id="b2c_url" name="b2c_url" placeholder="https://sandbox.safaricom.co.ke/mpesa/b2c/v1/paymentrequest" value="<?php echo htmlspecialchars($mpesa_settings['b2c_url'] ?? ''); ?>">
+                                <small class="text-muted">M-Pesa B2C payment endpoint</small>
+                            </div>
+                        </div>
+
+                        <!-- B2C Shortcode -->
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <i class="fas fa-hashtag me-2"></i> B2C Shortcode
+                            </div>
+                            <div class="card-body" style="background: var(--bg-color); padding: 20px;">
+                                <label class="form-label">B2C Shortcode</label>
+                                <input type="text" class="form-control" id="b2c_shortcode" name="b2c_shortcode" placeholder="600997" value="<?php echo htmlspecialchars($mpesa_settings['b2c_shortcode'] ?? ''); ?>">
+                                <small class="text-muted">Your M-Pesa B2C shortcode (for withdrawals)</small>
+                            </div>
+                        </div>
+
+                        <!-- B2C Initiator Name -->
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <i class="fas fa-user me-2"></i> B2C Initiator Name
+                            </div>
+                            <div class="card-body" style="background: var(--bg-color); padding: 20px;">
+                                <label class="form-label">B2C Initiator Name</label>
+                                <input type="text" class="form-control" id="b2c_initiator_name" name="b2c_initiator_name" placeholder="testapi" value="<?php echo htmlspecialchars($mpesa_settings['b2c_initiator_name'] ?? ''); ?>">
+                                <small class="text-muted">Your B2C initiator name from Safaricom</small>
+                            </div>
+                        </div>
+
+                        <!-- B2C Initiator Password -->
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <i class="fas fa-key me-2"></i> B2C Initiator Password
+                            </div>
+                            <div class="card-body" style="background: var(--bg-color); padding: 20px;">
+                                <label class="form-label">B2C Initiator Password</label>
+                                <input type="password" class="form-control" id="b2c_initiator_password" name="b2c_initiator_password" placeholder="Enter your B2C initiator password" value="<?php echo htmlspecialchars($mpesa_settings['b2c_initiator_password'] ?? ''); ?>">
+                                <small class="text-muted">Your B2C initiator password from Safaricom</small>
+                            </div>
+                        </div>
+
+                        <!-- B2C Command ID -->
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <i class="fas fa-tag me-2"></i> B2C Command ID
+                            </div>
+                            <div class="card-body" style="background: var(--bg-color); padding: 20px;">
+                                <label class="form-label">B2C Command ID</label>
+                                <input type="text" class="form-control" id="b2c_command_id" name="b2c_command_id" placeholder="SalaryPayment" value="<?php echo htmlspecialchars($mpesa_settings['b2c_command_id'] ?? 'SalaryPayment'); ?>">
+                                <small class="text-muted">B2C transaction type (e.g., SalaryPayment, BusinessPayment)</small>
+                            </div>
+                        </div>
+
+                        <!-- Transaction Type -->
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <i class="fas fa-tag me-2"></i> Transaction Type
+                            </div>
+                            <div class="card-body" style="background: var(--bg-color); padding: 20px;">
+                                <label class="form-label">Transaction Type</label>
+                                <input type="text" class="form-control" id="transaction_type" name="transaction_type" placeholder="CustomerPayBillOnline" value="<?php echo htmlspecialchars($mpesa_settings['transaction_type'] ?? 'CustomerPayBillOnline'); ?>">
+                                <small class="text-muted">STK Push transaction type</small>
+                            </div>
+                        </div>
+
+                        <!-- Timeout -->
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <i class="fas fa-clock me-2"></i> Timeout
+                            </div>
+                            <div class="card-body" style="background: var(--bg-color); padding: 20px;">
+                                <label class="form-label">Timeout (seconds)</label>
+                                <input type="number" class="form-control" id="timeout" name="timeout" placeholder="30" value="<?php echo htmlspecialchars($mpesa_settings['timeout'] ?? 30); ?>" min="10" max="120">
+                                <small class="text-muted">M-Pesa API request timeout in seconds</small>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <i class="fas fa-cog me-2"></i> Actions
+                            </div>
+                            <div class="card-body" style="background: var(--bg-color); padding: 20px;">
+                                <div style="margin-bottom: 12px;">
+                                    <button type="button" class="btn btn-secondary" style="width: 100%;">Cancel</button>
+                                </div>
+                                <div>
+                                    <button type="submit" class="btn btn-primary" style="width: 100%;">
+                                        <i class="fas fa-save"></i> Save Changes
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
         </div>
     </main>
 
@@ -1954,7 +2335,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['ac
             const keyElement = document.getElementById('displayMobitechKey');
             const iconElement = document.getElementById('displayMobitechKeyIcon');
             const actualKey = '<?php echo htmlspecialchars($sms_settings['mobitech_api_key'] ?? ''); ?>';
-            
+
             if (keyElement.textContent === '••••••••••••••••') {
                 keyElement.textContent = actualKey;
                 iconElement.classList.remove('fa-eye');
@@ -1965,7 +2346,68 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['ac
                 iconElement.classList.add('fa-eye');
             }
         }
-        
+
+        function toggleConsumerKey() {
+            const keyElement = document.getElementById('displayConsumerKey');
+            const iconElement = document.getElementById('displayConsumerKeyIcon');
+            const actualKey = '<?php echo htmlspecialchars($mpesa_settings['consumer_key'] ?? ''); ?>';
+
+            if (keyElement.textContent === '••••••••••••••••') {
+                keyElement.textContent = actualKey;
+                iconElement.classList.remove('fa-eye');
+                iconElement.classList.add('fa-eye-slash');
+            } else {
+                keyElement.textContent = '••••••••••••••••';
+                iconElement.classList.remove('fa-eye-slash');
+                iconElement.classList.add('fa-eye');
+            }
+        }
+
+        function toggleConsumerSecret() {
+            const keyElement = document.getElementById('displayConsumerSecret');
+            const iconElement = document.getElementById('displayConsumerSecretIcon');
+            const actualKey = '<?php echo htmlspecialchars($mpesa_settings['consumer_secret'] ?? ''); ?>';
+
+            if (keyElement.textContent === '••••••••••••••••') {
+                keyElement.textContent = actualKey;
+                iconElement.classList.remove('fa-eye');
+                iconElement.classList.add('fa-eye-slash');
+            } else {
+                keyElement.textContent = '••••••••••••••••';
+                iconElement.classList.remove('fa-eye-slash');
+                iconElement.classList.add('fa-eye');
+            }
+        }
+
+        function togglePasskey() {
+            const keyElement = document.getElementById('displayPasskey');
+            const iconElement = document.getElementById('displayPasskeyIcon');
+            const actualKey = '<?php echo htmlspecialchars($mpesa_settings['passkey'] ?? ''); ?>';
+
+            if (keyElement.textContent === '••••••••••••••••') {
+                keyElement.textContent = actualKey;
+                iconElement.classList.remove('fa-eye');
+                iconElement.classList.add('fa-eye-slash');
+            } else {
+                keyElement.textContent = '••••••••••••••••';
+                iconElement.classList.remove('fa-eye-slash');
+                iconElement.classList.add('fa-eye');
+            }
+        }
+
+        function selectMpesaEnvironment(env) {
+            document.getElementById('sandboxEnv').checked = (env === 'sandbox');
+            document.getElementById('productionEnv').checked = (env === 'production');
+
+            if (env === 'sandbox') {
+                document.getElementById('sandboxCard').style.borderColor = '#007bff';
+                document.getElementById('productionCard').style.borderColor = '#e0e0e0';
+            } else {
+                document.getElementById('sandboxCard').style.borderColor = '#e0e0e0';
+                document.getElementById('productionCard').style.borderColor = '#007bff';
+            }
+        }
+
         function toggleTextsmsKey() {
             const keyElement = document.getElementById('displayTextsmsKey');
             const iconElement = document.getElementById('displayTextsmsKeyIcon');

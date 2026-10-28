@@ -147,9 +147,9 @@ foreach ($duty_assignments as $assignment) {
         .card {
             background: var(--bg-color);
             border: 1px solid #e0e0e0;
-            border-radius: 8px;
+            border-radius: 25px;
             padding: 24px;
-            margin-bottom: 24px;
+            margin: 0 0 24px 0;
         }
 
         .card h4 {
@@ -181,7 +181,7 @@ foreach ($duty_assignments as $assignment) {
 
         .btn {
             padding: 10px 24px;
-            border-radius: 20px;
+            border-radius: 25px;
             font-size: 14px;
             font-weight: 500;
             border: none;
@@ -201,7 +201,7 @@ foreach ($duty_assignments as $assignment) {
             background: var(--primary-color);
             border: none;
             padding: 10px 24px;
-            border-radius: 20px;
+            border-radius: 25px;
             font-size: 14px;
             font-weight: 500;
         }
@@ -210,37 +210,92 @@ foreach ($duty_assignments as $assignment) {
             background: #e55a2b;
         }
 
+        .main-action-buttons {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .main-action-buttons .btn {
+            flex: 1;
+            padding: 12px 24px;
+            border-radius: 25px;
+        }
+
+        @media (max-width: 768px) {
+            .main-action-buttons {
+                flex-direction: column;
+                margin: 0 16px 16px 16px;
+            }
+
+            .main-action-buttons .btn {
+                width: auto;
+                padding: 10px 20px;
+            }
+        }
+
         .btn-action {
-            background: #f8f9fa;
-            color: #202124;
-            border: 1px solid #e8eaed;
+            background: transparent;
+            color: #FF6B35;
+            border: none;
             cursor: pointer;
-            padding: 6px 12px;
-            font-size: 12px;
-            border-radius: 12px;
-            transition: background 0.2s;
+            margin-right: 4px;
+            padding: 0;
         }
 
         .btn-action:hover {
-            background: #e9ecef;
+            color: #e55a2b;
         }
-        
+
+        .action-buttons-cell {
+            display: flex;
+            gap: 4px;
+        }
+
         .table {
-            margin-top: 16px;
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border: 2px solid #000;
+            margin: 0;
+            font-family: 'Times New Roman', Times, serif;
         }
-        
-        .table thead th {
-            background: #FF6B35 !important;
-            border: 1px solid #000;
+
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+            margin: 0;
+            padding: 0;
+        }
+
+        .table thead {
+            background: #f0f0f0;
             border-bottom: 2px solid #000;
-            font-weight: 600;
-            color: #ffffff !important;
+        }
+
+        .table thead th {
+            background: #f0f0f0;
+            border: 2px solid #000;
+            border-bottom: 2px solid #000;
             padding: 12px;
+            font-weight: bold;
+            color: #000;
+            white-space: nowrap;
         }
 
         .table tbody td {
             padding: 12px;
-            border: 1px solid #000;
+            border: 2px solid #000;
+            color: #000;
+            font-size: 13px;
+        }
+
+        .table tbody tr:nth-child(even) {
+            background: #fafafa;
+        }
+
+        .table tbody tr:hover {
+            background: #f8f9fa;
         }
         
         .badge {
@@ -276,11 +331,13 @@ foreach ($duty_assignments as $assignment) {
         }
         
         .weekly-schedule-header {
-            background: linear-gradient(135deg, #FF6B35 0%, #e55a2b 100%);
-            color: white;
+            background: #f0f0f0;
+            color: #000;
             padding: 16px 24px;
             border-radius: 6px 6px 0 0;
             text-align: center;
+            border: 2px solid #000;
+            border-bottom: 2px solid #000;
         }
 
         .weekly-schedule-header h5 {
@@ -340,15 +397,56 @@ foreach ($duty_assignments as $assignment) {
         /* Responsive */
         @media (max-width: 768px) {
             .main-content {
+                padding: 0;
+                width: 100%;
+            }
+
+            .page-title {
+                font-size: 18px;
                 padding: 16px;
             }
 
             .card {
                 padding: 16px;
+                margin: 0 4px 16px 4px;
             }
 
             .schedule-grid {
                 grid-template-columns: 1fr;
+            }
+
+            .btn {
+                width: 100% !important;
+            }
+
+            .table-responsive {
+                overflow-x: auto;
+                width: 100%;
+            }
+
+            .table {
+                font-size: 11px;
+                min-width: 100%;
+            }
+
+            .table thead th {
+                padding: 8px 4px;
+                font-size: 11px;
+            }
+
+            .table tbody td {
+                padding: 8px 4px;
+                font-size: 11px;
+            }
+
+            .quick-access-grid {
+                display: grid !important;
+                grid-template-columns: repeat(3, 1fr) !important;
+                gap: 8px !important;
+            }
+
+            .quick-access-item {
+                padding: 12px !important;
             }
         }
 
@@ -365,7 +463,7 @@ foreach ($duty_assignments as $assignment) {
         .fa-trash { color: #EA4335; }
     </style>
 </head>
-<body>
+<body class="dashboard-page">
 <?php require_once 'includes/header.php'; ?>
 <?php $active_page = 'duty-assignments'; require_once 'includes/sidebar.php'; ?>
 
@@ -377,9 +475,17 @@ foreach ($duty_assignments as $assignment) {
     <main class="main-content" id="mainContent">
         <h1 class="page-title">Duty Assignments</h1>
 
+        <!-- Action Buttons -->
+        <div class="main-action-buttons">
+            <button onclick="window.print()" class="btn btn-primary">
+                <i class="fas fa-print me-2"></i>Print Schedule
+            </button>
+        </div>
+
+        <!-- Assign Duty Form -->
         <div class="card">
-            <h4 class="mb-4">Assign Weekly Duty Team</h4>
-            <p class="text-muted mb-4">Assign multiple teachers as the duty team for a full week. They will manage the school, handle sick students, report incidents, ensure cleanliness, and maintain order.</p>
+            <h4 class="card-title">Assign Weekly Duty Team</h4>
+            <p class="text-muted" style="text-align: center; margin-bottom: 20px;">Assign multiple teachers as the duty team for a full week. They will manage the school, handle sick students, report incidents, ensure cleanliness, and maintain order.</p>
             <form method="POST">
                 <div class="row">
                     <div class="col-md-6 mb-3">
@@ -388,7 +494,7 @@ foreach ($duty_assignments as $assignment) {
                     </div>
                     <div class="col-md-6 mb-3">
                         <label class="form-label">Select Teachers on Duty (Multiple)</label>
-                        <div style="border: 2px solid #e8eaed; border-radius: 8px; background: white; padding: 16px;">
+                        <div style="border: 2px solid #e8eaed; border-radius: 25px; background: white; padding: 16px;">
                             <div style="max-height: 200px; overflow-y: auto;">
                                 <?php foreach ($teachers as $teacher): ?>
                                     <div class="form-check mb-2" style="padding: 8px; border-bottom: 1px solid #f1f3f4;">
@@ -410,14 +516,10 @@ foreach ($duty_assignments as $assignment) {
                 </div>
             </form>
         </div>
-        
+
+        <!-- Weekly Duty Schedule -->
         <div class="card">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                <h4 class="mb-0" style="text-align: center; flex: 1;">Weekly Duty Schedule</h4>
-                <button onclick="window.print()" class="btn btn-primary" style="margin-left: auto;">
-                    <i class="fas fa-print me-2"></i>Print Schedule
-                </button>
-            </div>
+            <h4 class="card-title">Weekly Duty Schedule</h4>
             <?php if (empty($weekly_assignments)): ?>
                 <div class="no-schedule">
                     <i class="fas fa-calendar-times"></i>

@@ -255,9 +255,10 @@ try {
         /* Filter Section Styling */
         .filter-section {
             background: var(--bg-color);
-            border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 24px;
+            border-radius: 25px;
+            padding: 24px;
+            margin: 0 0 24px 0;
+            border: 1px solid #e0e0e0;
         }
 
         .filter-section .card-title {
@@ -301,9 +302,10 @@ try {
         /* Inline Form Styling */
         .inline-form-section {
             background: var(--bg-color);
-            border-radius: 8px;
+            border-radius: 25px;
             padding: 24px;
-            margin-bottom: 24px;
+            margin: 0 0 24px 0;
+            border: 1px solid #e0e0e0;
         }
         
         .inline-form-section .card-title {
@@ -481,10 +483,10 @@ try {
         /* Card container styling */
         .card {
             background: var(--bg-color);
-            border: none;
-            border-radius: 12px;
+            border: 1px solid #e0e0e0;
+            border-radius: 25px;
             box-shadow: none;
-            margin-bottom: 20px;
+            margin: 0 0 24px 0;
         }
 
         .card-header {
@@ -518,6 +520,7 @@ try {
             border-radius: 20px;
             outline: none;
             transition: border-color 0.2s, box-shadow 0.2s;
+            background: var(--bg-color);
         }
         
         .form-control:focus {
@@ -535,7 +538,7 @@ try {
         /* Buttons */
         .btn {
             padding: 10px 24px;
-            border-radius: 20px;
+            border-radius: 25px;
             font-size: 14px;
             font-weight: 500;
             border: none;
@@ -567,64 +570,72 @@ try {
             border-radius: 12px;
         }
 
-        .btn-action {
-            background: #f8f9fa;
-            color: #202124;
-            border: 1px solid #e8eaed;
-            cursor: pointer;
-            padding: 6px 12px;
-            font-size: 12px;
-            border-radius: 12px;
-            transition: background 0.2s;
-        }
 
-        .btn-action:hover {
-            background: #e9ecef;
-        }
         
         /* Table */
         .table {
             width: 100%;
             border-collapse: collapse;
             background: white;
-            border: 1px solid #000;
+            border: 2px solid #000;
             margin: 0;
+            font-family: 'Times New Roman', Times, serif;
         }
-        
+
         .table-responsive {
             width: 100%;
             overflow-x: auto;
+            margin: 0;
+            padding: 0;
         }
-        
+
         .table thead {
-            background: #FF6B35 !important;
+            background: #f0f0f0;
             border-bottom: 2px solid #000;
         }
 
         .table th {
-            text-align: left;
-            padding: 12px;
-            font-size: 13px;
-            font-weight: 600;
-            color: #ffffff !important;
-            border: 1px solid #000;
+            background: #f0f0f0;
+            border: 2px solid #000;
             border-bottom: 2px solid #000;
-            background-color: #FF6B35 !important;
+            padding: 12px;
+            font-weight: bold;
+            color: #000;
+            white-space: nowrap;
         }
-        
+
         .table td {
             padding: 12px;
             font-size: 13px;
             color: #000;
-            border: 1px solid #000;
+            border: 2px solid #000;
+            white-space: nowrap;
         }
-        
+
         .table tbody tr:nth-child(even) {
-            background: #f9f9f9;
+            background: #fafafa;
         }
-        
+
         .table tbody tr:hover {
-            background: #f0f0f0;
+            background: #f8f9fa;
+        }
+
+        .btn-action {
+            background: transparent;
+            color: #FF6B35;
+            border: none;
+            cursor: pointer;
+            margin-right: 4px;
+            padding: 0;
+        }
+
+        .btn-action:hover {
+            color: #e55a2b;
+        }
+
+        .action-buttons-cell {
+            display: flex;
+            gap: 4px;
         }
         
         /* Badge */
@@ -725,6 +736,71 @@ try {
         }
         
         .modal .table thead th {
+            font-size: 11px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 0;
+                width: 100%;
+            }
+
+            .page-title {
+                font-size: 18px;
+                padding: 16px;
+            }
+
+            .card {
+                padding: 16px;
+                margin: 0 4px 16px 4px;
+            }
+
+            .filter-section {
+                padding: 16px;
+                margin: 0 4px 16px 4px;
+            }
+
+            .inline-form-section {
+                padding: 16px;
+                margin: 0 4px 16px 4px;
+            }
+
+            .btn {
+                width: 100% !important;
+            }
+
+            .table-responsive {
+                overflow-x: auto;
+                width: 100%;
+            }
+
+            .table {
+                font-size: 11px;
+                min-width: 100%;
+            }
+
+            .table th {
+                padding: 8px 4px;
+                font-size: 11px;
+            }
+
+            .table td {
+                padding: 8px 4px;
+                font-size: 11px;
+            }
+
+            .quick-access-grid {
+                display: grid !important;
+                grid-template-columns: repeat(3, 1fr) !important;
+                gap: 8px !important;
+            }
+
+            .quick-access-item {
+                padding: 12px !important;
+            }
+        }
+
             background: #f8f9fa;
             font-weight: 500;
             color: #5f6368;
@@ -942,7 +1018,7 @@ try {
         .fa-trash { color: #EA4335; }
     </style>
 </head>
-<body>
+<body class="dashboard-page">
 <?php require_once 'includes/header.php'; ?>
 <?php $active_page = 'disciplinary'; require_once 'includes/sidebar.php'; ?>
 
@@ -955,48 +1031,30 @@ try {
         <h1 class="page-title">Disciplinary Management</h1>
         
         <!-- Statistics -->
-        <div class="stats-grid">
-            <div class="stat-card" style="background: #e8f0fe;">
-                <div class="stat-icon students">
-                    <i class="fas fa-gavel"></i>
-                </div>
-                <div class="stat-value"><?php echo $stats['total']; ?></div>
-                <div class="stat-label">Total Cases</div>
+        <div id="feeStats" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 24px;">
+            <div style="background: #e8f0fe; padding: 16px; border-radius: 8px; text-align: center;">
+                <div style="font-size: 24px; font-weight: 600; color: #1967d2;"><?php echo $stats['total']; ?></div>
+                <div style="font-size: 12px; color: #5f6368;">Total Cases</div>
             </div>
-            <div class="stat-card" style="background: #fce8e6;">
-                <div class="stat-icon students" style="color: #dc3545;">
-                    <i class="fas fa-user-slash"></i>
-                </div>
-                <div class="stat-value"><?php echo $stats['expulsions']; ?></div>
-                <div class="stat-label">Expulsions</div>
+            <div style="background: #fce8e6; padding: 16px; border-radius: 8px; text-align: center;">
+                <div style="font-size: 24px; font-weight: 600; color: #c5221f;"><?php echo $stats['expulsions']; ?></div>
+                <div style="font-size: 12px; color: #5f6368;">Expulsions</div>
             </div>
-            <div class="stat-card" style="background: #fff8e1;">
-                <div class="stat-icon students" style="color: #ffc107;">
-                    <i class="fas fa-user-clock"></i>
-                </div>
-                <div class="stat-value"><?php echo $stats['suspensions']; ?></div>
-                <div class="stat-label">Suspensions</div>
+            <div style="background: #fef7e0; padding: 16px; border-radius: 8px; text-align: center;">
+                <div style="font-size: 24px; font-weight: 600; color: #b06000;"><?php echo $stats['suspensions']; ?></div>
+                <div style="font-size: 12px; color: #5f6368;">Suspensions</div>
             </div>
-            <div class="stat-card" style="background: #e3f2fd;">
-                <div class="stat-icon students" style="color: #17a2b8;">
-                    <i class="fas fa-exclamation-triangle"></i>
-                </div>
-                <div class="stat-value"><?php echo $stats['warnings']; ?></div>
-                <div class="stat-label">Warnings</div>
+            <div style="background: #e8f0fe; padding: 16px; border-radius: 8px; text-align: center;">
+                <div style="font-size: 24px; font-weight: 600; color: #1967d2;"><?php echo $stats['warnings']; ?></div>
+                <div style="font-size: 12px; color: #5f6368;">Warnings</div>
             </div>
-            <div class="stat-card" style="background: #f1f3f4;">
-                <div class="stat-icon students" style="color: #6c757d;">
-                    <i class="fas fa-hourglass-half"></i>
-                </div>
-                <div class="stat-value"><?php echo $stats['pending']; ?></div>
-                <div class="stat-label">Pending</div>
+            <div style="background: #f1f3f4; padding: 16px; border-radius: 8px; text-align: center;">
+                <div style="font-size: 24px; font-weight: 600; color: #5f6368;"><?php echo $stats['pending']; ?></div>
+                <div style="font-size: 12px; color: #5f6368;">Pending</div>
             </div>
-            <div class="stat-card" style="background: #e8f0fe;">
-                <div class="stat-icon students" style="color: #0d6efd;">
-                    <i class="fas fa-calendar-alt"></i>
-                </div>
-                <div class="stat-value"><?php echo $stats['this_year']; ?></div>
-                <div class="stat-label">This Year</div>
+            <div style="background: #e6f4ea; padding: 16px; border-radius: 8px; text-align: center;">
+                <div style="font-size: 24px; font-weight: 600; color: #137333;"><?php echo $stats['this_year']; ?></div>
+                <div style="font-size: 12px; color: #5f6368;">This Year</div>
             </div>
         </div>
 

@@ -184,10 +184,10 @@ try {
         
         .card {
             background: var(--bg-color);
-            border: 1px solid #e8eaed;
-            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+            border-radius: 25px;
             padding: 24px;
-            margin-bottom: 24px;
+            margin: 0 0 24px 0;
         }
 
         .card-title {
@@ -214,7 +214,7 @@ try {
         
         .btn {
             padding: 10px 24px;
-            border-radius: 4px;
+            border-radius: 25px;
             font-size: 14px;
             font-weight: 500;
             border: none;
@@ -276,7 +276,7 @@ try {
         /* Buttons */
         .btn {
             padding: 10px 24px;
-            border-radius: 4px;
+            border-radius: 25px;
             font-size: 14px;
             font-weight: 500;
             border: none;
@@ -320,10 +320,10 @@ try {
         /* Filter Section */
         .filter-section {
             background: var(--bg-color);
-            border-radius: 8px;
+            border-radius: 25px;
             padding: 24px;
-            margin-bottom: 24px;
-            border: 1px solid #e8eaed;
+            margin: 0 0 24px 0;
+            border: 1px solid #e0e0e0;
         }
 
         .filter-section .card-title {
@@ -352,25 +352,25 @@ try {
             border: 1px solid #FF6B35;
             color: #FF6B35;
             padding: 6px 12px;
-            border-radius: 4px;
+            border-radius: 25px;
             font-weight: 500;
             transition: all 0.2s;
         }
-        
+
         .btn-outline-primary:hover {
             background: #FFF3E0;
         }
-        
+
         .btn-outline-secondary {
             background: transparent;
             border: 1px solid #dadce0;
             color: #5f6368;
             padding: 6px 12px;
-            border-radius: 4px;
+            border-radius: 25px;
             font-weight: 500;
             transition: all 0.2s;
         }
-        
+
         .btn-outline-secondary:hover {
             background: #f1f3f4;
         }
@@ -379,45 +379,65 @@ try {
         .table {
             width: 100%;
             border-collapse: collapse;
-            background: #ffffff;
-            border: 1px solid #000;
+            background: white;
+            border: 2px solid #000;
             margin: 0;
+            font-family: 'Times New Roman', Times, serif;
         }
-        
-        .table-responsive {
-            width: 100%;
-            overflow-x: auto;
-        }
-        
+
         .table thead {
-            background: #FF6B35 !important;
+            background: #f0f0f0;
             border-bottom: 2px solid #000;
         }
 
         .table thead th {
-            background: #FF6B35 !important;
-            text-align: left;
-            padding: 12px;
-            font-size: 13px;
-            font-weight: 600;
-            color: #ffffff !important;
-            border: 1px solid #000;
+            background: #f0f0f0;
+            border: 2px solid #000;
             border-bottom: 2px solid #000;
+            padding: 12px;
+            font-weight: bold;
+            color: #000;
+            white-space: nowrap;
         }
-        
+
         .table td {
             padding: 12px;
-            font-size: 13px;
+            border: 2px solid #000;
             color: #000;
-            border: 1px solid #000;
+            font-size: 13px;
         }
-        
+
         .table tbody tr:nth-child(even) {
-            background: #ffffff;
+            background: #fafafa;
         }
-        
+
         .table tbody tr:hover {
-            background: #ffffff;
+            background: #f8f9fa;
+        }
+
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+            margin: 0;
+            padding: 0;
+        }
+
+        .btn-action {
+            background: transparent;
+            color: #FF6B35;
+            border: none;
+            cursor: pointer;
+            margin-right: 4px;
+            padding: 0;
+        }
+
+        .btn-action:hover {
+            color: #e55a2b;
+        }
+
+        .action-buttons-cell {
+            display: flex;
+            gap: 4px;
         }
         
         /* Badge */
@@ -469,13 +489,26 @@ try {
             background: var(--bg-color);
             border: 1px solid #e8eaed;
             border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 16px;
+            padding: 24px;
+            transition: box-shadow 0.2s;
         }
-        
+
+        .stat-card:hover {
+            box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: #5f6368;
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 500;
+            color: #202124;
+        }
+
         .stat-icon {
             width: 48px;
             height: 48px;
@@ -486,67 +519,12 @@ try {
             justify-content: center;
             font-size: 20px;
         }
-        
+
         .stat-info {
             flex: 1;
         }
         
-        .stat-value {
-            font-size: 24px;
-            font-weight: 500;
-            color: #202124;
-            margin-bottom: 4px;
-        }
-        
-        .stat-label {
-            font-size: 13px;
-            color: var(--secondary-color);
-        }
-        
-        /* Table */
-        .table {
-            background: var(--bg-color);
-            border-radius: 8px;
-            overflow: hidden;
-            border: 1px solid #e8eaed;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        }
-        
-        .table thead {
-            background: #FF6B35 !important;
-            border-bottom: 2px solid #000;
-        }
 
-        .table thead th {
-            background: #FF6B35 !important;
-            font-weight: 600;
-            color: #ffffff !important;
-            font-size: 11px;
-            text-transform: uppercase;
-            letter-spacing: 0.8px;
-            padding: 14px 16px;
-            border-bottom: 1px solid #000;
-        }
-        
-        .table td {
-            padding: 14px 16px;
-            border-bottom: 1px solid #e8eaed;
-            vertical-align: middle;
-            font-size: 13px;
-            color: #202124;
-        }
-        
-        .table tbody tr {
-            border-bottom: 1px solid #e8eaed;
-        }
-        
-        .table tbody tr:last-child {
-            border-bottom: none;
-        }
-        
-        .table tbody tr:hover {
-            background: #FFF3E0;
-        }
         
         /* Status Badges */
         .status-badge {
@@ -566,7 +544,7 @@ try {
             background: #FF6B35;
             border: none;
             padding: 8px 16px;
-            border-radius: 4px;
+            border-radius: 25px;
             color: white;
             font-weight: 500;
             transition: background 0.2s;
@@ -581,25 +559,25 @@ try {
             border: 1px solid #FF6B35;
             color: #FF6B35;
             padding: 6px 12px;
-            border-radius: 4px;
+            border-radius: 25px;
             font-weight: 500;
             transition: all 0.2s;
         }
-        
+
         .btn-outline-primary:hover {
             background: #FFF3E0;
         }
-        
+
         .btn-outline-secondary {
             background: transparent;
             border: 1px solid #dadce0;
             color: #5f6368;
             padding: 6px 12px;
-            border-radius: 4px;
+            border-radius: 25px;
             font-weight: 500;
             transition: all 0.2s;
         }
-        
+
         .btn-outline-secondary:hover {
             background: #f1f3f4;
         }
@@ -628,37 +606,79 @@ try {
         /* Responsive */
         @media (max-width: 768px) {
             .main-content {
+                padding: 0;
+                width: 100%;
+            }
+
+            .page-title {
+                font-size: 18px;
                 padding: 16px;
             }
-            
+
+            .card {
+                padding: 16px;
+                margin: 0 4px 16px 4px;
+            }
+
+            .filter-section {
+                padding: 16px;
+                margin: 0 4px 16px 4px;
+            }
+
+            .action-buttons {
+                padding: 16px;
+                margin: 0 4px 16px 4px;
+            }
+
             .row {
                 display: grid;
                 grid-template-columns: repeat(2, 1fr);
                 gap: 12px;
             }
-            
+
             .col-md-3 {
                 width: 100%;
             }
-            
+
             .stat-card {
                 flex-direction: column;
                 text-align: center;
                 gap: 12px;
             }
-            
+
             .stat-icon {
                 margin: 0 auto;
             }
-            
+
             .table-responsive {
                 overflow-x: auto;
                 width: 100%;
             }
-            
+
             .table {
-                min-width: 600px;
+                min-width: 100%;
                 width: 100%;
+                font-size: 11px;
+            }
+
+            .table thead th {
+                padding: 8px 4px;
+                font-size: 11px;
+            }
+
+            .table td {
+                padding: 8px 4px;
+                font-size: 11px;
+            }
+
+            .quick-access-grid {
+                display: grid !important;
+                grid-template-columns: repeat(3, 1fr) !important;
+                gap: 8px !important;
+            }
+
+            .quick-access-item {
+                padding: 12px !important;
             }
         }
 
@@ -682,7 +702,7 @@ try {
         .fa-exclamation-circle { color: #FFBA00; }
     </style>
 </head>
-<body>
+<body class="dashboard-page">
     <?php require_once 'includes/header.php'; ?>
     <?php $active_page = 'invoices'; require_once 'includes/sidebar.php'; ?>
     
@@ -693,50 +713,22 @@ try {
         <h1 class="page-title">Invoice Management</h1>
         
         <!-- Statistics Cards -->
-        <div class="row">
-            <div class="col-md-3">
-                <div class="stat-card">
-                    <div class="stat-icon">
-                        <i class="fas fa-file-invoice"></i>
-                    </div>
-                    <div class="stat-info">
-                        <div class="stat-value"><?php echo number_format($stats['total']); ?></div>
-                        <div class="stat-label">Total Invoices</div>
-                    </div>
-                </div>
+        <div id="feeStats" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 24px;">
+            <div style="background: #e8f0fe; padding: 16px; border-radius: 8px; text-align: center;">
+                <div style="font-size: 24px; font-weight: 600; color: #1967d2;"><?php echo number_format($stats['total']); ?></div>
+                <div style="font-size: 12px; color: #5f6368;">Total Invoices</div>
             </div>
-            <div class="col-md-3">
-                <div class="stat-card">
-                    <div class="stat-icon">
-                        <i class="fas fa-money-bill-wave"></i>
-                    </div>
-                    <div class="stat-info">
-                        <div class="stat-value">KES <?php echo number_format($stats['total_amount'], 2); ?></div>
-                        <div class="stat-label">Total Amount</div>
-                    </div>
-                </div>
+            <div style="background: #e6f4ea; padding: 16px; border-radius: 8px; text-align: center;">
+                <div style="font-size: 24px; font-weight: 600; color: #137333;">KES <?php echo number_format($stats['total_amount'], 2); ?></div>
+                <div style="font-size: 12px; color: #5f6368;">Total Amount</div>
             </div>
-            <div class="col-md-3">
-                <div class="stat-card">
-                    <div class="stat-icon">
-                        <i class="fas fa-check-circle"></i>
-                    </div>
-                    <div class="stat-info">
-                        <div class="stat-value">KES <?php echo number_format($stats['total_paid'], 2); ?></div>
-                        <div class="stat-label">Total Collected</div>
-                    </div>
-                </div>
+            <div style="background: #fef7e0; padding: 16px; border-radius: 8px; text-align: center;">
+                <div style="font-size: 24px; font-weight: 600; color: #b06000;">KES <?php echo number_format($stats['total_paid'], 2); ?></div>
+                <div style="font-size: 12px; color: #5f6368;">Total Collected</div>
             </div>
-            <div class="col-md-3">
-                <div class="stat-card">
-                    <div class="stat-icon">
-                        <i class="fas fa-exclamation-circle"></i>
-                    </div>
-                    <div class="stat-info">
-                        <div class="stat-value">KES <?php echo number_format($stats['total_balance'], 2); ?></div>
-                        <div class="stat-label">Outstanding Balance</div>
-                    </div>
-                </div>
+            <div style="background: #fce8e6; padding: 16px; border-radius: 8px; text-align: center;">
+                <div style="font-size: 24px; font-weight: 600; color: #c5221f;">KES <?php echo number_format($stats['total_balance'], 2); ?></div>
+                <div style="font-size: 12px; color: #5f6368;">Outstanding Balance</div>
             </div>
         </div>
 

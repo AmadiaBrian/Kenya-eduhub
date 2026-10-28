@@ -57,42 +57,202 @@ function sendResetCode($email, $code) {
     }
 }
 
-// Step 1: User submits email
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['email']) && $step === 1) {
-    $email = trim($_POST['email']);
-    if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        $stmt = $conn->prepare("SELECT id FROM users WHERE email = ?");
-        $stmt->bind_param("s", $email);
-        $stmt->execute();
-        $stmt->store_result();
-
-        if ($stmt->num_rows > 0) {
-            $code = str_pad(rand(0, 999999), 6, '0', STR_PAD_LEFT);
-            $expires = date('Y-m-d H:i:s', strtotime('+10 minutes'));
-            $update = $conn->prepare("UPDATE users SET reset_code = ?, reset_expires_at = ? WHERE email = ?");
-            $update->bind_param("sss", $code, $expires, $email);
-            if ($update->execute() && sendResetCode($email, $code)) {
-                $_SESSION['reset_email'] = $email;
-                $_SESSION['step'] = 2;
-                $step = 2;
-                $message = "Verification code sent to your email.";
-            } else {
-                $message = "Failed to send code. Try again.";
-            }
-        } else {
-            $message = "Email not found.";
+// Function to send SMS for password reset
+function sendResetSMS($phone, $code) {
+    global $conn;
+    
+    error_log("=== SMS SENDING START ===");
+    error_log("Phone: $phone, Code: $code");
+    
+    // Get SMS settings from admin_sms_settings table
+    $sql = "SELECT sms_provider, mobitech_api_key, mobitech_sender_id, textsms_api_key, textsms_partner_id, textsms_sender_id, sms_enabled FROM admin_sms_settings LIMIT 1";
+    $result = $conn->query($sql);
+    
+    if (!$result || $result->num_rows === 0) {
+        error_log("ERROR: SMS settings not configured in admin_sms_settings table");
+        return false;
+    }
+    
+    $settings = $result->fetch_assoc();
+    error_log("SMS Settings loaded: " . print_r($settings, true));
+    
+    // Check if SMS is enabled
+    if (!($settings['sms_enabled'] ?? 0)) {
+        error_log("ERROR: SMS is disabled in admin settings (sms_enabled = 0)");
+        return false;
+    }
+    
+    // Check if API key is configured
+    if ($settings['sms_provider'] === 'mobitech') {
+        if (empty($settings['mobitech_api_key'])) {
+            error_log("ERROR: Mobitech API key is not configured");
+            return false;
         }
-        $stmt->close();
-    } else {
-        $message = "Invalid email address.";
+        error_log("Mobitech API key exists: " . substr($settings['mobitech_api_key'], 0, 8) . "...");
+    }
+    
+    if ($settings['sms_provider'] === 'textsms') {
+        if (empty($settings['textsms_api_key'])) {
+            error_log("ERROR: Text SMS API key is not configured");
+            return false;
+        }
+        error_log("Text SMS API key exists: " . substr($settings['textsms_api_key'], 0, 8) . "...");
+    }
+    
+    $message = "Your Kenya EduHub password reset code is: $code. Valid for 10 minutes.";
+    error_log("Message prepared: $message");
+    
+    // Load SMS classes
+    $smsConfigPath = __DIR__ . '/../sms/sms_config.php';
+    $mobitechPath = __DIR__ . '/../sms/MobitechSMS.php';
+    $textsmsPath = __DIR__ . '/../sms/TextSMS.php';
+    
+    error_log("Loading SMS classes from: $smsConfigPath, $mobitechPath, $textsmsPath");
+    
+    if (!file_exists($smsConfigPath)) {
+        error_log("ERROR: sms_config.php not found at $smsConfigPath");
+        return false;
+    }
+    if (!file_exists($mobitechPath)) {
+        error_log("ERROR: MobitechSMS.php not found at $mobitechPath");
+        return false;
+    }
+    if (!file_exists($textsmsPath)) {
+        error_log("ERROR: TextSMS.php not found at $textsmsPath");
+        return false;
+    }
+    
+    require_once $smsConfigPath;
+    require_once $mobitechPath;
+    require_once $textsmsPath;
+    
+    error_log("SMS classes loaded successfully");
+    
+    try {
+        // Try primary provider first
+        if ($settings['sms_provider'] === 'mobitech') {
+            error_log("Creating MobitechSMS instance with API key and sender ID from settings: " . ($settings['mobitech_sender_id'] ?? 'not set'));
+            $senderId = $settings['mobitech_sender_id'] ?? 'FULL_CIRCLE';
+            $mobitech = new MobitechSMS($settings['mobitech_api_key'], $senderId);
+            error_log("Calling sendSMS on MobitechSMS with sender ID: $senderId");
+            $result = $mobitech->sendSMS($phone, $message);
+            error_log("Mobitech SMS result: " . print_r($result, true));
+            
+            if (!$result['success']) {
+                error_log("ERROR: Mobitech SMS failed - " . ($result['error'] ?? 'Unknown error'));
+                // Try Text SMS as fallback
+                error_log("Trying Text SMS as fallback");
+                if (!empty($settings['textsms_api_key'])) {
+                    $textsms = new TextSMS($settings['textsms_api_key'], $settings['textsms_partner_id'], $settings['textsms_sender_id']);
+                    $result = $textsms->sendSMS($phone, $message);
+                    error_log("Text SMS fallback result: " . print_r($result, true));
+                    return $result['success'] ?? false;
+                }
+            }
+            
+            return $result['success'] ?? false;
+        } else {
+            error_log("Creating TextSMS instance with API key, partner ID and sender ID");
+            $textsms = new TextSMS($settings['textsms_api_key'], $settings['textsms_partner_id'], $settings['textsms_sender_id']);
+            error_log("Calling sendSMS on TextSMS");
+            $result = $textsms->sendSMS($phone, $message);
+            error_log("Text SMS result: " . print_r($result, true));
+            
+            if (!$result['success']) {
+                error_log("ERROR: Text SMS failed - " . ($result['error'] ?? 'Unknown error'));
+            }
+            
+            return $result['success'] ?? false;
+        }
+    } catch (Exception $e) {
+        error_log("ERROR: Exception during SMS sending: " . $e->getMessage());
+        error_log("Exception trace: " . $e->getTraceAsString());
+        return false;
+    }
+    
+    error_log("=== SMS SENDING END ===");
+}
+
+// Step 1: User submits email or phone
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && $step === 1) {
+    $method = $_POST['method'] ?? 'email';
+    
+    if ($method === 'email') {
+        $email = trim($_POST['email']);
+        if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $stmt = $conn->prepare("SELECT id FROM users WHERE email = ?");
+            $stmt->bind_param("s", $email);
+            $stmt->execute();
+            $stmt->store_result();
+
+            if ($stmt->num_rows > 0) {
+                $code = str_pad(rand(0, 999999), 6, '0', STR_PAD_LEFT);
+                $expires = date('Y-m-d H:i:s', strtotime('+10 minutes'));
+                $update = $conn->prepare("UPDATE users SET reset_code = ?, reset_expires_at = ? WHERE email = ?");
+                $update->bind_param("sss", $code, $expires, $email);
+                if ($update->execute() && sendResetCode($email, $code)) {
+                    $_SESSION['reset_email'] = $email;
+                    $_SESSION['reset_method'] = 'email';
+                    $_SESSION['step'] = 2;
+                    $step = 2;
+                    $message = "Verification code sent to your email.";
+                } else {
+                    $message = "Failed to send code. Try again.";
+                }
+            } else {
+                $message = "Email not found.";
+            }
+            $stmt->close();
+        } else {
+            $message = "Invalid email address.";
+        }
+    } elseif ($method === 'sms') {
+        $phone = trim($_POST['phone']);
+        // Accept multiple Kenyan formats: 07XXXXXXXX, 01XXXXXXXX, +2547XXXXXXXX, +2541XXXXXXXX
+        if (preg_match('/^(07|01)[0-9]{8}$/', $phone) || preg_match('/^\+254[71][0-9]{8}$/', $phone)) {
+            $stmt = $conn->prepare("SELECT id, email FROM users WHERE phone = ?");
+            $stmt->bind_param("s", $phone);
+            $stmt->execute();
+            $result = $stmt->get_result();
+
+            if ($result->num_rows > 0) {
+                $user = $result->fetch_assoc();
+                $code = str_pad(rand(0, 999999), 6, '0', STR_PAD_LEFT);
+                $expires = date('Y-m-d H:i:s', strtotime('+10 minutes'));
+                $update = $conn->prepare("UPDATE users SET reset_code = ?, reset_expires_at = ? WHERE phone = ?");
+                $update->bind_param("sss", $code, $expires, $phone);
+                if ($update->execute() && sendResetSMS($phone, $code)) {
+                    $_SESSION['reset_phone'] = $phone;
+                    $_SESSION['reset_email'] = $user['email'];
+                    $_SESSION['reset_method'] = 'sms';
+                    $_SESSION['step'] = 2;
+                    $step = 2;
+                    $message = "Verification code sent to your phone.";
+                } else {
+                    $message = "Failed to send code. Try again.";
+                }
+            } else {
+                $message = "Phone number not found in our system. Please contact support.";
+            }
+            $stmt->close();
+        } else {
+            $message = "Invalid phone format. Use Kenya format: 07XXXXXXXX, 01XXXXXXXX, +2547XXXXXXXX, or +2541XXXXXXXX";
+        }
     }
 }
 
 // Step 2: Verify code
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['code']) && $step === 2) {
     $code = trim($_POST['code']);
-    $stmt = $conn->prepare("SELECT reset_expires_at FROM users WHERE email = ? AND reset_code = ?");
-    $stmt->bind_param("ss", $email, $code);
+    
+    // Check by email or phone based on method used
+    if ($_SESSION['reset_method'] === 'sms') {
+        $stmt = $conn->prepare("SELECT reset_expires_at FROM users WHERE phone = ? AND reset_code = ?");
+        $stmt->bind_param("ss", $phone, $code);
+    } else {
+        $stmt = $conn->prepare("SELECT reset_expires_at FROM users WHERE email = ? AND reset_code = ?");
+        $stmt->bind_param("ss", $email, $code);
+    }
     $stmt->execute();
     $result = $stmt->get_result();
 
@@ -367,7 +527,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['new_password']) && $s
 
         <br>
 
-        <h3>Forgot Password?</h3>
+        <h3>Reset Password</h3>
 
         <?php if ($message): ?>
             <div class="alert-success" role="alert" aria-live="assertive">
@@ -376,8 +536,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['new_password']) && $s
         <?php endif; ?>
 
         <?php if ($step === 1): ?>
-            <form method="post" class="login-form">
-                <div class="form-group">
+            <form method="post" class="login-form" id="resetForm">
+                <input type="hidden" name="method" id="method" value="email">
+                
+                <div class="form-group" id="email_field">
                     <label for="email">Email address</label>
                     <input
                         type="email"
@@ -385,15 +547,57 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['new_password']) && $s
                         name="email"
                         class="form-control"
                         placeholder="Enter your email address"
-                        value="<?= htmlspecialchars($email) ?>"
                         required
                         autocomplete="email"
                     />
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px;">
+                        <small style="color: #5f6368; font-size: 12px;">&nbsp;</small>
+                        <a href="#" id="switchToSMS" style="color: #1a73e8; text-decoration: none; font-size: 13px;">Send code via SMS instead</a>
+                    </div>
                 </div>
+                
+                <div class="form-group" id="phone_field" style="display: none;">
+                    <label for="phone">Phone Number</label>
+                    <input
+                        type="tel"
+                        id="phone"
+                        name="phone"
+                        class="form-control"
+                        placeholder="Enter your phone number"
+                        autocomplete="tel"
+                        pattern="^(07|01)[0-9]{8}$|^\+254[71][0-9]{8}$"
+                    />
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px;">
+                        <small style="color: #5f6368; font-size: 12px;">Kenya format: 07XXXXXXXX, 01XXXXXXXX, +2547XXXXXXXX, or +2541XXXXXXXX</small>
+                        <a href="#" id="switchToEmail" style="color: #1a73e8; text-decoration: none; font-size: 13px;">Send code via email instead</a>
+                    </div>
+                </div>
+                
                 <button type="submit" class="btn btn-primary" aria-label="Send verification code">
                     Send Code
                 </button>
             </form>
+            
+            <script>
+                // Toggle between email and phone fields
+                document.getElementById('switchToSMS').addEventListener('click', function(e) {
+                    e.preventDefault();
+                    document.getElementById('email_field').style.display = 'none';
+                    document.getElementById('phone_field').style.display = 'block';
+                    document.getElementById('method').value = 'sms';
+                    document.getElementById('email').required = false;
+                    document.getElementById('phone').required = true;
+                });
+                
+                document.getElementById('switchToEmail').addEventListener('click', function(e) {
+                    e.preventDefault();
+                    document.getElementById('email_field').style.display = 'block';
+                    document.getElementById('phone_field').style.display = 'none';
+                    document.getElementById('method').value = 'email';
+                    document.getElementById('email').required = true;
+                    document.getElementById('phone').required = false;
+                });
+            </script>
 
         <?php elseif ($step === 2): ?>
             <form method="post" class="login-form">

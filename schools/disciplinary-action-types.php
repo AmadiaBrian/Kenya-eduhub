@@ -108,9 +108,9 @@ if (isset($_GET['delete'])) {
         .card {
             background: var(--bg-color);
             border: 1px solid #e0e0e0;
-            border-radius: 12px;
+            border-radius: 25px;
             box-shadow: none;
-            margin-bottom: 20px;
+            margin: 0 0 24px 0;
         }
 
         .card-header {
@@ -124,7 +124,7 @@ if (isset($_GET['delete'])) {
         }
         
         .card-body {
-            padding: 20px;
+            padding: 0;
             border-radius: 12px;
         }
         
@@ -163,7 +163,7 @@ if (isset($_GET['delete'])) {
         /* Buttons */
         .btn {
             padding: 10px 24px;
-            border-radius: 20px;
+            border-radius: 25px;
             font-size: 14px;
             font-weight: 500;
             border: none;
@@ -203,64 +203,71 @@ if (isset($_GET['delete'])) {
             border-radius: 12px;
         }
 
-        .btn-action {
-            background: #f8f9fa;
-            color: #202124;
-            border: 1px solid #e8eaed;
-            cursor: pointer;
-            padding: 6px 12px;
-            font-size: 12px;
-            border-radius: 12px;
-            transition: background 0.2s;
-        }
 
-        .btn-action:hover {
-            background: #e9ecef;
-        }
         
         /* Table */
         .table {
             width: 100%;
             border-collapse: collapse;
             background: white;
-            border: 1px solid #000;
+            border: 2px solid #000;
             margin: 0;
+            font-family: 'Times New Roman', Times, serif;
         }
-        
+
         .table-responsive {
             width: 100%;
             overflow-x: auto;
+            margin: 0;
+            padding: 0 20px 20px 20px;
         }
-        
+
         .table thead {
-            background: #FF6B35 !important;
+            background: #f0f0f0;
             border-bottom: 2px solid #000;
         }
 
         .table th {
-            text-align: left;
-            padding: 12px;
-            font-size: 13px;
-            font-weight: 600;
-            color: #ffffff !important;
-            border: 1px solid #000;
+            background: #f0f0f0;
+            border: 2px solid #000;
             border-bottom: 2px solid #000;
-            background-color: #FF6B35 !important;
+            padding: 12px;
+            font-weight: bold;
+            color: #000;
+            white-space: nowrap;
         }
-        
+
         .table td {
             padding: 12px;
             font-size: 13px;
             color: #000;
-            border: 1px solid #000;
+            border: 2px solid #000;
         }
-        
+
         .table tbody tr:nth-child(even) {
-            background: #f9f9f9;
+            background: #fafafa;
         }
-        
+
         .table tbody tr:hover {
-            background: #f0f0f0;
+            background: #f8f9fa;
+        }
+
+        .btn-action {
+            background: transparent;
+            color: #FF6B35;
+            border: none;
+            cursor: pointer;
+            margin-right: 4px;
+            padding: 0;
+        }
+
+        .btn-action:hover {
+            color: #e55a2b;
+        }
+
+        .action-buttons-cell {
+            display: flex;
+            gap: 4px;
         }
         
         /* Badge */
@@ -344,113 +351,7 @@ if (isset($_GET['delete'])) {
             margin-top: 20px;
         }
         
-        .table {
-            background: white;
-            border-radius: 0;
-            overflow: hidden;
-            border: 1px solid #000;
-        }
-        
-        .table thead th {
-            background: #FF6B35 !important;
-            font-weight: 500;
-            color: #ffffff !important;
-            font-size: 12px;
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
-            padding: 12px 16px;
-            border-bottom: 1px solid #000;
-        }
-        
-        .table tbody td {
-            padding: 12px 16px;
-            color: #202124;
-            font-size: 14px;
-            border: 1px solid #000;
-        }
 
-        .table tbody tr:last-child td {
-            border-bottom: 1px solid #000;
-        }
-        
-        .badge {
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 12px;
-            font-weight: 500;
-        }
-        
-        .badge-minor { background: #e8f0fe; color: #1967d2; }
-        .badge-moderate { background: #fef7e0; color: #f9ab00; }
-        .badge-severe { background: #fce8e6; color: #c5221f; }
-        .badge-critical { background: #c5221f; color: white; }
-        
-        .btn {
-            padding: 8px 16px;
-            border-radius: 6px;
-            font-size: 14px;
-            font-weight: 500;
-            border: none;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-        
-        .btn-primary {
-            background: var(--primary-color);
-            color: white;
-        }
-        
-        .btn-primary:hover {
-            background: #e55a2b;
-        }
-        
-        .btn-secondary {
-            background: #f1f3f4;
-            color: #5f6368;
-        }
-        
-        .btn-secondary:hover {
-            background: #e8eaed;
-        }
-        
-        .btn-danger {
-            background: #c5221f;
-            color: white;
-        }
-        
-        .btn-danger:hover {
-            background: #b3261e;
-        }
-        
-        .btn-action {
-            background: #f8f9fa;
-            color: #000;
-            border: 1px solid #000;
-            cursor: pointer;
-        }
-        
-        .btn-action:hover {
-            background: #e9ecef;
-        }
-        
-        .alert {
-            padding: 12px 16px;
-            border-radius: 6px;
-            margin-bottom: 16px;
-            font-size: 14px;
-        }
-        
-        .alert-danger {
-            background: #fce8e6;
-            color: #c5221f;
-            border: 1px solid #f5c6cb;
-        }
-        
-        .alert-success {
-            background: #e6f4ea;
-            color: #137333;
-            border: 1px solid #c6f6d5;
-        }
 
         /* Footer styling */
         .kenya-eduhub-footer-unique-2026 {
@@ -462,17 +363,63 @@ if (isset($_GET['delete'])) {
             .sidebar {
                 transform: translateX(-100%);
             }
-            
+
             .sidebar.show {
                 transform: translateX(0);
             }
-            
+
             .main-content {
                 margin-left: 0;
+                padding: 0;
+                width: 100%;
             }
-            
+
+            .page-title {
+                font-size: 18px;
+                padding: 16px;
+            }
+
+            .card {
+                padding: 16px;
+                margin: 0 4px 16px 4px;
+            }
+
             .form-grid {
                 grid-template-columns: 1fr;
+            }
+
+            .btn {
+                width: 100% !important;
+            }
+
+            .table-responsive {
+                overflow-x: auto;
+                width: 100%;
+            }
+
+            .table {
+                font-size: 11px;
+                min-width: 100%;
+            }
+
+            .table th {
+                padding: 8px 4px;
+                font-size: 11px;
+            }
+
+            .table td {
+                padding: 8px 4px;
+                font-size: 11px;
+            }
+
+            .quick-access-grid {
+                display: grid !important;
+                grid-template-columns: repeat(3, 1fr) !important;
+                gap: 8px !important;
+            }
+
+            .quick-access-item {
+                padding: 12px !important;
             }
         }
 
@@ -489,8 +436,12 @@ if (isset($_GET['delete'])) {
         .fa-trash { color: #EA4335; }
     </style>
 </head>
-<body>
+<body class="dashboard-page">
 <?php require_once 'includes/header.php'; ?>
+<br>
+<br>
+<br>
+
 <?php $active_page = 'disciplinary-action-types'; require_once 'includes/sidebar.php'; ?>
 
 <br>
@@ -535,7 +486,7 @@ if (isset($_GET['delete'])) {
                         <label class="form-label">Description</label>
                         <textarea class="form-control" name="description" rows="3"></textarea>
                     </div>
-                    <div style="display: flex; gap: 12px;">
+                    <div style="display: flex; flex-direction: column; gap: 12px;">
                         <button type="submit" class="btn btn-primary">
                             <i class="fas fa-plus me-2"></i>Add Action Type
                         </button>
@@ -583,8 +534,8 @@ if (isset($_GET['delete'])) {
                                             </span>
                                         </td>
                                         <td>
-                                            <a href="?delete=<?php echo $type['id']; ?>" class="btn btn-sm btn-secondary" onclick="return confirm('Are you sure you want to delete this action type?');">
-                                                <i class="fas fa-trash"></i> Delete
+                                            <a href="?delete=<?php echo $type['id']; ?>" class="btn-action" onclick="return confirm('Are you sure you want to delete this action type?');">
+                                                <i class="fas fa-trash"></i>
                                             </a>
                                         </td>
                                     </tr>

@@ -188,9 +188,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['upload_logo'])) {
         .card {
             background: var(--bg-color);
             border: 1px solid #e0e0e0;
-            border-radius: 8px;
+            border-radius: 25px;
             padding: 24px;
-            margin-bottom: 24px;
+            margin: 0 0 24px 0;
         }
 
         .card-title {
@@ -223,7 +223,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['upload_logo'])) {
 
         .btn {
             padding: 10px 24px;
-            border-radius: 20px;
+            border-radius: 25px;
             font-size: 14px;
             font-weight: 500;
             border: none;
@@ -268,9 +268,42 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['upload_logo'])) {
         .fa-save { color: #00AC47; }
         .fa-key { color: #0066DA; }
         .fa-upload { color: #4285F4; }
+
+        /* Mobile */
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 0;
+                padding-bottom: 80px;
+                width: 100%;
+            }
+
+            .page-title {
+                font-size: 18px;
+                padding: 16px;
+            }
+
+            .card {
+                padding: 16px;
+                margin: 0 4px 16px 4px;
+            }
+
+            .btn {
+                width: 100% !important;
+            }
+
+            .quick-access-grid {
+                display: grid !important;
+                grid-template-columns: repeat(3, 1fr) !important;
+                gap: 8px !important;
+            }
+
+            .quick-access-item {
+                padding: 12px !important;
+            }
+        }
     </style>
 </head>
-<body>
+<body class="dashboard-page">
 <?php require_once 'includes/header.php'; ?>
 <?php $active_page = 'profile'; require_once 'includes/sidebar.php'; ?>
 

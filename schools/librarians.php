@@ -180,11 +180,11 @@ try {
         /* Cards */
         .card {
             background: var(--bg-color);
-            border: none;
-            border-radius: 12px;
+            border: 1px solid #e0e0e0;
+            border-radius: 25px;
             box-shadow: none;
             padding: 24px;
-            margin-bottom: 24px;
+            margin: 0 0 24px 0;
         }
 
         .card-title {
@@ -200,63 +200,70 @@ try {
             width: 100%;
             border-collapse: collapse;
             background: white;
-            border: 1px solid #000;
+            border: 2px solid #000;
             margin: 0;
-            table-layout: fixed;
+            font-family: 'Times New Roman', Times, serif;
         }
 
-        .table thead,
-        .table-responsive .table thead {
-            background: #FF6B35 !important;
+        .table thead {
+            background: #f0f0f0;
             border-bottom: 2px solid #000;
         }
 
-        .table th,
-        .table-responsive .table th {
-            text-align: left;
+        .table th {
+            background: #f0f0f0;
+            border: 2px solid #000;
+            border-bottom: 2px solid #000;
             padding: 12px;
-            font-size: 13px;
-            font-weight: 600;
-            color: #ffffff !important;
-            border: 1px solid #000;
-            border-bottom: 2px solid #000;
-            background-color: #FF6B35 !important;
+            font-weight: bold;
+            color: #000;
+            white-space: nowrap;
         }
 
         .table td {
             padding: 12px;
             font-size: 13px;
             color: #000;
-            border: 1px solid #000;
-        }
-
-        .table td:last-child {
-            min-width: 200px;
-            width: 200px;
-        }
-
-        .table th:last-child {
-            min-width: 200px;
-            width: 200px;
+            border: 2px solid #000;
         }
 
         .table tbody tr:nth-child(even) {
-            background: #f9f9f9;
+            background: #fafafa;
         }
 
         .table tbody tr:hover {
-            background: #f0f0f0;
+            background: #f8f9fa;
         }
 
         .table-responsive {
             width: 100%;
             overflow-x: auto;
+            margin: 0;
+            padding: 0;
+        }
+
+        .btn-action {
+            background: transparent;
+            color: #FF6B35;
+            border: none;
+            cursor: pointer;
+            margin-right: 4px;
+            padding: 0;
+        }
+
+        .btn-action:hover {
+            color: #e55a2b;
+        }
+
+        .action-buttons-cell {
+            display: flex;
+            gap: 4px;
         }
 
         /* Buttons */
         .btn {
             padding: 10px 24px;
-            border-radius: 20px;
+            border-radius: 25px;
             font-size: 14px;
             font-weight: 500;
             border: none;
@@ -297,29 +304,6 @@ try {
 
         .btn-danger:hover {
             background: #a91c1a;
-        }
-
-        .btn-action {
-            background: #f8f9fa;
-            color: #202124;
-            border: 1px solid #e8eaed;
-            cursor: pointer;
-            padding: 6px 12px;
-            font-size: 12px;
-            border-radius: 12px;
-            transition: background 0.2s;
-            white-space: nowrap;
-        }
-
-        .btn-action:hover {
-            background: #e9ecef;
-        }
-
-        .btn-sm {
-            padding: 6px 12px;
-            font-size: 12px;
-            border-radius: 12px;
-            white-space: nowrap;
         }
 
         .table td form {
@@ -393,17 +377,19 @@ try {
         /* Mobile */
         @media (max-width: 768px) {
             .main-content {
-                padding: 16px;
+                padding: 0;
                 padding-bottom: 80px;
+                width: 100%;
+            }
+
+            .page-title {
+                font-size: 18px;
+                padding: 16px;
             }
 
             .card {
-                text-align: left;
-                border: none !important;
-            }
-
-            .card form {
-                text-align: left;
+                padding: 16px;
+                margin: 0 4px 16px 4px;
             }
 
             .row {
@@ -418,12 +404,12 @@ try {
             }
 
             .form-control {
-                border-radius: 20px;
+                border-radius: 25px;
             }
 
             .btn {
-                width: 100%;
-                border-radius: 20px;
+                width: 100% !important;
+                border-radius: 25px;
                 padding: 12px 16px;
                 font-size: 16px;
             }
@@ -436,33 +422,23 @@ try {
 
             .table {
                 font-size: 11px;
-                min-width: 600px;
+                min-width: 100%;
             }
 
             .table th,
             .table td {
-                padding: 8px 10px;
+                padding: 8px 4px;
             }
 
             .table td:last-child {
                 white-space: nowrap !important;
-                width: 100px !important;
-                min-width: 100px !important;
-            }
-
-            .table th:last-child {
-                width: 100px !important;
-                min-width: 100px !important;
             }
 
             .table td form {
                 display: inline !important;
             }
 
-            .table td form button,
-            .table td form .btn,
-            .table td form .btn-sm,
-            .table td form .btn-action {
+            .table td form button {
                 margin-right: 2px !important;
                 padding: 2px 5px !important;
                 font-size: 8px !important;
@@ -472,18 +448,22 @@ try {
                 width: auto !important;
             }
 
-            .table td form button i,
-            .table td form .btn i,
-            .table td form .btn-sm i,
-            .table td form .btn-action i {
+            .table td form button i {
                 font-size: 10px !important;
             }
 
-            .table td form button:last-child,
-            .table td form .btn:last-child,
-            .table td form .btn-sm:last-child,
-            .table td form .btn-action:last-child {
+            .table td form button:last-child {
                 margin-right: 0 !important;
+            }
+
+            .quick-access-grid {
+                display: grid !important;
+                grid-template-columns: repeat(3, 1fr) !important;
+                gap: 8px !important;
+            }
+
+            .quick-access-item {
+                padding: 12px !important;
             }
         }
 
@@ -500,7 +480,7 @@ try {
         .fa-trash { color: #EA4335; }
     </style>
 </head>
-<body>
+<body class="dashboard-page">
 <?php require_once 'includes/header.php'; ?>
 <?php $active_page = 'librarians'; require_once 'includes/sidebar.php'; ?>
 
@@ -603,13 +583,13 @@ try {
                                         <form method="POST" style="display: inline;">
                                             <input type="hidden" name="librarian_id" value="<?php echo $librarian['id']; ?>">
                                             <input type="hidden" name="status" value="<?php echo $librarian['status'] === 'active' ? 'inactive' : 'active'; ?>">
-                                            <button type="submit" name="update_status" class="btn btn-sm btn-action" title="<?php echo $librarian['status'] === 'active' ? 'Deactivate' : 'Activate'; ?>">
+                                            <button type="submit" name="update_status" class="btn-action" title="<?php echo $librarian['status'] === 'active' ? 'Deactivate' : 'Activate'; ?>">
                                                 <i class="fas fa-<?php echo $librarian['status'] === 'active' ? 'toggle-on' : 'toggle-off'; ?>"></i>
                                             </button>
                                         </form>
                                         <form method="POST" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this librarian?');">
                                             <input type="hidden" name="librarian_id" value="<?php echo $librarian['id']; ?>">
-                                            <button type="submit" name="delete_librarian" class="btn btn-sm btn-action" title="Delete">
+                                            <button type="submit" name="delete_librarian" class="btn-action" title="Delete">
                                                 <i class="fas fa-trash"></i>
                                             </button>
                                         </form>

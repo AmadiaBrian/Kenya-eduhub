@@ -83,10 +83,10 @@ try {
 
         .card {
             background: var(--bg-color);
-            border: 1px solid #e8eaed;
-            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+            border-radius: 25px;
             padding: 24px;
-            margin-bottom: 24px;
+            margin: 0 0 24px 0;
         }
 
         .card-title {
@@ -113,7 +113,7 @@ try {
         
         .btn {
             padding: 10px 24px;
-            border-radius: 4px;
+            border-radius: 25px;
             font-size: 14px;
             font-weight: 500;
             border: none;
@@ -220,10 +220,10 @@ try {
         /* Filter Section */
         .filter-section {
             background: var(--bg-color);
-            border-radius: 8px;
+            border-radius: 25px;
             padding: 24px;
-            margin-bottom: 24px;
-            border: 1px solid #e8eaed;
+            margin: 0 0 24px 0;
+            border: 1px solid #e0e0e0;
         }
 
         .filter-section .card-title {
@@ -234,47 +234,67 @@ try {
         }
         
         .table {
+            width: 100%;
             border-collapse: collapse;
-            background: #ffffff;
-            border: 1px solid #000;
-            width: 100%;
+            background: white;
+            border: 2px solid #000;
             margin: 0;
+            font-family: 'Times New Roman', Times, serif;
         }
-        
-        .table-responsive {
-            width: 100%;
-            overflow-x: auto;
-        }
-        
+
         .table thead {
-            background: #FF6B35 !important;
+            background: #f0f0f0;
             border-bottom: 2px solid #000;
         }
 
         .table thead th {
-            background: #FF6B35 !important;
-            border: 1px solid #000;
+            background: #f0f0f0;
+            border: 2px solid #000;
             border-bottom: 2px solid #000;
             padding: 12px;
-            font-weight: 600;
-            color: #ffffff !important;
-            font-size: 13px;
-            text-transform: uppercase;
+            font-weight: bold;
+            color: #000;
+            white-space: nowrap;
         }
-        
+
         .table td {
             padding: 12px;
-            border: 1px solid #000;
+            border: 2px solid #000;
             color: #000;
             font-size: 13px;
         }
-        
+
         .table tbody tr:nth-child(even) {
-            background: #ffffff;
+            background: #fafafa;
         }
-        
+
         .table tbody tr:hover {
-            background: #f0f0f0;
+            background: #f8f9fa;
+        }
+
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+            margin: 0;
+            padding: 0;
+        }
+
+        .btn-action {
+            background: transparent;
+            color: #FF6B35;
+            border: none;
+            cursor: pointer;
+            margin-right: 4px;
+            padding: 0;
+        }
+
+        .btn-action:hover {
+            color: #e55a2b;
+        }
+
+        .action-buttons-cell {
+            display: flex;
+            gap: 4px;
         }
         
         @media (max-width: 768px) {
@@ -284,32 +304,61 @@ try {
             }
 
             .main-content {
-                padding: 16px;
+                padding: 0;
+                width: 100%;
             }
 
             .page-title {
                 font-size: 22px;
                 font-weight: 400;
-                margin-bottom: 16px;
+                padding: 16px;
             }
 
             .card {
                 padding: 16px;
-                margin-bottom: 16px;
-                border-radius: 12px;
-                box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+                margin: 0 4px 16px 4px;
+            }
+
+            .filter-section {
+                padding: 16px;
+                margin: 0 4px 16px 4px;
+            }
+
+            .action-buttons {
+                padding: 16px;
+                margin: 0 4px 16px 4px;
             }
 
             .table-responsive {
                 overflow-x: auto;
                 -webkit-overflow-scrolling: touch;
-                border-radius: 8px;
                 width: 100%;
             }
 
             .table {
-                min-width: 600px;
+                min-width: 100%;
                 width: 100%;
+                font-size: 11px;
+            }
+
+            .table thead th {
+                padding: 8px 4px;
+                font-size: 11px;
+            }
+
+            .table td {
+                padding: 8px 4px;
+                font-size: 11px;
+            }
+
+            .quick-access-grid {
+                display: grid !important;
+                grid-template-columns: repeat(3, 1fr) !important;
+                gap: 8px !important;
+            }
+
+            .quick-access-item {
+                padding: 12px !important;
             }
 
             .btn {
@@ -332,26 +381,6 @@ try {
             .form-control:focus {
                 border-color: var(--primary-color);
                 box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.2);
-            }
-
-            .card-header {
-                flex-direction: column;
-                gap: 12px;
-                align-items: flex-start;
-                padding-bottom: 12px;
-                border-bottom: 1px solid #e8eaed;
-            }
-
-            .card-header .btn {
-                width: 100%;
-            }
-
-            .card {
-                text-align: center;
-            }
-
-            .card-header {
-                justify-content: center;
             }
         }
         
@@ -448,8 +477,11 @@ try {
         .fa-trash { color: #EA4335; }
     </style>
 </head>
-<body>
+<body class="dashboard-page">
     <?php require_once 'includes/header.php'; ?>
+    <br>
+    <br>
+    
     <?php $active_page = 'fees'; require_once 'includes/sidebar.php'; ?>
     
     <br>

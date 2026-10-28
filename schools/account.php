@@ -147,10 +147,10 @@ if (empty($_SESSION['csrf_token'])) {
         /* Cards */
         .card {
             background: var(--bg-color);
-            border: 1px solid #e8eaed;
-            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+            border-radius: 25px;
             padding: 24px;
-            margin-bottom: 24px;
+            margin: 0 0 24px 0;
         }
 
         .card-title {
@@ -192,45 +192,64 @@ if (empty($_SESSION['csrf_token'])) {
             width: 100%;
             border-collapse: collapse;
             background: white;
-            border: 1px solid #000;
+            border: 2px solid #000;
             margin: 0;
+            font-family: 'Times New Roman', Times, serif;
         }
 
         .table-responsive {
             width: 100%;
             overflow-x: auto;
+            margin: 0;
+            padding: 0;
         }
 
         .table thead {
-            background: #FF6B35 !important;
+            background: #f0f0f0;
             border-bottom: 2px solid #000;
         }
 
         .table thead th {
-            background: #FF6B35 !important;
-            text-align: left;
-            padding: 12px;
-            font-size: 13px;
-            color: #ffffff !important;
-            font-weight: 600;
-            color: #000;
-            border: 1px solid #000;
+            background: #f0f0f0;
+            border: 2px solid #000;
             border-bottom: 2px solid #000;
+            padding: 12px;
+            font-weight: bold;
+            color: #000;
+            white-space: nowrap;
         }
 
         .table td {
             padding: 12px;
             font-size: 13px;
             color: #000;
-            border: 1px solid #000;
+            border: 2px solid #000;
         }
 
         .table tbody tr:nth-child(even) {
-            background: #f9f9f9;
+            background: #fafafa;
         }
 
         .table tbody tr:hover {
-            background: #f0f0f0;
+            background: #f8f9fa;
+        }
+
+        .btn-action {
+            background: transparent;
+            color: #FF6B35;
+            border: none;
+            cursor: pointer;
+            margin-right: 4px;
+            padding: 0;
+        }
+
+        .btn-action:hover {
+            color: #e55a2b;
+        }
+
+        .action-buttons-cell {
+            display: flex;
+            gap: 4px;
         }
         
         .badge {
@@ -294,10 +313,10 @@ if (empty($_SESSION['csrf_token'])) {
         /* Filter Section */
         .filter-section {
             background: var(--bg-color);
-            border-radius: 8px;
+            border-radius: 25px;
             padding: 24px;
-            margin-bottom: 24px;
-            border: 1px solid #e8eaed;
+            margin: 0 0 24px 0;
+            border: 1px solid #e0e0e0;
         }
 
         .filter-section .card-title {
@@ -318,8 +337,38 @@ if (empty($_SESSION['csrf_token'])) {
 
         /* Responsive */
         @media (max-width: 768px) {
-            .btn {
+            .main-content {
+                padding: 0;
                 width: 100%;
+            }
+
+            .page-title {
+                font-size: 18px;
+                padding: 16px;
+            }
+
+            .card {
+                padding: 16px;
+                margin: 0 4px 16px 4px;
+            }
+
+            .filter-section {
+                padding: 16px;
+                margin: 0 4px 16px 4px;
+            }
+
+            .action-buttons {
+                padding: 16px;
+                margin: 0 4px 16px 4px;
+            }
+
+            .balance-card {
+                padding: 24px;
+                margin: 0 4px 16px 4px;
+            }
+
+            .btn {
+                width: 100% !important;
             }
 
             .form-control {
@@ -328,6 +377,36 @@ if (empty($_SESSION['csrf_token'])) {
 
             .balance-amount {
                 font-size: 36px;
+            }
+
+            .table-responsive {
+                overflow-x: auto;
+                width: 100%;
+            }
+
+            .table {
+                font-size: 11px;
+                min-width: 100%;
+            }
+
+            .table thead th {
+                padding: 8px 4px;
+                font-size: 11px;
+            }
+
+            .table td {
+                padding: 8px 4px;
+                font-size: 11px;
+            }
+
+            .quick-access-grid {
+                display: grid !important;
+                grid-template-columns: repeat(3, 1fr) !important;
+                gap: 8px !important;
+            }
+
+            .quick-access-item {
+                padding: 12px !important;
             }
         }
 
@@ -344,7 +423,7 @@ if (empty($_SESSION['csrf_token'])) {
         .fa-trash { color: #EA4335; }
     </style>
 </head>
-<body>
+<body class="dashboard-page">
     <?php require_once 'includes/header.php'; ?>
 
     <?php $active_page = 'account'; require_once 'includes/sidebar.php'; ?>
@@ -384,7 +463,8 @@ if (empty($_SESSION['csrf_token'])) {
                 </div>
             <?php else: ?>
                 <button type="button" class="btn btn-orange" onclick="showPinVerification()" style="margin-bottom: 20px;">
-                    <i class="fas fa-plus-circle"></i> New Withdrawal Request
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/1/15/M-PESA_LOGO-01.svg" alt="M-PESA" style="height: 24px; margin-right: 8px;">
+                    New Withdrawal Request
                 </button>
                 
                 <!-- PIN Verification Section -->
@@ -394,7 +474,7 @@ if (empty($_SESSION['csrf_token'])) {
                     </div>
                     <div style="margin-bottom: 20px;">
                         <label for="withdrawalPin" style="display: block; margin-bottom: 8px; color: #202124; font-weight: 500;">Withdrawal PIN</label>
-                        <input type="password" id="withdrawalPin" class="form-control" placeholder="Enter your 4-digit PIN" maxlength="4" style="width: 100%; padding: 12px 15px; border: 1px solid #e8eaed; border-radius: 6px; background: #ffffff; color: #202124; font-size: 16px;">
+                        <input type="password" id="withdrawalPin" class="form-control" placeholder="Enter your 4-digit PIN" maxlength="4" style="width: 100%; padding: 12px 15px; border: 1px solid #e8eaed; border-radius: 25px; background: #ffffff; color: #202124; font-size: 16px;">
                     </div>
                     <div style="display: flex; gap: 15px;">
                         <button type="button" class="btn btn-orange" onclick="verifyWithdrawalPin()">
@@ -414,12 +494,12 @@ if (empty($_SESSION['csrf_token'])) {
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
                         <div>
                             <label for="amount" style="display: block; margin-bottom: 8px; color: #202124; font-weight: 500;">Amount (KES)</label>
-                            <input type="number" id="amount" name="amount" class="form-control" min="10" max="<?php echo $school_balance; ?>" required style="width: 100%; padding: 12px 15px; border: 1px solid #e8eaed; border-radius: 6px; background: #ffffff; color: #202124; font-size: 16px;">
+                            <input type="number" id="amount" name="amount" class="form-control" min="10" max="<?php echo $school_balance; ?>" required style="width: 100%; padding: 12px 15px; border: 1px solid #e8eaed; border-radius: 25px; background: #ffffff; color: #202124; font-size: 16px;">
                             <small class="text-muted">Available: KES <?php echo number_format($school_balance, 2); ?></small>
                         </div>
                         <div>
                             <label for="destination_type" style="display: block; margin-bottom: 8px; color: #202124; font-weight: 500;">Send To</label>
-                            <select id="destination_type" name="destination_type" class="form-control" required onchange="updateDestinationFields()" style="width: 100%; padding: 12px 15px; border: 1px solid #e8eaed; border-radius: 6px; background: #ffffff; color: #202124; font-size: 16px;">
+                            <select id="destination_type" name="destination_type" class="form-control" required onchange="updateDestinationFields()" style="width: 100%; padding: 12px 15px; border: 1px solid #e8eaed; border-radius: 25px; background: #ffffff; color: #202124; font-size: 16px;">
                                 <option value="phone" selected>Phone Number</option>
                                 <option value="till">Till Number</option>
                                 <option value="paybill">Paybill</option>
@@ -432,23 +512,23 @@ if (empty($_SESSION['csrf_token'])) {
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
                         <div>
                             <label for="destination_name" id="destination_name_label" style="display: block; margin-bottom: 8px; color: #202124; font-weight: 500;">Recipient Name</label>
-                            <input type="text" id="destination_name" name="destination_name" class="form-control" placeholder="Recipient name" style="width: 100%; padding: 12px 15px; border: 1px solid #e8eaed; border-radius: 6px; background: #ffffff; color: #202124; font-size: 16px;">
+                            <input type="text" id="destination_name" name="destination_name" class="form-control" placeholder="Recipient name" style="width: 100%; padding: 12px 15px; border: 1px solid #e8eaed; border-radius: 25px; background: #ffffff; color: #202124; font-size: 16px;">
                         </div>
                         <div>
                             <label for="destination_account" id="destination_account_label" style="display: block; margin-bottom: 8px; color: #202124; font-weight: 500;">Phone Number</label>
-                            <input type="text" id="destination_account" name="destination_account" class="form-control" placeholder="0712345678 or 254712345678" required style="width: 100%; padding: 12px 15px; border: 1px solid #e8eaed; border-radius: 6px; background: #ffffff; color: #202124; font-size: 16px;">
+                            <input type="text" id="destination_account" name="destination_account" class="form-control" placeholder="0712345678 or 254712345678" required style="width: 100%; padding: 12px 15px; border: 1px solid #e8eaed; border-radius: 25px; background: #ffffff; color: #202124; font-size: 16px;">
                             <small class="text-muted" id="phone_hint" style="display: none;">Using school phone: <?php echo htmlspecialchars($school_phone ?? ''); ?></small>
                         </div>
                     </div>
                     
                     <div style="margin-bottom: 20px;">
                         <label for="destination_extra" id="destination_extra_label" style="display: block; margin-bottom: 8px; color: #202124; font-weight: 500;">Extra Details</label>
-                        <input type="text" id="destination_extra" name="destination_extra" class="form-control" placeholder="Optional extra instruction" style="width: 100%; padding: 12px 15px; border: 1px solid #e8eaed; border-radius: 6px; background: #ffffff; color: #202124; font-size: 16px;">
+                        <input type="text" id="destination_extra" name="destination_extra" class="form-control" placeholder="Optional extra instruction" style="width: 100%; padding: 12px 15px; border: 1px solid #e8eaed; border-radius: 25px; background: #ffffff; color: #202124; font-size: 16px;">
                     </div>
                     
                     <div style="margin-bottom: 20px;">
                         <label for="notes" style="display: block; margin-bottom: 8px; color: #202124; font-weight: 500;">Notes</label>
-                        <textarea id="notes" name="notes" class="form-control" rows="3" placeholder="Optional withdrawal note" style="width: 100%; padding: 12px 15px; border: 1px solid #e8eaed; border-radius: 6px; background: #ffffff; color: #202124; font-size: 16px;"></textarea>
+                        <textarea id="notes" name="notes" class="form-control" rows="3" placeholder="Optional withdrawal note" style="width: 100%; padding: 12px 15px; border: 1px solid #e8eaed; border-radius: 25px; background: #ffffff; color: #202124; font-size: 16px;"></textarea>
                     </div>
                     
                     <div class="alert alert-info">

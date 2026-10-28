@@ -274,10 +274,10 @@ try {
         /* Cards */
         .card {
             background: var(--bg-color);
-            border: 1px solid #e8eaed;
-            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+            border-radius: 25px;
             padding: 24px;
-            margin-bottom: 24px;
+            margin: 0 0 24px 0;
         }
         
         .card-title {
@@ -341,7 +341,7 @@ try {
         
         .btn {
             padding: 10px 24px;
-            border-radius: 4px;
+            border-radius: 25px;
             font-size: 14px;
             font-weight: 500;
             border: none;
@@ -445,38 +445,65 @@ try {
         .table {
             width: 100%;
             border-collapse: collapse;
-            background: #ffffff;
-            border: 1px solid #000;
+            background: white;
+            border: 2px solid #000;
+            margin: 0;
+            font-family: 'Times New Roman', Times, serif;
         }
-        
+
         .table-responsive {
             width: 100%;
             overflow-x: auto;
+            margin: 0;
+            padding: 0;
         }
-        
+
+        .btn-action {
+            background: transparent;
+            color: #FF6B35;
+            border: none;
+            cursor: pointer;
+            margin-right: 4px;
+            padding: 0;
+        }
+
+        .btn-action:hover {
+            color: #e55a2b;
+        }
+
+        .action-buttons-cell {
+            display: flex;
+            gap: 4px;
+        }
+
         .table thead {
-            background: #FF6B35 !important;
+            background: #f0f0f0;
             border-bottom: 2px solid #000;
         }
 
         .table thead th {
-            background: #FF6B35 !important;
-            border: 1px solid #000;
+            background: #f0f0f0;
+            border: 2px solid #000;
             border-bottom: 2px solid #000;
             padding: 12px;
-            font-weight: 600;
-            color: #ffffff !important;
+            font-weight: bold;
+            color: #000;
+            white-space: nowrap;
         }
-        
+
         .table td {
             padding: 12px;
-            border: 1px solid #000;
+            border: 2px solid #000;
             color: #000;
             font-size: 13px;
         }
-        
+
         .table tbody tr:nth-child(even) {
-            background: #ffffff;
+            background: #fafafa;
+        }
+
+        .table tbody tr:hover {
+            background: #f8f9fa;
         }
         
         /* Alert */
@@ -619,45 +646,69 @@ try {
         /* Responsive */
         @media (max-width: 768px) {
             .main-content {
+                padding: 0;
+                width: 100%;
+            }
+
+            .page-title {
+                font-size: 18px;
                 padding: 16px;
             }
-            
+
             .card {
                 padding: 16px;
+                margin: 0 4px 16px 4px;
             }
-            
+
             .form-control {
                 margin-bottom: 12px;
             }
-            
+
             .table-responsive {
                 overflow-x: auto;
                 width: 100%;
             }
 
             .table {
-                min-width: 600px;
+                min-width: 100%;
                 width: 100%;
+                font-size: 11px;
             }
-            
+
+            .table thead th {
+                padding: 8px 4px;
+                font-size: 11px;
+            }
+
+            .table td {
+                padding: 8px 4px;
+                font-size: 11px;
+            }
+
             .calendar-grid {
                 grid-template-columns: repeat(7, 1fr);
                 gap: 4px;
             }
-            
+
             .calendar-header {
                 font-size: 12px;
                 padding: 8px 4px;
             }
-            
+
             .calendar-day {
                 font-size: 12px;
                 padding: 8px 4px;
                 min-height: 60px;
             }
-            
-            .page-title {
-                font-size: 18px;
+
+            .quick-access-grid {
+                display: grid !important;
+                grid-template-columns: repeat(3, 1fr) !important;
+                gap: 8px !important;
+            }
+
+            .quick-access-item {
+                padding: 12px !important;
             }
         }
 
@@ -674,8 +725,11 @@ try {
         .fa-trash { color: #EA4335; }
     </style>
 </head>
-<body>
+<body class="dashboard-page">
     <?php require_once 'includes/header.php'; ?>
+    <br>
+    <br>
+    
     <?php $active_page = 'calendar'; require_once 'includes/sidebar.php'; ?>
     
     <br>
@@ -698,69 +752,110 @@ try {
             </div>
         <?php endif; ?>
         
-        <!-- Current Status Card -->
-        <div class="card">
-            <h2 class="card-title">Current School Status</h2>
-            <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 20px;">
-                <span class="status-badge status-<?php echo $current_status['school_status']; ?>" style="font-size: 14px; padding: 8px 16px;">
-                    <?php echo ucfirst(str_replace('_', ' ', $current_status['school_status'])); ?>
-                </span>
-                <span style="color: #5f6368; font-size: 14px;">
-                    <?php echo date('F j, Y'); ?>
-                </span>
-            </div>
-            
-            <p style="color: #5f6368; margin-top: 16px; margin-bottom: 8px;">
-                <strong>Current Year:</strong> <?php echo $current_status['current_year']; ?>
-            </p>
-        </div>
-        
         <!-- School Session Status Card -->
-        <div class="card">
-            <h2 class="card-title">School Session Status</h2>
-            <div style="background: #f8f9fa; padding: 16px; border-radius: 8px; border-left: 4px solid <?php echo $current_status['is_holiday'] ? '#c5221f' : '#137333'; ?>;">
-                <?php if ($current_status['is_holiday']): ?>
-                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
-                        <i class="fas fa-umbrella-beach" style="color: #c5221f; font-size: 20px;"></i>
-                        <div>
-                            <p style="color: #c5221f; font-weight: 600; margin: 0; font-size: 16px;">
-                                School is on Holiday
-                            </p>
-                            <p style="color: #5f6368; margin: 4px 0 0 0; font-size: 14px;">
-                                <?php echo htmlspecialchars($current_status['current_holiday']['holiday_name']); ?>
-                                (<?php echo date('M j, Y', strtotime($current_status['current_holiday']['start_date'])); ?> - 
-                                <?php echo date('M j, Y', strtotime($current_status['current_holiday']['end_date'])); ?>)
-                            </p>
-                        </div>
+        <div class="card" style="background: rgba(255, 107, 53, 0.85); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.3); box-shadow: 0 8px 32px rgba(255, 107, 53, 0.3); padding: 40px; min-height: 150px;">
+            <h2 class="card-title" style="color: white;">School Session Status</h2>
+            <?php if ($current_status['is_holiday']): ?>
+                <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 12px;">
+                    <i class="fas fa-umbrella-beach" style="color: white; font-size: 32px;"></i>
+                    <div>
+                        <p style="color: white; font-weight: 600; margin: 0; font-size: 16px;">
+                            School is on Holiday
+                        </p>
+                        <p style="color: white; margin: 6px 0 0 0; font-size: 14px;">
+                            <?php echo htmlspecialchars($current_status['current_holiday']['holiday_name']); ?>
+                            (<?php echo date('M j, Y', strtotime($current_status['current_holiday']['start_date'])); ?> -
+                            <?php echo date('M j, Y', strtotime($current_status['current_holiday']['end_date'])); ?>)
+                        </p>
                     </div>
-                <?php elseif ($current_status['current_term']): ?>
-                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
-                        <i class="fas fa-school" style="color: #137333; font-size: 20px;"></i>
-                        <div>
-                            <p style="color: #137333; font-weight: 600; margin: 0; font-size: 16px;">
-                                School is in Session
-                            </p>
-                            <p style="color: #5f6368; margin: 4px 0 0 0; font-size: 14px;">
-                                <?php echo htmlspecialchars($current_status['current_term']['term_name']); ?>
-                                (<?php echo date('M j, Y', strtotime($current_status['current_term']['start_date'])); ?> - 
-                                <?php echo date('M j, Y', strtotime($current_status['current_term']['end_date'])); ?>)
-                            </p>
-                        </div>
+                </div>
+                <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.3);">
+                    <p style="color: white; margin: 0; font-size: 13px;">
+                        <i class="fas fa-calendar-alt" style="margin-right: 8px;"></i>
+                        Academic Year: <?php echo $current_status['current_year']; ?>
+                    </p>
+                    <p style="color: white; margin: 8px 0 0 0; font-size: 13px;">
+                        <i class="fas fa-clock" style="margin-right: 8px;"></i>
+                        Today: <?php echo date('F j, Y'); ?>
+                    </p>
+                </div>
+            <?php elseif ($current_status['current_term']): ?>
+                <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 12px;">
+                    <i class="fas fa-school" style="color: white; font-size: 32px;"></i>
+                    <div>
+                        <p style="color: white; font-weight: 600; margin: 0; font-size: 16px;">
+                            School is in Session
+                        </p>
+                        <p style="color: white; margin: 6px 0 0 0; font-size: 14px;">
+                            <?php echo htmlspecialchars($current_status['current_term']['term_name']); ?>
+                        </p>
+                        <p style="color: white; margin: 4px 0 0 0; font-size: 13px; opacity: 0.9;">
+                            <?php echo date('M j, Y', strtotime($current_status['current_term']['start_date'])); ?> -
+                            <?php echo date('M j, Y', strtotime($current_status['current_term']['end_date'])); ?>
+                        </p>
                     </div>
-                <?php else: ?>
-                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
-                        <i class="fas fa-calendar-times" style="color: #f9ab00; font-size: 20px;"></i>
-                        <div>
-                            <p style="color: #f9ab00; font-weight: 600; margin: 0; font-size: 16px;">
-                                School is on Break
-                            </p>
-                            <p style="color: #5f6368; margin: 4px 0 0 0; font-size: 14px;">
-                                No active term for current date
-                            </p>
-                        </div>
+                </div>
+                <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.3);">
+                    <p style="color: white; margin: 0; font-size: 13px;">
+                        <i class="fas fa-calendar-alt" style="margin-right: 8px;"></i>
+                        Academic Year: <?php echo $current_status['current_year']; ?>
+                    </p>
+                    <p style="color: white; margin: 8px 0 0 0; font-size: 13px;">
+                        <i class="fas fa-clock" style="margin-right: 8px;"></i>
+                        Today: <?php echo date('F j, Y'); ?>
+                    </p>
+                    <?php
+                    $end_date = new DateTime($current_status['current_term']['end_date']);
+                    $today = new DateTime();
+                    $interval = $today->diff($end_date);
+                    $days_remaining = $interval->days;
+                    if ($days_remaining > 0):
+                    ?>
+                    <p style="color: white; margin: 8px 0 0 0; font-size: 13px;">
+                        <i class="fas fa-hourglass-half" style="margin-right: 8px;"></i>
+                        <span id="daysRemainingCount">0</span> days remaining in term
+                    </p>
+                    <script>
+                        (function() {
+                            const target = <?php echo $days_remaining; ?>;
+                            const element = document.getElementById('daysRemainingCount');
+                            let current = 0;
+                            const increment = Math.ceil(target / 50);
+                            const timer = setInterval(() => {
+                                current += increment;
+                                if (current >= target) {
+                                    current = target;
+                                    clearInterval(timer);
+                                }
+                                element.textContent = current;
+                            }, 30);
+                        })();
+                    </script>
+                    <?php endif; ?>
+                </div>
+            <?php else: ?>
+                <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 12px;">
+                    <i class="fas fa-calendar-times" style="color: white; font-size: 32px;"></i>
+                    <div>
+                        <p style="color: white; font-weight: 600; margin: 0; font-size: 16px;">
+                            School is on Break
+                        </p>
+                        <p style="color: white; margin: 6px 0 0 0; font-size: 14px;">
+                            No active term for current date
+                        </p>
                     </div>
-                <?php endif; ?>
-            </div>
+                </div>
+                <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.3);">
+                    <p style="color: white; margin: 0; font-size: 13px;">
+                        <i class="fas fa-calendar-alt" style="margin-right: 8px;"></i>
+                        Academic Year: <?php echo $current_status['current_year']; ?>
+                    </p>
+                    <p style="color: white; margin: 8px 0 0 0; font-size: 13px;">
+                        <i class="fas fa-clock" style="margin-right: 8px;"></i>
+                        Today: <?php echo date('F j, Y'); ?>
+                    </p>
+                </div>
+            <?php endif; ?>
         </div>
         
         <!-- Terms -->
@@ -843,13 +938,13 @@ try {
                                 <td>
                                     <div class="action-buttons-cell">
                                         <?php if (!$term['is_active']): ?>
-                                            <button type="button" class="btn btn-sm btn-action" onclick="activateTerm(<?php echo $term['id']; ?>)">
-                                                <i class="fas fa-check"></i> Activate
+                                            <button type="button" class="btn-action" onclick="activateTerm(<?php echo $term['id']; ?>)">
+                                                <i class="fas fa-check"></i>
                                             </button>
                                         <?php else: ?>
                                             <span class="status-badge status-in-session">Active</span>
                                         <?php endif; ?>
-                                        <button type="button" class="btn btn-sm btn-action" onclick="confirmDeleteTerm(<?php echo $term['id']; ?>)">
+                                        <button type="button" class="btn-action" onclick="confirmDeleteTerm(<?php echo $term['id']; ?>)">
                                             <i class="fas fa-trash"></i>
                                         </button>
                                     </div>
@@ -924,7 +1019,7 @@ try {
                                 <td><?php echo date('M j, Y', strtotime($holiday['end_date'])); ?></td>
                                 <td>
                                     <div class="action-buttons-cell">
-                                        <button type="button" class="btn btn-sm btn-action" onclick="confirmDeleteHoliday(<?php echo $holiday['id']; ?>)">
+                                        <button type="button" class="btn-action" onclick="confirmDeleteHoliday(<?php echo $holiday['id']; ?>)">
                                             <i class="fas fa-trash"></i>
                                         </button>
                                     </div>
@@ -1000,7 +1095,7 @@ try {
                                 <td><?php echo $event['event_time'] ? date('h:i A', strtotime($event['event_time'])) : '-'; ?></td>
                                 <td>
                                     <div class="action-buttons-cell">
-                                        <button type="button" class="btn btn-sm btn-action" onclick="confirmDeleteEvent(<?php echo $event['id']; ?>)">
+                                        <button type="button" class="btn-action" onclick="confirmDeleteEvent(<?php echo $event['id']; ?>)">
                                             <i class="fas fa-trash"></i>
                                         </button>
                                     </div>
