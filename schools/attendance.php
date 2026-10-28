@@ -230,6 +230,7 @@ try {
             .main-content {
                 margin-left: 0;
                 padding: 0;
+                width: 100%;
             }
 
             .page-title {
@@ -306,6 +307,36 @@ try {
 
             .quick-access-item {
                 padding: 12px !important;
+            }
+
+            #attendanceStats {
+                margin: 0 0 24px 0 !important;
+                padding: 16px !important;
+            }
+
+            .card[style*="padding: 24px"] {
+                padding: 16px !important;
+                margin: 0 4px 16px 4px !important;
+            }
+
+            .card[style*="padding: 0"] {
+                margin: 0 0 16px 0 !important;
+                overflow: hidden;
+            }
+
+            .card[style*="padding: 0"] .table-responsive {
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+
+            .filter-section[style*="padding: 24px"] {
+                padding: 16px !important;
+                margin: 0 4px 16px 4px !important;
+            }
+
+            .action-buttons[style*="padding: 24px"] {
+                padding: 16px !important;
+                margin: 0 4px 16px 4px !important;
             }
         }
 
@@ -424,6 +455,7 @@ try {
             overflow-x: auto;
             margin: 0;
             padding: 0;
+            display: block;
         }
 
         .btn-action {
@@ -677,7 +709,7 @@ try {
         <?php endif; ?>
 
         <!-- Attendance Statistics -->
-        <div id="attendanceStats" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 24px;">
+        <div id="attendanceStats" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 0 0 24px 0; padding: 24px;">
             <?php
             $totalRecords = 0;
             $presentCount = 0;
@@ -724,7 +756,7 @@ try {
         </div>
         
         <!-- Quick Access -->
-        <div class="card">
+        <div class="card" style="margin: 0 0 24px 0; padding: 24px;">
             <h2 class="card-title">Quick Access</h2>
             <div class="quick-access-grid">
                 <a href="dashboard.php" class="quick-access-item">
@@ -767,7 +799,7 @@ try {
         </div>
 
         <!-- Search and Filter Section -->
-        <div class="filter-section">
+        <div class="filter-section" style="margin: 0 0 24px 0; padding: 24px;">
             <div class="card-title">Filter Students</div>
             <form method="GET" action="" class="form-grid">
                 <div class="form-group">
@@ -809,7 +841,7 @@ try {
 
         <!-- Action Buttons -->
         <?php if ($selected_class && !empty($students)): ?>
-        <div class="action-buttons">
+        <div class="action-buttons" style="margin: 0 0 24px 0; padding: 24px;">
             <button class="btn btn-primary" onclick="saveAttendance()">
                 <i class="fas fa-save me-2"></i> Save Attendance
             </button>
@@ -821,8 +853,8 @@ try {
 
         <!-- Attendance Table -->
         <?php if ($selected_class && !empty($students)): ?>
-        <div class="card" style="padding: 0;">
-            <div class="card-title" style="padding: 24px 24px 16px 24px;">Mark Attendance - <?php echo htmlspecialchars($selected_date); ?></div>
+        <div class="card" style="padding: 24px; margin: 0 0 24px 0;">
+            <div class="card-title">Mark Attendance - <?php echo htmlspecialchars($selected_date); ?></div>
             <div class="table-responsive">
                 <form id="attendanceForm">
                     <table class="table" style="min-width: 800px;">
@@ -840,7 +872,7 @@ try {
                                 <?php foreach ($students as $student): ?>
                                 <tr>
                                     <td><?php echo htmlspecialchars($student['admission_number']); ?></td>
-                                    <td><?php echo htmlspecialchars($student['first_name'] . ' ' . $student['last_name']); ?></td>
+                                    <td><?php echo htmlspecialchars($student['first_name']); ?> <?php echo htmlspecialchars($student['last_name']); ?></td>
                                     <td><?php echo htmlspecialchars($student['class_name']); ?></td>
                                     <td><?php echo htmlspecialchars($student['stream_name'] ?? '-'); ?></td>
                                     <td>
@@ -884,10 +916,10 @@ try {
 
         <!-- Past Attendance Records -->
         <?php if (!empty($past_attendance)): ?>
-        <div class="card" style="padding: 0;">
-            <div class="card-title" style="padding: 24px 24px 16px 24px;">Past Attendance Records</div>
-            <div class="table-responsive">
-                <table class="table" style="min-width: 800px;">
+        <div class="card" style="padding: 0; margin: 0 0 24px 0;">
+            <div class="card-title" style="padding: 16px;">Past Attendance Records</div>
+            <div class="table-responsive" style="padding: 0; width: 100%; overflow-x: auto;">
+                <table class="table" style="width: 100%; margin: 0;">
                         <thead>
                             <tr>
                                 <th>Date</th>
@@ -904,7 +936,7 @@ try {
                             <tr>
                                 <td><?php echo htmlspecialchars($record['date']); ?></td>
                                 <td><?php echo htmlspecialchars($record['admission_number']); ?></td>
-                                <td><?php echo htmlspecialchars($record['first_name'] . ' ' . $record['last_name']); ?></td>
+                                <td><?php echo htmlspecialchars($record['first_name']); ?> <?php echo htmlspecialchars($record['last_name']); ?></td>
                                 <td><?php echo htmlspecialchars($record['class_name']); ?></td>
                                 <td><?php echo htmlspecialchars($record['stream_name'] ?? '-'); ?></td>
                                 <td><?php echo ucfirst(htmlspecialchars($record['status'])); ?></td>
@@ -914,7 +946,7 @@ try {
                         </tbody>
                     </table>
             </div>
-            <p class="text-muted mt-2" style="padding: 0 24px 24px 24px;">Showing last 100 records. Use date filters to narrow down results.</p>
+            <p class="text-muted mt-2" style="padding: 0 16px 16px 16px;">Showing last 100 records. Use date filters to narrow down results.</p>
         </div>
         <?php elseif ($selected_class): ?>
         <div class="card">

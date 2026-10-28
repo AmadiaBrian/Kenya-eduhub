@@ -23,10 +23,13 @@ $dark_mode_class = applyUserTheme($user_settings['theme'] ?? 'light');
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $name = $_POST['name'] ?? '';
     $email = $_POST['email'] ?? '';
+    $phone = $_POST['phone'] ?? '';
     
     // Validate email
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $error = "Invalid email format";
+    } elseif ($phone && !(preg_match('/^(07|01)[0-9]{8}$/', $phone) || preg_match('/^\+254[71][0-9]{8}$/', $phone))) {
+        $error = "Invalid phone format. Use Kenya format: 07XXXXXXXX, 01XXXXXXXX, +2547XXXXXXXX, or +2541XXXXXXXX";
     } else {
         // Check if email is already taken by another user
         $check_stmt = $conn->prepare("SELECT id FROM users WHERE email = ? AND id != ?");
@@ -36,9 +39,33 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         
         if ($check_result->num_rows > 0) {
             $error = "Email is already taken by another user";
+        } elseif ($phone) {
+            // Check if phone number is already taken by another user
+            $check_phone_stmt = $conn->prepare("SELECT id FROM users WHERE phone = ? AND id != ?");
+            $check_phone_stmt->bind_param("si", $phone, $user_id);
+            $check_phone_stmt->execute();
+            $check_phone_result = $check_phone_stmt->get_result();
+            
+            if ($check_phone_result->num_rows > 0) {
+                $error = "Phone number is already registered to another account";
+            } else {
+                // Update user profile
+                $update_stmt = $conn->prepare("UPDATE users SET name = ?, email = ?, phone = ? WHERE id = ?");
+                $update_stmt->bind_param("sssi", $name, $email, $phone, $user_id);
+                
+                if ($update_stmt->execute()) {
+                    $success = "Profile updated successfully!";
+                    // Refresh user data
+                    $stmt->execute();
+                    $result = $stmt->get_result();
+                    $user = $result->fetch_assoc();
+                } else {
+                    $error = "Failed to update profile";
+                }
+            }
         } else {
-            // Update user profile
-            $update_stmt = $conn->prepare("UPDATE users SET name = ?, email = ? WHERE id = ?");
+            // Update user profile (no phone provided)
+            $update_stmt = $conn->prepare("UPDATE users SET name = ?, email = ?, phone = NULL WHERE id = ?");
             $update_stmt->bind_param("ssi", $name, $email, $user_id);
             
             if ($update_stmt->execute()) {
@@ -594,6 +621,11 @@ if (isset($_POST['change_password'])) {
                     <div class="form-group">
                         <label for="email">Email Address</label>
                         <input type="email" id="email" name="email" class="form-control" value="<?php echo htmlspecialchars($user['email'] ?? ''); ?>" placeholder="Enter your email address" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="phone">Phone Number (Optional)</label>
+                        <input type="tel" id="phone" name="phone" class="form-control" value="<?php echo htmlspecialchars($user['phone'] ?? ''); ?>" placeholder="07XXXXXXXX" pattern="^(07|01)[0-9]{8}$|^\+254[71][0-9]{8}$">
+                        <small style="color: var(--secondary-color); font-size: 12px;">Kenya format: 07XXXXXXXX, 01XXXXXXXX, +2547XXXXXXXX, or +2541XXXXXXXX (for SMS verification)</small>
                     </div>
                     <button type="submit" class="btn btn-primary">
                         <i class="fas fa-save"></i> Update Profile

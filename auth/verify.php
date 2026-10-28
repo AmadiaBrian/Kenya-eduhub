@@ -3,15 +3,27 @@
 require_once '../config.php';
 
 // Check if user came from registration
-if (!isset($_SESSION['verification_email'])) {
+if (!isset($_SESSION['verification_email']) && !isset($_SESSION['verification_phone'])) {
     header("Location: register");
     exit();
 }
 
-// Store email in local variable in case session gets cleared
-$email = $_SESSION['verification_email'];
+// Store email/phone in local variable in case session gets cleared
+$email = $_SESSION['verification_email'] ?? null;
+$phone = $_SESSION['verification_phone'] ?? null;
 $errors = [];
 $success = '';
+
+// Check resend cooldown (2 minutes = 120 seconds)
+$can_resend = true;
+$cooldown_remaining = 0;
+if (isset($_SESSION['last_resend_time'])) {
+    $time_since_resend = time() - $_SESSION['last_resend_time'];
+    if ($time_since_resend < 120) {
+        $can_resend = false;
+        $cooldown_remaining = 120 - $time_since_resend;
+    }
+}
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $verification_code = $_POST['verification_code'] ?? '';
@@ -21,15 +33,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } elseif (strlen($verification_code) !== 6) {
         $errors[] = "Verification code must be 6 digits";
     } else {
-        // Verify the code
-        $stmt = $conn->prepare("SELECT id, name, email, code_expires_at FROM users WHERE email = ? AND verification_code = ? AND is_verified = 0");
-        $stmt->bind_param("ss", $email, $verification_code);
-        $stmt->execute();
-        $result = $stmt->get_result();
+        // Verify the code - check by email first, then by phone
+        $user = null;
         
-        if ($result->num_rows > 0) {
-            $user = $result->fetch_assoc();
-            
+        if ($email) {
+            $stmt = $conn->prepare("SELECT id, name, email, code_expires_at FROM users WHERE email = ? AND verification_code = ? AND is_verified = 0");
+            $stmt->bind_param("ss", $email, $verification_code);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            if ($result->num_rows > 0) {
+                $user = $result->fetch_assoc();
+            }
+        }
+        
+        // If not found by email, try phone
+        if (!$user && $phone) {
+            $stmt = $conn->prepare("SELECT id, name, email, code_expires_at FROM users WHERE phone = ? AND verification_code = ? AND is_verified = 0");
+            $stmt->bind_param("ss", $phone, $verification_code);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            if ($result->num_rows > 0) {
+                $user = $result->fetch_assoc();
+            }
+        }
+        
+        if ($user) {
             // Check if code is expired
             if (strtotime($user['code_expires_at']) < time()) {
                 $errors[] = "Verification code has expired. Please request a new code.";
@@ -42,12 +70,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 
                 // Clear session and redirect to login
                 unset($_SESSION['verification_email']);
-                $_SESSION['success'] = "Email verified successfully! You can now login.";
+                unset($_SESSION['verification_phone']);
+                $_SESSION['success'] = "Verification successful! You can now login.";
                 header("Location: login");
                 exit();
             }
         } else {
-            $errors[] = "Invalid verification code. Please check your email and try again.";
+            $errors[] = "Invalid verification code. Please check your email or SMS and try again.";
         }
     }
 }
@@ -316,8 +345,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <?php endif; ?>
 
         <div class="email-display">
-            <i class="fas fa-envelope me-2"></i>
-            <?php echo htmlspecialchars($email); ?>
+            <i class="fas fa-<?php echo $phone ? 'mobile-alt' : '-envelope'; ?> me-2"></i>
+            <?php echo htmlspecialchars($phone ? $phone : $email); ?>
         </div>
 
         <form method="POST" novalidate class="verify-form">
@@ -344,6 +373,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         <div class="verify-links">
             <a href="register">Register again</a>
+            <br><br>
+            <div style="margin-top: 16px;">
+                <p style="font-size: 13px; color: #5f6368; margin-bottom: 8px;">Didn't receive the code?</p>
+                <a href="#" id="resendEmailLink" onclick="resendCode('email', event)" <?php echo !$can_resend ? 'style="color: #9aa0a6; pointer-events: none;"' : ''; ?>>Resend via Email</a>
+                <?php if ($phone): ?>
+                    <span style="color: #dadce0;">|</span>
+                    <a href="#" id="resendSmsLink" onclick="resendCode('sms', event)" <?php echo !$can_resend ? 'style="color: #9aa0a6; pointer-events: none;"' : ''; ?>>Resend via SMS</a>
+                <?php endif; ?>
+                <?php if (!$can_resend): ?>
+                    <p style="font-size: 12px; color: #5f6368; margin-top: 8px;">Please wait <span id="cooldownTimer"><?php echo $cooldown_remaining; ?></span> seconds before resending</p>
+                <?php endif; ?>
+            </div>
         </div>
     </main>
 
@@ -371,14 +412,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         });
 
         // Resend verification code
-        function resendCode() {
+        function resendCode(method, e) {
+            e.preventDefault();
             const email = '<?php echo htmlspecialchars($email); ?>';
+            const phone = '<?php echo htmlspecialchars($phone); ?>';
             
             // Show loading state
-            const resendBtn = event.target;
+            const resendBtn = e.target;
             const originalText = resendBtn.innerHTML;
             resendBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Sending...';
             resendBtn.disabled = true;
+            
+            // Prepare request data
+            const requestData = {
+                method: method
+            };
+            if (email) {
+                requestData.email = email;
+            }
+            if (phone) {
+                requestData.phone = phone;
+            }
             
             // Call API to resend code
             fetch('../api/resend_verification.php', {
@@ -387,27 +441,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'Content-Type': 'application/json',
                     'Origin': 'http://localhost'
                 },
-                body: JSON.stringify({
-                    email: email
-                })
+                body: JSON.stringify(requestData)
             })
-            .then(response => response.json())
+            .then(response => {
+                console.log('Response status:', response.status);
+                return response.json();
+            })
             .then(data => {
+                console.log('Response data:', data);
                 if (data.success) {
                     // Show success message
                     const successDiv = document.createElement('div');
                     successDiv.className = 'alert-success';
                     successDiv.role = 'alert';
                     successDiv.innerHTML = `<p>${data.message}</p>`;
-                    
+
                     // Insert before the form
                     const form = document.querySelector('form');
                     form.parentNode.insertBefore(successDiv, form);
-                    
+
                     // Remove after 5 seconds
                     setTimeout(() => {
                         successDiv.remove();
                     }, 5000);
+
+                    // Start cooldown timer
+                    startCooldownTimer();
                 } else {
                     // Show error message
                     const errorDiv = document.createElement('div');
@@ -415,11 +474,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     errorDiv.role = 'alert';
                     errorDiv.setAttribute('aria-live', 'assertive');
                     errorDiv.innerHTML = `<p>${data.message}</p>`;
-                    
+
                     // Insert before the form
                     const form = document.querySelector('form');
                     form.parentNode.insertBefore(errorDiv, form);
-                    
+
                     // Remove after 5 seconds
                     setTimeout(() => {
                         errorDiv.remove();
@@ -428,7 +487,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('Failed to resend verification code. Please try again.');
+                // Show error message in form instead of alert
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'alert-error';
+                errorDiv.role = 'alert';
+                errorDiv.setAttribute('aria-live', 'assertive');
+                errorDiv.innerHTML = `<p>Failed to resend verification code. Please try again.</p>`;
+
+                // Insert before the form
+                const form = document.querySelector('form');
+                form.parentNode.insertBefore(errorDiv, form);
+
+                // Remove after 5 seconds
+                setTimeout(() => {
+                    errorDiv.remove();
+                }, 5000);
             })
             .finally(() => {
                 // Restore button state
@@ -436,6 +509,63 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 resendBtn.disabled = false;
             });
         }
+
+        // Cooldown timer function
+        function startCooldownTimer(initialRemaining = 120) {
+            let remaining = initialRemaining;
+
+            // Disable resend links
+            document.getElementById('resendEmailLink').style.color = '#9aa0a6';
+            document.getElementById('resendEmailLink').style.pointerEvents = 'none';
+            const smsLink = document.getElementById('resendSmsLink');
+            if (smsLink) {
+                smsLink.style.color = '#9aa0a6';
+                smsLink.style.pointerEvents = 'none';
+            }
+
+            // Show cooldown message
+            const cooldownMsg = document.createElement('p');
+            cooldownMsg.id = 'cooldownMessage';
+            cooldownMsg.style.fontSize = '12px';
+            cooldownMsg.style.color = '#5f6368';
+            cooldownMsg.style.marginTop = '8px';
+            cooldownMsg.innerHTML = `Please wait <span id="cooldownTimer">${remaining}</span> seconds before resending`;
+            
+            const linksDiv = document.querySelector('.verify-links div');
+            linksDiv.appendChild(cooldownMsg);
+
+            // Update timer every second
+            const timer = setInterval(() => {
+                remaining--;
+                const timerSpan = document.getElementById('cooldownTimer');
+                if (timerSpan) {
+                    timerSpan.textContent = remaining;
+                }
+
+                if (remaining <= 0) {
+                    clearInterval(timer);
+                    // Re-enable links
+                    document.getElementById('resendEmailLink').style.color = '#FF6B35';
+                    document.getElementById('resendEmailLink').style.pointerEvents = 'auto';
+                    if (smsLink) {
+                        smsLink.style.color = '#FF6B35';
+                        smsLink.style.pointerEvents = 'auto';
+                    }
+                    // Remove cooldown message
+                    const msg = document.getElementById('cooldownMessage');
+                    if (msg) {
+                        msg.remove();
+                    }
+                }
+            }, 1000);
+        }
+
+        // Start cooldown timer if already in cooldown
+        <?php if (!$can_resend): ?>
+            document.addEventListener('DOMContentLoaded', function() {
+                startCooldownTimer(<?php echo $cooldown_remaining; ?>);
+            });
+        <?php endif; ?>
     </script>
 </body>
 </html>

@@ -161,9 +161,9 @@ try {
         .card {
             background: var(--bg-color);
             border: 1px solid #e0e0e0;
-            border-radius: 12px;
+            border-radius: 25px;
             box-shadow: none;
-            margin-bottom: 20px;
+            margin: 0 0 24px 0;
         }
 
         .card-header {
@@ -172,13 +172,13 @@ try {
             padding: 16px 20px;
             font-weight: 500;
             color: var(--secondary-color);
-            border-radius: 12px 12px 0 0;
+            border-radius: 25px 25px 0 0;
             text-align: center;
         }
 
         .card-body {
-            padding: 20px;
-            border-radius: 0 0 12px 12px;
+            padding: 0;
+            border-radius: 0 0 25px 25px;
         }
 
         .card-title {
@@ -224,7 +224,7 @@ try {
         /* Buttons */
         .btn {
             padding: 10px 24px;
-            border-radius: 20px;
+            border-radius: 25px;
             font-size: 14px;
             font-weight: 500;
             border: none;
@@ -265,55 +265,69 @@ try {
             background: #f1f3f4;
         }
 
-        .btn-action {
-            padding: 4px 8px;
-            font-size: 11px;
-            border-radius: 20px;
-        }
-        
         /* Table */
         .table {
             width: 100%;
             border-collapse: collapse;
             background: white;
-            border: 1px solid #000;
+            border: 2px solid #000;
             margin: 0;
+            font-family: 'Times New Roman', Times, serif;
         }
 
         .table-responsive {
             width: 100%;
             overflow-x: auto;
+            margin: 0;
+            padding: 0 20px 20px 20px;
         }
 
         .table thead {
-            background: #FF6B35 !important;
+            background: #f0f0f0;
             border-bottom: 2px solid #000;
         }
 
         .table th {
-            text-align: left;
-            padding: 12px;
-            font-size: 13px;
-            font-weight: 600;
-            color: #ffffff !important;
-            border: 1px solid #000;
+            background: #f0f0f0;
+            border: 2px solid #000;
             border-bottom: 2px solid #000;
-            background-color: #FF6B35 !important;
+            padding: 12px;
+            font-weight: bold;
+            color: #000;
+            white-space: nowrap;
         }
 
         .table td {
             padding: 12px;
             font-size: 13px;
             color: #000;
-            border: 1px solid #000;
+            border: 2px solid #000;
         }
 
         .table tbody tr:nth-child(even) {
-            background: #f9f9f9;
+            background: #fafafa;
         }
 
         .table tbody tr:hover {
-            background: #f0f0f0;
+            background: #f8f9fa;
+        }
+
+        .btn-action {
+            background: transparent;
+            color: #FF6B35;
+            border: none;
+            cursor: pointer;
+            margin-right: 4px;
+            padding: 0;
+        }
+
+        .btn-action:hover {
+            color: #e55a2b;
+        }
+
+        .action-buttons-cell {
+            display: flex;
+            gap: 4px;
         }
 
         /* Badge */
@@ -360,8 +374,27 @@ try {
 
         @media (max-width: 768px) {
             .main-content {
-                padding: 16px;
+                padding: 0;
                 padding-bottom: 80px;
+                width: 100%;
+            }
+
+            .page-title {
+                font-size: 18px;
+                padding: 16px;
+            }
+
+            .card {
+                padding: 16px;
+                margin: 0 4px 16px 4px;
+            }
+
+            .card-body {
+                padding: 0;
+            }
+
+            .table-responsive {
+                padding: 0 8px 16px 8px;
             }
 
             .table {
@@ -371,13 +404,11 @@ try {
 
             .table th,
             .table td {
-                padding: 6px 8px;
+                padding: 8px 4px;
             }
 
             .table td:last-child {
                 white-space: nowrap !important;
-                width: 150px !important;
-                min-width: 150px !important;
             }
 
             .table td form {
@@ -392,6 +423,32 @@ try {
 
             .table td form button:last-child {
                 margin-right: 0 !important;
+            }
+
+            .btn {
+                width: 100% !important;
+            }
+
+            .quick-access-grid {
+                display: grid !important;
+                grid-template-columns: repeat(3, 1fr) !important;
+                gap: 8px !important;
+            }
+
+            .quick-access-item {
+                padding: 12px !important;
+            }
+
+            .password-input-group {
+                flex-direction: column !important;
+            }
+
+            .password-input-group .form-control {
+                width: 100% !important;
+            }
+
+            .password-input-group .btn {
+                width: 100% !important;
             }
         }
 
@@ -408,7 +465,7 @@ try {
         .fa-trash { color: #EA4335; }
     </style>
 </head>
-<body>
+<body class="dashboard-page">
     <?php require_once 'includes/header.php'; ?>
     <?php $active_page = 'examination-heads'; require_once 'includes/sidebar.php'; ?>
 
@@ -467,11 +524,18 @@ try {
                         </div>
                         <div>
                             <label class="form-label">Password *</label>
-                            <div style="display: flex; gap: 8px;">
+                            <div class="password-input-group" style="display: flex; gap: 8px;">
                                 <input type="password" class="form-control" id="password" name="password" required placeholder="Min 8 characters" style="flex: 1;">
-                                <button type="button" class="btn btn-outline-secondary" onclick="generatePassword()" title="Generate Random Password">
+                                <button type="button" class="btn btn-secondary" onclick="togglePassword()" title="Show/Hide Password">
+                                    <i class="fas fa-eye" id="eyeIcon"></i>
+                                </button>
+                                <button type="button" class="btn btn-secondary" onclick="generatePassword()" title="Generate Random Password">
                                     <i class="fas fa-key"></i>
                                 </button>
+                            </div>
+                            <div style="margin-top: 8px;">
+                                <input type="checkbox" id="useTeacherPassword" onchange="toggleTeacherPassword()">
+                                <label for="useTeacherPassword" style="font-size: 13px; color: #5f6368;">Use teacher's existing password</label>
                             </div>
                         </div>
                     </div>
@@ -520,14 +584,14 @@ try {
                                                 <input type="hidden" name="action" value="toggle_status">
                                                 <input type="hidden" name="head_id" value="<?php echo $head['id']; ?>">
                                                 <input type="hidden" name="status" value="<?php echo $head['status'] === 'active' ? 'inactive' : 'active'; ?>">
-                                                <button type="submit" class="btn btn-sm btn-outline-secondary">
+                                                <button type="submit" class="btn-action">
                                                     <i class="fas fa-<?php echo $head['status'] === 'active' ? 'pause' : 'play'; ?>"></i>
                                                 </button>
                                             </form>
                                             <form method="POST" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this examination head?');">
                                                 <input type="hidden" name="action" value="delete">
                                                 <input type="hidden" name="head_id" value="<?php echo $head['id']; ?>">
-                                                <button type="submit" class="btn btn-sm btn-outline-secondary">
+                                                <button type="submit" class="btn-action">
                                                     <i class="fas fa-trash"></i>
                                                 </button>
                                             </form>
@@ -552,16 +616,38 @@ try {
                 document.getElementById('name').value = selectedOption.dataset.name || '';
                 document.getElementById('email').value = selectedOption.dataset.email || '';
                 document.getElementById('phone').value = selectedOption.dataset.phone || '';
-                // Auto-generate password when teacher is selected
-                generatePassword();
+                // Don't auto-generate password when teacher is selected - let user choose
+                document.getElementById('password').value = '';
+                document.getElementById('useTeacherPassword').checked = false;
             } else {
                 // Clear fields if no teacher selected
                 document.getElementById('name').value = '';
                 document.getElementById('email').value = '';
                 document.getElementById('phone').value = '';
                 document.getElementById('password').value = '';
+                document.getElementById('useTeacherPassword').checked = false;
             }
         });
+
+        // Toggle using teacher's phone as password
+        function toggleTeacherPassword() {
+            const checkbox = document.getElementById('useTeacherPassword');
+            const phoneField = document.getElementById('phone');
+            const passwordField = document.getElementById('password');
+
+            if (checkbox.checked) {
+                // Use phone number as password (last 6 digits)
+                if (phoneField.value) {
+                    passwordField.value = phoneField.value.slice(-6);
+                } else {
+                    alert('Please enter a phone number first');
+                    checkbox.checked = false;
+                }
+            } else {
+                // Clear password when unchecked
+                passwordField.value = '';
+            }
+        }
 
         // Generate random password function
         function generatePassword() {
@@ -572,6 +658,21 @@ try {
                 password += charset.charAt(Math.floor(Math.random() * charset.length));
             }
             document.getElementById('password').value = password;
+        }
+
+        // Toggle password visibility
+        function togglePassword() {
+            const passwordInput = document.getElementById('password');
+            const eyeIcon = document.getElementById('eyeIcon');
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                eyeIcon.classList.remove('fa-eye');
+                eyeIcon.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                eyeIcon.classList.remove('fa-eye-slash');
+                eyeIcon.classList.add('fa-eye');
+            }
         }
     </script>
 

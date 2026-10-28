@@ -78,3 +78,23 @@
 
 )
 
+2026-10-28 19:01:39 - B2C Result: {"Result":{"ResultType":0,"ResultCode":0,"ResultDesc":"The service request is processed successfully.","OriginatorConversationID":"8e77-4dec-98af-2e0707a6447d166981","ConversationID":"AG_20261028_01001003191snz0jwb1k","TransactionID":"UJS030FSF0","ResultParameters":{"ResultParameter":[{"Key":"TransactionAmount","Value":10},{"Key":"TransactionReceipt","Value":"UJS030FSF0"},{"Key":"ReceiverPartyPublicName","Value":"254708374149 - John Doe"},{"Key":"TransactionCompletedDateTime","Value":"28.10.2026 21:01:06"},{"Key":"B2CUtilityAccountAvailableFunds","Value":2198837.67},{"Key":"B2CWorkingAccountAvailableFunds","Value":1084439.00},{"Key":"B2CRecipientIsRegisteredCustomer","Value":"Y"},{"Key":"B2CChargesPaidAccountAvailableFunds","Value":-2420.00}]},"ReferenceData":{"ReferenceItem":{"Key":"QueueTimeoutURL","Value":"https:\/\/internalsandbox.safaricom.co.ke\/mpesa\/b2cresults\/v1\/submit"}}}}
+2026-10-28 19:01:39 - B2C Success: Ksh 10.00 sent to 254708374149 - John Doe, TransactionID: UJS030FSF0, WithdrawalID: 144
+2026-10-28 19:01:40 - SMS sent via Mobitech: Array
+(
+    [success] => 1
+    [message_id] => 31996899
+    [response] => Array
+        (
+            [status_code] => 1000
+            [status_desc] => Success
+            [message_id] => 31996899
+            [mobile_number] => 254745959757
+            [network_id] => 1
+            [message_cost] => 0.35
+            [credit_balance] => 10.7
+        )
+
+    [cost] => 
+)
+

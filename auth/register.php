@@ -99,7 +99,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $data = [
                     'name' => $fullName,
                     'email' => $email,
-                    'password' => $password
+                    'password' => $password,
+                    'phone' => $_POST['phone'] ?? ''
                 ];
                 
                 $ch = curl_init($apiUrl);
@@ -127,9 +128,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 error_log("Registration Debug - Success Check: " . (isset($result['success']) && $result['success'] ? 'TRUE' : 'FALSE'));
                 
                 if ($httpCode === 200 && isset($result['success']) && $result['success']) {
-                    // Store email for verification page
+                    // Store email and/or phone for verification page
                     $_SESSION['verification_email'] = $email;
-                    error_log("Registration successful for email: $email");
+                    if (isset($_POST['phone']) && !empty($_POST['phone'])) {
+                        $_SESSION['verification_phone'] = $_POST['phone'];
+                    }
+                    error_log("Registration successful for email: $email" . (isset($_POST['phone']) ? ", phone: " . $_POST['phone'] : ""));
                     header("Location: verify");
                     exit();
                 } else {
@@ -457,6 +461,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     autocomplete="email"
                     value="<?php echo isset($_POST['email']) ? sanitizeOutput($_POST['email']) : ''; ?>"
                 />
+            </div>
+
+            <div class="form-group">
+                <label for="phone">Phone Number (Optional)</label>
+                <input
+                    type="tel"
+                    id="phone"
+                    name="phone"
+                    class="form-control"
+                    placeholder="07XXXXXXXX"
+                    autocomplete="tel"
+                    pattern="^(07|01)[0-9]{8}$|^\+254[71][0-9]{8}$"
+                    value="<?php echo isset($_POST['phone']) ? sanitizeOutput($_POST['phone']) : ''; ?>"
+                />
+                <small style="color: #5f6368; font-size: 12px;">Enter to receive verification code via SMS (Kenya format: 07XXXXXXXX, 01XXXXXXXX, +2547XXXXXXXX, or +2541XXXXXXXX)</small>
             </div>
 
             <div class="form-group position-relative">

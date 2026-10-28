@@ -705,4 +705,120 @@ function getSMTPSettings($conn = null) {
     }
     return $smtp_settings;
 }
+
+// SMS Verification Function
+function sendSMSVerification($phone, $code) {
+    global $conn;
+    
+    error_log("=== SMS VERIFICATION START ===");
+    error_log("Phone: $phone, Code: $code");
+    
+    // Get SMS settings from admin_sms_settings table
+    $sql = "SELECT sms_provider, mobitech_api_key, mobitech_sender_id, textsms_api_key, textsms_partner_id, textsms_sender_id, sms_enabled FROM admin_sms_settings LIMIT 1";
+    $result = $conn->query($sql);
+    
+    if (!$result || $result->num_rows === 0) {
+        error_log("ERROR: SMS settings not configured in admin_sms_settings table");
+        return false;
+    }
+    
+    $settings = $result->fetch_assoc();
+    error_log("SMS Settings loaded: " . print_r($settings, true));
+    
+    // Check if SMS is enabled
+    if (!($settings['sms_enabled'] ?? 0)) {
+        error_log("ERROR: SMS is disabled in admin settings (sms_enabled = 0)");
+        return false;
+    }
+    
+    // Check if API key is configured
+    if ($settings['sms_provider'] === 'mobitech') {
+        if (empty($settings['mobitech_api_key'])) {
+            error_log("ERROR: Mobitech API key is not configured");
+            return false;
+        }
+        error_log("Mobitech API key exists: " . substr($settings['mobitech_api_key'], 0, 8) . "...");
+    }
+    
+    if ($settings['sms_provider'] === 'textsms') {
+        if (empty($settings['textsms_api_key'])) {
+            error_log("ERROR: Text SMS API key is not configured");
+            return false;
+        }
+        error_log("Text SMS API key exists: " . substr($settings['textsms_api_key'], 0, 8) . "...");
+    }
+    
+    $message = "Your Kenya EduHub verification code is: $code. Valid for 1 hour.";
+    error_log("Message prepared: $message");
+    
+    // Load SMS classes
+    $smsConfigPath = __DIR__ . '/../sms/sms_config.php';
+    $mobitechPath = __DIR__ . '/../sms/MobitechSMS.php';
+    $textsmsPath = __DIR__ . '/../sms/TextSMS.php';
+    
+    error_log("Loading SMS classes from: $smsConfigPath, $mobitechPath, $textsmsPath");
+    
+    if (!file_exists($smsConfigPath)) {
+        error_log("ERROR: sms_config.php not found at $smsConfigPath");
+        return false;
+    }
+    if (!file_exists($mobitechPath)) {
+        error_log("ERROR: MobitechSMS.php not found at $mobitechPath");
+        return false;
+    }
+    if (!file_exists($textsmsPath)) {
+        error_log("ERROR: TextSMS.php not found at $textsmsPath");
+        return false;
+    }
+    
+    require_once $smsConfigPath;
+    require_once $mobitechPath;
+    require_once $textsmsPath;
+    
+    error_log("SMS classes loaded successfully");
+    
+    try {
+        // Try primary provider first
+        if ($settings['sms_provider'] === 'mobitech') {
+            error_log("Creating MobitechSMS instance with API key and sender ID from settings: " . ($settings['mobitech_sender_id'] ?? 'not set'));
+            $senderId = $settings['mobitech_sender_id'] ?? 'FULL_CIRCLE';
+            $mobitech = new MobitechSMS($settings['mobitech_api_key'], $senderId);
+            error_log("Calling sendSMS on MobitechSMS with sender ID: $senderId");
+            $result = $mobitech->sendSMS($phone, $message);
+            error_log("Mobitech SMS result: " . print_r($result, true));
+            
+            if (!$result['success']) {
+                error_log("ERROR: Mobitech SMS failed - " . ($result['error'] ?? 'Unknown error'));
+                // Try Text SMS as fallback
+                error_log("Trying Text SMS as fallback");
+                if (!empty($settings['textsms_api_key'])) {
+                    $textsms = new TextSMS($settings['textsms_api_key'], $settings['textsms_partner_id'], $settings['textsms_sender_id']);
+                    $result = $textsms->sendSMS($phone, $message);
+                    error_log("Text SMS fallback result: " . print_r($result, true));
+                    return $result['success'] ?? false;
+                }
+            }
+            
+            return $result['success'] ?? false;
+        } else {
+            error_log("Creating TextSMS instance with API key, partner ID and sender ID");
+            $textsms = new TextSMS($settings['textsms_api_key'], $settings['textsms_partner_id'], $settings['textsms_sender_id']);
+            error_log("Calling sendSMS on TextSMS");
+            $result = $textsms->sendSMS($phone, $message);
+            error_log("Text SMS result: " . print_r($result, true));
+            
+            if (!$result['success']) {
+                error_log("ERROR: Text SMS failed - " . ($result['error'] ?? 'Unknown error'));
+            }
+            
+            return $result['success'] ?? false;
+        }
+    } catch (Exception $e) {
+        error_log("ERROR: Exception during SMS sending: " . $e->getMessage());
+        error_log("Exception trace: " . $e->getTraceAsString());
+        return false;
+    }
+    
+    error_log("=== SMS SENDING END ===");
+}
 ?>
