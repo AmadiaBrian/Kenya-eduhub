@@ -27,6 +27,7 @@ $school_name = $_SESSION['school_name'] ?? 'School';
     <meta name="theme-color" content="#FF6B35">
     <title>Classes - <?php echo htmlspecialchars($school_name); ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="../assets/css/notifications.css">
     <style>
@@ -418,10 +419,10 @@ $school_name = $_SESSION['school_name'] ?? 'School';
         <!-- Action Buttons -->
         <div class="d-flex flex-column gap-2 mb-3">
             <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addClassModal" style="border-radius: 25px;">
-                <i class="fas fa-plus me-2"></i> Add Class
+                <span class="material-icons" style="vertical-align: middle; margin-right: 8px;">add</span> Add Class
             </button>
             <button class="btn btn-success" onclick="exportClasses()" style="border-radius: 25px;">
-                <i class="fas fa-download me-2"></i> Export
+                <span class="material-icons" style="vertical-align: middle; margin-right: 8px;">download</span> Export
             </button>
         </div>
 
@@ -547,10 +548,10 @@ $school_name = $_SESSION['school_name'] ?? 'School';
                             <td>
                                 <div class="action-buttons-cell">
                                     <button class="btn btn-sm btn-action" onclick="editClass(${cls.id})">
-                                        <i class="fas fa-edit"></i>
+                                        <span class="material-icons" style="color: #5f6368;">edit</span>
                                     </button>
                                     <button class="btn btn-sm btn-action" onclick="deleteClass(${cls.id})">
-                                        <i class="fas fa-trash"></i>
+                                        <span class="material-icons" style="color: #d93025;">delete</span>
                                     </button>
                                 </div>
                             </td>

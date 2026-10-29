@@ -236,6 +236,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         .form-group {
             margin-bottom: 24px;
+            position: relative;
         }
 
         .form-group label {
@@ -301,6 +302,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             border: 1px solid #fce8e6;
         }
 
+        .alert-error.form-error {
+            margin-bottom: 0;
+            margin-top: 8px;
+        }
+
         .alert-success {
             padding: 12px 16px;
             border-radius: 25px;
@@ -325,6 +331,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             border-radius: 4px;
             transition: color 0.2s;
             z-index: 10;
+            pointer-events: auto;
         }
 
         .password-toggle:hover {
@@ -480,34 +487,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <div class="form-group position-relative">
                 <label for="password">Password</label>
-                <input
-                    type="password"
-                    id="password"
-                    name="password"
-                    class="form-control pe-5"
-                    placeholder="Password"
-                    required
-                    autocomplete="new-password"
-                />
-                <span class="password-toggle" onclick="togglePassword('password')">
-                    <i class="fa-solid fa-eye" id="eye-icon-password"></i>
-                </span>
+                <div style="position: relative;">
+                    <input
+                        type="password"
+                        id="password"
+                        name="password"
+                        class="form-control pe-5"
+                        placeholder="Password"
+                        required
+                        autocomplete="new-password"
+                    />
+                    <span class="password-toggle" onclick="togglePassword('password')">
+                        <i class="fa-solid fa-eye" id="eye-icon-password"></i>
+                    </span>
+                </div>
             </div>
 
             <div class="form-group position-relative">
                 <label for="confirm_password">Confirm Password</label>
-                <input
-                    type="password"
-                    id="confirm_password"
-                    name="confirm_password"
-                    class="form-control pe-5"
-                    placeholder="Confirm Password"
-                    required
-                    autocomplete="new-password"
-                />
-                <span class="password-toggle" onclick="togglePassword('confirm_password')">
-                    <i class="fa-solid fa-eye" id="eye-icon-confirm_password"></i>
-                </span>
+                <div style="position: relative;">
+                    <input
+                        type="password"
+                        id="confirm_password"
+                        name="confirm_password"
+                        class="form-control pe-5"
+                        placeholder="Confirm Password"
+                        required
+                        autocomplete="new-password"
+                    />
+                    <span class="password-toggle" onclick="togglePassword('confirm_password')">
+                        <i class="fa-solid fa-eye" id="eye-icon-confirm_password"></i>
+                    </span>
+                </div>
+                <div id="passwordMismatch" class="alert-error form-error" style="display: none;">
+                    <p style="margin: 0;">Passwords do not match</p>
+                </div>
             </div>
 
             <button type="submit" class="btn btn-primary" aria-label="Create account">
@@ -536,9 +550,46 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
 
+        // Real-time password matching check
+        document.addEventListener('DOMContentLoaded', function() {
+            const passwordInput = document.getElementById('password');
+            const confirmPasswordInput = document.getElementById('confirm_password');
+            const passwordMismatch = document.getElementById('passwordMismatch');
+            const submitBtn = document.querySelector('button[type="submit"]');
+
+            // Ensure submit button is initially enabled
+            submitBtn.disabled = false;
+
+            function checkPasswordMatch() {
+                if (confirmPasswordInput.value.length > 0) {
+                    if (passwordInput.value !== confirmPasswordInput.value) {
+                        passwordMismatch.style.display = 'block';
+                        confirmPasswordInput.style.borderColor = '#c5221f';
+                    } else {
+                        passwordMismatch.style.display = 'none';
+                        confirmPasswordInput.style.borderColor = '#dadce0';
+                    }
+                } else {
+                    passwordMismatch.style.display = 'none';
+                    confirmPasswordInput.style.borderColor = '#dadce0';
+                }
+            }
+
+            passwordInput.addEventListener('input', checkPasswordMatch);
+            confirmPasswordInput.addEventListener('input', checkPasswordMatch);
+        });
+
         // Prevent form double submission
         document.querySelector('.register-form').addEventListener('submit', function(e) {
             const submitBtn = this.querySelector('button[type="submit"]');
+            const passwordMismatch = document.getElementById('passwordMismatch');
+
+            // Prevent submission if passwords don't match
+            if (passwordMismatch.style.display === 'block') {
+                e.preventDefault();
+                return false;
+            }
+
             if (submitBtn.disabled) {
                 e.preventDefault();
                 return false;

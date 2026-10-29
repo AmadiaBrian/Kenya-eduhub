@@ -117,6 +117,7 @@ if (isset($_POST['change_password'])) {
     <meta name="theme-color" content="#FF6B35">
     <title>Profile - Kenya EduHub</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
@@ -538,47 +539,12 @@ if (isset($_POST['change_password'])) {
     </style>
 </head>
 <body class="<?php echo $dark_mode_class; ?> dashboard-page">
-    <!-- Header -->
-    <header class="header">
-        <div class="header-left">
-            <button class="menu-btn" onclick="toggleSidebar()">
-                <i class="fas fa-bars"></i>
-            </button>
-            <div class="logo">
-                <?php require_once '../includes/logo.php'; ?>
-            </div>
-        </div>
-        <div class="header-right">
-            <button class="dark-mode-toggle" onclick="toggleDarkMode()" title="Toggle Dark Mode">
-                <i class="fas fa-moon"></i>
-            </button>
-            <div class="user-avatar">
-                <?php echo strtoupper(substr($user['name'] ?? 'A', 0, 1)); ?>
-            </div>
-        </div>
-    </header>
-    
-    <!-- Sidebar -->
-    <aside class="sidebar" id="sidebar">
-        <a class="nav-link" href="dashboard">
-            <i class="fas fa-tachometer-alt"></i> Dashboard
-        </a>
-        <a class="nav-link" href="dashboard?section=resources">
-            <i class="fas fa-book"></i> My Resources
-        </a>
-        <a class="nav-link" href="dashboard?section=upload">
-            <i class="fas fa-upload"></i> Upload Resource
-        </a>
-        <a class="nav-link active" href="profile">
-            <i class="fas fa-user"></i> Profile
-        </a>
-        <a class="nav-link" href="settings">
-            <i class="fas fa-cog"></i> Settings
-        </a>
-        <a class="nav-link" href="../auth/logout">
-            <i class="fas fa-sign-out-alt"></i> Logout
-        </a>
-    </aside>
+    <?php
+    // Set current page for active link highlighting
+    $current_page = 'profile';
+    require_once 'includes/header.php';
+    require_once 'includes/sidebar.php';
+    ?>
     
     <!-- Main Content -->
     <main class="main-content" id="mainContent">
@@ -628,7 +594,7 @@ if (isset($_POST['change_password'])) {
                         <small style="color: var(--secondary-color); font-size: 12px;">Kenya format: 07XXXXXXXX, 01XXXXXXXX, +2547XXXXXXXX, or +2541XXXXXXXX (for SMS verification)</small>
                     </div>
                     <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-save"></i> Update Profile
+                        <span class="material-symbols-outlined" style="vertical-align: middle; margin-right: 8px;">save</span> Update Profile
                     </button>
                 </form>
             </div>
@@ -666,7 +632,7 @@ if (isset($_POST['change_password'])) {
                         <input type="password" id="confirm_password" name="confirm_password" class="form-control" placeholder="Confirm your new password" required>
                     </div>
                     <button type="submit" name="change_password" class="btn btn-primary">
-                        <i class="fas fa-key"></i> Change Password
+                        <span class="material-symbols-outlined" style="vertical-align: middle; margin-right: 8px;">key</span> Change Password
                     </button>
                 </form>
             </div>
@@ -675,68 +641,6 @@ if (isset($_POST['change_password'])) {
 
     <!-- Footer -->
     <?php require_once '../includes/copywrite.php'; ?>
-    
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        // Dark Mode Toggle
-        function toggleDarkMode() {
-            document.body.classList.toggle('dark-mode');
-            const toggleBtn = document.querySelector('.dark-mode-toggle i');
-            
-            if (document.body.classList.contains('dark-mode')) {
-                toggleBtn.classList.remove('fa-moon');
-                toggleBtn.classList.add('fa-sun');
-                localStorage.setItem('darkMode', 'enabled');
-                
-                // Update user preference in database
-                fetch('update_theme.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: 'theme=dark'
-                });
-            } else {
-                toggleBtn.classList.remove('fa-sun');
-                toggleBtn.classList.add('fa-moon');
-                localStorage.setItem('darkMode', 'disabled');
-                
-                // Update user preference in database
-                fetch('update_theme.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: 'theme=light'
-                });
-            }
-        }
-        
-        // Check for saved dark mode preference
-        document.addEventListener('DOMContentLoaded', function() {
-            const savedDarkMode = localStorage.getItem('darkMode');
-            if (savedDarkMode === 'enabled') {
-                document.body.classList.add('dark-mode');
-                const toggleBtn = document.querySelector('.dark-mode-toggle i');
-                if (toggleBtn) {
-                    toggleBtn.classList.remove('fa-moon');
-                    toggleBtn.classList.add('fa-sun');
-                }
-            }
-        });
-        
-        // Toggle Sidebar
-        function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            const mainContent = document.getElementById('mainContent');
-            
-            if (window.innerWidth <= 768) {
-                sidebar.classList.toggle('show');
-            } else {
-                sidebar.classList.toggle('collapsed');
-                mainContent.classList.toggle('expanded');
-            }
-        }
-    </script>
-</body>
-</html>
+
+    <?php require_once 'includes/scripts.php'; ?>
+    <?php require_once 'includes/footer.php'; ?>

@@ -27,6 +27,7 @@ $school_name = $_SESSION['school_name'] ?? 'School';
     <meta name="theme-color" content="#FF6B35">
     <title>Streams - <?php echo htmlspecialchars($school_name); ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="../assets/css/notifications.css">
     <style>
@@ -432,10 +433,10 @@ $school_name = $_SESSION['school_name'] ?? 'School';
         <!-- Action Buttons -->
         <div class="d-flex flex-column gap-2 mb-3">
             <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addStreamModal" style="border-radius: 25px;">
-                <i class="fas fa-plus me-2"></i> Add Stream
+                <span class="material-icons" style="vertical-align: middle; margin-right: 8px;">add</span> Add Stream
             </button>
             <button class="btn btn-success" onclick="exportStreams()" style="border-radius: 25px;">
-                <i class="fas fa-download me-2"></i> Export
+                <span class="material-icons" style="vertical-align: middle; margin-right: 8px;">download</span> Export
             </button>
         </div>
 

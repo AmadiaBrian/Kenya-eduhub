@@ -37,18 +37,18 @@ if (!empty($data->name) && !empty($data->email) && !empty($data->password)) {
         // Email already exists
         echo json_encode([
             "success" => false,
-            "message" => "Email already registered!"
+            "error" => "Email already in use by someone in the system"
         ]);
     } elseif ($phone) {
         // Check if phone number already exists
         $check_phone = "SELECT id FROM users WHERE phone = '$phone'";
         $phone_result = $conn->query($check_phone);
-        
+
         if ($phone_result->num_rows > 0) {
             // Phone already exists
             echo json_encode([
                 "success" => false,
-                "message" => "Phone number already registered to another account!"
+                "error" => "Phone number already in use by someone in the system"
             ]);
         } else {
             // Generate verification code
@@ -127,7 +127,7 @@ if (!empty($data->name) && !empty($data->email) && !empty($data->password)) {
                 // Registration failed
                 echo json_encode([
                     "success" => false,
-                    "message" => "Registration failed. Please try again."
+                    "error" => "Registration failed. Please try again."
                 ]);
             }
         }
@@ -207,7 +207,7 @@ if (!empty($data->name) && !empty($data->email) && !empty($data->password)) {
             // Registration failed
             echo json_encode([
                 "success" => false,
-                "message" => "Registration failed. Please try again."
+                "error" => "Registration failed. Please try again."
             ]);
         }
     }
@@ -215,7 +215,7 @@ if (!empty($data->name) && !empty($data->email) && !empty($data->password)) {
     // Missing required fields
     echo json_encode([
         "success" => false,
-        "message" => "Name, email, and password are required"
+        "error" => "Name, email, and password are required"
     ]);
 }
 

@@ -27,6 +27,7 @@ $school_name = $_SESSION['school_name'] ?? 'School';
     <meta name="theme-color" content="#FF6B35">
     <title>Teachers - <?php echo htmlspecialchars($school_name); ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="../assets/css/notifications.css">
     <style>
@@ -48,6 +49,11 @@ $school_name = $_SESSION['school_name'] ?? 'School';
             font-family: 'Google Sans', 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             font-size: 14px;
             color: #202124;
+        }
+
+        .material-icons {
+            vertical-align: middle;
+            font-size: 20px;
         }
 
         .main-content {
@@ -443,37 +449,37 @@ $school_name = $_SESSION['school_name'] ?? 'School';
         <div class="quick-access-grid">
             <a href="dashboard" class="quick-access-item">
                 <div class="quick-access-icon">
-                    <i class="fas fa-home"></i>
+                    <span class="material-icons" style="color: #5f6368;">dashboard</span>
                 </div>
                 <div class="quick-access-label">Dashboard</div>
             </a>
             <a href="students" class="quick-access-item">
                 <div class="quick-access-icon">
-                    <i class="fas fa-user-graduate"></i>
+                    <span class="material-icons" style="color: #5f6368;">school</span>
                 </div>
                 <div class="quick-access-label">Students</div>
             </a>
             <a href="classes" class="quick-access-item">
                 <div class="quick-access-icon">
-                    <i class="fas fa-chalkboard"></i>
+                    <span class="material-icons" style="color: #5f6368;">class</span>
                 </div>
                 <div class="quick-access-label">Classes</div>
             </a>
             <a href="attendance" class="quick-access-item">
                 <div class="quick-access-icon">
-                    <i class="fas fa-calendar-check"></i>
+                    <span class="material-icons" style="color: #5f6368;">event_available</span>
                 </div>
                 <div class="quick-access-label">Attendance</div>
             </a>
             <a href="performance" class="quick-access-item">
                 <div class="quick-access-icon">
-                    <i class="fas fa-chart-line"></i>
+                    <span class="material-icons" style="color: #5f6368;">show_chart</span>
                 </div>
                 <div class="quick-access-label">Performance</div>
             </a>
             <a href="fees" class="quick-access-item">
                 <div class="quick-access-icon">
-                    <i class="fas fa-money-bill-wave"></i>
+                    <span class="material-icons" style="color: #5f6368;">payments</span>
                 </div>
                 <div class="quick-access-label">Fees</div>
             </a>
@@ -526,10 +532,10 @@ $school_name = $_SESSION['school_name'] ?? 'School';
         <!-- Action Buttons -->
         <div class="d-flex flex-column gap-2 mb-3">
             <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addTeacherModal" style="border-radius: 25px;">
-                <i class="fas fa-plus me-2"></i> Add Teacher
+                <span class="material-icons" style="vertical-align: middle; margin-right: 8px;">add</span> Add Teacher
             </button>
             <button class="btn btn-success" onclick="exportTeachers()" style="border-radius: 25px;">
-                <i class="fas fa-download me-2"></i> Export
+                <span class="material-icons" style="vertical-align: middle; margin-right: 8px;">download</span> Export
             </button>
         </div>
 
@@ -667,13 +673,13 @@ $school_name = $_SESSION['school_name'] ?? 'School';
                                         </div>
                                         <div class="col-md-4">
                                             <button type="button" class="btn btn-danger btn-sm" onclick="removeSubjectAssignment(this)">
-                                                <i class="fas fa-times"></i>
+                                                <span class="material-icons">close</span>
                                             </button>
                                         </div>
                                     </div>
                                 </div>
                                 <button type="button" class="btn btn-sm btn-secondary" onclick="addSubjectAssignment()">
-                                    <i class="fas fa-plus me-2"></i> Add Subject Assignment
+                                    <span class="material-icons" style="vertical-align: middle; margin-right: 8px;">add</span> Add Subject Assignment
                                 </button>
                             </div>
                         </div>
@@ -763,7 +769,7 @@ $school_name = $_SESSION['school_name'] ?? 'School';
                                     <!-- Subject assignments will be loaded here -->
                                 </div>
                                 <button type="button" class="btn btn-sm btn-secondary" onclick="addEditSubjectAssignment()">
-                                    <i class="fas fa-plus me-2"></i> Add Subject Assignment
+                                    <span class="material-icons" style="vertical-align: middle; margin-right: 8px;">add</span> Add Subject Assignment
                                 </button>
                             </div>
                         </div>
@@ -824,7 +830,7 @@ $school_name = $_SESSION['school_name'] ?? 'School';
                 </div>
                 <div class="col-md-4">
                     <button type="button" class="btn btn-danger btn-sm" onclick="removeSubjectAssignment(this)">
-                        <i class="fas fa-times"></i>
+                        <span class="material-icons">close</span>
                     </button>
                 </div>
             `;
@@ -853,7 +859,7 @@ $school_name = $_SESSION['school_name'] ?? 'School';
                 </div>
                 <div class="col-md-4">
                     <button type="button" class="btn btn-danger btn-sm" onclick="removeEditSubjectAssignment(this)">
-                        <i class="fas fa-times"></i>
+                        <span class="material-icons">close</span>
                     </button>
                 </div>
             `;
@@ -1129,10 +1135,10 @@ $school_name = $_SESSION['school_name'] ?? 'School';
                             <td>
                                 <div class="action-buttons-cell">
                                     <button class="btn btn-sm btn-action" onclick="editTeacher(${teacher.id})">
-                                        <i class="fas fa-edit"></i>
+                                        <span class="material-icons" style="color: #5f6368;">edit</span>
                                     </button>
                                     <button class="btn btn-sm btn-action" onclick="deleteTeacher(${teacher.id})">
-                                        <i class="fas fa-trash"></i>
+                                        <span class="material-icons" style="color: #d93025;">delete</span>
                                     </button>
                                 </div>
                             </td>
@@ -1211,7 +1217,7 @@ $school_name = $_SESSION['school_name'] ?? 'School';
                             </div>
                             <div class="col-md-2">
                                 <button type="button" class="btn btn-danger btn-sm" onclick="removeSubjectAssignment(this)">
-                                    <i class="fas fa-times"></i>
+                                    <span class="material-icons">close</span>
                                 </button>
                             </div>
                         </div>
@@ -1283,7 +1289,7 @@ $school_name = $_SESSION['school_name'] ?? 'School';
                                     </div>
                                     <div class="col-md-4">
                                         <button type="button" class="btn btn-danger btn-sm" onclick="removeEditSubjectAssignment(this)">
-                                            <i class="fas fa-times"></i>
+                                            <span class="material-icons">close</span>
                                         </button>
                                     </div>
                                 `;

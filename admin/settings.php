@@ -1782,6 +1782,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['ac
                 </div>
             </div>
 
+            <!-- SMS Settings Form -->
+            <form method="POST">
+                <input type="hidden" name="action" value="update_sms_settings">
+                <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
+
             <!-- SMS Provider Selection -->
             <div class="card mb-4">
                 <div class="card-header">
@@ -1814,11 +1819,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['ac
                     </div>
                 </div>
             </div>
-
-            <!-- SMS Settings Form -->
-            <form method="POST">
-                <input type="hidden" name="action" value="update_sms_settings">
-                <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
 
                 <!-- Mobitech API Key -->
                 <div class="card mb-4" id="mobitechFields">

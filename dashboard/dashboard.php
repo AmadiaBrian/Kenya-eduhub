@@ -146,7 +146,7 @@ try {
         site_name VARCHAR(255) DEFAULT 'Kenya EduHub',
         site_description TEXT,
         admin_email VARCHAR(255),
-        max_file_size INT DEFAULT 10,
+        max_file_size INT DEFAULT 20,
         allowed_extensions VARCHAR(255) DEFAULT 'pdf,doc,docx,ppt,pptx,xls,xlsx,txt',
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
@@ -163,7 +163,7 @@ try {
         $site_name = 'Kenya EduHub';
         $site_description = 'Kenya\'s comprehensive education platform';
         $admin_email = 'admin@kenyaeduhub.com';
-        $max_file_size = 10;
+        $max_file_size = 20;
         $allowed_extensions = 'pdf,doc,docx,ppt,pptx,xls,xlsx,txt';
         
         $stmt = $conn->prepare("INSERT INTO admin_site_settings (site_name, site_description, admin_email, max_file_size, allowed_extensions) VALUES (?, ?, ?, ?, ?)");
@@ -219,6 +219,7 @@ $csrf_token = generateCSRFLite();
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <title>Dashboard - Kenya EduHub</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <script>
@@ -335,6 +336,12 @@ $csrf_token = generateCSRFLite();
         .dark-mode .nav-link.active {
             background: rgba(26, 115, 232, 0.2);
             color: #8ab4f8;
+        }
+
+        .material-symbols-outlined {
+            font-size: 20px;
+            vertical-align: middle;
+            margin-right: 12px;
         }
         
         .nav-link i {
@@ -982,6 +989,34 @@ $csrf_token = generateCSRFLite();
                 border: 1px solid var(--primary-orange) !important;
             }
 
+            /* Form controls mobile styling */
+            select.form-control,
+            input.form-control,
+            textarea.form-control {
+                appearance: none !important;
+                -webkit-appearance: none !important;
+                -moz-appearance: none !important;
+            }
+
+            select.form-control {
+                background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3Epath fill='%232323' d='M6 8L1 3h10z'/%3E/svg%3E") !important;
+                background-repeat: no-repeat !important;
+                background-position: right 12px center !important;
+                background-size: 12px !important;
+                padding-right: 36px !important;
+                cursor: pointer !important;
+            }
+
+            input.form-control[type="file"] {
+                background-image: none !important;
+                padding-right: 12px !important;
+            }
+
+            textarea.form-control {
+                background-image: none !important;
+                padding-right: 12px !important;
+            }
+
             .upload-buttons-container button[type="reset"] {
                 background: #252525 !important;
                 color: #ffffff !important;
@@ -1429,6 +1464,7 @@ $csrf_token = generateCSRFLite();
         .quick-link-card {
             display: flex;
             align-items: center;
+            justify-content: center;
             gap: 12px;
             padding: 16px;
             border-radius: 25px;
@@ -1612,12 +1648,24 @@ $csrf_token = generateCSRFLite();
             }
 
             #quickLinksSection > div:last-child {
-                grid-template-columns: 1fr !important;
-                gap: 12px !important;
+                grid-template-columns: repeat(3, 1fr) !important;
+                gap: 8px !important;
             }
 
             .quick-link-card {
                 width: 100% !important;
+                padding: 10px !important;
+                flex-direction: column !important;
+                text-align: center !important;
+                gap: 6px !important;
+            }
+
+            .quick-link-card span {
+                font-size: 11px !important;
+            }
+
+            .quick-link-card i {
+                font-size: 16px !important;
             }
 
             #uploadSectionContent {
@@ -1649,53 +1697,28 @@ $csrf_token = generateCSRFLite();
             color: #1967d2;
             border: none;
         }
+
+        @keyframes spin {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
     </style>
 </head>
 <body class="<?php echo $dark_mode_class; ?> dashboard-page">
-    <!-- Header -->
-    <header class="header">
-        <div class="header-left">
-            <button class="menu-btn" onclick="toggleSidebar()">
-                <i class="fas fa-bars"></i>
-            </button>
-            <div class="logo">
-                <?php require_once '../includes/logo.php'; ?>
-            </div>
-        </div>
-        <div class="header-right">
-            <button class="dark-mode-toggle" onclick="toggleDarkMode()" title="Toggle Dark Mode">
-                <i class="fas fa-moon"></i>
-            </button>
-            <div class="user-avatar">
-                <?php echo strtoupper(substr($user['name'] ?? 'A', 0, 1)); ?>
-            </div>
-        </div>
-    </header>
-    
-    <!-- Sidebar -->
-    <aside class="sidebar" id="sidebar">
-        <a class="nav-link active" href="dashboard">
-            <i class="fas fa-tachometer-alt"></i> Dashboard
-        </a>
-        <a class="nav-link" href="?section=resources">
-            <i class="fas fa-book"></i> My Resources
-        </a>
-        <a class="nav-link" href="?section=upload">
-            <i class="fas fa-upload"></i> Upload Resource
-        </a>
-        <a class="nav-link" href="https://sites.google.com/view/noteselectricalengineering/home" target="_blank">
-            <i class="fas fa-external-link-alt"></i> More Resources
-        </a>
-        <a class="nav-link" href="profile">
-            <i class="fas fa-user"></i> Profile
-        </a>
-        <a class="nav-link" href="settings">
-            <i class="fas fa-cog"></i> Settings
-        </a>
-        <a class="nav-link" href="../auth/logout">
-            <i class="fas fa-sign-out-alt"></i> Logout
-        </a>
-    </aside>
+    <?php require_once 'includes/header.php'; ?>
+
+    <?php
+    // Determine current page for active link highlighting
+    $current_page = 'dashboard';
+    if (isset($_GET['section'])) {
+        $current_page = $_GET['section'];
+    }
+    require_once 'includes/sidebar.php';
+    ?>
     
     <!-- Main Content -->
     <main class="main-content" id="mainContent">
@@ -1705,7 +1728,7 @@ $csrf_token = generateCSRFLite();
         <div class="stats-grid">
             <div class="stat-card">
                 <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
-                    <i class="fas fa-folder-open" style="color: #FF6B35; font-size: 28px;"></i>
+                    <span class="material-symbols-outlined" style="color: #FF6B35; font-size: 28px;">folder_open</span>
                     <div>
                         <h3><?php echo $user_upload_count; ?></h3>
                         <p>My Resources</p>
@@ -1738,30 +1761,30 @@ $csrf_token = generateCSRFLite();
             </div>
             <div class="stat-card">
                 <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
-                    <i class="fas fa-book" style="color: #FF6B35; font-size: 28px;"></i>
+                    <span class="material-symbols-outlined" style="color: #FF6B35; font-size: 28px;">menu_book</span>
                     <div>
-                        <h3><?php echo $total_resources; ?></h3>
-                        <p>Total Resources</p>
+                        <h3><?php echo $user_upload_count; ?></h3>
+                        <p>Your Uploads</p>
                     </div>
                 </div>
                 <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid #e8eaed;">
                     <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                        <span style="color: #5f6368; font-size: 12px;">Total Downloads</span>
-                        <span style="color: #202124; font-weight: 500; font-size: 12px;"><?php echo $all_total_downloads; ?></span>
+                        <span style="color: #5f6368; font-size: 12px;">Your Downloads</span>
+                        <span style="color: #202124; font-weight: 500; font-size: 12px;"><?php echo $user_total_downloads; ?></span>
                     </div>
                     <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                        <span style="color: #5f6368; font-size: 12px;">Unique Subjects</span>
-                        <span style="color: #202124; font-weight: 500; font-size: 12px;"><?php echo count($all_subject_stats); ?></span>
+                        <span style="color: #5f6368; font-size: 12px;">Recent Uploads</span>
+                        <span style="color: #202124; font-weight: 500; font-size: 12px;"><?php echo $user_recent_uploads; ?></span>
                     </div>
                     <div style="display: flex; justify-content: space-between;">
                         <span style="color: #5f6368; font-size: 12px;">File Types</span>
-                        <span style="color: #202124; font-weight: 500; font-size: 12px;"><?php echo count($all_file_type_stats); ?></span>
+                        <span style="color: #202124; font-weight: 500; font-size: 12px;"><?php echo count($user_file_type_stats); ?></span>
                     </div>
-                    <?php if (!empty($all_file_type_stats)): ?>
+                    <?php if (!empty($user_file_type_stats)): ?>
                     <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid #e8eaed;">
-                        <span style="color: #5f6368; font-size: 12px; display: block; margin-bottom: 4px;">System File Types:</span>
+                        <span style="color: #5f6368; font-size: 12px; display: block; margin-bottom: 4px;">Your File Types:</span>
                         <div style="display: flex; flex-wrap: wrap; gap: 4px;">
-                            <?php foreach ($all_file_type_stats as $type => $count): ?>
+                            <?php foreach ($user_file_type_stats as $type => $count): ?>
                                 <span style="background: #f1f3f4; color: #202124; padding: 2px 8px; border-radius: 12px; font-size: 10px; font-weight: 500;"><?php echo $type; ?>: <?php echo $count; ?></span>
                             <?php endforeach; ?>
                         </div>
@@ -1771,7 +1794,7 @@ $csrf_token = generateCSRFLite();
             </div>
             <div class="stat-card">
                 <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
-                    <i class="fas fa-calendar-alt" style="color: #FF6B35; font-size: 28px;"></i>
+                    <span class="material-symbols-outlined" style="color: #FF6B35; font-size: 28px;">event</span>
                     <div>
                         <h3><?php echo $account_age ?: 'New'; ?></h3>
                         <p>Member Since</p>
@@ -1790,7 +1813,7 @@ $csrf_token = generateCSRFLite();
             </div>
             <div class="stat-card">
                 <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
-                    <i class="fas fa-star" style="color: #FF6B35; font-size: 28px;"></i>
+                    <span class="material-symbols-outlined" style="color: #FF6B35; font-size: 28px;">star</span>
                     <div>
                         <h3><?php echo !empty($all_subject_stats) ? array_key_first($all_subject_stats) : 'N/A'; ?></h3>
                         <p>Top Subject</p>
@@ -1814,27 +1837,27 @@ $csrf_token = generateCSRFLite();
             <h2 style="font-size: 22px; font-weight: 400; color: var(--text-color); margin-bottom: 24px;">Quick Links</h2>
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
                 <a href="dashboard" class="quick-link-card">
-                    <i class="fas fa-tachometer-alt"></i>
+                    <span class="material-symbols-outlined">dashboard</span>
                     <span>Dashboard</span>
                 </a>
                 <a href="?section=resources" class="quick-link-card">
-                    <i class="fas fa-book"></i>
+                    <span class="material-symbols-outlined">menu_book</span>
                     <span>My Resources</span>
                 </a>
                 <a href="?section=upload" class="quick-link-card">
-                    <i class="fas fa-upload"></i>
+                    <span class="material-symbols-outlined">upload</span>
                     <span>Upload Resource</span>
                 </a>
                 <a href="https://sites.google.com/view/noteselectricalengineering/home" target="_blank" class="quick-link-card">
-                    <i class="fas fa-external-link-alt"></i>
+                    <span class="material-symbols-outlined">open_in_new</span>
                     <span>More Resources</span>
                 </a>
                 <a href="profile" class="quick-link-card">
-                    <i class="fas fa-user"></i>
+                    <span class="material-symbols-outlined">person</span>
                     <span>Profile</span>
                 </a>
                 <a href="settings" class="quick-link-card">
-                    <i class="fas fa-cog"></i>
+                    <span class="material-symbols-outlined">settings</span>
                     <span>Settings</span>
                 </a>
             </div>
@@ -1872,13 +1895,7 @@ $csrf_token = generateCSRFLite();
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px;">
                         <div>
                             <label style="display: block; margin-bottom: 8px; font-weight: 500; color: var(--text-color);">Subject *</label>
-                            <select name="subject" required style="width: 100%; padding: 12px; border: 1px solid var(--form-border-color); border-radius: 25px; font-size: 14px; background: var(--card-bg); color: var(--text-color);">
-                                <option value="">Select Subject</option>
-                                <?php foreach ($unique_subjects as $subject): ?>
-                                    <option value="<?php echo htmlspecialchars($subject); ?>"><?php echo htmlspecialchars($subject); ?></option>
-                                <?php endforeach; ?>
-                                <option value="other">Other (specify below)</option>
-                            </select>
+                            <input type="text" name="subject" required placeholder="Enter subject name" style="width: 100%; padding: 12px; border: 1px solid var(--form-border-color); border-radius: 25px; font-size: 14px; background: var(--card-bg); color: var(--text-color);">
                         </div>
                         <div>
                             <label style="display: block; margin-bottom: 8px; font-weight: 500; color: var(--text-color);">File Type *</label>
@@ -1900,10 +1917,6 @@ $csrf_token = generateCSRFLite();
                             </select>
                         </div>
                     </div>
-                    <div style="margin-top: 20px;" id="otherSubjectDiv" style="display: none;">
-                        <label style="display: block; margin-bottom: 8px; font-weight: 500; color: var(--text-color);">Other Subject *</label>
-                        <input type="text" name="other_subject" id="otherSubjectInput" placeholder="Enter subject name" style="width: 100%; padding: 12px; border: 1px solid var(--form-border-color); border-radius: 25px; font-size: 14px; background: var(--card-bg); color: var(--text-color);">
-                    </div>
                     <div style="margin-top: 20px;">
                         <label style="display: block; margin-bottom: 8px; font-weight: 500; color: var(--text-color);">Description *</label>
                         <textarea name="description" rows="3" required placeholder="Brief description of the resource..." style="width: 100%; padding: 12px; border: 1px solid var(--form-border-color); border-radius: 25px; font-size: 14px; resize: vertical; background: var(--card-bg); color: var(--text-color);"></textarea>
@@ -1913,18 +1926,18 @@ $csrf_token = generateCSRFLite();
                         <div id="fileUploadArea" style="position: relative; border: 2px dashed var(--border-color); border-radius: 25px; padding: 40px 20px; text-align: center; background: var(--card-bg); cursor: pointer; transition: all 0.2s;">
                             <input type="file" id="file" name="file" accept="<?php echo $file_accept_string; ?>" required style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer;">
                             <div id="fileUploadLabel">
-                                <i class="fas fa-cloud-upload-alt" style="font-size: 48px; color: #9aa0a6; margin-bottom: 16px;"></i>
+                                <span class="material-symbols-outlined" style="font-size: 48px; color: #9aa0a6; margin-bottom: 16px;">cloud_upload</span>
                                 <span style="display: block; color: var(--text-color); font-weight: 500;">Click to browse or drag and drop</span>
-                                <small style="color: var(--secondary-color);"><?php echo implode(', ', $allowed_file_types); ?> (Max 50MB)</small>
+                                <small style="color: var(--secondary-color);"><?php echo implode(', ', $allowed_file_types); ?> (Max 20MB)</small>
                             </div>
                         </div>
                     </div>
                     <div style="margin-top: 24px; display: flex; gap: 12px;" class="upload-buttons-container">
                         <button type="submit" class="btn btn-primary" id="uploadBtn">
-                            <i class="fas fa-upload"></i> Upload Resource
+                            <span class="material-symbols-outlined" style="vertical-align: middle; margin-right: 8px;">upload</span> Upload Resource
                         </button>
                         <button type="reset" class="btn btn-secondary" id="clearBtn">
-                            <i class="fas fa-times"></i> Clear
+                            <span class="material-symbols-outlined" style="vertical-align: middle; margin-right: 8px;">close</span> Clear
                         </button>
                     </div>
                 </form>
@@ -1939,7 +1952,7 @@ $csrf_token = generateCSRFLite();
 
             <?php if (empty($user_resources)): ?>
                 <div style="text-align: center; padding: 40px; color: var(--text-color);">
-                    <i class="fas fa-folder-open fa-3x" style="color: var(--secondary-color); margin-bottom: 16px;"></i>
+                    <span class="material-symbols-outlined" style="font-size: 48px; color: var(--secondary-color); margin-bottom: 16px;">folder_open</span>
                     <p style="color: var(--secondary-color);">You haven't uploaded any resources yet</p>
                     <a href="upload" class="btn btn-primary">Upload Your First Resource</a>
                 </div>
@@ -2007,24 +2020,24 @@ $csrf_token = generateCSRFLite();
                                 </div>
                                 <?php if (!empty($resource['subject'])): ?>
                                 <p style="font-size: 13px; color: var(--secondary-color); margin-bottom: 8px;">
-                                    <i class="fas fa-folder" style="color: #FF6B35; margin-right: 8px;"></i>
+                                    <span class="material-symbols-outlined" style="color: #FF6B35; font-size: 16px; vertical-align: middle; margin-right: 8px;">folder</span>
                                     <?php echo htmlspecialchars($resource['subject']); ?>
                                 </p>
                                 <?php endif; ?>
                                 <p style="font-size: 13px; color: var(--secondary-color); margin-bottom: 8px;">
-                                    <i class="fas fa-user" style="color: #008000; margin-right: 8px;"></i>
+                                    <span class="material-symbols-outlined" style="color: #008000; font-size: 16px; vertical-align: middle; margin-right: 8px;">person</span>
                                     <?php echo htmlspecialchars($resource['name'] ?? 'Unknown'); ?>
                                 </p>
                                 <p style="font-size: 12px; color: var(--secondary-color); margin-bottom: 12px; line-height: 1.4;">
                                     <?php echo htmlspecialchars($resource['description'] ?? 'No description available'); ?>
                                 </p>
                                 <p style="font-size: 13px; color: var(--secondary-color); margin-bottom: 12px;">
-                                    <i class="fas fa-download" style="color: #1a73e8; margin-right: 8px;"></i>
+                                    <span class="material-symbols-outlined" style="color: #1a73e8; font-size: 16px; vertical-align: middle; margin-right: 8px;">download</span>
                                     <?php echo htmlspecialchars($resource['downloads'] ?? 0); ?> downloads
                                 </p>
                                 <div style="display: flex; gap: 8px;">
                                     <a href="#" class="btn btn-download view-button">
-                                        <i class="fas fa-eye"></i> View
+                                        <span class="material-symbols-outlined" style="vertical-align: middle; margin-right: 8px;">visibility</span> View
                                     </a>
                                 </div>
                             </div>
@@ -2042,7 +2055,7 @@ $csrf_token = generateCSRFLite();
                     <div style="flex: 1; min-width: 200px;">
                         <div style="position: relative;">
                             <input type="text" id="searchAllResources" placeholder="Search all resources..." style="width: 100%; padding: 10px 16px 10px 40px; border: 1px solid var(--form-border-color); border-radius: 25px; font-size: 14px; background: var(--card-bg); color: var(--text-color);">
-                            <i class="fas fa-search" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--secondary-color);"></i>
+                            <span class="material-symbols-outlined" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--secondary-color); font-size: 20px;">search</span>
                         </div>
                     </div>
                     <div style="min-width: 150px;">
@@ -2129,19 +2142,19 @@ $csrf_token = generateCSRFLite();
                                 </div>
                                 <?php if (!empty($resource['subject'])): ?>
                                 <p style="font-size: 13px; color: var(--secondary-color); margin-bottom: 8px;">
-                                    <i class="fas fa-folder" style="color: #FF6B35; margin-right: 8px;"></i>
+                                    <span class="material-symbols-outlined" style="color: #FF6B35; font-size: 16px; vertical-align: middle; margin-right: 8px;">folder</span>
                                     <?php echo htmlspecialchars($resource['subject']); ?>
                                 </p>
                                 <?php endif; ?>
                                 <p style="font-size: 13px; color: var(--secondary-color); margin-bottom: 8px;">
-                                    <i class="fas fa-user" style="color: #008000; margin-right: 8px;"></i>
+                                    <span class="material-symbols-outlined" style="color: #008000; font-size: 16px; vertical-align: middle; margin-right: 8px;">person</span>
                                     <?php echo htmlspecialchars($resource['name'] ?? 'Unknown'); ?>
                                 </p>
                                 <p style="font-size: 12px; color: var(--secondary-color); margin-bottom: 12px; line-height: 1.4;">
                                     <?php echo htmlspecialchars($resource['description'] ?? 'No description available'); ?>
                                 </p>
                                 <p style="font-size: 13px; color: var(--secondary-color); margin-bottom: 12px;">
-                                    <i class="fas fa-download" style="color: #1a73e8; margin-right: 8px;"></i>
+                                    <span class="material-symbols-outlined" style="color: #1a73e8; font-size: 16px; vertical-align: middle; margin-right: 8px;">download</span>
                                     <?php echo htmlspecialchars($resource['downloads'] ?? 0); ?> downloads
                                 </p>
                                 <div style="display: flex; gap: 8px;">
@@ -2149,11 +2162,11 @@ $csrf_token = generateCSRFLite();
                                         <a href="#" onclick="downloadResource(<?php echo $resource['id']; ?>, this)" class="btn btn-download">Download</a>
                                     <?php elseif ($user_upload_count == 1): ?>
                                         <button onclick="scrollToUploadSection()" class="btn btn-download locked-button">
-                                            <i class="fas fa-lock"></i> Upload 1 more resource to download
+                                            <span class="material-symbols-outlined" style="vertical-align: middle; margin-right: 8px;">lock</span> Upload 1 more resource to download
                                         </button>
                                     <?php else: ?>
                                         <button onclick="scrollToUploadSection()" class="btn btn-download locked-button">
-                                            <i class="fas fa-lock"></i> Upload 2 resources to download
+                                            <span class="material-symbols-outlined" style="vertical-align: middle; margin-right: 8px;">lock</span> Upload 2 resources to download
                                         </button>
                                     <?php endif; ?>
                                 </div>
@@ -2170,74 +2183,9 @@ $csrf_token = generateCSRFLite();
     <!-- Footer -->
     <?php require_once '../includes/copywrite.php'; ?>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        // Dark Mode Toggle
-        function toggleDarkMode() {
-            document.body.classList.toggle('dark-mode');
-            const toggleBtn = document.querySelector('.dark-mode-toggle i');
-            
-            if (document.body.classList.contains('dark-mode')) {
-                toggleBtn.classList.remove('fa-moon');
-                toggleBtn.classList.add('fa-sun');
-                localStorage.setItem('darkMode', 'enabled');
-                
-                // Update user preference in database
-                fetch('update_theme.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: 'theme=dark'
-                });
-            } else {
-                toggleBtn.classList.remove('fa-sun');
-                toggleBtn.classList.add('fa-moon');
-                localStorage.setItem('darkMode', 'disabled');
-                
-                // Update user preference in database
-                fetch('update_theme.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: 'theme=light'
-                });
-            }
-        }
-        
-        // Check for saved dark mode preference
-        document.addEventListener('DOMContentLoaded', function() {
-            const savedDarkMode = localStorage.getItem('darkMode');
-            if (savedDarkMode === 'enabled') {
-                document.body.classList.add('dark-mode');
-                const toggleBtn = document.querySelector('.dark-mode-toggle i');
-                if (toggleBtn) {
-                    toggleBtn.classList.remove('fa-moon');
-                    toggleBtn.classList.add('fa-sun');
-                }
-            }
-        });
-        
-        // Toggle Sidebar
-        function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            const mainContent = document.getElementById('mainContent');
-            
-            if (window.innerWidth <= 768) {
-                sidebar.classList.toggle('show');
-            } else {
-                sidebar.classList.toggle('collapsed');
-                mainContent.classList.toggle('expanded');
-            }
-        }
-
-        function toggleSidebarSection(element) {
-            element.classList.toggle('collapsed');
-            const links = element.nextElementSibling;
-            links.classList.toggle('collapsed');
-        }
-        
+    <?php require_once 'includes/scripts.php'; ?>
+    <?php require_once 'includes/footer.php'; ?>
+        <script></
         // Close sidebar when clicking outside on mobile
         document.addEventListener('click', function(event) {
             const sidebar = document.getElementById('sidebar');
@@ -2301,7 +2249,7 @@ $csrf_token = generateCSRFLite();
                             noResultsMsg = document.createElement('div');
                             noResultsMsg.className = 'no-results-message';
                             noResultsMsg.style.cssText = 'text-align: center; padding: 40px; color: var(--text-color);';
-                            noResultsMsg.innerHTML = '<i class="fas fa-search fa-2x" style="color: var(--secondary-color); margin-bottom: 16px;"></i><p style="color: var(--secondary-color);">No resources match your search criteria</p>';
+                            noResultsMsg.innerHTML = '<span class="material-symbols-outlined" style="font-size: 32px; color: var(--secondary-color); margin-bottom: 16px;">search</span><p style="color: var(--secondary-color);">No resources match your search criteria</p>';
                             browseResourcesGrid.after(noResultsMsg);
                         }
                         noResultsMsg.style.display = 'block';
@@ -2367,10 +2315,19 @@ $csrf_token = generateCSRFLite();
                     fileUploadArea.classList.add('has-file');
                     fileUploadArea.style.borderColor = '#107c10';
                     fileUploadArea.style.background = 'rgba(16, 124, 16, 0.05)';
+
+                    // Format file size
+                    let fileSize;
+                    if (file.size < 1024 * 1024) {
+                        fileSize = (file.size / 1024).toFixed(2) + ' KB';
+                    } else {
+                        fileSize = (file.size / 1024 / 1024).toFixed(2) + ' MB';
+                    }
+
                     fileUploadLabel.innerHTML = `
-                        <i class="fas fa-file" style="font-size: 48px; color: #107c10; margin-bottom: 16px;"></i>
+                        <span class="material-symbols-outlined" style="font-size: 48px; color: #107c10; margin-bottom: 16px;">description</span>
                         <span style="display: block; color: var(--text-color); font-weight: 500;">${file.name}</span>
-                        <small style="color: var(--secondary-color);">${(file.size / 1024 / 1024).toFixed(2)} MB</small>
+                        <small style="color: var(--secondary-color);">${fileSize}</small>
                     `;
                 } else {
                     fileUploadArea.classList.remove('has-file');
@@ -2378,30 +2335,12 @@ $csrf_token = generateCSRFLite();
                     fileUploadArea.style.background = 'var(--card-bg)';
                     const allowedTypes = <?php echo json_encode($allowed_file_types); ?>;
                     fileUploadLabel.innerHTML = `
-                        <i class="fas fa-cloud-upload-alt" style="font-size: 48px; color: #9aa0a6; margin-bottom: 16px;"></i>
+                        <span class="material-symbols-outlined" style="font-size: 48px; color: #9aa0a6; margin-bottom: 16px;">cloud_upload</span>
                         <span style="display: block; color: var(--text-color); font-weight: 500;">Click to browse or drag and drop</span>
-                        <small style="color: var(--secondary-color);">${allowedTypes.join(', ')} (Max 50MB)</small>
+                        <small style="color: var(--secondary-color);">${allowedTypes.join(', ')} (Max 20MB)</small>
                     `;
                 }
             });
-
-            // Handle subject selection - show "Other" input when selected
-            const subjectSelect = document.querySelector('select[name="subject"]');
-            const otherSubjectDiv = document.getElementById('otherSubjectDiv');
-            const otherSubjectInput = document.getElementById('otherSubjectInput');
-            
-            if (subjectSelect && otherSubjectDiv && otherSubjectInput) {
-                subjectSelect.addEventListener('change', function() {
-                    if (this.value === 'other') {
-                        otherSubjectDiv.style.display = 'block';
-                        otherSubjectInput.required = true;
-                    } else {
-                        otherSubjectDiv.style.display = 'none';
-                        otherSubjectInput.required = false;
-                        otherSubjectInput.value = '';
-                    }
-                });
-            }
 
             // Handle form submission
             uploadForm.addEventListener('submit', function(e) {
@@ -2423,39 +2362,54 @@ $csrf_token = generateCSRFLite();
 
                 // Show loading state
                 uploadBtn.disabled = true;
-                uploadBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading...';
+                uploadBtn.innerHTML = '<span class="material-symbols-outlined" style="vertical-align: middle; animation: spin 1s linear infinite;">refresh</span> Uploading...';
                 uploadMessage.style.display = 'none';
+
+                // Add progress bar
+                const progressBar = document.createElement('div');
+                progressBar.id = 'uploadProgressBar';
+                progressBar.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 4px; background: linear-gradient(90deg, #FF6B35, #FFA500); animation: progressAnimation 1.5s ease-in-out infinite; z-index: 9999;';
+                document.body.appendChild(progressBar);
+
+                // Add progress animation keyframes if not exists
+                if (!document.getElementById('progressAnimation')) {
+                    const style = document.createElement('style');
+                    style.id = 'progressAnimation';
+                    style.textContent = `
+                        @keyframes progressAnimation {
+                            0% { transform: translateX(-100%); }
+                            100% { transform: translateX(100%); }
+                        }
+                    `;
+                    document.head.appendChild(style);
+                }
 
                 const formData = new FormData(uploadForm);
                 formData.append('action', 'upload_resource');
                 
                 // Handle "other" subject selection
-                if (subjectSelect && subjectSelect.value === 'other') {
-                    if (!otherSubjectInput || !otherSubjectInput.value.trim()) {
-                        uploadMessage.style.display = 'block';
-                        uploadMessage.style.background = '#fce8e6';
-                        uploadMessage.style.color = '#c5221f';
-                        uploadMessage.textContent = 'Please enter a subject name.';
-                        uploadBtn.disabled = false;
-                        uploadBtn.innerHTML = '<i class="fas fa-upload"></i> Upload Resource';
-                        return;
-                    }
-                    // Add the custom subject as a separate field that the backend can use
-                    formData.append('custom_subject', otherSubjectInput.value.trim());
-                }
-
                 fetch('../api/upload.php', {
                     method: 'POST',
                     body: formData
                 })
                 .then(response => response.json())
                 .then(data => {
+                    // Remove progress bar
+                    const progressBar = document.getElementById('uploadProgressBar');
+                    if (progressBar) {
+                        progressBar.remove();
+                    }
+
+                    // Re-enable button
+                    uploadBtn.disabled = false;
+                    uploadBtn.innerHTML = '<span class="material-symbols-outlined" style="vertical-align: middle; margin-right: 8px;">upload</span> Upload Resource';
+
                     if (data.success) {
                         uploadMessage.style.display = 'block';
                         uploadMessage.style.background = '#e6f4ea';
                         uploadMessage.style.color = '#137333';
                         uploadMessage.textContent = 'Resource uploaded successfully!';
-                        
+
                         // Reset form after successful upload
                         setTimeout(() => {
                             uploadForm.reset();
@@ -2464,9 +2418,9 @@ $csrf_token = generateCSRFLite();
                             fileUploadArea.style.background = 'var(--card-bg)';
                             const allowedTypes = window.allowedFileTypes || ['PDF', 'DOC', 'PPT', 'XLS', 'TXT'];
                             fileUploadLabel.innerHTML = `
-                                <i class="fas fa-cloud-upload-alt" style="font-size: 48px; color: #9aa0a6; margin-bottom: 16px;"></i>
+                                <span class="material-symbols-outlined" style="font-size: 48px; color: #9aa0a6; margin-bottom: 16px;">cloud_upload</span>
                                 <span style="display: block; color: var(--text-color); font-weight: 500;">Click to browse or drag and drop</span>
-                                <small style="color: var(--secondary-color);">${allowedTypes.join(', ')} (Max 50MB)</small>
+                                <small style="color: var(--secondary-color);">${allowedTypes.join(', ')} (Max 20MB)</small>
                             `;
                             location.reload();
                         }, 2000);
@@ -2475,17 +2429,31 @@ $csrf_token = generateCSRFLite();
                         uploadMessage.style.background = '#fce8e6';
                         uploadMessage.style.color = '#c5221f';
                         uploadMessage.textContent = 'Error: ' + data.message;
+
+                        // Re-enable button
+                        uploadBtn.disabled = false;
+                        uploadBtn.innerHTML = '<i class="fas fa-upload"></i> Upload Resource';
                     }
                 })
                 .catch(error => {
+                    // Remove progress bar
+                    const progressBar = document.getElementById('uploadProgressBar');
+                    if (progressBar) {
+                        progressBar.remove();
+                    }
+
                     uploadMessage.style.display = 'block';
                     uploadMessage.style.background = '#fce8e6';
                     uploadMessage.style.color = '#c5221f';
                     uploadMessage.textContent = 'Error uploading resource: ' + error.message;
+
+                    // Re-enable button
+                    uploadBtn.disabled = false;
+                    uploadBtn.innerHTML = '<span class="material-symbols-outlined" style="vertical-align: middle; margin-right: 8px;">upload</span> Upload Resource';
                 })
                 .finally(() => {
                     uploadBtn.disabled = false;
-                    uploadBtn.innerHTML = '<i class="fas fa-upload"></i> Upload Resource';
+                    uploadBtn.innerHTML = '<span class="material-symbols-outlined" style="vertical-align: middle; margin-right: 8px;">upload</span> Upload Resource';
                 });
             });
 
@@ -2525,7 +2493,7 @@ $csrf_token = generateCSRFLite();
             // Add loading state
             element.classList.add('btn-loading');
             element.disabled = true;
-            element.innerHTML = '<i class="fas fa-download"></i> Downloading...';
+            element.innerHTML = '<span class="material-symbols-outlined" style="vertical-align: middle; animation: spin 1s linear infinite;">refresh</span> Downloading...';
 
             // Use fetch to download the file (single call, handles errors properly)
             const downloadUrl = `../api/download.php?id=${resourceId}&download=true`;
@@ -2569,7 +2537,7 @@ $csrf_token = generateCSRFLite();
                 // Reset button after a short delay
                 setTimeout(() => {
                     element.classList.remove('btn-loading');
-                    element.innerHTML = '<i class="fas fa-download"></i> Download';
+                    element.innerHTML = '<span class="material-symbols-outlined" style="vertical-align: middle; margin-right: 8px;">download</span> Download';
                     element.disabled = false;
                 }, 2000);
             })
@@ -2577,12 +2545,12 @@ $csrf_token = generateCSRFLite();
                 // Show user-friendly error message in the dashboard
                 const errorDiv = document.createElement('div');
                 errorDiv.style.cssText = 'position: fixed; top: 20px; right: 20px; background: #f44336; color: white; padding: 16px 24px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); z-index: 10000; transition: all 0.3s ease;';
-                errorDiv.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${error.message}`;
+                errorDiv.innerHTML = `<span class="material-symbols-outlined" style="vertical-align: middle; margin-right: 8px;">error</span> ${error.message}`;
                 document.body.appendChild(errorDiv);
 
                 // Reset button state
                 element.classList.remove('btn-loading');
-                element.innerHTML = '<i class="fas fa-download"></i> Download';
+                element.innerHTML = '<span class="material-symbols-outlined" style="vertical-align: middle; margin-right: 8px;">download</span> Download';
                 element.disabled = false;
 
                 // Remove error message after 5 seconds

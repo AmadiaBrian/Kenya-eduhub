@@ -390,6 +390,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <meta name="theme-color" content="#FF6B35">
     <title>Settings - Kenya EduHub</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
@@ -809,50 +810,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     </style>
 </head>
 <body class="<?php echo $dark_mode_class; ?> dashboard-page">
-    <!-- Header -->
-    <header class="header">
-        <div class="header-left">
-            <button class="menu-btn" onclick="toggleSidebar()">
-                <i class="fas fa-bars"></i>
-            </button>
-            <div class="logo">
-                <?php require_once '../includes/logo.php'; ?>
-            </div>
-        </div>
-        <div class="header-right">
-            <button class="dark-mode-toggle" onclick="toggleDarkMode()" title="Toggle Dark Mode">
-                <i class="fas fa-moon"></i>
-            </button>
-            <div class="user-avatar">
-                <?php echo strtoupper(substr($user['name'] ?? 'A', 0, 1)); ?>
-            </div>
-        </div>
-    </header>
-    
-    <!-- Sidebar -->
-    <aside class="sidebar" id="sidebar">
-        <a class="nav-link" href="dashboard">
-            <i class="fas fa-tachometer-alt"></i> Dashboard
-        </a>
-        <a class="nav-link" href="dashboard?section=resources">
-            <i class="fas fa-book"></i> My Resources
-        </a>
-        <a class="nav-link" href="dashboard?section=upload">
-            <i class="fas fa-upload"></i> Upload Resource
-        </a>
-        <a class="nav-link" href="https://sites.google.com/view/noteselectricalengineering/home" target="_blank">
-            <i class="fas fa-external-link-alt"></i> More Resources
-        </a>
-        <a class="nav-link" href="profile">
-            <i class="fas fa-user"></i> Profile
-        </a>
-        <a class="nav-link active" href="settings">
-            <i class="fas fa-cog"></i> Settings
-        </a>
-        <a class="nav-link" href="../auth/logout">
-            <i class="fas fa-sign-out-alt"></i> Logout
-        </a>
-    </aside>
+    <?php
+    // Set current page for active link highlighting
+    $current_page = 'settings';
+    require_once 'includes/header.php';
+    require_once 'includes/sidebar.php';
+    ?>
     
     <!-- Main Content -->
     <main class="main-content" id="mainContent">
@@ -972,7 +935,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         </p>
 
                         <button class="btn btn-secondary" style="color: #c5221f; border-color: #c5221f;" type="button" id="openDeleteModalBtn">
-                            <i class="fas fa-trash"></i> Delete My Account
+                            <span class="material-symbols-outlined" style="vertical-align: middle; margin-right: 8px;">delete</span> Delete My Account
                         </button>
                     </div>
                 </div>
@@ -981,7 +944,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <!-- Save Button -->
             <div style="text-align: right; margin-top: 24px;">
                 <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-save"></i> Save Settings
+                    <span class="material-symbols-outlined" style="vertical-align: middle; margin-right: 8px;">save</span> Save Settings
                 </button>
             </div>
         </form>
@@ -996,7 +959,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             </div>
             <div class="gsc-modal-body">
                 <div class="gsc-modal-warning">
-                    <i class="fas fa-exclamation-triangle"></i>
+                    <span class="material-symbols-outlined" style="font-size: 24px; color: #f9ab00; margin-right: 12px;">warning</span>
                     <div>
                         <strong>Warning:</strong> This action cannot be undone. Your account and all associated data will be deleted.
                     </div>
@@ -1028,7 +991,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <div class="gsc-modal-footer">
                 <button class="gsc-btn gsc-btn-secondary" id="cancelDeleteBtn">Cancel</button>
                 <button class="gsc-btn gsc-btn-danger" id="confirmDeleteBtn">
-                    <i class="fas fa-trash"></i> Delete Account
+                    <span class="material-symbols-outlined" style="vertical-align: middle; margin-right: 8px;">delete</span> Delete Account
                 </button>
             </div>
         </div>
@@ -1292,8 +1255,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     <!-- Footer -->
     <?php require_once '../includes/copywrite.php'; ?>
-    
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <?php require_once 'includes/scripts.php'; ?>
+
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Custom Modal Handlers
@@ -1349,140 +1313,58 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 confirmDeleteBtn.addEventListener('click', function() {
                     const confirmEmail = document.getElementById('confirm_email').value;
                     const confirmCheckbox = document.getElementById('confirmDelete');
-                    
+
                     if (!confirmCheckbox.checked) {
                         alert('Please confirm that you understand this action cannot be undone.');
                         return;
                     }
-                    
+
                     if (!confirmEmail) {
                         alert('Please enter your email address to confirm deletion.');
                         return;
                     }
-                    
+
                     // Submit the form
                     deleteAccountForm.submit();
                 });
             }
         });
 
-        // Dark Mode Toggle
-        function toggleDarkMode() {
-            document.body.classList.toggle('dark-mode');
-            const toggleBtn = document.querySelector('.dark-mode-toggle i');
-            const themeSelect = document.getElementById('theme');
-            
-            if (document.body.classList.contains('dark-mode')) {
-                toggleBtn.classList.remove('fa-moon');
-                toggleBtn.classList.add('fa-sun');
-                localStorage.setItem('darkMode', 'enabled');
-                if (themeSelect) themeSelect.value = 'dark';
-                
-                // Update user preference in database
-                fetch('update_theme.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: 'theme=dark'
-                });
-            } else {
-                toggleBtn.classList.remove('fa-sun');
-                toggleBtn.classList.add('fa-moon');
-                localStorage.setItem('darkMode', 'disabled');
-                if (themeSelect) themeSelect.value = 'light';
-                
-                // Update user preference in database
-                fetch('update_theme.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: 'theme=light'
-                });
-            }
-        }
-        
-        // Check for saved dark mode preference
+        // Theme Select Handler (page-specific)
         document.addEventListener('DOMContentLoaded', function() {
-            const savedDarkMode = localStorage.getItem('darkMode');
             const themeSelect = document.getElementById('theme');
-            
-            // Apply user's saved theme from database (already applied via PHP)
-            // Update localStorage to match
-            const currentTheme = themeSelect ? themeSelect.value : 'light';
-            
-            if (currentTheme === 'dark') {
-                document.body.classList.add('dark-mode');
-                const toggleBtn = document.querySelector('.dark-mode-toggle i');
-                if (toggleBtn) {
-                    toggleBtn.classList.remove('fa-moon');
-                    toggleBtn.classList.add('fa-sun');
-                }
-                localStorage.setItem('darkMode', 'enabled');
-            } else if (currentTheme === 'light') {
-                document.body.classList.remove('dark-mode');
-                const toggleBtn = document.querySelector('.dark-mode-toggle i');
-                if (toggleBtn) {
-                    toggleBtn.classList.remove('fa-sun');
-                    toggleBtn.classList.add('fa-moon');
-                }
-                localStorage.setItem('darkMode', 'disabled');
-            } else if (currentTheme === 'auto') {
-                // Check system preference
-                if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-                    document.body.classList.add('dark-mode');
-                    const toggleBtn = document.querySelector('.dark-mode-toggle i');
-                    if (toggleBtn) {
-                        toggleBtn.classList.remove('fa-moon');
-                        toggleBtn.classList.add('fa-sun');
-                    }
-                } else {
-                    document.body.classList.remove('dark-mode');
-                    const toggleBtn = document.querySelector('.dark-mode-toggle i');
-                    if (toggleBtn) {
-                        toggleBtn.classList.remove('fa-sun');
-                        toggleBtn.classList.add('fa-moon');
-                    }
-                }
-                localStorage.setItem('darkMode', 'auto');
-            }
-            
+
             // Theme select handler
             if (themeSelect) {
                 themeSelect.addEventListener('change', function() {
                     const theme = this.value;
                     if (theme === 'dark') {
                         document.body.classList.add('dark-mode');
-                        const toggleBtn = document.querySelector('.dark-mode-toggle i');
+                        const toggleBtn = document.querySelector('.dark-mode-toggle .material-symbols-outlined');
                         if (toggleBtn) {
-                            toggleBtn.classList.remove('fa-moon');
-                            toggleBtn.classList.add('fa-sun');
+                            toggleBtn.textContent = 'light_mode';
                         }
                         localStorage.setItem('darkMode', 'enabled');
                     } else if (theme === 'light') {
                         document.body.classList.remove('dark-mode');
-                        const toggleBtn = document.querySelector('.dark-mode-toggle i');
+                        const toggleBtn = document.querySelector('.dark-mode-toggle .material-symbols-outlined');
                         if (toggleBtn) {
-                            toggleBtn.classList.remove('fa-sun');
-                            toggleBtn.classList.add('fa-moon');
+                            toggleBtn.textContent = 'dark_mode';
                         }
                         localStorage.setItem('darkMode', 'disabled');
                     } else if (theme === 'auto') {
                         // Check system preference
                         if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
                             document.body.classList.add('dark-mode');
-                            const toggleBtn = document.querySelector('.dark-mode-toggle i');
+                            const toggleBtn = document.querySelector('.dark-mode-toggle .material-symbols-outlined');
                             if (toggleBtn) {
-                                toggleBtn.classList.remove('fa-moon');
-                                toggleBtn.classList.add('fa-sun');
+                                toggleBtn.textContent = 'light_mode';
                             }
                         } else {
                             document.body.classList.remove('dark-mode');
-                            const toggleBtn = document.querySelector('.dark-mode-toggle i');
+                            const toggleBtn = document.querySelector('.dark-mode-toggle .material-symbols-outlined');
                             if (toggleBtn) {
-                                toggleBtn.classList.remove('fa-sun');
-                                toggleBtn.classList.add('fa-moon');
+                                toggleBtn.textContent = 'dark_mode';
                             }
                         }
                         localStorage.setItem('darkMode', 'auto');
@@ -1490,19 +1372,5 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 });
             }
         });
-        
-        // Toggle Sidebar
-        function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            const mainContent = document.getElementById('mainContent');
-            
-            if (window.innerWidth <= 768) {
-                sidebar.classList.toggle('show');
-            } else {
-                sidebar.classList.toggle('collapsed');
-                mainContent.classList.toggle('expanded');
-            }
-        }
     </script>
-</body>
-</html>
+    <?php require_once 'includes/footer.php'; ?>

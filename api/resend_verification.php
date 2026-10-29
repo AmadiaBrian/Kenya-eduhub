@@ -1,4 +1,8 @@
 <?php
+// Suppress errors and warnings to ensure clean JSON output
+error_reporting(0);
+ini_set('display_errors', 0);
+
 header("Content-Type: application/json");
 
 // Remove CORS restrictions for local development
@@ -155,22 +159,30 @@ if (($method === 'sms' || $method === 'both') && $user['phone']) {
 // Build success message based on method
 if ($method === 'email') {
     $message = "New verification code sent to your email.";
+    $api_success = $email_sent;
 } elseif ($method === 'sms') {
     if ($sms_sent) {
         $message = "New verification code sent to your phone via SMS.";
+        $api_success = true;
     } else {
         $message = "Failed to send SMS. Please try via email.";
+        $api_success = false;
     }
 } else {
     $message = "New verification code sent.";
+    $api_success = ($email_sent || $sms_sent);
 }
 
-// Set cooldown timestamp in session
-$_SESSION['last_resend_time'] = time();
+// Only set cooldown and increment attempt count if successful
+if ($api_success) {
+    $_SESSION['last_resend_time'] = time();
+    $_SESSION['resend_attempt_count'] = ($_SESSION['resend_attempt_count'] ?? 0) + 1;
+}
 
 echo json_encode([
-    "success" => true,
-    "message" => $message
+    "success" => $api_success,
+    "message" => $message,
+    "attempt_count" => $_SESSION['resend_attempt_count'] ?? 0
 ]);
 
 $conn->close();

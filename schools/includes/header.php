@@ -72,7 +72,7 @@
 <header class="header">
     <div class="header-left">
         <button class="menu-btn" onclick="toggleSidebar()">
-            <i class="fas fa-bars"></i>
+            <span class="material-icons" style="font-size: 24px;">menu</span>
         </button>
         <?php require_once dirname(__DIR__) . '/../includes/logo.php'; ?>
     </div>

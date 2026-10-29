@@ -14,20 +14,45 @@ $phone = $_SESSION['verification_phone'] ?? null;
 $errors = [];
 $success = '';
 
-// Check resend cooldown (2 minutes = 120 seconds)
+// Check resend cooldown based on attempt count
 $can_resend = true;
 $cooldown_remaining = 0;
+$resend_attempt_count = $_SESSION['resend_attempt_count'] ?? 0;
+
+// Initialize resend attempt count if not set
+if (!isset($_SESSION['resend_attempt_count'])) {
+    $_SESSION['resend_attempt_count'] = 0;
+}
+
 if (isset($_SESSION['last_resend_time'])) {
     $time_since_resend = time() - $_SESSION['last_resend_time'];
-    if ($time_since_resend < 120) {
-        $can_resend = false;
-        $cooldown_remaining = 120 - $time_since_resend;
+
+    // Determine cooldown based on attempt count
+    if ($resend_attempt_count == 0) {
+        // First resend - no cooldown
+        $can_resend = true;
+        $cooldown_remaining = 0;
+    } elseif ($resend_attempt_count == 1) {
+        // Second resend - 2 minutes (120 seconds)
+        $cooldown_period = 120;
+        if ($time_since_resend < $cooldown_period) {
+            $can_resend = false;
+            $cooldown_remaining = $cooldown_period - $time_since_resend;
+        }
+    } else {
+        // Third and subsequent resends - 2 hours (7200 seconds)
+        $cooldown_period = 7200;
+        if ($time_since_resend < $cooldown_period) {
+            $can_resend = false;
+            $cooldown_remaining = $cooldown_period - $time_since_resend;
+        }
     }
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $verification_code = $_POST['verification_code'] ?? '';
-    
+    error_log("Verification attempt - Entered code: $verification_code");
+
     if (empty($verification_code)) {
         $errors[] = "Verification code is required";
     } elseif (strlen($verification_code) !== 6) {
@@ -35,7 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         // Verify the code - check by email first, then by phone
         $user = null;
-        
+
         if ($email) {
             $stmt = $conn->prepare("SELECT id, name, email, code_expires_at FROM users WHERE email = ? AND verification_code = ? AND is_verified = 0");
             $stmt->bind_param("ss", $email, $verification_code);
@@ -43,9 +68,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $result = $stmt->get_result();
             if ($result->num_rows > 0) {
                 $user = $result->fetch_assoc();
+                error_log("User found by email: {$user['email']}");
             }
         }
-        
+
         // If not found by email, try phone
         if (!$user && $phone) {
             $stmt = $conn->prepare("SELECT id, name, email, code_expires_at FROM users WHERE phone = ? AND verification_code = ? AND is_verified = 0");
@@ -54,29 +80,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $result = $stmt->get_result();
             if ($result->num_rows > 0) {
                 $user = $result->fetch_assoc();
+                error_log("User found by phone: {$user['phone']}");
             }
         }
-        
-        if ($user) {
+
+        if (!$user) {
+            error_log("No user found with code: $verification_code for email: $email or phone: $phone");
+            $errors[] = "Invalid verification code. Please check your email or SMS and try again.";
+        } else {
             // Check if code is expired
             if (strtotime($user['code_expires_at']) < time()) {
+                error_log("Code expired for user ID: {$user['id']}");
                 $errors[] = "Verification code has expired. Please request a new code.";
                 // Don't clear session on expired code - allow user to try again
             } else {
+                error_log("Code valid for user ID: {$user['id']}, marking as verified");
                 // Mark user as verified
                 $update_stmt = $conn->prepare("UPDATE users SET is_verified = 1, verification_code = NULL, code_expires_at = NULL WHERE id = ?");
                 $update_stmt->bind_param("i", $user['id']);
                 $update_stmt->execute();
-                
+
                 // Clear session and redirect to login
                 unset($_SESSION['verification_email']);
                 unset($_SESSION['verification_phone']);
+                unset($_SESSION['last_resend_time']);
+                unset($_SESSION['resend_attempt_count']);
                 $_SESSION['success'] = "Verification successful! You can now login.";
                 header("Location: login");
                 exit();
             }
-        } else {
-            $errors[] = "Invalid verification code. Please check your email or SMS and try again.";
         }
     }
 }
@@ -376,13 +408,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <br><br>
             <div style="margin-top: 16px;">
                 <p style="font-size: 13px; color: #5f6368; margin-bottom: 8px;">Didn't receive the code?</p>
-                <a href="#" id="resendEmailLink" onclick="resendCode('email', event)" <?php echo !$can_resend ? 'style="color: #9aa0a6; pointer-events: none;"' : ''; ?>>Resend via Email</a>
                 <?php if ($phone): ?>
-                    <span style="color: #dadce0;">|</span>
                     <a href="#" id="resendSmsLink" onclick="resendCode('sms', event)" <?php echo !$can_resend ? 'style="color: #9aa0a6; pointer-events: none;"' : ''; ?>>Resend via SMS</a>
+                <?php else: ?>
+                    <span style="color: #5f6368; font-size: 13px;">No phone number provided for SMS resend</span>
                 <?php endif; ?>
-                <?php if (!$can_resend): ?>
-                    <p style="font-size: 12px; color: #5f6368; margin-top: 8px;">Please wait <span id="cooldownTimer"><?php echo $cooldown_remaining; ?></span> seconds before resending</p>
+                <?php if (!$can_resend && $phone): ?>
+                    <?php
+                    // Format cooldown time for display
+                    $time_display = '';
+                    if ($cooldown_remaining >= 3600) {
+                        $hours = floor($cooldown_remaining / 3600);
+                        $minutes = floor(($cooldown_remaining % 3600) / 60);
+                        $time_display = $hours . ' hour' . ($hours > 1 ? 's' : '');
+                        if ($minutes > 0) {
+                            $time_display .= ' ' . $minutes . ' minute' . ($minutes > 1 ? 's' : '');
+                        }
+                    } else {
+                        $time_display = $cooldown_remaining . ' second' . ($cooldown_remaining != 1 ? 's' : '');
+                    }
+                    ?>
                 <?php endif; ?>
             </div>
         </div>
@@ -466,7 +511,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     }, 5000);
 
                     // Start cooldown timer
-                    startCooldownTimer();
+                    console.log("Starting cooldown timer. attempt_count:", data.attempt_count);
+                    console.log("SMS link element:", document.getElementById('resendSmsLink'));
+
+                    // Calculate cooldown period based on attempt_count
+                    let cooldownPeriod;
+                    if (data.attempt_count === 0) {
+                        cooldownPeriod = 0; // First resend - no cooldown
+                    } else if (data.attempt_count === 1) {
+                        cooldownPeriod = 120; // Second resend - 2 minutes
+                    } else {
+                        cooldownPeriod = 7200; // Third and subsequent - 2 hours
+                    }
+
+                    startCooldownTimer(cooldownPeriod, data.attempt_count);
                 } else {
                     // Show error message
                     const errorDiv = document.createElement('div');
@@ -492,7 +550,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 errorDiv.className = 'alert-error';
                 errorDiv.role = 'alert';
                 errorDiv.setAttribute('aria-live', 'assertive');
-                errorDiv.innerHTML = `<p>Failed to resend verification code. Please try again.</p>`;
+                errorDiv.innerHTML = `<p>Failed to resend verification code: ${error.message || 'Please try again.'}</p>`;
 
                 // Insert before the form
                 const form = document.querySelector('form');
@@ -511,61 +569,125 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         // Cooldown timer function
-        function startCooldownTimer(initialRemaining = 120) {
+        function startCooldownTimer(initialRemaining, attemptCount = 1) {
+            console.log("startCooldownTimer called. initialRemaining:", initialRemaining, "attemptCount:", attemptCount);
             let remaining = initialRemaining;
 
-            // Disable resend links
-            document.getElementById('resendEmailLink').style.color = '#9aa0a6';
-            document.getElementById('resendEmailLink').style.pointerEvents = 'none';
-            const smsLink = document.getElementById('resendSmsLink');
-            if (smsLink) {
-                smsLink.style.color = '#9aa0a6';
-                smsLink.style.pointerEvents = 'none';
+            // Determine cooldown period based on attempt count
+            let cooldownPeriod;
+            if (attemptCount === 0) {
+                cooldownPeriod = 0; // First resend - no cooldown
+                console.log("No cooldown (first resend)");
+            } else if (attemptCount === 1) {
+                cooldownPeriod = 120; // Second resend - 2 minutes
+                console.log("2-minute cooldown");
+            } else {
+                cooldownPeriod = 7200; // Third and subsequent - 2 hours
+                console.log("2-hour cooldown");
             }
 
-            // Show cooldown message
-            const cooldownMsg = document.createElement('p');
-            cooldownMsg.id = 'cooldownMessage';
-            cooldownMsg.style.fontSize = '12px';
-            cooldownMsg.style.color = '#5f6368';
-            cooldownMsg.style.marginTop = '8px';
-            cooldownMsg.innerHTML = `Please wait <span id="cooldownTimer">${remaining}</span> seconds before resending`;
-            
-            const linksDiv = document.querySelector('.verify-links div');
-            linksDiv.appendChild(cooldownMsg);
+            // Only disable links if there's a cooldown
+            if (cooldownPeriod > 0) {
+                console.log("Disabling links. cooldownPeriod:", cooldownPeriod);
 
-            // Update timer every second
-            const timer = setInterval(() => {
-                remaining--;
-                const timerSpan = document.getElementById('cooldownTimer');
-                if (timerSpan) {
-                    timerSpan.textContent = remaining;
+                // Remove any existing cooldown message
+                const existingMsg = document.getElementById('cooldownMessage');
+                if (existingMsg) {
+                    existingMsg.remove();
                 }
 
-                if (remaining <= 0) {
-                    clearInterval(timer);
-                    // Re-enable links
-                    document.getElementById('resendEmailLink').style.color = '#FF6B35';
-                    document.getElementById('resendEmailLink').style.pointerEvents = 'auto';
-                    if (smsLink) {
-                        smsLink.style.color = '#FF6B35';
-                        smsLink.style.pointerEvents = 'auto';
-                    }
-                    // Remove cooldown message
-                    const msg = document.getElementById('cooldownMessage');
-                    if (msg) {
-                        msg.remove();
-                    }
+                // Disable resend link
+                const smsLink = document.getElementById('resendSmsLink');
+                console.log("SMS link element:", smsLink);
+                if (smsLink) {
+                    smsLink.style.color = '#9aa0a6';
+                    smsLink.style.pointerEvents = 'none';
+                    console.log("SMS link disabled");
+                } else {
+                    console.log("SMS link element not found!");
                 }
-            }, 1000);
+
+                // Show cooldown message
+                const cooldownMsg = document.createElement('p');
+                cooldownMsg.id = 'cooldownMessage';
+                cooldownMsg.style.fontSize = '12px';
+                cooldownMsg.style.color = '#5f6368';
+                cooldownMsg.style.marginTop = '8px';
+
+                // Format time display
+                let timeDisplay;
+                if (cooldownPeriod >= 3600) {
+                    const hours = Math.floor(remaining / 3600);
+                    const minutes = Math.floor((remaining % 3600) / 60);
+                    timeDisplay = `${hours} hour${hours > 1 ? 's' : ''}${minutes > 0 ? ' ' + minutes + ' minute' + (minutes > 1 ? 's' : '') : ''}`;
+                } else {
+                    timeDisplay = `${remaining} second${remaining !== 1 ? 's' : ''}`;
+                }
+
+                cooldownMsg.innerHTML = `Please wait <span id="cooldownTimer">${timeDisplay}</span> before resending`;
+
+                const linksDiv = document.querySelector('.verify-links div');
+                linksDiv.appendChild(cooldownMsg);
+
+                // Update timer every second
+                const timer = setInterval(() => {
+                    remaining--;
+                    const timerSpan = document.getElementById('cooldownTimer');
+                    if (timerSpan) {
+                        // Update time display
+                        if (cooldownPeriod >= 3600) {
+                            const hours = Math.floor(remaining / 3600);
+                            const minutes = Math.floor((remaining % 3600) / 60);
+                            const seconds = remaining % 60;
+                            if (hours > 0) {
+                                timerSpan.textContent = `${hours} hour${hours > 1 ? 's' : ''} ${minutes} minute${minutes > 1 ? 's' : ''} ${seconds} second${seconds !== 1 ? 's' : ''}`;
+                            } else if (minutes > 0) {
+                                timerSpan.textContent = `${minutes} minute${minutes > 1 ? 's' : ''} ${seconds} second${seconds !== 1 ? 's' : ''}`;
+                            } else {
+                                timerSpan.textContent = `${seconds} second${seconds !== 1 ? 's' : ''}`;
+                            }
+                        } else {
+                            const minutes = Math.floor(remaining / 60);
+                            const seconds = remaining % 60;
+                            if (minutes > 0) {
+                                timerSpan.textContent = `${minutes} minute${minutes > 1 ? 's' : ''} ${seconds} second${seconds !== 1 ? 's' : ''}`;
+                            } else {
+                                timerSpan.textContent = `${seconds} second${seconds !== 1 ? 's' : ''}`;
+                            }
+                        }
+                    }
+
+                    if (remaining <= 0) {
+                        clearInterval(timer);
+                        // Re-enable link
+                        if (smsLink) {
+                            smsLink.style.color = '#FF6B35';
+                            smsLink.style.pointerEvents = 'auto';
+                        }
+                        // Remove cooldown message
+                        const msg = document.getElementById('cooldownMessage');
+                        if (msg) {
+                            msg.remove();
+                        }
+                    }
+                }, 1000);
+            }
         }
 
         // Start cooldown timer if already in cooldown
         <?php if (!$can_resend): ?>
             document.addEventListener('DOMContentLoaded', function() {
-                startCooldownTimer(<?php echo $cooldown_remaining; ?>);
+                startCooldownTimer(<?php echo $cooldown_remaining; ?>, <?php echo $resend_attempt_count; ?>);
             });
         <?php endif; ?>
+
+        // Remove any existing cooldown message when resend is clicked
+        document.getElementById('resendSmsLink')?.addEventListener('click', function() {
+            const existingMsg = document.getElementById('cooldownMessage');
+            if (existingMsg) {
+                existingMsg.remove();
+            }
+        });
     </script>
 </body>
 </html>

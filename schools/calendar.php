@@ -240,6 +240,7 @@ try {
     <meta name="theme-color" content="#FF6B35">
     <title>Academic Calendar - <?php echo htmlspecialchars($school_name); ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="../assets/css/notifications.css">
     <style>
@@ -261,6 +262,11 @@ try {
             font-family: 'Google Sans', 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             font-size: 14px;
             color: #202124;
+        }
+
+        .material-icons {
+            vertical-align: middle;
+            font-size: 20px;
         }
         
         .page-title {
@@ -757,7 +763,7 @@ try {
             <h2 class="card-title" style="color: white;">School Session Status</h2>
             <?php if ($current_status['is_holiday']): ?>
                 <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 12px;">
-                    <i class="fas fa-umbrella-beach" style="color: white; font-size: 32px;"></i>
+                    <span class="material-icons" style="color: white; font-size: 32px;">beach_access</span>
                     <div>
                         <p style="color: white; font-weight: 600; margin: 0; font-size: 16px;">
                             School is on Holiday
@@ -771,17 +777,17 @@ try {
                 </div>
                 <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.3);">
                     <p style="color: white; margin: 0; font-size: 13px;">
-                        <i class="fas fa-calendar-alt" style="margin-right: 8px;"></i>
+                        <span class="material-icons" style="vertical-align: middle; margin-right: 8px;">calendar_month</span>
                         Academic Year: <?php echo $current_status['current_year']; ?>
                     </p>
                     <p style="color: white; margin: 8px 0 0 0; font-size: 13px;">
-                        <i class="fas fa-clock" style="margin-right: 8px;"></i>
+                        <span class="material-icons" style="vertical-align: middle; margin-right: 8px;">schedule</span>
                         Today: <?php echo date('F j, Y'); ?>
                     </p>
                 </div>
             <?php elseif ($current_status['current_term']): ?>
                 <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 12px;">
-                    <i class="fas fa-school" style="color: white; font-size: 32px;"></i>
+                    <span class="material-icons" style="color: white; font-size: 32px;">school</span>
                     <div>
                         <p style="color: white; font-weight: 600; margin: 0; font-size: 16px;">
                             School is in Session
@@ -797,11 +803,11 @@ try {
                 </div>
                 <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.3);">
                     <p style="color: white; margin: 0; font-size: 13px;">
-                        <i class="fas fa-calendar-alt" style="margin-right: 8px;"></i>
+                        <span class="material-icons" style="vertical-align: middle; margin-right: 8px;">calendar_month</span>
                         Academic Year: <?php echo $current_status['current_year']; ?>
                     </p>
                     <p style="color: white; margin: 8px 0 0 0; font-size: 13px;">
-                        <i class="fas fa-clock" style="margin-right: 8px;"></i>
+                        <span class="material-icons" style="vertical-align: middle; margin-right: 8px;">schedule</span>
                         Today: <?php echo date('F j, Y'); ?>
                     </p>
                     <?php
@@ -812,7 +818,7 @@ try {
                     if ($days_remaining > 0):
                     ?>
                     <p style="color: white; margin: 8px 0 0 0; font-size: 13px;">
-                        <i class="fas fa-hourglass-half" style="margin-right: 8px;"></i>
+                        <span class="material-icons" style="vertical-align: middle; margin-right: 8px;">hourglass_empty</span>
                         <span id="daysRemainingCount">0</span> days remaining in term
                     </p>
                     <script>
@@ -835,7 +841,7 @@ try {
                 </div>
             <?php else: ?>
                 <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 12px;">
-                    <i class="fas fa-calendar-times" style="color: white; font-size: 32px;"></i>
+                    <span class="material-icons" style="color: white; font-size: 32px;">event_busy</span>
                     <div>
                         <p style="color: white; font-weight: 600; margin: 0; font-size: 16px;">
                             School is on Break
@@ -847,11 +853,11 @@ try {
                 </div>
                 <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.3);">
                     <p style="color: white; margin: 0; font-size: 13px;">
-                        <i class="fas fa-calendar-alt" style="margin-right: 8px;"></i>
+                        <span class="material-icons" style="vertical-align: middle; margin-right: 8px;">calendar_month</span>
                         Academic Year: <?php echo $current_status['current_year']; ?>
                     </p>
                     <p style="color: white; margin: 8px 0 0 0; font-size: 13px;">
-                        <i class="fas fa-clock" style="margin-right: 8px;"></i>
+                        <span class="material-icons" style="vertical-align: middle; margin-right: 8px;">schedule</span>
                         Today: <?php echo date('F j, Y'); ?>
                     </p>
                 </div>
@@ -887,7 +893,7 @@ try {
                     </div>
                     <div style="display: flex; align-items: flex-end;">
                         <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-plus"></i> Add Term
+                            <span class="material-icons" style="vertical-align: middle; margin-right: 8px;">add</span> Add Term
                         </button>
                     </div>
                 </div>
@@ -939,13 +945,13 @@ try {
                                     <div class="action-buttons-cell">
                                         <?php if (!$term['is_active']): ?>
                                             <button type="button" class="btn-action" onclick="activateTerm(<?php echo $term['id']; ?>)">
-                                                <i class="fas fa-check"></i>
+                                                <span class="material-icons" style="color: #00AC47;">check</span>
                                             </button>
                                         <?php else: ?>
                                             <span class="status-badge status-in-session">Active</span>
                                         <?php endif; ?>
                                         <button type="button" class="btn-action" onclick="confirmDeleteTerm(<?php echo $term['id']; ?>)">
-                                            <i class="fas fa-trash"></i>
+                                            <span class="material-icons" style="color: #d93025;">delete</span>
                                         </button>
                                     </div>
                                 </td>
@@ -990,7 +996,7 @@ try {
                     </div>
                     <div style="display: flex; align-items: flex-end;">
                         <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-plus"></i> Add Holiday
+                            <span class="material-icons" style="vertical-align: middle; margin-right: 8px;">add</span> Add Holiday
                         </button>
                     </div>
                 </div>
@@ -1020,7 +1026,7 @@ try {
                                 <td>
                                     <div class="action-buttons-cell">
                                         <button type="button" class="btn-action" onclick="confirmDeleteHoliday(<?php echo $holiday['id']; ?>)">
-                                            <i class="fas fa-trash"></i>
+                                            <span class="material-icons" style="color: #d93025;">delete</span>
                                         </button>
                                     </div>
                                 </td>
@@ -1066,7 +1072,7 @@ try {
                     </div>
                     <div style="display: flex; align-items: flex-end;">
                         <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-plus"></i> Add Event
+                            <span class="material-icons" style="vertical-align: middle; margin-right: 8px;">add</span> Add Event
                         </button>
                     </div>
                 </div>
@@ -1096,7 +1102,7 @@ try {
                                 <td>
                                     <div class="action-buttons-cell">
                                         <button type="button" class="btn-action" onclick="confirmDeleteEvent(<?php echo $event['id']; ?>)">
-                                            <i class="fas fa-trash"></i>
+                                            <span class="material-icons" style="color: #d93025;">delete</span>
                                         </button>
                                     </div>
                                 </td>

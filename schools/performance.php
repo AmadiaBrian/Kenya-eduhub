@@ -32,6 +32,7 @@ $calendar_status = getSchoolCalendarStatus($pdo, $_SESSION['school_id']);
     <meta name="theme-color" content="#FF6B35">
     <title>Performance - <?php echo htmlspecialchars($school_name); ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="../assets/css/notifications.css">
     <style>
@@ -55,6 +56,11 @@ $calendar_status = getSchoolCalendarStatus($pdo, $_SESSION['school_id']);
             font-family: 'Google Sans', 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             font-size: 14px;
             color: #202124;
+        }
+
+        .material-icons {
+            vertical-align: middle;
+            font-size: 20px;
         }
         
         .main-content {
@@ -413,7 +419,7 @@ $calendar_status = getSchoolCalendarStatus($pdo, $_SESSION['school_id']);
         <?php if ($calendar_status['is_holiday']): ?>
             <div class="card" style="background: rgba(255, 107, 53, 0.85); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.3); box-shadow: 0 8px 32px rgba(255, 107, 53, 0.3); padding: 40px; min-height: 150px;">
                 <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 12px;">
-                    <i class="fas fa-umbrella-beach" style="color: white; font-size: 32px;"></i>
+                    <span class="material-icons" style="color: white; font-size: 32px;">beach_access</span>
                     <div>
                         <p style="color: white; font-weight: 600; margin: 0; font-size: 16px;">
                             School is on Holiday
@@ -429,11 +435,11 @@ $calendar_status = getSchoolCalendarStatus($pdo, $_SESSION['school_id']);
                 </div>
                 <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.3);">
                     <p style="color: white; margin: 0; font-size: 13px;">
-                        <i class="fas fa-calendar-alt" style="margin-right: 8px;"></i>
+                        <span class="material-icons" style="vertical-align: middle; margin-right: 8px;">calendar_month</span>
                         Academic Year: <?php echo $calendar_status['current_year']; ?>
                     </p>
                     <p style="color: white; margin: 8px 0 0 0; font-size: 13px;">
-                        <i class="fas fa-clock" style="margin-right: 8px;"></i>
+                        <span class="material-icons" style="vertical-align: middle; margin-right: 8px;">schedule</span>
                         Today: <?php echo date('F j, Y'); ?>
                     </p>
                 </div>
@@ -441,7 +447,7 @@ $calendar_status = getSchoolCalendarStatus($pdo, $_SESSION['school_id']);
         <?php elseif ($calendar_status['school_status'] === 'break'): ?>
             <div class="card" style="background: rgba(255, 107, 53, 0.85); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.3); box-shadow: 0 8px 32px rgba(255, 107, 53, 0.3); padding: 40px; min-height: 150px;">
                 <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 12px;">
-                    <i class="fas fa-pause-circle" style="color: white; font-size: 32px;"></i>
+                    <span class="material-icons" style="color: white; font-size: 32px;">pause_circle</span>
                     <div>
                         <p style="color: white; font-weight: 600; margin: 0; font-size: 16px;">
                             School is on Break
@@ -451,11 +457,11 @@ $calendar_status = getSchoolCalendarStatus($pdo, $_SESSION['school_id']);
                 </div>
                 <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.3);">
                     <p style="color: white; margin: 0; font-size: 13px;">
-                        <i class="fas fa-calendar-alt" style="margin-right: 8px;"></i>
+                        <span class="material-icons" style="vertical-align: middle; margin-right: 8px;">calendar_month</span>
                         Academic Year: <?php echo $calendar_status['current_year']; ?>
                     </p>
                     <p style="color: white; margin: 8px 0 0 0; font-size: 13px;">
-                        <i class="fas fa-clock" style="margin-right: 8px;"></i>
+                        <span class="material-icons" style="vertical-align: middle; margin-right: 8px;">schedule</span>
                         Today: <?php echo date('F j, Y'); ?>
                     </p>
                 </div>
@@ -519,37 +525,37 @@ $calendar_status = getSchoolCalendarStatus($pdo, $_SESSION['school_id']);
             <div class="quick-access-grid">
                 <a href="dashboard.php" class="quick-access-item">
                     <div class="quick-access-icon">
-                        <i class="fas fa-home"></i>
+                        <span class="material-icons" style="color: #5f6368;">dashboard</span>
                     </div>
                     <div class="quick-access-label">Dashboard</div>
                 </a>
                 <a href="students.php" class="quick-access-item">
                     <div class="quick-access-icon">
-                        <i class="fas fa-user-graduate"></i>
+                        <span class="material-icons" style="color: #5f6368;">school</span>
                     </div>
                     <div class="quick-access-label">Students</div>
                 </a>
                 <a href="teachers.php" class="quick-access-item">
                     <div class="quick-access-icon">
-                        <i class="fas fa-chalkboard-teacher"></i>
+                        <span class="material-icons" style="color: #5f6368;">person_apron</span>
                     </div>
                     <div class="quick-access-label">Teachers</div>
                 </a>
                 <a href="attendance.php" class="quick-access-item">
                     <div class="quick-access-icon">
-                        <i class="fas fa-calendar-check"></i>
+                        <span class="material-icons" style="color: #5f6368;">event_available</span>
                     </div>
                     <div class="quick-access-label">Attendance</div>
                 </a>
                 <a href="fees.php" class="quick-access-item">
                     <div class="quick-access-icon">
-                        <i class="fas fa-money-bill-wave"></i>
+                        <span class="material-icons" style="color: #5f6368;">payments</span>
                     </div>
                     <div class="quick-access-label">Fees</div>
                 </a>
                 <a href="classes.php" class="quick-access-item">
                     <div class="quick-access-icon">
-                        <i class="fas fa-chalkboard"></i>
+                        <span class="material-icons" style="color: #5f6368;">class</span>
                     </div>
                     <div class="quick-access-label">Classes</div>
                 </a>
@@ -559,7 +565,7 @@ $calendar_status = getSchoolCalendarStatus($pdo, $_SESSION['school_id']);
         <!-- Action Buttons -->
         <div class="action-buttons">
             <button class="btn btn-success" onclick="exportPerformance()">
-                <i class="fas fa-download me-2"></i> Export
+                <span class="material-icons" style="vertical-align: middle; margin-right: 8px;">download</span> Export
             </button>
         </div>
 
@@ -611,7 +617,7 @@ $calendar_status = getSchoolCalendarStatus($pdo, $_SESSION['school_id']);
             <div class="row mb-3">
                 <div class="col-md-12">
                     <button class="btn btn-secondary" onclick="resetFilters()">
-                        <i class="fas fa-undo"></i> Reset
+                        <span class="material-icons" style="vertical-align: middle; margin-right: 8px;">refresh</span> Reset
                     </button>
                 </div>
             </div>
@@ -721,7 +727,7 @@ $calendar_status = getSchoolCalendarStatus($pdo, $_SESSION['school_id']);
                         html += `
                             <div style="margin-bottom: 30px;">
                                 <h4 style="color: #FF6B35; margin-bottom: 15px; font-weight: 600;">
-                                    <i class="fas fa-book"></i> ${subjectName}
+                                    <span class="material-icons" style="vertical-align: middle; margin-right: 8px;">menu_book</span> ${subjectName}
                                 </h4>
                                 <div class="table-responsive" style="overflow-x: auto;">
                                     <table class="table" style="min-width: 800px;">
