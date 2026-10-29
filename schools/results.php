@@ -166,6 +166,7 @@ try {
     <meta name="theme-color" content="#FF6B35">
     <title>Results - <?php echo htmlspecialchars($school_name); ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="../assets/css/notifications.css">
     <style>
@@ -547,7 +548,7 @@ try {
         <?php if ($calendar_status['is_holiday']): ?>
             <div class="card" style="background: rgba(255, 107, 53, 0.85); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.3); box-shadow: 0 8px 32px rgba(255, 107, 53, 0.3); padding: 40px; min-height: 150px;">
                 <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 12px;">
-                    <i class="fas fa-umbrella-beach" style="color: white; font-size: 32px;"></i>
+                    <span class="material-icons" style="color: white; font-size: 32px;">beach_access</span>
                     <div>
                         <p style="color: white; font-weight: 600; margin: 0; font-size: 16px;">
                             School is on Holiday
@@ -563,11 +564,11 @@ try {
                 </div>
                 <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.3);">
                     <p style="color: white; margin: 0; font-size: 13px;">
-                        <i class="fas fa-calendar-alt" style="margin-right: 8px;"></i>
+                        <span class="material-icons" style="vertical-align: middle; margin-right: 8px;">calendar_month</span>
                         Academic Year: <?php echo $calendar_status['current_year']; ?>
                     </p>
                     <p style="color: white; margin: 8px 0 0 0; font-size: 13px;">
-                        <i class="fas fa-clock" style="margin-right: 8px;"></i>
+                        <span class="material-icons" style="vertical-align: middle; margin-right: 8px;">schedule</span>
                         Today: <?php echo date('F j, Y'); ?>
                     </p>
                 </div>
@@ -575,7 +576,7 @@ try {
         <?php elseif ($calendar_status['school_status'] === 'break'): ?>
             <div class="card" style="background: rgba(255, 107, 53, 0.85); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.3); box-shadow: 0 8px 32px rgba(255, 107, 53, 0.3); padding: 40px; min-height: 150px;">
                 <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 12px;">
-                    <i class="fas fa-pause-circle" style="color: white; font-size: 32px;"></i>
+                    <span class="material-icons" style="color: white; font-size: 32px;">pause_circle</span>
                     <div>
                         <p style="color: white; font-weight: 600; margin: 0; font-size: 16px;">
                             School is on Break
@@ -585,11 +586,11 @@ try {
                 </div>
                 <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.3);">
                     <p style="color: white; margin: 0; font-size: 13px;">
-                        <i class="fas fa-calendar-alt" style="margin-right: 8px;"></i>
+                        <span class="material-icons" style="vertical-align: middle; margin-right: 8px;">calendar_month</span>
                         Academic Year: <?php echo $calendar_status['current_year']; ?>
                     </p>
                     <p style="color: white; margin: 8px 0 0 0; font-size: 13px;">
-                        <i class="fas fa-clock" style="margin-right: 8px;"></i>
+                        <span class="material-icons" style="vertical-align: middle; margin-right: 8px;">schedule</span>
                         Today: <?php echo date('F j, Y'); ?>
                     </p>
                 </div>
@@ -646,32 +647,32 @@ try {
                 <div class="col-md-3">
                     <label class="form-label">&nbsp;</label>
                     <button class="btn btn-primary w-100" onclick="loadResults()">
-                        <i class="fas fa-search me-1"></i> Load Results
+                        <span class="material-icons" style="vertical-align: middle; margin-right: 8px;">search</span> Load Results
                     </button>
                 </div>
                 <div class="col-md-3">
                     <label class="form-label">&nbsp;</label>
                     <button class="btn btn-info w-100" onclick="sendResultsViaSMS()">
-                        <i class="fas fa-sms me-1"></i> Send via SMS
+                        <span class="material-icons" style="vertical-align: middle; margin-right: 8px;">sms</span> Send via SMS
                     </button>
                 </div>
             </div>
         </div>
-        
+
         <div class="loading" id="loading">
-            <i class="fas fa-spinner"></i> Loading results...
+            <span class="material-icons spin-animation">refresh</span> Loading results...
         </div>
-        
+
         <div id="resultsContainer">
             <div class="text-center py-5">
-                <i class="fas fa-award fa-3x text-muted mb-3"></i>
+                <span class="material-icons fa-3x text-muted mb-3" style="font-size: 3rem;">emoji_events</span>
                 <p class="text-muted">Select filters and click "Load Results" to view student results</p>
             </div>
         </div>
 
         <div class="card" id="noResultsCard" style="display: none;">
             <div class="card-body text-center py-5">
-                <i class="fas fa-inbox fa-4x text-muted mb-3"></i>
+                <span class="material-icons fa-4x text-muted mb-3" style="font-size: 4rem;">inbox</span>
                 <h3>No Results Found</h3>
                 <p class="text-muted">Select filters to view student results</p>
             </div>
@@ -797,15 +798,15 @@ try {
             const container = document.getElementById('resultsContainer');
             const noResultsCard = document.getElementById('noResultsCard');
             
-            container.innerHTML = '<div class="text-center py-5"><i class="fas fa-spinner fa-spin fa-2x text-muted"></i><p class="text-muted mt-2">Loading results...</p></div>';
+            container.innerHTML = '<div class="text-center py-5"><span class="material-icons spin-animation fa-2x text-muted" style="font-size: 2rem;">refresh</span><p class="text-muted mt-2">Loading results...</p></div>';
             noResultsCard.style.display = 'none';
 
             const response = await loadPerformanceRecords();
             console.log('API Response:', response);
-            
+
             // Check if response has data
             if (!response.success) {
-                container.innerHTML = '<div class="text-center py-5"><i class="fas fa-exclamation-triangle fa-3x text-danger mb-3"></i><p class="text-danger">Failed to load performance records: ' + (response.error || 'Unknown error') + '</p></div>';
+                container.innerHTML = '<div class="text-center py-5"><span class="material-icons fa-3x text-danger mb-3" style="font-size: 3rem;">error</span><p class="text-danger">Failed to load performance records: ' + (response.error || 'Unknown error') + '</p></div>';
                 noResultsCard.style.display = 'block';
                 return;
             }
@@ -833,7 +834,7 @@ try {
             console.log('Filtered records:', filtered.length);
 
             if (filtered.length === 0) {
-                container.innerHTML = '<div class="text-center py-5"><i class="fas fa-inbox fa-3x text-muted mb-3"></i><p class="text-muted">No results found for the selected filters</p></div>';
+                container.innerHTML = '<div class="text-center py-5"><span class="material-icons fa-3x text-muted mb-3" style="font-size: 3rem;">inbox</span><p class="text-muted">No results found for the selected filters</p></div>';
                 noResultsCard.style.display = 'block';
                 return;
             }
@@ -978,7 +979,7 @@ try {
                 if (ineligibleCount > 0) {
                     html += `
                         <div class="alert alert-warning" role="alert">
-                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            <span class="material-icons" style="vertical-align: middle; margin-right: 8px;">warning</span>
                             ${ineligibleCount} student(s) not shown because they have fewer than ${schoolMinSubjects} subjects assigned.
                         </div>
                     `;
@@ -987,7 +988,7 @@ try {
                 // Show message about grading method
                 html += `
                     <div class="alert alert-info" role="alert">
-                        <i class="fas fa-info-circle me-2"></i>
+                        <span class="material-icons" style="vertical-align: middle; margin-right: 8px;">info</span>
                         Grading uses all compulsory subjects plus the best performing non-compulsory subjects to reach ${schoolMinSubjects} subjects total. Students must have at least ${schoolMinSubjects} subjects to be graded.
                     </div>
                 `;

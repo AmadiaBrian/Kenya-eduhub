@@ -112,8 +112,8 @@ try {
             $file_name = basename($_FILES["file"]["name"]);
             $target_file = $target_dir . uniqid() . '_' . $file_name;
             
-            // Check file size (15MB limit)
-            if ($_FILES["file"]["size"] < 15000000) {
+            // Check file size (20MB limit)
+            if ($_FILES["file"]["size"] < 20000000) {
                 // Check if directory is writable
                 if (!is_writable($target_dir)) {
                     echo json_encode([
@@ -195,7 +195,7 @@ try {
             } else {
                 echo json_encode([
                     "success" => false,
-                    "message" => "Sorry, your file is too large. Maximum 15MB allowed."
+                    "message" => "Sorry, your file is too large. Maximum 20MB allowed."
                 ]);
             }
         } else {

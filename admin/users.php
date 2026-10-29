@@ -626,6 +626,7 @@ $total_admin_users = $stats['admins'];
                             <th>ID</th>
                             <th>Name</th>
                             <th>Email</th>
+                            <th>Phone</th>
                             <th>Role</th>
                             <th>Status</th>
                             <th>Actions</th>
@@ -634,7 +635,7 @@ $total_admin_users = $stats['admins'];
                     <tbody>
                         <?php if (empty($users)): ?>
                             <tr>
-                                <td colspan="6" style="text-align: center; padding: 40px;">
+                                <td colspan="7" style="text-align: center; padding: 40px;">
                                     No users found.
                                 </td>
                             </tr>
@@ -644,6 +645,7 @@ $total_admin_users = $stats['admins'];
                                     <td><?php echo $user_item['id']; ?></td>
                                     <td><?php echo htmlspecialchars($user_item['name']); ?></td>
                                     <td><?php echo htmlspecialchars($user_item['email']); ?></td>
+                                    <td><?php echo htmlspecialchars($user_item['phone'] ?? '-'); ?></td>
                                     <td><?php echo ucfirst($user_item['role'] ?? 'user'); ?></td>
                                     <td>
                                         <span class="status-badge <?php echo ($user_item['is_verified'] ?? 0) == 1 ? 'status-active' : 'status-inactive'; ?>">

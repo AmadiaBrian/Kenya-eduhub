@@ -46,6 +46,7 @@ try {
     <meta name="theme-color" content="#FF6B35">
     <title>Fees - <?php echo htmlspecialchars($school_name); ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="../assets/css/notifications.css">
     <style>
@@ -67,6 +68,11 @@ try {
             font-family: 'Google Sans', 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             font-size: 14px;
             color: #202124;
+        }
+
+        .material-icons {
+            vertical-align: middle;
+            font-size: 20px;
         }
 
         .main-content {
@@ -215,6 +221,16 @@ try {
             .action-buttons {
                 flex-direction: column;
             }
+        }
+
+        /* Spin animation for loading icons */
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .spin-animation {
+            animation: spin 1s linear infinite;
         }
 
         /* Filter Section */
@@ -494,7 +510,7 @@ try {
         <?php if ($calendar_status['is_holiday']): ?>
             <div style="background: #fce8e6; border: 1px solid #e8eaed; padding: 16px; border-radius: 8px; margin-bottom: 24px;">
                 <div style="display: flex; align-items: center; gap: 12px;">
-                    <i class="fas fa-exclamation-triangle" style="color: #c5221f; font-size: 20px;"></i>
+                    <span class="material-icons" style="color: #c5221f; font-size: 20px;">warning</span>
                     <div>
                         <strong style="color: #c5221f;">School is on Holiday</strong>
                         <p style="margin: 4px 0 0 0; color: #5f6368; font-size: 14px;">
@@ -508,7 +524,7 @@ try {
         <?php elseif ($calendar_status['school_status'] === 'break'): ?>
             <div style="background: #fef7e0; border: 1px solid #e8eaed; padding: 16px; border-radius: 8px; margin-bottom: 24px;">
                 <div style="display: flex; align-items: center; gap: 12px;">
-                    <i class="fas fa-info-circle" style="color: #f9ab00; font-size: 20px;"></i>
+                    <span class="material-icons" style="color: #f9ab00; font-size: 20px;">info</span>
                     <div>
                         <strong style="color: #b06000;">School is on Break</strong>
                         <p style="margin: 4px 0 0 0; color: #5f6368; font-size: 14px;">No active term is currently set. Please activate a term in the Calendar.</p>
@@ -594,37 +610,37 @@ try {
             <div class="quick-access-grid">
                 <a href="dashboard" class="quick-access-item">
                     <div class="quick-access-icon">
-                        <i class="fas fa-home"></i>
+                        <span class="material-icons" style="color: #5f6368;">dashboard</span>
                     </div>
                     <div class="quick-access-label">Dashboard</div>
                 </a>
                 <a href="students" class="quick-access-item">
                     <div class="quick-access-icon">
-                        <i class="fas fa-user-graduate"></i>
+                        <span class="material-icons" style="color: #5f6368;">school</span>
                     </div>
                     <div class="quick-access-label">Students</div>
                 </a>
                 <a href="teachers" class="quick-access-item">
                     <div class="quick-access-icon">
-                        <i class="fas fa-chalkboard-teacher"></i>
+                        <span class="material-icons" style="color: #5f6368;">person_apron</span>
                     </div>
                     <div class="quick-access-label">Teachers</div>
                 </a>
                 <a href="attendance" class="quick-access-item">
                     <div class="quick-access-icon">
-                        <i class="fas fa-calendar-check"></i>
+                        <span class="material-icons" style="color: #5f6368;">event_available</span>
                     </div>
                     <div class="quick-access-label">Attendance</div>
                 </a>
                 <a href="performance" class="quick-access-item">
                     <div class="quick-access-icon">
-                        <i class="fas fa-chart-line"></i>
+                        <span class="material-icons" style="color: #5f6368;">show_chart</span>
                     </div>
                     <div class="quick-access-label">Performance</div>
                 </a>
                 <a href="classes" class="quick-access-item">
                     <div class="quick-access-icon">
-                        <i class="fas fa-chalkboard"></i>
+                        <span class="material-icons" style="color: #5f6368;">class</span>
                     </div>
                     <div class="quick-access-label">Classes</div>
                 </a>
@@ -634,10 +650,10 @@ try {
         <!-- Fee Structure Action Buttons -->
         <div class="action-buttons">
             <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addFeeStructureModal">
-                <i class="fas fa-plus me-2"></i> Add Fee Structure
+                <span class="material-icons" style="vertical-align: middle; margin-right: 8px;">add</span> Add Fee Structure
             </button>
             <button class="btn btn-success" onclick="exportFeeStructure()">
-                <i class="fas fa-download me-2"></i> Export
+                <span class="material-icons" style="vertical-align: middle; margin-right: 8px;">download</span> Export
             </button>
         </div>
 
@@ -695,10 +711,10 @@ try {
         <!-- Fee Payments Action Buttons -->
         <div class="action-buttons">
             <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addPaymentModal">
-                <i class="fas fa-plus me-2"></i> Record Payment
+                <span class="material-icons" style="vertical-align: middle; margin-right: 8px;">add</span> Record Payment
             </button>
             <button class="btn btn-success" onclick="exportPayments()">
-                <i class="fas fa-download me-2"></i> Export
+                <span class="material-icons" style="vertical-align: middle; margin-right: 8px;">download</span> Export
             </button>
         </div>
 
@@ -799,16 +815,16 @@ try {
             </div>
             <div class="d-flex gap-2 mt-3">
                 <button class="btn btn-primary" onclick="loadBalances()">
-                    <i class="fas fa-search me-2"></i> View
+                    <span class="material-icons" style="vertical-align: middle; margin-right: 8px;">search</span> View
                 </button>
                 <button class="btn btn-secondary" onclick="clearFilters()">
-                    <i class="fas fa-times me-2"></i> Clear
+                    <span class="material-icons" style="vertical-align: middle; margin-right: 8px;">close</span> Clear
                 </button>
                 <button class="btn btn-warning" onclick="sendFeeReminders()">
-                    <i class="fas fa-bell me-2"></i> Send Reminders
+                    <span class="material-icons" style="vertical-align: middle; margin-right: 8px;">notifications</span> Send Reminders
                 </button>
                 <button class="btn btn-success" onclick="sendFeeBalancesViaSMS()">
-                    <i class="fas fa-sms me-2"></i> Send SMS Balances
+                    <span class="material-icons" style="vertical-align: middle; margin-right: 8px;">sms</span> Send SMS Balances
                 </button>
             </div>
         </div>
@@ -1022,10 +1038,10 @@ try {
                     <td>
                         <div class="action-buttons-cell">
                             <button class="btn btn-sm btn-action" onclick="editFeeStructure(${fee.id}, '${fee.class_id}', '${fee.term}', ${fee.year}, '${fee.fee_type}', ${fee.amount}, '${fee.description || ''}')">
-                                <i class="fas fa-edit"></i>
+                                <span class="material-icons" style="color: #5f6368;">edit</span>
                             </button>
                             <button class="btn btn-sm btn-action" onclick="deleteFeeStructure(${fee.id})">
-                                <i class="fas fa-trash"></i>
+                                <span class="material-icons" style="color: #d93025;">delete</span>
                             </button>
                         </div>
                     </td>
@@ -1073,14 +1089,14 @@ try {
                     <td>
                         <div class="action-buttons-cell">
                             <button class="btn btn-sm btn-action" onclick="deletePayment(${payment.id})">
-                                <i class="fas fa-trash"></i>
+                                <span class="material-icons" style="color: #d93025;">delete</span>
                             </button>
                         </div>
                     </td>
                     <td>
                         <div class="action-buttons-cell">
                             <button class="btn btn-sm btn-action" onclick="generateFeeStatement(${payment.student_id})">
-                                <i class="fas fa-file-invoice"></i> Statement
+                                <span class="material-icons" style="color: #5f6368;">receipt_long</span> Statement
                             </button>
                         </div>
                     </td>
@@ -1432,7 +1448,7 @@ try {
             const sendBtn = document.querySelector('button[onclick="sendFeeReminders()"]');
             const originalText = sendBtn.innerHTML;
             sendBtn.disabled = true;
-            sendBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+            sendBtn.innerHTML = '<span class="material-icons spin-animation">refresh</span> Sending...';
             
             try {
                 const response = await fetch('api/send_fee_reminders.php', {
@@ -1480,7 +1496,7 @@ try {
             
             const originalText = sendBtn.innerHTML;
             sendBtn.disabled = true;
-            sendBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+            sendBtn.innerHTML = '<span class="material-icons spin-animation">refresh</span> Sending...';
             
             try {
                 const response = await fetch('api/send_fee_reminders.php', {
@@ -1732,7 +1748,7 @@ try {
                     </td>
                     <td>
                         <button class="btn btn-sm btn-primary" onclick="generateFeeStatement(${balance.student_id})">
-                            <i class="fas fa-file-invoice"></i> Statement
+                            <span class="material-icons" style="color: #5f6368;">receipt_long</span> Statement
                         </button>
                     </td>
                 </tr>
@@ -1909,7 +1925,7 @@ try {
             const sendBtn = document.querySelector('button[onclick="sendFeeBalancesViaSMS()"]');
             const originalText = sendBtn.innerHTML;
             sendBtn.disabled = true;
-            sendBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+            sendBtn.innerHTML = '<span class="material-icons spin-animation">refresh</span> Sending...';
             
             try {
                 const response = await fetch('api/send_fee_balance_sms.php', {

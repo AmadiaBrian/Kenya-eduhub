@@ -1213,7 +1213,7 @@ try {
                             <div id="fileUploadLabel">
                                 <i class="fas fa-cloud-upload-alt" style="font-size: 48px; color: #9aa0a6; margin-bottom: 16px;"></i>
                                 <span style="display: block; color: var(--text-color); font-weight: 500;">Click to browse or drag and drop</span>
-                                <small style="color: var(--secondary-color);">PDF, DOC, PPT, XLS, TXT (Max 50MB)</small>
+                                <small style="color: var(--secondary-color);">PDF, DOC, PPT, XLS, TXT (Max 20MB)</small>
                             </div>
                         </div>
                     </div>
@@ -1371,7 +1371,7 @@ try {
                         fileUploadLabel.innerHTML = `
                             <i class="fas fa-cloud-upload-alt" style="font-size: 48px; color: #9aa0a6; margin-bottom: 16px;"></i>
                             <span style="display: block; color: var(--text-color); font-weight: 500;">Click to browse or drag and drop</span>
-                            <small style="color: var(--secondary-color);">PDF, DOC, PPT, XLS, TXT (Max 50MB)</small>
+                            <small style="color: var(--secondary-color);">PDF, DOC, PPT, XLS, TXT (Max 20MB)</small>
                         `;
                     }
                 });
@@ -1430,7 +1430,7 @@ try {
                     fileUploadLabel.innerHTML = `
                         <i class="fas fa-cloud-upload-alt" style="font-size: 48px; color: #9aa0a6; margin-bottom: 16px;"></i>
                         <span style="display: block; color: #202124; font-weight: 500;">Click to browse or drag and drop</span>
-                        <small style="color: #5f6368;">PDF, DOC, PPT, XLS, TXT (Max 50MB)</small>
+                        <small style="color: #5f6368;">PDF, DOC, PPT, XLS, TXT (Max 20MB)</small>
                     `;
                 }
             });
@@ -1454,13 +1454,13 @@ try {
                     return;
                 }
 
-                // Check file size (50MB max)
-                if (file.size > 50 * 1024 * 1024) {
+                // Check file size (20MB max)
+                if (file.size > 20 * 1024 * 1024) {
                     uploadMessage.style.display = 'block';
                     uploadMessage.style.background = 'rgba(196, 43, 28, 0.1)';
                     uploadMessage.style.border = 'none';
                     uploadMessage.style.color = '#d13438';
-                    uploadMessage.textContent = 'File size exceeds 50MB limit.';
+                    uploadMessage.textContent = 'File size exceeds 20MB limit.';
                     return;
                 }
 
@@ -1506,7 +1506,7 @@ try {
                         fileUploadLabel.innerHTML = `
                             <i class="fas fa-cloud-upload-alt" style="font-size: 48px; color: #9aa0a6; margin-bottom: 16px;"></i>
                             <span style="display: block; color: #202124; font-weight: 500;">Click to browse or drag and drop</span>
-                            <small style="color: #5f6368;">PDF, DOC, PPT, XLS, TXT (Max 50MB)</small>
+                            <small style="color: #5f6368;">PDF, DOC, PPT, XLS, TXT (Max 20MB)</small>
                         `;
 
                         // Refresh page after 2 seconds to show new resource

@@ -82,6 +82,7 @@ try {
     <meta name="theme-color" content="#FF6B35">
     <title>Settings - <?php echo htmlspecialchars($school_name); ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="../assets/css/notifications.css">
     <style>
@@ -257,11 +258,6 @@ try {
             background: #f8f9fa;
         }
 
-        /* Footer styling */
-        .kenya-eduhub-footer-unique-2026 {
-            background: var(--bg-color) !important;
-        }
-
         /* Terminal-like section */
         .terminal {
             background: #1e1e1e;
@@ -370,7 +366,7 @@ try {
         }
     </style>
 </head>
-<body>
+<body class="dashboard-page">
     <?php require_once 'includes/header.php'; ?>
     <?php $active_page = 'settings'; require_once 'includes/sidebar.php'; ?>
 
@@ -394,18 +390,18 @@ try {
         
         <div class="card mb-4">
             <div class="card-header">
-                <i class="fas fa-lock me-2"></i> Withdrawal PIN
+                <span class="material-icons" style="vertical-align: middle; margin-right: 8px;">lock</span> Withdrawal PIN
             </div>
             <div class="card-body">
                 <p class="mb-3">Create a PIN for secure withdrawals at the office. This PIN will be required when withdrawing money from your school account.</p>
-                
+
                 <?php if (!empty($school['withdrawal_pin'])): ?>
                     <div class="alert alert-info">
-                        <i class="fas fa-check-circle me-2"></i> PIN is currently set. Contact admin to change your withdrawal PIN.
+                        <span class="material-icons" style="vertical-align: middle; margin-right: 8px;">check_circle</span> PIN is currently set. Contact admin to change your withdrawal PIN.
                     </div>
                 <?php else: ?>
                     <div class="alert alert-warning">
-                        <i class="fas fa-exclamation-triangle me-2"></i> No PIN set. Please create one for secure withdrawals.
+                        <span class="material-icons" style="vertical-align: middle; margin-right: 8px;">warning</span> No PIN set. Please create one for secure withdrawals.
                     </div>
                 <?php endif; ?>
                 
@@ -424,7 +420,7 @@ try {
                         </div>
                         
                         <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-save me-2"></i> Create PIN
+                            <span class="material-icons" style="vertical-align: middle; margin-right: 8px;">save</span> Create PIN
                         </button>
                     </form>
                 <?php else: ?>
@@ -432,10 +428,10 @@ try {
                 <?php endif; ?>
             </div>
         </div>
-        
+
         <div class="card mb-4">
             <div class="card-header">
-                <i class="fas fa-image me-2"></i> School Logo
+                <span class="material-icons" style="vertical-align: middle; margin-right: 8px;">image</span> School Logo
             </div>
             <div class="card-body">
                 <div class="mb-3">
@@ -454,14 +450,14 @@ try {
                     <small class="text-muted">Accepted formats: JPG, PNG, GIF. Maximum size: 2MB</small>
                 </div>
                 <button type="button" class="btn btn-primary" onclick="uploadLogo()">
-                    <i class="fas fa-upload me-2"></i> Upload Logo
+                    <span class="material-icons" style="vertical-align: middle; margin-right: 8px;">upload</span> Upload Logo
                 </button>
             </div>
         </div>
-        
+
         <div class="card mb-4">
             <div class="card-header">
-                <i class="fas fa-id-card me-2"></i> Admission Number Settings
+                <span class="material-icons" style="vertical-align: middle; margin-right: 8px;">badge</span> Admission Number Settings
             </div>
             <div class="card-body">
                 <form id="settingsForm">
@@ -471,7 +467,7 @@ try {
                         <small class="text-muted">This prefix will be used for all student admission numbers. Example: TKNP/B/7280</small>
                     </div>
                     <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-save me-2"></i> Save Settings
+                        <span class="material-icons" style="vertical-align: middle; margin-right: 8px;">save</span> Save Settings
                     </button>
                 </form>
             </div>
@@ -496,15 +492,15 @@ try {
                         </div>
                     </div>
                     <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-save me-2"></i> Save Subject Limits
+                        <span class="material-icons" style="vertical-align: middle; margin-right: 8px;">save</span> Save Subject Limits
                     </button>
                 </form>
             </div>
         </div>
-        
+
         <div class="card mb-4">
             <div class="card-header">
-                <i class="fas fa-envelope me-2"></i> Email SMTP Settings
+                <span class="material-icons" style="vertical-align: middle; margin-right: 8px;">email</span> Email SMTP Settings
             </div>
             <div class="card-body">
                 <!-- Current Settings Display -->
@@ -557,7 +553,7 @@ try {
                         <div class="input-group">
                             <input type="password" class="form-control" id="smtpPassword" placeholder="Enter your Gmail App Password" required>
                             <button class="btn btn-outline-secondary" type="button" onclick="togglePasswordVisibility('smtpPassword', this)">
-                                <i class="fas fa-eye"></i>
+                                <span class="material-icons">visibility</span>
                             </button>
                         </div>
                         <small class="text-muted">Generate an App Password from your Google Account Security settings</small>
@@ -578,10 +574,10 @@ try {
                         <small class="text-muted">Encryption method (default: TLS)</small>
                     </div>
                     <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-save me-2"></i> Save SMTP Settings
+                        <span class="material-icons" style="vertical-align: middle; margin-right: 8px;">save</span> Save SMTP Settings
                     </button>
                     <button type="button" class="btn btn-outline-primary" onclick="testSmtpConnection()">
-                        <i class="fas fa-vial me-2"></i> Test Connection
+                        <span class="material-icons" style="vertical-align: middle; margin-right: 8px;">science</span> Test Connection
                     </button>
                 </form>
                 
@@ -635,7 +631,7 @@ try {
                         <div class="input-group">
                             <input type="password" class="form-control" id="mobitechApiKey" placeholder="Enter your Mobitech API key" value="<?= htmlspecialchars($school['mobitech_api_key'] ?? '') ?>">
                             <button class="btn btn-outline-secondary" type="button" onclick="togglePasswordVisibility('mobitechApiKey', this)">
-                                <i class="fas fa-eye"></i>
+                                <span class="material-icons">visibility</span>
                             </button>
                         </div>
                         <small class="text-muted">Get your API key from <a href="https://mobitech.co.ke" target="_blank">Mobitech</a></small>
@@ -652,7 +648,7 @@ try {
                         <div class="input-group">
                             <input type="password" class="form-control" id="textsmsApiKey" placeholder="Enter your Text SMS API key" value="<?= htmlspecialchars($school['textsms_api_key'] ?? '') ?>">
                             <button class="btn btn-outline-secondary" type="button" onclick="togglePasswordVisibility('textsmsApiKey', this)">
-                                <i class="fas fa-eye"></i>
+                                <span class="material-icons">visibility</span>
                             </button>
                         </div>
                         <small class="text-muted">Get your API key from <a href="https://textsms.co.ke" target="_blank">Text SMS</a></small>
@@ -681,10 +677,10 @@ try {
                     </div>
                     
                     <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-save me-2"></i> Save SMS Settings
+                        <span class="material-icons" style="vertical-align: middle; margin-right: 8px;">save</span> Save SMS Settings
                     </button>
                     <button type="button" class="btn btn-outline-primary" onclick="checkSmsBalance()">
-                        <i class="fas fa-wallet me-2"></i> Check Balance
+                        <span class="material-icons" style="vertical-align: middle; margin-right: 8px;">account_balance_wallet</span> Check Balance
                     </button>
                 </form>
                 
@@ -713,7 +709,7 @@ try {
         
         <div class="card">
             <div class="card-header">
-                <i class="fas fa-info-circle me-2"></i> School Information
+                <span class="material-icons" style="vertical-align: middle; margin-right: 8px;">info</span> School Information
             </div>
             <div class="card-body">
                 <div class="table-responsive">
@@ -737,8 +733,8 @@ try {
                 </table>
             </div>
         </div>
-    </div>
-    
+    </main>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         // Load current settings

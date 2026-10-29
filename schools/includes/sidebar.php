@@ -106,39 +106,15 @@
         color: var(--primary-color);
     }
 
-    .nav-link i {
-        margin-right: 12px;
-        font-size: 18px;
+    .nav-link .material-icons {
+        margin-right: 32px;
+        font-size: 20px;
         width: 24px;
         text-align: center;
+        color: #5f6368;
     }
 
-    .nav-link[href="dashboard"] i { color: #4285F4; }
-    .nav-link[href="students"] i { color: #EA4335; }
-    .nav-link[href="teachers"] i { color: #00AC47; }
-    .nav-link[href="classes"] i { color: #FFBA00; }
-    .nav-link[href="streams"] i { color: #0066DA; }
-    .nav-link[href="subjects"] i { color: #4285F4; }
-    .nav-link[href="exam-types"] i { color: #EA4335; }
-    .nav-link[href="timetable"] i { color: #00AC47; }
-    .nav-link[href="grading"] i { color: #FFBA00; }
-    .nav-link[href="performance"] i { color: #0066DA; }
-    .nav-link[href="results"] i { color: #4285F4; }
-    .nav-link[href="attendance"] i { color: #EA4335; }
-    .nav-link[href="calendar"] i { color: #00AC47; }
-    .nav-link[href="fees"] i { color: #FFBA00; }
-    .nav-link[href="invoices"] i { color: #0066DA; }
-    .nav-link[href="finance-managers"] i { color: #4285F4; }
-    .nav-link[href="account"] i { color: #EA4335; }
-    .nav-link[href="parents"] i { color: #00AC47; }
-    .nav-link[href="disciplinary"] i { color: #FFBA00; }
-    .nav-link[href="disciplinary-action-types"] i { color: #0066DA; }
-    .nav-link[href="duty-assignments"] i { color: #4285F4; }
-    .nav-link[href="librarians"] i { color: #EA4335; }
-    .nav-link[href="examination-heads"] i { color: #00AC47; }
-    .nav-link[href="profile"] i { color: #5f6368; }
-    .nav-link[href="settings"] i { color: #5f6368; }
-    .nav-link[href="logout"] i { color: #EA4335; }
+    .nav-link[href="logout"] .material-icons { color: #d93025; }
 
     /* Mobile responsive */
     @media (max-width: 768px) {
@@ -157,85 +133,85 @@
     <div class="sidebar-section">
         <div class="sidebar-title">Main</div>
         <a class="nav-link<?php echo isset($active_page) && $active_page === 'dashboard' ? ' active' : ''; ?>" href="dashboard">
-            <i class="fas fa-home"></i> Dashboard
+            <span class="material-icons">dashboard</span> Dashboard
         </a>
         <a class="nav-link<?php echo isset($active_page) && $active_page === 'students' ? ' active' : ''; ?>" href="students">
-            <i class="fas fa-user-graduate"></i> Students
+            <span class="material-icons">school</span> Students
         </a>
         <a class="nav-link<?php echo isset($active_page) && $active_page === 'teachers' ? ' active' : ''; ?>" href="teachers">
-            <i class="fas fa-chalkboard-teacher"></i> Teachers
+            <span class="material-icons">person_apron</span> Teachers
         </a>
         <a class="nav-link<?php echo isset($active_page) && $active_page === 'classes' ? ' active' : ''; ?>" href="classes">
-            <i class="fas fa-chalkboard"></i> Classes
+            <span class="material-icons">class</span> Classes
         </a>
         <a class="nav-link<?php echo isset($active_page) && $active_page === 'streams' ? ' active' : ''; ?>" href="streams">
-            <i class="fas fa-layer-group"></i> Streams
+            <span class="material-icons">layers</span> Streams
         </a>
         <a class="nav-link<?php echo isset($active_page) && $active_page === 'subjects' ? ' active' : ''; ?>" href="subjects">
-            <i class="fas fa-book"></i> Subjects
+            <span class="material-icons">menu_book</span> Subjects
         </a>
         <a class="nav-link<?php echo isset($active_page) && $active_page === 'exam-types' ? ' active' : ''; ?>" href="exam-types">
-            <i class="fas fa-clipboard-list"></i> Exam Types
+            <span class="material-icons">assignment</span> Exam Types
         </a>
         <a class="nav-link<?php echo isset($active_page) && $active_page === 'timetable' ? ' active' : ''; ?>" href="timetable">
-            <i class="fas fa-calendar-alt"></i> Timetable
+            <span class="material-icons">schedule</span> Timetable
         </a>
         <a class="nav-link<?php echo isset($active_page) && $active_page === 'grading' ? ' active' : ''; ?>" href="grading">
-            <i class="fas fa-chart-bar"></i> Grading
+            <span class="material-icons">bar_chart</span> Grading
         </a>
         <a class="nav-link<?php echo isset($active_page) && $active_page === 'performance' ? ' active' : ''; ?>" href="performance">
-            <i class="fas fa-chart-line"></i> Performance
+            <span class="material-icons">show_chart</span> Performance
         </a>
         <a class="nav-link<?php echo isset($active_page) && $active_page === 'results' ? ' active' : ''; ?>" href="results">
-            <i class="fas fa-clipboard-list"></i> Results
+            <span class="material-icons">fact_check</span> Results
         </a>
         <a class="nav-link<?php echo isset($active_page) && $active_page === 'attendance' ? ' active' : ''; ?>" href="attendance">
-            <i class="fas fa-calendar-check"></i> Attendance
+            <span class="material-icons">event_available</span> Attendance
         </a>
         <a class="nav-link<?php echo isset($active_page) && $active_page === 'calendar' ? ' active' : ''; ?>" href="calendar">
-            <i class="fas fa-calendar"></i> Calendar
+            <span class="material-icons">calendar_month</span> Calendar
         </a>
         <a class="nav-link<?php echo isset($active_page) && $active_page === 'fees' ? ' active' : ''; ?>" href="fees">
-            <i class="fas fa-money-bill-wave"></i> Fees
+            <span class="material-icons">payments</span> Fees
         </a>
         <a class="nav-link<?php echo isset($active_page) && $active_page === 'invoices' ? ' active' : ''; ?>" href="invoices">
-            <i class="fas fa-file-invoice-dollar"></i> Invoices
+            <span class="material-icons">receipt_long</span> Invoices
         </a>
         <a class="nav-link<?php echo isset($active_page) && $active_page === 'finance-managers' ? ' active' : ''; ?>" href="finance-managers">
-            <i class="fas fa-user-tie"></i> Finance Managers
+            <span class="material-icons">badge</span> Finance Managers
         </a>
         <a class="nav-link<?php echo isset($active_page) && $active_page === 'account' ? ' active' : ''; ?>" href="account">
-            <i class="fas fa-wallet"></i> Account Balance
+            <span class="material-icons">account_balance_wallet</span> Account Balance
         </a>
         <a class="nav-link<?php echo isset($active_page) && $active_page === 'parents' ? ' active' : ''; ?>" href="parents">
-            <i class="fas fa-users"></i> Parents
+            <span class="material-icons">family_restroom</span> Parents
         </a>
         <a class="nav-link<?php echo isset($active_page) && $active_page === 'disciplinary' ? ' active' : ''; ?>" href="disciplinary">
-            <i class="fas fa-shield-alt"></i> Disciplinary
+            <span class="material-icons">gavel</span> Disciplinary
         </a>
         <a class="nav-link<?php echo isset($active_page) && $active_page === 'disciplinary-action-types' ? ' active' : ''; ?>" href="disciplinary-action-types">
-            <i class="fas fa-list-alt"></i> Disciplinary Types
+            <span class="material-icons">rule</span> Disciplinary Types
         </a>
         <a class="nav-link<?php echo isset($active_page) && $active_page === 'duty-assignments' ? ' active' : ''; ?>" href="duty-assignments">
-            <i class="fas fa-clipboard-list"></i> Duty Assignments
+            <span class="material-icons">task_alt</span> Duty Assignments
         </a>
         <a class="nav-link<?php echo isset($active_page) && $active_page === 'librarians' ? ' active' : ''; ?>" href="librarians">
-            <i class="fas fa-book-reader"></i> Librarians
+            <span class="material-icons">local_library</span> Librarians
         </a>
         <a class="nav-link<?php echo isset($active_page) && $active_page === 'examination-heads' ? ' active' : ''; ?>" href="examination-heads">
-            <i class="fas fa-user-tie"></i> Examination Heads
+            <span class="material-icons">supervisor_account</span> Examination Heads
         </a>
     </div>
     <div class="sidebar-section">
         <div class="sidebar-title">Settings</div>
         <a class="nav-link<?php echo isset($active_page) && $active_page === 'profile' ? ' active' : ''; ?>" href="profile">
-            <i class="fas fa-user"></i> Profile
+            <span class="material-icons">person</span> Profile
         </a>
         <a class="nav-link<?php echo isset($active_page) && $active_page === 'settings' ? ' active' : ''; ?>" href="settings">
-            <i class="fas fa-cog"></i> Settings
+            <span class="material-icons">settings</span> Settings
         </a>
         <a class="nav-link<?php echo isset($active_page) && $active_page === 'logout' ? ' active' : ''; ?>" href="logout">
-            <i class="fas fa-sign-out-alt"></i> Logout
+            <span class="material-icons">logout</span> Logout
         </a>
 </br>
 </br>

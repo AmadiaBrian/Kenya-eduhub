@@ -709,116 +709,173 @@ function getSMTPSettings($conn = null) {
 // SMS Verification Function
 function sendSMSVerification($phone, $code) {
     global $conn;
-    
-    error_log("=== SMS VERIFICATION START ===");
-    error_log("Phone: $phone, Code: $code");
+
+    // Log to a dedicated SMS log file
+    $sms_log_file = __DIR__ . '/../logs/sms_verification.log';
+    $log_dir = dirname($sms_log_file);
+    if (!file_exists($log_dir)) {
+        mkdir($log_dir, 0777, true);
+    }
+
+    error_log("=== SMS VERIFICATION START ===", 3, $sms_log_file);
+    error_log("Phone: $phone, Code: $code", 3, $sms_log_file);
     
     // Get SMS settings from admin_sms_settings table
     $sql = "SELECT sms_provider, mobitech_api_key, mobitech_sender_id, textsms_api_key, textsms_partner_id, textsms_sender_id, sms_enabled FROM admin_sms_settings LIMIT 1";
     $result = $conn->query($sql);
     
     if (!$result || $result->num_rows === 0) {
-        error_log("ERROR: SMS settings not configured in admin_sms_settings table");
+        error_log("ERROR: SMS settings not configured in admin_sms_settings table", 3, $sms_log_file);
         return false;
     }
-    
+
     $settings = $result->fetch_assoc();
-    error_log("SMS Settings loaded: " . print_r($settings, true));
-    
+    error_log("SMS Settings loaded: " . print_r($settings, true), 3, $sms_log_file);
+
     // Check if SMS is enabled
     if (!($settings['sms_enabled'] ?? 0)) {
-        error_log("ERROR: SMS is disabled in admin settings (sms_enabled = 0)");
+        error_log("ERROR: SMS is disabled in admin settings (sms_enabled = 0)", 3, $sms_log_file);
         return false;
     }
-    
+
     // Check if API key is configured
     if ($settings['sms_provider'] === 'mobitech') {
         if (empty($settings['mobitech_api_key'])) {
-            error_log("ERROR: Mobitech API key is not configured");
+            error_log("ERROR: Mobitech API key is not configured", 3, $sms_log_file);
             return false;
         }
-        error_log("Mobitech API key exists: " . substr($settings['mobitech_api_key'], 0, 8) . "...");
+        error_log("Mobitech API key exists: " . substr($settings['mobitech_api_key'], 0, 8) . "...", 3, $sms_log_file);
     }
-    
+
     if ($settings['sms_provider'] === 'textsms') {
         if (empty($settings['textsms_api_key'])) {
-            error_log("ERROR: Text SMS API key is not configured");
+            error_log("ERROR: Text SMS API key is not configured", 3, $sms_log_file);
             return false;
         }
-        error_log("Text SMS API key exists: " . substr($settings['textsms_api_key'], 0, 8) . "...");
+        error_log("Text SMS API key exists: " . substr($settings['textsms_api_key'], 0, 8) . "...", 3, $sms_log_file);
     }
-    
+
     $message = "Your Kenya EduHub verification code is: $code. Valid for 1 hour.";
-    error_log("Message prepared: $message");
+    error_log("Message prepared: $message", 3, $sms_log_file);
     
     // Load SMS classes
     $smsConfigPath = __DIR__ . '/../sms/sms_config.php';
     $mobitechPath = __DIR__ . '/../sms/MobitechSMS.php';
     $textsmsPath = __DIR__ . '/../sms/TextSMS.php';
-    
-    error_log("Loading SMS classes from: $smsConfigPath, $mobitechPath, $textsmsPath");
-    
+
+    error_log("Loading SMS classes from: $smsConfigPath, $mobitechPath, $textsmsPath", 3, $sms_log_file);
+
     if (!file_exists($smsConfigPath)) {
-        error_log("ERROR: sms_config.php not found at $smsConfigPath");
+        error_log("ERROR: sms_config.php not found at $smsConfigPath", 3, $sms_log_file);
         return false;
     }
     if (!file_exists($mobitechPath)) {
-        error_log("ERROR: MobitechSMS.php not found at $mobitechPath");
+        error_log("ERROR: MobitechSMS.php not found at $mobitechPath", 3, $sms_log_file);
         return false;
     }
     if (!file_exists($textsmsPath)) {
-        error_log("ERROR: TextSMS.php not found at $textsmsPath");
+        error_log("ERROR: TextSMS.php not found at $textsmsPath", 3, $sms_log_file);
         return false;
     }
-    
+
     require_once $smsConfigPath;
     require_once $mobitechPath;
     require_once $textsmsPath;
+
+    error_log("SMS classes loaded successfully", 3, $sms_log_file);
     
-    error_log("SMS classes loaded successfully");
-    
-    try {
-        // Try primary provider first
-        if ($settings['sms_provider'] === 'mobitech') {
-            error_log("Creating MobitechSMS instance with API key and sender ID from settings: " . ($settings['mobitech_sender_id'] ?? 'not set'));
-            $senderId = $settings['mobitech_sender_id'] ?? 'FULL_CIRCLE';
-            $mobitech = new MobitechSMS($settings['mobitech_api_key'], $senderId);
-            error_log("Calling sendSMS on MobitechSMS with sender ID: $senderId");
-            $result = $mobitech->sendSMS($phone, $message);
-            error_log("Mobitech SMS result: " . print_r($result, true));
-            
-            if (!$result['success']) {
-                error_log("ERROR: Mobitech SMS failed - " . ($result['error'] ?? 'Unknown error'));
-                // Try Text SMS as fallback
-                error_log("Trying Text SMS as fallback");
-                if (!empty($settings['textsms_api_key'])) {
-                    $textsms = new TextSMS($settings['textsms_api_key'], $settings['textsms_partner_id'], $settings['textsms_sender_id']);
-                    $result = $textsms->sendSMS($phone, $message);
-                    error_log("Text SMS fallback result: " . print_r($result, true));
-                    return $result['success'] ?? false;
+        try {
+            // Try primary provider first
+            if ($settings['sms_provider'] === 'mobitech') {
+                error_log("Creating MobitechSMS instance with API key and sender ID from settings: " . ($settings['mobitech_sender_id'] ?? 'not set'), 3, $sms_log_file);
+                $senderId = $settings['mobitech_sender_id'] ?? 'FULL_CIRCLE';
+                $mobitech = new MobitechSMS($settings['mobitech_api_key'], $senderId);
+                error_log("Calling sendSMS on MobitechSMS with sender ID: $senderId", 3, $sms_log_file);
+                $result = $mobitech->sendSMS($phone, $message);
+                error_log("Mobitech SMS result: " . print_r($result, true), 3, $sms_log_file);
+
+                // Check if SMS was actually sent - be more lenient
+                $sms_success = false;
+                if (isset($result['success']) && $result['success']) {
+                    $sms_success = true;
+                    error_log("SMS marked as successful via success field - returning true", 3, $sms_log_file);
+                    return true; // Force return true on success
+                } elseif (isset($result['response']) && isset($result['response']['status_desc'])) {
+                    // Check if status_desc indicates success
+                    $status = strtolower($result['response']['status_desc']);
+                    if ($status === 'success' || $status === 'sent' || $status === 'accepted' || $status === 'queued') {
+                        $sms_success = true;
+                        error_log("SMS marked as successful via status_desc - returning true", 3, $sms_log_file);
+                        return true; // Force return true on success
+                    }
+                } elseif (isset($result['response']) && isset($result['response']['status'])) {
+                    // Check if status indicates success (for providers that use 'status')
+                    $status = strtolower($result['response']['status']);
+                    if ($status === 'success' || $status === 'sent' || $status === 'accepted' || $status === 'queued') {
+                        $sms_success = true;
+                        error_log("SMS marked as successful via status - returning true", 3, $sms_log_file);
+                        return true; // Force return true on success
+                    }
+                } elseif (isset($result['response']) && isset($result['response']['message_id'])) {
+                    // If we got a message_id, consider it successful
+                    $sms_success = true;
+                    error_log("SMS marked as successful via message_id - returning true", 3, $sms_log_file);
+                    return true; // Force return true on success
                 }
+
+                if (!$sms_success) {
+                    error_log("ERROR: Mobitech SMS failed - " . ($result['error'] ?? 'Unknown error'), 3, $sms_log_file);
+                    // Try Text SMS as fallback
+                    error_log("Trying Text SMS as fallback", 3, $sms_log_file);
+                    if (!empty($settings['textsms_api_key'])) {
+                        $textsms = new TextSMS($settings['textsms_api_key'], $settings['textsms_partner_id'], $settings['textsms_sender_id']);
+                        $result = $textsms->sendSMS($phone, $message);
+                        error_log("Text SMS fallback result: " . print_r($result, true), 3, $sms_log_file);
+                        return $result['success'] ?? false;
+                    }
+                }
+
+                return $sms_success;
+            } else {
+                error_log("Creating TextSMS instance with API key, partner ID and sender ID", 3, $sms_log_file);
+                $textsms = new TextSMS($settings['textsms_api_key'], $settings['textsms_partner_id'], $settings['textsms_sender_id']);
+                error_log("Calling sendSMS on TextSMS", 3, $sms_log_file);
+                $result = $textsms->sendSMS($phone, $message);
+                error_log("Text SMS result: " . print_r($result, true), 3, $sms_log_file);
+
+            // Check if SMS was actually sent - be more lenient
+            $sms_success = false;
+            if (isset($result['success']) && $result['success']) {
+                $sms_success = true;
+            } elseif (isset($result['response']) && isset($result['response']['status_desc'])) {
+                // Check if status_desc indicates success
+                $status = strtolower($result['response']['status_desc']);
+                if ($status === 'success' || $status === 'sent' || $status === 'accepted' || $status === 'queued') {
+                    $sms_success = true;
+                }
+            } elseif (isset($result['response']) && isset($result['response']['status'])) {
+                // Check if status indicates success (for providers that use 'status')
+                $status = strtolower($result['response']['status']);
+                if ($status === 'success' || $status === 'sent' || $status === 'accepted' || $status === 'queued') {
+                    $sms_success = true;
+                }
+            } elseif (isset($result['response']) && isset($result['response']['message_id'])) {
+                // If we got a message_id, consider it successful
+                $sms_success = true;
             }
-            
-            return $result['success'] ?? false;
-        } else {
-            error_log("Creating TextSMS instance with API key, partner ID and sender ID");
-            $textsms = new TextSMS($settings['textsms_api_key'], $settings['textsms_partner_id'], $settings['textsms_sender_id']);
-            error_log("Calling sendSMS on TextSMS");
-            $result = $textsms->sendSMS($phone, $message);
-            error_log("Text SMS result: " . print_r($result, true));
-            
-            if (!$result['success']) {
-                error_log("ERROR: Text SMS failed - " . ($result['error'] ?? 'Unknown error'));
+
+            if (!$sms_success) {
+                error_log("ERROR: Text SMS failed - " . ($result['error'] ?? 'Unknown error'), 3, $sms_log_file);
             }
-            
-            return $result['success'] ?? false;
+
+            return $sms_success;
         }
     } catch (Exception $e) {
-        error_log("ERROR: Exception during SMS sending: " . $e->getMessage());
-        error_log("Exception trace: " . $e->getTraceAsString());
+        error_log("ERROR: Exception during SMS sending: " . $e->getMessage(), 3, $sms_log_file);
+        error_log("Exception trace: " . $e->getTraceAsString(), 3, $sms_log_file);
         return false;
     }
-    
-    error_log("=== SMS SENDING END ===");
+
+    error_log("=== SMS SENDING END ===", 3, $sms_log_file);
 }
 ?>

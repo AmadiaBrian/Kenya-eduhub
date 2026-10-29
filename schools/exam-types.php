@@ -109,6 +109,7 @@ try {
     <meta name="theme-color" content="#FF6B35">
     <title>Exam Types - <?php echo htmlspecialchars($school_name); ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
@@ -607,10 +608,10 @@ try {
             <!-- Action Buttons -->
             <div class="d-flex flex-column gap-2 mb-3">
                 <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addExamTypeModal" style="border-radius: 25px;">
-                    <i class="fas fa-plus me-2"></i> Add Exam Type
+                    <span class="material-icons" style="vertical-align: middle; margin-right: 8px;">add</span> Add Exam Type
                 </button>
                 <button class="btn btn-success" onclick="exportExamTypes()" style="border-radius: 25px;">
-                    <i class="fas fa-download me-2"></i> Export
+                    <span class="material-icons" style="vertical-align: middle; margin-right: 8px;">download</span> Export
                 </button>
             </div>
 
@@ -633,7 +634,7 @@ try {
                         <textarea class="form-control" name="description" rows="3" placeholder="Description of this exam type..." style="border-radius: 25px; border: 1px solid #dadce0;"></textarea>
                     </div>
                     <button type="submit" name="add_exam_type" class="btn btn-primary" style="border-radius: 25px;">
-                        <i class="fas fa-plus me-2"></i>Add Exam Type
+                        <span class="material-icons" style="vertical-align: middle; margin-right: 8px;">add</span>Add Exam Type
                     </button>
                 </form>
             </div>
@@ -643,7 +644,7 @@ try {
                 <h2 class="card-title" style="padding: 24px 24px 16px 24px;">All Exam Types</h2>
                 <?php if (empty($exam_types)): ?>
                     <div class="empty-state" style="padding: 24px; text-align: center;">
-                        <i class="fas fa-clipboard-list"></i>
+                        <span class="material-icons" style="font-size: 48px; color: #5f6368;">assignment</span>
                         <h5>No Exam Types Found</h5>
                         <p>Add your first exam type using the form above.</p>
                     </div>
@@ -675,10 +676,10 @@ try {
                                         <td>
                                             <div class="action-buttons-cell">
                                                 <button class="btn btn-sm btn-action" onclick="editExamType(<?php echo $exam_type['id']; ?>, '<?php echo htmlspecialchars($exam_type['exam_type_name']); ?>', '<?php echo htmlspecialchars($exam_type['exam_type_code']); ?>', '<?php echo htmlspecialchars($exam_type['description']); ?>')">
-                                                    <i class="fas fa-edit"></i>
+                                                    <span class="material-icons" style="color: #5f6368;">edit</span>
                                                 </button>
                                                 <button class="btn btn-sm btn-action" onclick="openDeleteModal(<?php echo $exam_type['id']; ?>)">
-                                                    <i class="fas fa-trash"></i>
+                                                    <span class="material-icons" style="color: #d93025;">delete</span>
                                                 </button>
                                             </div>
                                         </td>
@@ -698,7 +699,7 @@ try {
             <div class="modal-content" style="border: none; border-radius: 24px; box-shadow: 0 24px 38px 3px rgba(0,0,0,0.14), 0 9px 46px 8px rgba(0,0,0,0.12);">
                 <div class="modal-body" style="padding: 32px; text-align: center;">
                     <div style="margin-bottom: 20px;">
-                        <i class="fas fa-exclamation-triangle" style="font-size: 48px; color: #FF6B35;"></i>
+                        <span class="material-icons" style="font-size: 48px; color: #FF6B35;">warning</span>
                     </div>
                     <h3 style="font-size: 22px; font-weight: 400; color: #202124; margin: 0 0 12px 0; line-height: 28px;">Delete Exam Type</h3>
                     <p style="font-size: 14px; color: #5f6368; margin: 0; line-height: 20px;">Are you sure you want to delete this exam type? This action cannot be undone.</p>

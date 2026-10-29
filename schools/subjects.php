@@ -175,6 +175,7 @@ try {
     <meta name="theme-color" content="#FF6B35">
     <title>Subjects - <?php echo htmlspecialchars($school_name); ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="../assets/css/notifications.css">
     <style>
@@ -196,6 +197,11 @@ try {
             font-family: 'Google Sans', 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             font-size: 14px;
             color: #202124;
+        }
+
+        .material-icons {
+            vertical-align: middle;
+            font-size: 20px;
         }
 
         .main-content {
@@ -594,7 +600,7 @@ try {
                 <div class="col-md-6">
                     <label class="form-label">Download Template</label>
                     <a href="subjects?download_category_template=1" class="btn btn-outline-primary w-100">
-                        <i class="fas fa-download me-2"></i> Download CSV Template
+                        <span class="material-icons" style="vertical-align: middle; margin-right: 8px;">download</span> Download CSV Template
                     </a>
                 </div>
                 <div class="col-md-6">
@@ -603,7 +609,7 @@ try {
                         <input type="file" class="form-control" name="category_file" accept=".csv" required>
                         <small class="text-muted">Upload the completed CSV file with subject categories</small>
                         <button type="submit" name="upload_categories" class="btn btn-primary mt-2 w-100">
-                            <i class="fas fa-upload me-2"></i> Upload Categories
+                            <span class="material-icons" style="vertical-align: middle; margin-right: 8px;">upload</span> Upload Categories
                         </button>
                     </form>
                 </div>
@@ -630,7 +636,7 @@ try {
                     </div>
                 </div>
                 <button type="submit" name="add_category" class="btn btn-primary" style="border-radius: 25px;">
-                    <i class="fas fa-plus me-2"></i> Add Category
+                    <span class="material-icons" style="vertical-align: middle; margin-right: 8px;">add</span> Add Category
                 </button>
             </form>
         </div>
@@ -660,12 +666,12 @@ try {
                                     <td>
                                         <div class="action-buttons-cell">
                                             <button class="btn btn-sm btn-action" onclick="editCategory(<?php echo $category['id']; ?>, '<?php echo htmlspecialchars($category['category_name']); ?>', '<?php echo htmlspecialchars($category['category_code']); ?>', <?php echo $category['is_compulsory']; ?>)">
-                                                <i class="fas fa-edit"></i>
+                                                <span class="material-icons" style="color: #5f6368;">edit</span>
                                             </button>
                                             <a href="subjects?delete_category=1&category_id=<?php echo $category['id']; ?>"
                                                class="btn btn-sm btn-action"
                                                onclick="return confirm('Are you sure you want to delete this category?')">
-                                                <i class="fas fa-trash"></i>
+                                                <span class="material-icons" style="color: #d93025;">delete</span>
                                             </a>
                                         </div>
                                     </td>
@@ -704,7 +710,7 @@ try {
                                 </div>
                             </div>
                             <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-save me-2"></i> Update Category
+                                <span class="material-icons" style="vertical-align: middle; margin-right: 8px;">save</span> Update Category
                             </button>
                         </form>
                     </div>
@@ -750,10 +756,10 @@ try {
         <!-- Action Buttons -->
         <div class="d-flex flex-column gap-2 mb-3">
             <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addSubjectModal" style="border-radius: 25px;">
-                <i class="fas fa-plus me-2"></i> Add Subject
+                <span class="material-icons" style="vertical-align: middle; margin-right: 8px;">add</span> Add Subject
             </button>
             <button class="btn btn-success" onclick="exportSubjects()" style="border-radius: 25px;">
-                <i class="fas fa-download me-2"></i> Export
+                <span class="material-icons" style="vertical-align: middle; margin-right: 8px;">download</span> Export
             </button>
         </div>
 
@@ -913,10 +919,10 @@ try {
                             <td>
                                 <div class="action-buttons-cell">
                                     <button class="btn btn-sm btn-action" onclick="editSubject(${subject.id})">
-                                        <i class="fas fa-edit"></i>
+                                        <span class="material-icons" style="color: #5f6368;">edit</span>
                                     </button>
                                     <button class="btn btn-sm btn-action" onclick="deleteSubject(${subject.id})">
-                                        <i class="fas fa-trash"></i>
+                                        <span class="material-icons" style="color: #d93025;">delete</span>
                                     </button>
                                 </div>
                             </td>

@@ -554,6 +554,7 @@ try {
     <meta name="theme-color" content="#FF6B35">
     <title>Timetable - <?php echo htmlspecialchars($school_name); ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="../assets/css/notifications.css">
     <style>
@@ -1331,7 +1332,7 @@ try {
                                 <textarea class="form-control" name="notes" rows="2" placeholder="Optional notes..." style="border-radius: 25px; border: 1px solid #dadce0;"></textarea>
                             </div>
                             <button type="submit" name="create_assignment" class="btn btn-primary" style="border-radius: 25px;">
-                                <i class="fas fa-plus me-2"></i> Add Assignment
+                                <span class="material-icons" style="vertical-align: middle; margin-right: 8px;">add</span> Add Assignment
                             </button>
                         </form>
                     </div>
@@ -1369,7 +1370,7 @@ try {
                                             <td>
                                                 <div class="action-buttons-cell">
                                                     <button type="button" class="btn btn-sm btn-action" onclick="confirmDeleteAssignment(<?php echo $assignment['id']; ?>)">
-                                                        <i class="fas fa-trash"></i>
+                                                        <span class="material-icons" style="color: #d93025;">delete</span>
                                                     </button>
                                                 </div>
                                             </td>
@@ -1426,7 +1427,7 @@ try {
                     </div>
                 </div>
                 <button type="submit" name="create_timetable" class="btn btn-primary" style="border-radius: 25px;">
-                    <i class="fas fa-plus me-2"></i> Create Timetable
+                    <span class="material-icons" style="vertical-align: middle; margin-right: 8px;">add</span> Create Timetable
                 </button>
             </form>
         </div>
@@ -1471,10 +1472,10 @@ try {
                                                 <i class="fas fa-eye"></i>
                                             </button>
                                             <button class="btn btn-sm btn-action" onclick="editTimetable(<?php echo $timetable['id']; ?>)">
-                                                <i class="fas fa-edit"></i>
+                                                <span class="material-icons" style="color: #5f6368;">edit</span>
                                             </button>
                                             <button type="button" class="btn btn-sm btn-action" onclick="confirmDeleteTimetable(<?php echo $timetable['id']; ?>)">
-                                                <i class="fas fa-trash"></i>
+                                                <span class="material-icons" style="color: #d93025;">delete</span>
                                             </button>
                                         </div>
                                     </td>
@@ -1536,7 +1537,7 @@ try {
                     </div>
                 </div>
                 <button type="submit" name="create_slot" class="btn btn-primary" onclick="return validateSlotForm(event)">
-                    <i class="fas fa-plus me-2"></i> Add Time Slot
+                    <span class="material-icons" style="vertical-align: middle; margin-right: 8px;">add</span> Add Time Slot
                 </button>
             </form>
             
@@ -1564,10 +1565,10 @@ try {
                                     <td>
                                         <div class="action-buttons-cell">
                                             <button class="btn btn-sm btn-action" onclick="editSlot(<?php echo $slot['id']; ?>, '<?php echo htmlspecialchars($slot['day_of_week']); ?>', '<?php echo htmlspecialchars($slot['start_time']); ?>', '<?php echo htmlspecialchars($slot['end_time']); ?>')">
-                                                <i class="fas fa-edit"></i>
+                                                <span class="material-icons" style="color: #5f6368;">edit</span>
                                             </button>
                                             <button class="btn btn-sm btn-action" onclick="deleteSlot(<?php echo $slot['id']; ?>)">
-                                                <i class="fas fa-trash"></i>
+                                                <span class="material-icons" style="color: #d93025;">delete</span>
                                             </button>
                                         </div>
                                     </td>
@@ -1609,7 +1610,7 @@ try {
                         </div>
                     </div>
                     <button type="submit" name="create_break" class="btn btn-primary" style="border-radius: 25px;">
-                        <i class="fas fa-plus me-2"></i> Add School Break
+                        <span class="material-icons" style="vertical-align: middle; margin-right: 8px;">add</span> Add School Break
                     </button>
                 </form>
             </div>
@@ -1640,7 +1641,7 @@ try {
                                     <td>
                                         <div class="action-buttons-cell">
                                             <button type="button" class="btn btn-sm btn-action" onclick="confirmDeleteBreak(<?php echo $break['id']; ?>)">
-                                                <i class="fas fa-trash"></i>
+                                                <span class="material-icons" style="color: #d93025;">delete</span>
                                             </button>
                                         </div>
                                     </td>
@@ -1692,7 +1693,7 @@ try {
                             <i class="fas fa-save"></i>
                         </button>
                         <button type="button" class="btn btn-sm btn-secondary" onclick="location.reload()">
-                            <i class="fas fa-times"></i>
+                            <span class="material-icons">close</span>
                         </button>
                     </td>
                 `;

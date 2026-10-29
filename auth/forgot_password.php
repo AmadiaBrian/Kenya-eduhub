@@ -10,8 +10,10 @@ use PHPMailer\PHPMailer\PHPMailer;
 
 // Initialize
 $message = '';
+$message_type = 'success'; // 'success' or 'error'
 $step = $_SESSION['step'] ?? 1;
 $email = $_SESSION['reset_email'] ?? null;
+$phone = $_SESSION['reset_phone'] ?? null;
 
 // Function to send email
 function sendResetCode($email, $code) {
@@ -196,15 +198,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $step === 1) {
                     $_SESSION['step'] = 2;
                     $step = 2;
                     $message = "Verification code sent to your email.";
+                    $message_type = 'success';
                 } else {
-                    $message = "Failed to send code. Try again.";
+                    $message = "Failed to send code. Please check your email settings or try again.";
+                    $message_type = 'error';
                 }
             } else {
-                $message = "Email not found.";
+                $message = "Email not found in our system.";
+                $message_type = 'error';
             }
             $stmt->close();
         } else {
-            $message = "Invalid email address.";
+            $message = "Invalid email address format.";
+            $message_type = 'error';
         }
     } elseif ($method === 'sms') {
         $phone = trim($_POST['phone']);
@@ -228,15 +234,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $step === 1) {
                     $_SESSION['step'] = 2;
                     $step = 2;
                     $message = "Verification code sent to your phone.";
+                    $message_type = 'success';
                 } else {
-                    $message = "Failed to send code. Try again.";
+                    $message = "Failed to send code. Please check your SMS settings or try again.";
+                    $message_type = 'error';
                 }
             } else {
-                $message = "Phone number not found in our system. Please contact support.";
+                $message = "Phone number not found in our system.";
+                $message_type = 'error';
             }
             $stmt->close();
         } else {
             $message = "Invalid phone format. Use Kenya format: 07XXXXXXXX, 01XXXXXXXX, +2547XXXXXXXX, or +2541XXXXXXXX";
+            $message_type = 'error';
         }
     }
 }
@@ -259,14 +269,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['code']) && $step === 
     if ($result->num_rows > 0) {
         $data = $result->fetch_assoc();
         if (strtotime($data['reset_expires_at']) > time()) {
+            // Fetch user details to display on reset page
+            if ($_SESSION['reset_method'] === 'sms') {
+                $user_stmt = $conn->prepare("SELECT name, email FROM users WHERE phone = ?");
+                $user_stmt->bind_param("s", $phone);
+            } else {
+                $user_stmt = $conn->prepare("SELECT name, email FROM users WHERE email = ?");
+                $user_stmt->bind_param("s", $email);
+            }
+            $user_stmt->execute();
+            $user_result = $user_stmt->get_result();
+            if ($user_result->num_rows > 0) {
+                $user_data = $user_result->fetch_assoc();
+                $_SESSION['reset_user_name'] = $user_data['name'];
+                $_SESSION['reset_user_email'] = $user_data['email'];
+            }
+            $user_stmt->close();
+
             $_SESSION['step'] = 3;
             $step = 3;
             $message = "Code verified. Please enter your new password.";
+            $message_type = 'success';
         } else {
             $message = "Code expired.";
+            $message_type = 'error';
         }
     } else {
         $message = "Invalid code.";
+        $message_type = 'error';
     }
     $stmt->close();
 }
@@ -278,18 +308,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['new_password']) && $s
 
     if ($pass !== $confirm) {
         $message = "Passwords do not match.";
+        $message_type = 'error';
     } elseif (strlen($pass) < 6) {
         $message = "Password must be at least 6 characters.";
+        $message_type = 'error';
     } else {
         $hashed = password_hash($pass, PASSWORD_DEFAULT);
         $stmt = $conn->prepare("UPDATE users SET password = ?, reset_code = NULL, reset_expires_at = NULL WHERE email = ?");
         $stmt->bind_param("ss", $hashed, $email);
         if ($stmt->execute()) {
             $message = "Password reset successfully. <a href='login'>Login</a>";
+            $message_type = 'success';
             session_unset();
             session_destroy();
         } else {
-            $message = "Error updating password.";
+            $message = "Error updating password. Please try again.";
+            $message_type = 'error';
         }
         $stmt->close();
     }
@@ -530,9 +564,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['new_password']) && $s
         <h3>Reset Password</h3>
 
         <?php if ($message): ?>
-            <div class="alert-success" role="alert" aria-live="assertive">
-                <p><?= $message ?></p>
-            </div>
+            <?php if ($message_type === 'error'): ?>
+                <div class="alert-error" role="alert" aria-live="assertive">
+                    <p><?= $message ?></p>
+                </div>
+            <?php else: ?>
+                <div class="alert-success" role="alert" aria-live="assertive">
+                    <p><?= $message ?></p>
+                </div>
+            <?php endif; ?>
         <?php endif; ?>
 
         <?php if ($step === 1): ?>
@@ -618,6 +658,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['new_password']) && $s
             </form>
 
         <?php elseif ($step === 3): ?>
+            <?php
+            $user_name = $_SESSION['reset_user_name'] ?? '';
+            $user_email = $_SESSION['reset_user_email'] ?? '';
+            ?>
+            <?php if ($user_name): ?>
+                <div style="text-align: center; margin-bottom: 24px; padding: 16px; background: #f8f9fa; border-radius: 12px;">
+                    <div style="display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 8px;">
+                        <div style="width: 48px; height: 48px; background: #FFD700; border: 3px solid #FF6B35; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-user" style="color: #FF6B35; font-size: 20px;"></i>
+                        </div>
+                        <div style="text-align: left;">
+                            <div style="font-weight: 600; color: #202124; font-size: 16px;">
+                                <?php echo htmlspecialchars($user_name); ?>
+                            </div>
+                            <div style="color: #5f6368; font-size: 13px;">
+                                <?php echo htmlspecialchars($user_email); ?>
+                            </div>
+                        </div>
+                    </div>
+                    <p style="color: #5f6368; font-size: 13px; margin: 0; margin-top: 8px;">
+                        Please enter your new password below to secure your account.
+                    </p>
+                </div>
+            <?php endif; ?>
+
             <form method="post" class="login-form">
                 <div class="form-group">
                     <label for="new_password">New Password</label>

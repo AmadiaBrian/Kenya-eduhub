@@ -148,6 +148,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['upload_logo'])) {
     <meta name="theme-color" content="#FF6B35">
     <title>Profile - <?php echo htmlspecialchars($school_name); ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="../assets/css/notifications.css">
     <style>
@@ -366,7 +367,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['upload_logo'])) {
                     <small class="text-muted">This prefix will be used for all student admission numbers. Example: TKNP/B/7280</small>
                 </div>
                 <button type="submit" name="update_profile" class="btn btn-primary">
-                    <i class="fas fa-save me-2"></i> Update Profile
+                    <span class="material-icons" style="vertical-align: middle; margin-right: 8px;">save</span> Update Profile
                 </button>
             </form>
         </div>
@@ -388,7 +389,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['upload_logo'])) {
                     <input type="password" class="form-control" name="confirm_password" placeholder="Confirm new password" required minlength="8">
                 </div>
                 <button type="submit" name="change_password" class="btn btn-primary">
-                    <i class="fas fa-key me-2"></i> Change Password
+                    <span class="material-icons" style="vertical-align: middle; margin-right: 8px;">key</span> Change Password
                 </button>
             </form>
         </div>
@@ -413,7 +414,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['upload_logo'])) {
                     <small class="text-muted">Accepted formats: JPG, PNG. Maximum size: 2MB</small>
                 </div>
                 <button type="submit" name="upload_logo" class="btn btn-primary">
-                    <i class="fas fa-upload me-2"></i> Upload Logo
+                    <span class="material-icons" style="vertical-align: middle; margin-right: 8px;">upload</span> Upload Logo
                 </button>
             </form>
         </div>

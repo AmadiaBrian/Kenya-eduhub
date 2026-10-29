@@ -391,6 +391,7 @@ if (isset($_GET['delete_aggregate']) && isset($_GET['aggregate_id'])) {
     <meta name="theme-color" content="#FF6B35">
     <title>Grading System - <?php echo htmlspecialchars($school_name); ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="../assets/css/notifications.css">
     <style>
@@ -972,7 +973,7 @@ if (isset($_GET['delete_aggregate']) && isset($_GET['aggregate_id'])) {
                     <div class="col-md-6">
                         <label class="form-label">Download Template</label>
                         <button type="button" class="btn btn-outline-primary w-100" onclick="downloadTemplate()">
-                            <i class="fas fa-download me-2"></i> Download CSV Template
+                            <span class="material-icons" style="vertical-align: middle; margin-right: 8px;">download</span> Download CSV Template
                         </button>
                     </div>
                 </div>
@@ -984,7 +985,7 @@ if (isset($_GET['delete_aggregate']) && isset($_GET['aggregate_id'])) {
                 </div>
                 
                 <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-upload me-2"></i> Upload Grading Scales
+                    <span class="material-icons" style="vertical-align: middle; margin-right: 8px;">upload</span> Upload Grading Scales
                 </button>
             </form>
         </div>
@@ -1014,12 +1015,12 @@ if (isset($_GET['delete_aggregate']) && isset($_GET['aggregate_id'])) {
                 <?php foreach ($grouped_scales as $subject_name => $subject_data): ?>
                     <div style="margin-bottom: 30px;">
                         <h4 style="color: #FF6B35; margin-bottom: 15px; font-weight: 600; font-family: 'Georgia', 'Times New Roman', serif;">
-                            <i class="fas fa-book"></i> <?php echo htmlspecialchars($subject_name); ?>
+                            <span class="material-icons" style="vertical-align: middle; margin-right: 8px;">menu_book</span> <?php echo htmlspecialchars($subject_name); ?>
                             <?php if ($subject_data['subject_id']): ?>
                                 <a href="grading.php?delete_subject_scales=1&subject_id=<?php echo $subject_data['subject_id']; ?>"
                                    class="btn btn-sm btn-action float-end"
                                    onclick="return confirm('Are you sure you want to delete ALL grading scales for <?php echo htmlspecialchars($subject_name); ?>?')">
-                                    <i class="fas fa-trash-alt"></i> Delete All
+                                    <span class="material-icons" style="color: #d93025;">delete</span> Delete All
                                 </a>
                             <?php endif; ?>
                         </h4>
@@ -1046,12 +1047,12 @@ if (isset($_GET['delete_aggregate']) && isset($_GET['aggregate_id'])) {
                                             <td>
                                                 <div class="action-buttons-cell">
                                                     <button class="btn btn-sm btn-action" onclick="editScale(<?php echo $scale['id']; ?>, '<?php echo $scale['min_score']; ?>', '<?php echo $scale['max_score']; ?>', '<?php echo htmlspecialchars($scale['grade_name']); ?>', '<?php echo htmlspecialchars($scale['grade_description'] ?? ''); ?>', '<?php echo $scale['points'] ?? 0; ?>')">
-                                                        <i class="fas fa-edit"></i> Edit
+                                                        <span class="material-icons" style="color: #5f6368;">edit</span> Edit
                                                     </button>
                                                     <a href="grading.php?delete_scale=1&scale_id=<?php echo $scale['id']; ?>"
                                                        class="btn btn-sm btn-action"
                                                        onclick="return confirm('Are you sure you want to delete this grading scale?')">
-                                                        <i class="fas fa-trash"></i> Delete
+                                                        <span class="material-icons" style="color: #d93025;">delete</span> Delete
                                                     </a>
                                                 </div>
                                             </td>
@@ -1075,7 +1076,7 @@ if (isset($_GET['delete_aggregate']) && isset($_GET['aggregate_id'])) {
                     <div class="col-md-6">
                         <label class="form-label">Download Template</label>
                         <a href="grading?download_aggregate_template=1" class="btn btn-outline-primary w-100">
-                            <i class="fas fa-download me-2"></i> Download CSV Template
+                            <span class="material-icons" style="vertical-align: middle; margin-right: 8px;">download</span> Download CSV Template
                         </a>
                     </div>
                     <div class="col-md-6">
@@ -1086,7 +1087,7 @@ if (isset($_GET['delete_aggregate']) && isset($_GET['aggregate_id'])) {
                 </div>
 
                 <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-upload me-2"></i> Upload Aggregate Points Distribution
+                    <span class="material-icons" style="vertical-align: middle; margin-right: 8px;">upload</span> Upload Aggregate Points Distribution
                 </button>
             </form>
         </div>
@@ -1121,7 +1122,7 @@ if (isset($_GET['delete_aggregate']) && isset($_GET['aggregate_id'])) {
                                             <a href="grading?delete_aggregate=1&aggregate_id=<?php echo $aggregate['id']; ?>"
                                                class="btn btn-sm btn-action"
                                                onclick="return confirm('Are you sure you want to delete this aggregate points distribution entry?')">
-                                                <i class="fas fa-trash"></i> Delete
+                                                <span class="material-icons" style="color: #d93025;">delete</span> Delete
                                             </a>
                                         </div>
                                     </td>
