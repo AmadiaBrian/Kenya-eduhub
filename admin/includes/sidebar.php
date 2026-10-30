@@ -56,7 +56,7 @@
         left: 0;
         width: var(--sidebar-width);
         height: calc(100vh - var(--header-height));
-        background: var(--bg-color, #f8f9fa);
+        background: var(--bg-color, #F0F4F9);
         border-right: 1px solid var(--border-color, #e8eaed);
         overflow-y: auto;
         transition: transform 0.3s ease;

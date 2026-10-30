@@ -73,8 +73,7 @@ if ($route === 'login') {
     <meta name="theme-color" content="#FF6B35">
     <title>Kenya EduHub - Schools Portal</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
     <style>
         * {
             margin: 0;
@@ -83,13 +82,18 @@ if ($route === 'login') {
         }
         
         body {
-            background: #f8f9fa;
+            background: #F0F4F9;
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
             font-family: 'Google Sans', 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             color: #202124;
+        }
+
+        .material-symbols-outlined {
+            font-size: 24px;
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
         }
         
         .auth-container {
@@ -261,7 +265,7 @@ if ($route === 'login') {
             outline: none;
             transition: border-color 0.2s, box-shadow 0.2s;
             font-family: inherit;
-            background: #f8f9fa;
+            background: #F0F4F9;
         }
 
         .form-control:focus {
@@ -544,12 +548,12 @@ if ($route === 'login') {
             <p>Manage your school efficiently with our comprehensive management system. Streamline student records, attendance, performance tracking, and parent communication.</p>
             
             <ul class="feature-list">
-                <li><i class="fas fa-user-graduate"></i> Student Management</li>
-                <li><i class="fas fa-chalkboard-teacher"></i> Class & Stream Management</li>
-                <li><i class="fas fa-users"></i> Parent Portal</li>
-                <li><i class="fas fa-chart-line"></i> Performance Tracking</li>
-                <li><i class="fas fa-calendar-check"></i> Attendance System</li>
-                <li><i class="fas fa-money-bill-wave"></i> Fee Management</li>
+                <li><span class="material-symbols-outlined">school</span> Student Management</li>
+                <li><span class="material-symbols-outlined">groups</span> Class & Stream Management</li>
+                <li><span class="material-symbols-outlined">people</span> Parent Portal</li>
+                <li><span class="material-symbols-outlined">trending_up</span> Performance Tracking</li>
+                <li><span class="material-symbols-outlined">fact_check</span> Attendance System</li>
+                <li><span class="material-symbols-outlined">payments</span> Fee Management</li>
             </ul>
         </div>
         

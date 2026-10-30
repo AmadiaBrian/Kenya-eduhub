@@ -109,8 +109,7 @@ foreach ($duty_assignments as $assignment) {
     <meta name="theme-color" content="#FF6B35">
     <title>Duty Assignments - <?php echo htmlspecialchars($school_name); ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
     <link rel="stylesheet" href="../assets/css/notifications.css">
     <style>
         :root {
@@ -458,10 +457,15 @@ foreach ($duty_assignments as $assignment) {
         .quick-access-item:nth-child(4) .quick-access-icon { background: #fef7e0; color: #FFBA00; }
         .quick-access-item:nth-child(5) .quick-access-icon { background: #e8f0fe; color: #0066DA; }
         .quick-access-item:nth-child(6) .quick-access-icon { background: #fce8e6; color: #4285F4; }
-        .fa-plus { color: #00AC47; }
-        .fa-download { color: #4285F4; }
-        .fa-edit { color: #0066DA; }
-        .fa-trash { color: #EA4335; }
+        .material-symbols-outlined {
+            font-size: 24px;
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body class="dashboard-page">
@@ -479,7 +483,7 @@ foreach ($duty_assignments as $assignment) {
         <!-- Action Buttons -->
         <div class="main-action-buttons">
             <button onclick="window.print()" class="btn btn-primary">
-                <i class="fas fa-print me-2"></i>Print Schedule
+                <span class="material-symbols-outlined" style="vertical-align: middle; margin-right: 8px;">print</span>Print Schedule
             </button>
         </div>
 
@@ -511,7 +515,7 @@ foreach ($duty_assignments as $assignment) {
                     </div>
                     <div class="col-12">
                         <button type="submit" name="assign_weekly_duty" class="btn btn-primary">
-                            <i class="fas fa-plus me-2"></i>Assign Weekly Duty Team
+                            <span class="material-symbols-outlined" style="vertical-align: middle; margin-right: 8px;">add</span>Assign Weekly Duty Team
                         </button>
                     </div>
                 </div>
@@ -523,7 +527,7 @@ foreach ($duty_assignments as $assignment) {
             <h4 class="card-title">Weekly Duty Schedule</h4>
             <?php if (empty($weekly_assignments)): ?>
                 <div class="no-schedule">
-                    <i class="fas fa-calendar-times"></i>
+                    <span class="material-symbols-outlined">event_busy</span>
                     <h5>No Weekly Duty Schedule</h5>
                     <p>Assign teachers to manage the school for weekly rotations.</p>
                 </div>
@@ -532,7 +536,7 @@ foreach ($duty_assignments as $assignment) {
                     <div class="weekly-schedule">
                         <div class="weekly-schedule-header">
                             <h5>
-                                <i class="fas fa-calendar-week me-2"></i>
+                                <span class="material-symbols-outlined" style="vertical-align: middle; margin-right: 8px;">calendar_month</span>
                                 Week of <?php echo date('F j, Y', strtotime($week['week_start'])); ?>
                             </h5>
                         </div>
@@ -551,7 +555,7 @@ foreach ($duty_assignments as $assignment) {
                                            class="text-danger ms-2"
                                            style="text-decoration: none; padding: 4px 8px; border-radius: 12px; transition: background 0.2s;"
                                            onclick="return confirm('Remove this teacher from duty?');">
-                                            <i class="fas fa-times"></i>
+                                            <span class="material-symbols-outlined">close</span>
                                         </a>
                                     </span>
                                 <?php endforeach; ?>

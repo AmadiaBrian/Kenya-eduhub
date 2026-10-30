@@ -38,15 +38,14 @@ try {
     <meta name="theme-color" content="#FF6B35">
     <title>Students - <?php echo htmlspecialchars($school_name); ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
     <link rel="stylesheet" href="../assets/css/notifications.css">
     <style>
         :root {
             --primary-color: #1a73e8;
             --secondary-color: #5f6368;
-            --bg-color: #f8f9fa;
-            --card-bg: #f8f9fa;
+            --bg-color: #F0F4F9;
+            --card-bg: #F0F4F9;
             --sidebar-width: 256px;
             --header-height: 64px;
         }
@@ -58,15 +57,19 @@ try {
         }
 
         body {
-            background: #f8f9fa;
+            background: var(--bg-color);
             font-family: 'Google Sans', 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             font-size: 14px;
             color: #202124;
         }
 
-        .material-icons {
-            vertical-align: middle;
-            font-size: 20px;
+        .material-symbols-outlined {
+            font-size: 24px;
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        .quick-access-icon .material-symbols-outlined {
+            color: #5f6368;
         }
 
         .main-content {
@@ -103,7 +106,7 @@ try {
             border-radius: 25px;
             padding: 10px 12px;
             font-size: 14px;
-            background: #f8f9fa;
+            background: var(--bg-color);
         }
         
         .form-control:focus {
@@ -223,7 +226,7 @@ try {
         }
 
         .table tbody tr:hover {
-            background: #f8f9fa;
+            background: var(--bg-color);
         }
 
         .table-responsive {
@@ -490,37 +493,37 @@ try {
         <div class="quick-access-grid">
             <a href="dashboard" class="quick-access-item">
                 <div class="quick-access-icon">
-                    <span class="material-icons" style="color: #5f6368;">dashboard</span>
+                    <span class="material-symbols-outlined">dashboard</span>
                 </div>
                 <div class="quick-access-label">Dashboard</div>
             </a>
             <a href="teachers" class="quick-access-item">
                 <div class="quick-access-icon">
-                    <span class="material-icons" style="color: #5f6368;">person_apron</span>
+                    <span class="material-symbols-outlined">groups</span>
                 </div>
                 <div class="quick-access-label">Teachers</div>
             </a>
             <a href="classes" class="quick-access-item">
                 <div class="quick-access-icon">
-                    <span class="material-icons" style="color: #5f6368;">class</span>
+                    <span class="material-symbols-outlined">class</span>
                 </div>
                 <div class="quick-access-label">Classes</div>
             </a>
             <a href="attendance" class="quick-access-item">
                 <div class="quick-access-icon">
-                    <span class="material-icons" style="color: #5f6368;">event_available</span>
+                    <span class="material-symbols-outlined">event_available</span>
                 </div>
                 <div class="quick-access-label">Attendance</div>
             </a>
             <a href="performance" class="quick-access-item">
                 <div class="quick-access-icon">
-                    <span class="material-icons" style="color: #5f6368;">show_chart</span>
+                    <span class="material-symbols-outlined">trending_up</span>
                 </div>
                 <div class="quick-access-label">Performance</div>
             </a>
             <a href="fees" class="quick-access-item">
                 <div class="quick-access-icon">
-                    <span class="material-icons" style="color: #5f6368;">payments</span>
+                    <span class="material-symbols-outlined">payments</span>
                 </div>
                 <div class="quick-access-label">Fees</div>
             </a>
@@ -615,10 +618,10 @@ try {
         <!-- Action Buttons -->
         <div class="d-flex flex-column gap-2 mb-3">
             <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addStudentModal" style="border-radius: 25px;">
-                <span class="material-icons" style="vertical-align: middle; margin-right: 8px;">add</span> Add Student
+                <span class="material-symbols-outlined" style="vertical-align: middle; margin-right: 8px;">add</span> Add Student
             </button>
             <button class="btn btn-success" onclick="exportStudents()" style="border-radius: 25px;">
-                <span class="material-icons" style="vertical-align: middle; margin-right: 8px;">download</span> Export
+                <span class="material-symbols-outlined" style="vertical-align: middle; margin-right: 8px;">download</span> Export
             </button>
         </div>
 
@@ -822,10 +825,10 @@ try {
                             <td>
                                 <div style="display: flex; gap: 4px;">
                                     <button class="btn btn-sm btn-action" onclick="editStudent(${student.id})">
-                                        <span class="material-icons" style="color: #5f6368;">edit</span>
+                                        <span class="material-symbols-outlined" style="color: #5f6368;">edit</span>
                                     </button>
                                     <button class="btn btn-sm btn-action" onclick="deleteStudent(${student.id})">
-                                        <span class="material-icons" style="color: #d93025;">delete</span>
+                                        <span class="material-symbols-outlined" style="color: #d93025;">delete</span>
                                     </button>
                                 </div>
                             </td>

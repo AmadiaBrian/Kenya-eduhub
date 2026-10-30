@@ -581,7 +581,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['ac
         :root {
             --primary-color: #1a73e8;
             --secondary-color: #5f6368;
-            --bg-color: #f8f9fa;
+            --bg-color: #F0F4F9;
             --card-bg: #ffffff;
             --sidebar-width: 256px;
             --header-height: 64px;

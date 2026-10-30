@@ -152,8 +152,8 @@ try {
         :root {
             --primary-color: #1a73e8;
             --secondary-color: #5f6368;
-            --bg-color: #f8f9fa;
-            --card-bg: #f8f9fa;
+            --bg-color: #F0F4F9;
+            --card-bg: #F0F4F9;
         }
 
         * {
@@ -169,7 +169,7 @@ try {
             color: #202124;
         }
 
-        .material-icons {
+        .material-symbols-outlined {
             vertical-align: middle;
             font-size: 20px;
         }
@@ -665,7 +665,7 @@ try {
         <?php if ($calendar_status['is_holiday']): ?>
             <div class="card" style="background: rgba(255, 107, 53, 0.85); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.3); box-shadow: 0 8px 32px rgba(255, 107, 53, 0.3); padding: 40px; min-height: 150px;">
                 <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 12px;">
-                    <span class="material-icons" style="color: white; font-size: 32px;">beach_access</span>
+                    <span class="material-symbols-outlined" style="color: white; font-size: 32px;">beach_access</span>
                     <div>
                         <p style="color: white; font-weight: 600; margin: 0; font-size: 16px;">
                             School is on Holiday
@@ -681,11 +681,11 @@ try {
                 </div>
                 <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.3);">
                     <p style="color: white; margin: 0; font-size: 13px;">
-                        <span class="material-icons" style="vertical-align: middle; margin-right: 8px;">calendar_month</span>
+                        <span class="material-symbols-outlined" style="vertical-align: middle; margin-right: 8px;">calendar_month</span>
                         Academic Year: <?php echo $calendar_status['current_year']; ?>
                     </p>
                     <p style="color: white; margin: 8px 0 0 0; font-size: 13px;">
-                        <span class="material-icons" style="vertical-align: middle; margin-right: 8px;">schedule</span>
+                        <span class="material-symbols-outlined" style="vertical-align: middle; margin-right: 8px;">schedule</span>
                         Today: <?php echo date('F j, Y'); ?>
                     </p>
                 </div>
@@ -693,7 +693,7 @@ try {
         <?php elseif ($calendar_status['school_status'] === 'break'): ?>
             <div class="card" style="background: rgba(255, 107, 53, 0.85); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.3); box-shadow: 0 8px 32px rgba(255, 107, 53, 0.3); padding: 40px; min-height: 150px;">
                 <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 12px;">
-                    <span class="material-icons" style="color: white; font-size: 32px;">pause_circle</span>
+                    <span class="material-symbols-outlined" style="color: white; font-size: 32px;">pause_circle</span>
                     <div>
                         <p style="color: white; font-weight: 600; margin: 0; font-size: 16px;">
                             School is on Break
@@ -703,11 +703,11 @@ try {
                 </div>
                 <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.3);">
                     <p style="color: white; margin: 0; font-size: 13px;">
-                        <span class="material-icons" style="vertical-align: middle; margin-right: 8px;">calendar_month</span>
+                        <span class="material-symbols-outlined" style="vertical-align: middle; margin-right: 8px;">calendar_month</span>
                         Academic Year: <?php echo $calendar_status['current_year']; ?>
                     </p>
                     <p style="color: white; margin: 8px 0 0 0; font-size: 13px;">
-                        <span class="material-icons" style="vertical-align: middle; margin-right: 8px;">schedule</span>
+                        <span class="material-symbols-outlined" style="vertical-align: middle; margin-right: 8px;">schedule</span>
                         Today: <?php echo date('F j, Y'); ?>
                     </p>
                 </div>
@@ -767,37 +767,37 @@ try {
             <div class="quick-access-grid">
                 <a href="dashboard.php" class="quick-access-item">
                     <div class="quick-access-icon">
-                        <span class="material-icons" style="color: #5f6368;">dashboard</span>
+                        <span class="material-symbols-outlined" style="color: #5f6368;">dashboard</span>
                     </div>
                     <div class="quick-access-label">Dashboard</div>
                 </a>
                 <a href="students.php" class="quick-access-item">
                     <div class="quick-access-icon">
-                        <span class="material-icons" style="color: #5f6368;">school</span>
+                        <span class="material-symbols-outlined" style="color: #5f6368;">school</span>
                     </div>
                     <div class="quick-access-label">Students</div>
                 </a>
                 <a href="teachers.php" class="quick-access-item">
                     <div class="quick-access-icon">
-                        <span class="material-icons" style="color: #5f6368;">person_apron</span>
+                        <span class="material-symbols-outlined" style="color: #5f6368;">person_apron</span>
                     </div>
                     <div class="quick-access-label">Teachers</div>
                 </a>
                 <a href="performance.php" class="quick-access-item">
                     <div class="quick-access-icon">
-                        <span class="material-icons" style="color: #5f6368;">show_chart</span>
+                        <span class="material-symbols-outlined" style="color: #5f6368;">show_chart</span>
                     </div>
                     <div class="quick-access-label">Performance</div>
                 </a>
                 <a href="fees.php" class="quick-access-item">
                     <div class="quick-access-icon">
-                        <span class="material-icons" style="color: #5f6368;">payments</span>
+                        <span class="material-symbols-outlined" style="color: #5f6368;">payments</span>
                     </div>
                     <div class="quick-access-label">Fees</div>
                 </a>
                 <a href="classes.php" class="quick-access-item">
                     <div class="quick-access-icon">
-                        <span class="material-icons" style="color: #5f6368;">class</span>
+                        <span class="material-symbols-outlined" style="color: #5f6368;">class</span>
                     </div>
                     <div class="quick-access-label">Classes</div>
                 </a>
@@ -849,10 +849,10 @@ try {
         <?php if ($selected_class && !empty($students)): ?>
         <div class="action-buttons" style="margin: 0 0 24px 0; padding: 24px;">
             <button class="btn btn-primary" onclick="saveAttendance()">
-                <span class="material-icons" style="vertical-align: middle; margin-right: 8px;">save</span> Save Attendance
+                <span class="material-symbols-outlined" style="vertical-align: middle; margin-right: 8px;">save</span> Save Attendance
             </button>
             <button class="btn btn-success" onclick="exportAttendance()">
-                <span class="material-icons" style="vertical-align: middle; margin-right: 8px;">download</span> Export
+                <span class="material-symbols-outlined" style="vertical-align: middle; margin-right: 8px;">download</span> Export
             </button>
         </div>
         <?php endif; ?>
@@ -905,7 +905,7 @@ try {
         <?php elseif ($selected_class): ?>
         <div class="card">
             <div class="card-body text-center py-5">
-                <span class="material-icons fa-4x text-muted mb-3" style="font-size: 4rem;">groups</span>
+                <span class="material-symbols-outlined fa-4x text-muted mb-3" style="font-size: 4rem;">groups</span>
                 <h3>No Students Found</h3>
                 <p class="text-muted">No students found in the selected class/stream.</p>
             </div>
@@ -913,7 +913,7 @@ try {
         <?php else: ?>
         <div class="card">
             <div class="card-body text-center py-5">
-                <span class="material-icons fa-4x text-muted mb-3" style="font-size: 4rem;">filter_list</span>
+                <span class="material-symbols-outlined fa-4x text-muted mb-3" style="font-size: 4rem;">filter_list</span>
                 <h3>Select a Class</h3>
                 <p class="text-muted">Please select a class to view and mark attendance.</p>
             </div>
@@ -957,7 +957,7 @@ try {
         <?php elseif ($selected_class): ?>
         <div class="card">
             <div class="card-body text-center py-5">
-                <span class="material-icons fa-4x text-muted mb-3" style="font-size: 4rem;">history</span>
+                <span class="material-symbols-outlined fa-4x text-muted mb-3" style="font-size: 4rem;">history</span>
                 <h3>No Past Attendance Records</h3>
                 <p class="text-muted">No attendance records found for the selected filters.</p>
             </div>

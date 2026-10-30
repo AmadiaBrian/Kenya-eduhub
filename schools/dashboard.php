@@ -43,15 +43,14 @@ try {
     <meta name="theme-color" content="#FF6B35">
     <title>Dashboard - <?php echo htmlspecialchars($school_name); ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+    <link rel="stylesheet" href="../assets/css/notifications.css">
     <style>
         :root {
             --primary-color: #1a73e8;
             --secondary-color: #5f6368;
-            --bg-color: #f8f9fa;
-            --card-bg: #f8f9fa;
+            --bg-color: #F0F4F9;
+            --card-bg: #F0F4F9;
             --sidebar-width: 256px;
             --header-height: 64px;
         }
@@ -63,10 +62,15 @@ try {
         }
         
         body {
-            background: #f8f9fa;
+            background: var(--bg-color);
             font-family: 'Google Sans', 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             font-size: 14px;
             color: #202124;
+        }
+
+        .material-symbols-outlined {
+            font-size: 24px;
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
         }
 
         .main-content {
@@ -82,7 +86,7 @@ try {
         
         /* Cards */
         .card {
-            background: #f8f9fa;
+            background: var(--card-bg);
             border: 1px solid #e0e0e0;
             border-radius: 8px;
             padding: 24px;
@@ -129,7 +133,7 @@ try {
         }
         
         .btn-outline-primary {
-            background: #f8f9fa;
+            background: var(--bg-color);
             color: #FF6B35;
             border: 1px solid #FF6B35;
         }
@@ -599,7 +603,7 @@ try {
             <div class="card" style="background: rgba(255, 107, 53, 0.85); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.3); box-shadow: 0 8px 32px rgba(255, 107, 53, 0.3); padding: 40px; min-height: 150px;">
                 <?php if ($calendar_status['is_holiday']): ?>
                     <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 12px;">
-                        <i class="fas fa-umbrella-beach" style="color: white; font-size: 32px;"></i>
+                        <span class="material-symbols-outlined" style="color: white; font-size: 32px;">beach_access</span>
                         <div>
                             <p style="color: white; font-weight: 600; margin: 0; font-size: 16px;">
                                 School is on Holiday
@@ -615,17 +619,17 @@ try {
                     </div>
                     <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.3);">
                         <p style="color: white; margin: 0; font-size: 13px;">
-                            <i class="fas fa-calendar-alt" style="margin-right: 8px;"></i>
+                            <span class="material-symbols-outlined" style="margin-right: 8px; font-size: 18px; vertical-align: middle;">calendar_month</span>
                             Academic Year: <?php echo $calendar_status['current_year']; ?>
                         </p>
                         <p style="color: white; margin: 8px 0 0 0; font-size: 13px;">
-                            <i class="fas fa-clock" style="margin-right: 8px;"></i>
+                            <span class="material-symbols-outlined" style="margin-right: 8px; font-size: 18px; vertical-align: middle;">schedule</span>
                             Today: <?php echo date('F j, Y'); ?>
                         </p>
                     </div>
                 <?php elseif ($calendar_status['current_term']): ?>
                     <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 12px;">
-                        <i class="fas fa-school" style="color: white; font-size: 32px;"></i>
+                        <span class="material-symbols-outlined" style="color: white; font-size: 32px;">school</span>
                         <div>
                             <p style="color: white; font-weight: 600; margin: 0; font-size: 16px;">
                                 School is in Session
@@ -691,11 +695,11 @@ try {
                     </div>
                     <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.3);">
                         <p style="color: white; margin: 0; font-size: 13px;">
-                            <i class="fas fa-calendar-alt" style="margin-right: 8px;"></i>
+                            <span class="material-symbols-outlined" style="margin-right: 8px; font-size: 18px; vertical-align: middle;">calendar_month</span>
                             Academic Year: <?php echo $calendar_status['current_year']; ?>
                         </p>
                         <p style="color: white; margin: 8px 0 0 0; font-size: 13px;">
-                            <i class="fas fa-clock" style="margin-right: 8px;"></i>
+                            <span class="material-symbols-outlined" style="margin-right: 8px; font-size: 18px; vertical-align: middle;">schedule</span>
                             Today: <?php echo date('F j, Y'); ?>
                         </p>
                     </div>
@@ -767,37 +771,37 @@ try {
             <div class="quick-access-grid">
                 <a href="students.php" class="quick-access-item">
                     <div class="quick-access-icon">
-                        <i class="fas fa-user-graduate"></i>
+                        <span class="material-symbols-outlined">school</span>
                     </div>
                     <div class="quick-access-label">Students</div>
                 </a>
                 <a href="teachers.php" class="quick-access-item">
                     <div class="quick-access-icon">
-                        <i class="fas fa-chalkboard-teacher"></i>
+                        <span class="material-symbols-outlined">groups</span>
                     </div>
                     <div class="quick-access-label">Teachers</div>
                 </a>
                 <a href="classes.php" class="quick-access-item">
                     <div class="quick-access-icon">
-                        <i class="fas fa-chalkboard"></i>
+                        <span class="material-symbols-outlined">class</span>
                     </div>
                     <div class="quick-access-label">Classes</div>
                 </a>
                 <a href="attendance.php" class="quick-access-item">
                     <div class="quick-access-icon">
-                        <i class="fas fa-calendar-check"></i>
+                        <span class="material-symbols-outlined">fact_check</span>
                     </div>
                     <div class="quick-access-label">Attendance</div>
                 </a>
                 <a href="performance.php" class="quick-access-item">
                     <div class="quick-access-icon">
-                        <i class="fas fa-chart-line"></i>
+                        <span class="material-symbols-outlined">trending_up</span>
                     </div>
                     <div class="quick-access-label">Performance</div>
                 </a>
                 <a href="fees.php" class="quick-access-item">
                     <div class="quick-access-icon">
-                        <i class="fas fa-money-bill-wave"></i>
+                        <span class="material-symbols-outlined">payments</span>
                     </div>
                     <div class="quick-access-label">Fees</div>
                 </a>
@@ -810,19 +814,19 @@ try {
                 <h2 class="card-title">Quick Actions</h2>
                 <div style="display: flex; flex-direction: column; gap: 12px;">
                     <a href="students.php?action=add" class="btn btn-outline-primary">
-                        <i class="fas fa-user-plus" style="margin-right: 8px;"></i> Add New Student
+                        <span class="material-symbols-outlined" style="margin-right: 8px;">person_add</span> Add New Student
                     </a>
                     <a href="classes.php?action=add" class="btn btn-outline-primary">
-                        <i class="fas fa-plus-circle" style="margin-right: 8px;"></i> Create Class
+                        <span class="material-symbols-outlined" style="margin-right: 8px;">add_circle</span> Create Class
                     </a>
                     <a href="parents.php?action=add" class="btn btn-outline-primary">
-                        <i class="fas fa-user-friends" style="margin-right: 8px;"></i> Register Parent
+                        <span class="material-symbols-outlined" style="margin-right: 8px;">group_add</span> Register Parent
                     </a>
                     <a href="settings.php" class="btn btn-outline-primary">
-                        <i class="fas fa-cog" style="margin-right: 8px;"></i> Admission Settings
+                        <span class="material-symbols-outlined" style="margin-right: 8px;">settings</span> Admission Settings
                     </a>
                     <a href="attendance.php" class="btn btn-outline-primary">
-                        <i class="fas fa-calendar-check" style="margin-right: 8px;"></i> Take Attendance
+                        <span class="material-symbols-outlined" style="margin-right: 8px;">fact_check</span> Take Attendance
                     </a>
                 </div>
             </div>

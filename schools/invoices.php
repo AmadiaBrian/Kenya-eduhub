@@ -147,15 +147,14 @@ try {
     <meta name="theme-color" content="#FF6B35">
     <title>Invoices - <?php echo htmlspecialchars($school_name); ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
     <link rel="stylesheet" href="../assets/css/notifications.css">
     <style>
         :root {
             --primary-color: #FF6B35;
             --secondary-color: #5f6368;
-            --bg-color: #f8f9fa;
-            --card-bg: #f8f9fa;
+            --bg-color: #F0F4F9;
+            --card-bg: #F0F4F9;
         }
         
         * {
@@ -690,17 +689,15 @@ try {
         .quick-access-item:nth-child(4) .quick-access-icon { background: #fef7e0; color: #FFBA00; }
         .quick-access-item:nth-child(5) .quick-access-icon { background: #e8f0fe; color: #0066DA; }
         .quick-access-item:nth-child(6) .quick-access-icon { background: #fce8e6; color: #4285F4; }
-        .fa-plus { color: #00AC47; }
-        .fa-download { color: #4285F4; }
-        .fa-edit { color: #0066DA; }
-        .fa-trash { color: #EA4335; }
-        .fa-eye { color: #4285F4; }
-        .fa-print { color: #5f6368; }
-        .fa-filter { color: #FF6B35; }
-        .fa-file-invoice { color: #4285F4; }
-        .fa-money-bill-wave { color: #00AC47; }
-        .fa-check-circle { color: #00AC47; }
-        .fa-exclamation-circle { color: #FFBA00; }
+        .material-symbols-outlined {
+            font-size: 24px;
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body class="dashboard-page">
@@ -761,7 +758,7 @@ try {
                 <div class="form-group">
                     <label>&nbsp;</label>
                     <button type="submit" class="btn btn-primary w-100">
-                        <i class="fas fa-plus me-2"></i>Generate
+                        <span class="material-symbols-outlined" style="vertical-align: middle; margin-right: 8px;">add</span>Generate
                     </button>
                 </div>
             </form>
@@ -842,13 +839,13 @@ try {
                                     <td>
                                         <div class="action-buttons-cell">
                                             <button class="btn-outline-primary" onclick="viewInvoice(<?php echo $invoice['id']; ?>)">
-                                                <i class="fas fa-eye"></i>
+                                                <span class="material-symbols-outlined">visibility</span>
                                             </button>
                                             <button class="btn-outline-secondary" onclick="printInvoice(<?php echo $invoice['id']; ?>)">
-                                                <i class="fas fa-print"></i>
+                                                <span class="material-symbols-outlined">print</span>
                                             </button>
                                             <button class="btn-outline-secondary" onclick="deleteInvoice(<?php echo $invoice['id']; ?>)" style="color: #dc3545; border-color: #dc3545;">
-                                                <i class="fas fa-trash"></i>
+                                                <span class="material-symbols-outlined">delete</span>
                                             </button>
                                         </div>
                                     </td>
@@ -858,7 +855,7 @@ try {
                             <?php if (empty($invoices)): ?>
                                 <tr>
                                     <td colspan="10" class="text-center py-4">
-                                        <i class="fas fa-file-invoice-dollar" style="font-size: 48px; color: #dadce0;"></i>
+                                        <span class="material-symbols-outlined" style="font-size: 48px; color: #dadce0;">receipt_long</span>
                                         <p class="mt-2 text-muted">No invoices found</p>
                                     </td>
                                 </tr>

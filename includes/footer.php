@@ -1,9 +1,9 @@
 <!-- Footer -->
-<footer class="footer mt-auto py-3 bg-light">
+<footer class="footer mt-auto py-3" style="background: #F0F4F9;">
     <div class="container">
         <div class="row">
             <div class="col-md-6">
-                <span class="text-muted">© <?php echo date('Y'); ?> Sony Sugar Company. All rights reserved.</span>
+                <span class="text-muted">© <?php echo date('Y'); ?> Kenya EduHub. All rights reserved.</span>
             </div>
             <div class="col-md-6 text-md-end">
                 <span class="text-muted">

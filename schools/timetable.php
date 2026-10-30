@@ -554,15 +554,14 @@ try {
     <meta name="theme-color" content="#FF6B35">
     <title>Timetable - <?php echo htmlspecialchars($school_name); ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
     <link rel="stylesheet" href="../assets/css/notifications.css">
     <style>
         :root {
             --primary-color: #1a73e8;
             --secondary-color: #5f6368;
-            --bg-color: #f8f9fa;
-            --card-bg: #f8f9fa;
+            --bg-color: #F0F4F9;
+            --card-bg: #F0F4F9;
         }
         
         * {
@@ -1095,10 +1094,15 @@ try {
         .quick-access-item:nth-child(4) .quick-access-icon { background: #fef7e0; color: #FFBA00; }
         .quick-access-item:nth-child(5) .quick-access-icon { background: #e8f0fe; color: #0066DA; }
         .quick-access-item:nth-child(6) .quick-access-icon { background: #fce8e6; color: #4285F4; }
-        .fa-plus { color: #00AC47; }
-        .fa-download { color: #4285F4; }
-        .fa-edit { color: #0066DA; }
-        .fa-trash { color: #EA4335; }
+        .material-symbols-outlined {
+            font-size: 24px;
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body class="dashboard-page">
@@ -1114,7 +1118,7 @@ try {
         <div class="card" style="background: rgba(255, 107, 53, 0.85); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.3); box-shadow: 0 8px 32px rgba(255, 107, 53, 0.3); padding: 40px; min-height: 150px;">
             <?php if ($calendar_status['is_holiday']): ?>
                 <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 12px;">
-                    <i class="fas fa-umbrella-beach" style="color: white; font-size: 32px;"></i>
+                    <span class="material-symbols-outlined" style="color: white; font-size: 32px;">beach_access</span>
                     <div>
                         <p style="color: white; font-weight: 600; margin: 0; font-size: 16px;">
                             School is on Holiday
@@ -1130,17 +1134,17 @@ try {
                 </div>
                 <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.3);">
                     <p style="color: white; margin: 0; font-size: 13px;">
-                        <i class="fas fa-calendar-alt" style="margin-right: 8px;"></i>
+                        <span class="material-symbols-outlined" style="margin-right: 8px;">calendar_month</span>
                         Academic Year: <?php echo $calendar_status['current_year']; ?>
                     </p>
                     <p style="color: white; margin: 8px 0 0 0; font-size: 13px;">
-                        <i class="fas fa-clock" style="margin-right: 8px;"></i>
+                        <span class="material-symbols-outlined" style="margin-right: 8px;">schedule</span>
                         Today: <?php echo date('F j, Y'); ?>
                     </p>
                 </div>
             <?php elseif ($calendar_status['school_status'] === 'break'): ?>
                 <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 12px;">
-                    <i class="fas fa-pause-circle" style="color: white; font-size: 32px;"></i>
+                    <span class="material-symbols-outlined" style="color: white; font-size: 32px;">pause_circle</span>
                     <div>
                         <p style="color: white; font-weight: 600; margin: 0; font-size: 16px;">
                             School is on Break
@@ -1150,17 +1154,17 @@ try {
                 </div>
                 <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.3);">
                     <p style="color: white; margin: 0; font-size: 13px;">
-                        <i class="fas fa-calendar-alt" style="margin-right: 8px;"></i>
+                        <span class="material-symbols-outlined" style="margin-right: 8px;">calendar_month</span>
                         Academic Year: <?php echo $calendar_status['current_year']; ?>
                     </p>
                     <p style="color: white; margin: 8px 0 0 0; font-size: 13px;">
-                        <i class="fas fa-clock" style="margin-right: 8px;"></i>
+                        <span class="material-symbols-outlined" style="margin-right: 8px;">schedule</span>
                         Today: <?php echo date('F j, Y'); ?>
                     </p>
                 </div>
             <?php else: ?>
                 <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 12px;">
-                    <i class="fas fa-school" style="color: white; font-size: 32px;"></i>
+                    <span class="material-symbols-outlined" style="color: white; font-size: 32px;">school</span>
                     <div>
                         <p style="color: white; font-weight: 600; margin: 0; font-size: 16px;">
                             School is in Session
@@ -1176,11 +1180,11 @@ try {
                 </div>
                 <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.3);">
                     <p style="color: white; margin: 0; font-size: 13px;">
-                        <i class="fas fa-calendar-alt" style="margin-right: 8px;"></i>
+                        <span class="material-symbols-outlined" style="margin-right: 8px;">calendar_month</span>
                         Academic Year: <?php echo $calendar_status['current_year']; ?>
                     </p>
                     <p style="color: white; margin: 8px 0 0 0; font-size: 13px;">
-                        <i class="fas fa-clock" style="margin-right: 8px;"></i>
+                        <span class="material-symbols-outlined" style="margin-right: 8px;">schedule</span>
                         Today: <?php echo date('F j, Y'); ?>
                     </p>
                 </div>
@@ -1260,7 +1264,7 @@ try {
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                     <h2 class="card-title" style="margin-bottom: 0;">Timetable View</h2>
                     <a href="timetable" class="btn btn-secondary">
-                        <i class="fas fa-arrow-left me-2"></i> Back to Timetables
+                        <span class="material-symbols-outlined" style="vertical-align: middle; margin-right: 8px;">arrow_back</span> Back to Timetables
                     </a>
                 </div>
                 
@@ -1332,7 +1336,7 @@ try {
                                 <textarea class="form-control" name="notes" rows="2" placeholder="Optional notes..." style="border-radius: 25px; border: 1px solid #dadce0;"></textarea>
                             </div>
                             <button type="submit" name="create_assignment" class="btn btn-primary" style="border-radius: 25px;">
-                                <span class="material-icons" style="vertical-align: middle; margin-right: 8px;">add</span> Add Assignment
+                                <span class="material-symbols-outlined" style="vertical-align: middle; margin-right: 8px;">add</span> Add Assignment
                             </button>
                         </form>
                     </div>
@@ -1370,7 +1374,7 @@ try {
                                             <td>
                                                 <div class="action-buttons-cell">
                                                     <button type="button" class="btn btn-sm btn-action" onclick="confirmDeleteAssignment(<?php echo $assignment['id']; ?>)">
-                                                        <span class="material-icons" style="color: #d93025;">delete</span>
+                                                        <span class="material-symbols-outlined" style="color: #d93025;">delete</span>
                                                     </button>
                                                 </div>
                                             </td>
@@ -1427,7 +1431,7 @@ try {
                     </div>
                 </div>
                 <button type="submit" name="create_timetable" class="btn btn-primary" style="border-radius: 25px;">
-                    <span class="material-icons" style="vertical-align: middle; margin-right: 8px;">add</span> Create Timetable
+                    <span class="material-symbols-outlined" style="vertical-align: middle; margin-right: 8px;">add</span> Create Timetable
                 </button>
             </form>
         </div>
@@ -1469,13 +1473,13 @@ try {
                                     <td>
                                         <div class="action-buttons-cell">
                                             <button class="btn btn-sm btn-action" onclick="viewTimetable(<?php echo $timetable['id']; ?>)">
-                                                <i class="fas fa-eye"></i>
+                                                <span class="material-symbols-outlined">visibility</span>
                                             </button>
                                             <button class="btn btn-sm btn-action" onclick="editTimetable(<?php echo $timetable['id']; ?>)">
-                                                <span class="material-icons" style="color: #5f6368;">edit</span>
+                                                <span class="material-symbols-outlined" style="color: #5f6368;">edit</span>
                                             </button>
                                             <button type="button" class="btn btn-sm btn-action" onclick="confirmDeleteTimetable(<?php echo $timetable['id']; ?>)">
-                                                <span class="material-icons" style="color: #d93025;">delete</span>
+                                                <span class="material-symbols-outlined" style="color: #d93025;">delete</span>
                                             </button>
                                         </div>
                                     </td>
@@ -1537,7 +1541,7 @@ try {
                     </div>
                 </div>
                 <button type="submit" name="create_slot" class="btn btn-primary" onclick="return validateSlotForm(event)">
-                    <span class="material-icons" style="vertical-align: middle; margin-right: 8px;">add</span> Add Time Slot
+                    <span class="material-symbols-outlined" style="vertical-align: middle; margin-right: 8px;">add</span> Add Time Slot
                 </button>
             </form>
             
@@ -1565,10 +1569,10 @@ try {
                                     <td>
                                         <div class="action-buttons-cell">
                                             <button class="btn btn-sm btn-action" onclick="editSlot(<?php echo $slot['id']; ?>, '<?php echo htmlspecialchars($slot['day_of_week']); ?>', '<?php echo htmlspecialchars($slot['start_time']); ?>', '<?php echo htmlspecialchars($slot['end_time']); ?>')">
-                                                <span class="material-icons" style="color: #5f6368;">edit</span>
+                                                <span class="material-symbols-outlined" style="color: #5f6368;">edit</span>
                                             </button>
                                             <button class="btn btn-sm btn-action" onclick="deleteSlot(<?php echo $slot['id']; ?>)">
-                                                <span class="material-icons" style="color: #d93025;">delete</span>
+                                                <span class="material-symbols-outlined" style="color: #d93025;">delete</span>
                                             </button>
                                         </div>
                                     </td>
@@ -1610,7 +1614,7 @@ try {
                         </div>
                     </div>
                     <button type="submit" name="create_break" class="btn btn-primary" style="border-radius: 25px;">
-                        <span class="material-icons" style="vertical-align: middle; margin-right: 8px;">add</span> Add School Break
+                        <span class="material-symbols-outlined" style="vertical-align: middle; margin-right: 8px;">add</span> Add School Break
                     </button>
                 </form>
             </div>
@@ -1641,7 +1645,7 @@ try {
                                     <td>
                                         <div class="action-buttons-cell">
                                             <button type="button" class="btn btn-sm btn-action" onclick="confirmDeleteBreak(<?php echo $break['id']; ?>)">
-                                                <span class="material-icons" style="color: #d93025;">delete</span>
+                                                <span class="material-symbols-outlined" style="color: #d93025;">delete</span>
                                             </button>
                                         </div>
                                     </td>
@@ -1690,10 +1694,10 @@ try {
                     </td>
                     <td>
                         <button type="button" class="btn btn-sm btn-success" onclick="saveSlot(${id}, this)">
-                            <i class="fas fa-save"></i>
+                            <span class="material-symbols-outlined">save</span>
                         </button>
                         <button type="button" class="btn btn-sm btn-secondary" onclick="location.reload()">
-                            <span class="material-icons">close</span>
+                            <span class="material-symbols-outlined">close</span>
                         </button>
                     </td>
                 `;

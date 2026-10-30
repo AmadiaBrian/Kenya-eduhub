@@ -30,7 +30,6 @@ try {
     <meta name="theme-color" content="#FF6B35">
     <title>My Children - <?php echo htmlspecialchars($parent_name); ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="../assets/css/notifications.css">
     <style>
         :root {
@@ -98,8 +97,8 @@ try {
             font-weight: 400;
             color: #202124;
         }
-        
-        .logo i {
+
+        .logo .material-symbols-outlined {
             color: var(--primary-color);
         }
         
@@ -175,8 +174,8 @@ try {
             background: #e8f0fe;
             color: var(--primary-color);
         }
-        
-        .nav-link i {
+
+        .nav-link .material-symbols-outlined {
             margin-right: 12px;
             font-size: 18px;
             width: 24px;
@@ -372,6 +371,12 @@ try {
             }
         }
 
+        /* Material Symbols Styling */
+        .material-symbols-outlined {
+            font-size: 24px;
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
         /* Icon colors */
         .fa-chart-line { color: #00AC47; }
         .fa-money-bill-wave { color: #FFBA00; }
@@ -433,10 +438,10 @@ try {
                         
                         <div class="child-actions">
                             <a href="performance?child_id=<?php echo $child['id']; ?>" class="btn btn-primary">
-                                <i class="fas fa-chart-line"></i> Performance
+                                <span class="material-symbols-outlined">trending_up</span> Performance
                             </a>
                             <a href="fees?child_id=<?php echo $child['id']; ?>" class="btn btn-outline">
-                                <i class="fas fa-money-bill-wave"></i> Fees
+                                <span class="material-symbols-outlined">payments</span> Fees
                             </a>
                         </div>
                     </div>

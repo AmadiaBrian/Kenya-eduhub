@@ -83,14 +83,12 @@ try {
     <meta name="theme-color" content="#FF6B35">
     <title>Attendance - <?php echo htmlspecialchars($parent_name); ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
     <link rel="stylesheet" href="../assets/css/notifications.css">
     <style>
         :root {
             --primary-color: #FF6B35;
             --secondary-color: #5f6368;
-            --bg-color: #f8f9fa;
-            --card-bg: #ffffff;
             --sidebar-width: 256px;
             --header-height: 64px;
         }
@@ -106,6 +104,11 @@ try {
             font-family: 'Google Sans', 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             font-size: 14px;
             color: #202124;
+        }
+
+        .material-symbols-outlined {
+            font-size: 24px;
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
         }
         
         /* Header */
@@ -151,8 +154,8 @@ try {
             font-weight: 400;
             color: #202124;
         }
-        
-        .logo i {
+
+        .logo .material-symbols-outlined {
             color: var(--primary-color);
         }
         
@@ -228,8 +231,8 @@ try {
             background: #e8f0fe;
             color: var(--primary-color);
         }
-        
-        .nav-link i {
+
+        .nav-link .material-symbols-outlined {
             margin-right: 12px;
             font-size: 18px;
             width: 24px;
@@ -555,6 +558,12 @@ try {
         }
 
         /* Icon colors */
+        /* Material Symbols Styling */
+        .material-symbols-outlined {
+            font-size: 24px;
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
         .quick-access-item:nth-child(1) .quick-access-icon { background: #e8f0fe; color: #4285F4; }
         .quick-access-item:nth-child(2) .quick-access-icon { background: #fce8e6; color: #EA4335; }
         .quick-access-item:nth-child(3) .quick-access-icon { background: #e6f4ea; color: #00AC47; }
@@ -601,37 +610,37 @@ try {
             <div class="quick-access-grid">
                 <a href="dashboard" class="quick-access-item">
                     <div class="quick-access-icon">
-                        <i class="fas fa-home"></i>
+                        <span class="material-symbols-outlined">home</span>
                     </div>
                     <div class="quick-access-label">Dashboard</div>
                 </a>
                 <a href="performance" class="quick-access-item">
                     <div class="quick-access-icon">
-                        <i class="fas fa-chart-line"></i>
+                        <span class="material-symbols-outlined">trending_up</span>
                     </div>
                     <div class="quick-access-label">Performance</div>
                 </a>
                 <a href="fees" class="quick-access-item">
                     <div class="quick-access-icon">
-                        <i class="fas fa-money-bill-wave"></i>
+                        <span class="material-symbols-outlined">payments</span>
                     </div>
                     <div class="quick-access-label">Fee Payments</div>
                 </a>
                 <a href="children" class="quick-access-item">
                     <div class="quick-access-icon">
-                        <i class="fas fa-child"></i>
+                        <span class="material-symbols-outlined">family_restroom</span>
                     </div>
                     <div class="quick-access-label">My Children</div>
                 </a>
                 <a href="profile" class="quick-access-item">
                     <div class="quick-access-icon">
-                        <i class="fas fa-user"></i>
+                        <span class="material-symbols-outlined">person</span>
                     </div>
                     <div class="quick-access-label">Profile</div>
                 </a>
                 <a href="#" class="quick-access-item">
                     <div class="quick-access-icon">
-                        <i class="fas fa-envelope"></i>
+                        <span class="material-symbols-outlined">mail</span>
                     </div>
                     <div class="quick-access-label">Messages</div>
                 </a>

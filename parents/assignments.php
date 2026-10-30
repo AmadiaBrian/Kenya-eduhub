@@ -57,13 +57,13 @@ if (!empty($class_ids)) {
     <meta name="theme-color" content="#FF6B35">
     <title>Assignments - <?php echo htmlspecialchars($parent_name); ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
     <link rel="stylesheet" href="../assets/css/notifications.css">
     <style>
         :root {
             --primary-color: #FF6B35;
             --secondary-color: #5f6368;
-            --bg-color: #f8f9fa;
+            --bg-color: #F0F4F9;
         }
         
         * {
@@ -76,6 +76,16 @@ if (!empty($class_ids)) {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: var(--bg-color);
             color: #202124;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .material-symbols-outlined {
+            font-size: 24px;
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
         }
         
         .header {
@@ -477,6 +487,22 @@ if (!empty($class_ids)) {
             }
         }
 
+        /* Material Symbols Styling */
+        .material-symbols-outlined {
+            font-size: 24px;
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        /* Spinning animation for Material Symbols */
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .fa-spin {
+            animation: spin 1s linear infinite;
+        }
+
         /* Icon colors */
         .fa-users { color: #4285F4; }
         .fa-book { color: #EA4335; }
@@ -577,21 +603,21 @@ if (!empty($class_ids)) {
                             <div class="assignment-meta">
                                 <?php if ($assignment['class_name']): ?>
                                     <div class="assignment-meta-item">
-                                        <i class="fas fa-users"></i>
+                                        <span class="material-symbols-outlined">groups</span>
                                         <?php echo htmlspecialchars($assignment['class_name']); ?>
                                     </div>
                                 <?php endif; ?>
                                 
                                 <?php if ($assignment['subject_name']): ?>
                                     <div class="assignment-meta-item">
-                                        <i class="fas fa-book"></i>
+                                        <span class="material-symbols-outlined">menu_book</span>
                                         <?php echo htmlspecialchars($assignment['subject_name']); ?>
                                     </div>
                                 <?php endif; ?>
                                 
                                 <?php if ($assignment['due_date']): ?>
                                     <div class="assignment-meta-item">
-                                        <i class="fas fa-calendar"></i>
+                                        <span class="material-symbols-outlined">calendar_month</span>
                                         Due: <?php echo date('M d, Y', strtotime($assignment['due_date'])); ?>
                                     </div>
                                 <?php endif; ?>
@@ -608,7 +634,7 @@ if (!empty($class_ids)) {
                             
                             <div style="margin-top: 12px;">
                                 <a href="../api/download_assignment.php?assignment_id=<?php echo $assignment['id']; ?>" class="btn btn-sm btn-primary" style="width: 100%; border-radius: 25px;">
-                                    <i class="fas fa-download me-2"></i> Download
+                                    <span class="material-symbols-outlined me-2">download</span> Download
                                 </a>
                             </div>
                         </div>
@@ -709,7 +735,7 @@ if (!empty($class_ids)) {
             
             const fileExt = fileName.split('.').pop().toLowerCase();
             const previewContent = document.getElementById('previewContent');
-            previewContent.innerHTML = '<div style="display: flex; align-items: center; justify-content: center; height: 100%; color: #5f6368;"><i class="fas fa-spinner fa-spin"></i> Loading...</div>';
+            previewContent.innerHTML = '<div style="display: flex; align-items: center; justify-content: center; height: 100%; color: #5f6368;"><span class="material-symbols-outlined fa-spin">refresh</span> Loading...</div>';
             
             if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(fileExt)) {
                 // Image preview
@@ -746,10 +772,10 @@ if (!empty($class_ids)) {
             } else {
                 previewContent.innerHTML = `
                     <div style="text-align: center; padding: 40px;">
-                        <i class="fas fa-file" style="font-size: 48px; color: #dadce0; margin-bottom: 16px;"></i>
+                        <span class="material-symbols-outlined" style="font-size: 48px; color: #dadce0; margin-bottom: 16px;">description</span>
                         <p style="color: #5f6368; margin-bottom: 12px;">Preview not available for .${fileExt} files</p>
                         <a href="../api/download_assignment.php?assignment_id=${assignmentId}" class="btn btn-primary" style="display: inline-flex; align-items: center; gap: 8px;">
-                            <i class="fas fa-download"></i> Download to View
+                            <span class="material-symbols-outlined">download</span> Download to View
                         </a>
                     </div>
                 `;

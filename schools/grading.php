@@ -398,8 +398,8 @@ if (isset($_GET['delete_aggregate']) && isset($_GET['aggregate_id'])) {
         :root {
             --primary-color: #1a73e8;
             --secondary-color: #5f6368;
-            --bg-color: #f8f9fa;
-            --card-bg: #f8f9fa;
+            --bg-color: #F0F4F9;
+            --card-bg: #F0F4F9;
         }
         
         * {
@@ -973,7 +973,7 @@ if (isset($_GET['delete_aggregate']) && isset($_GET['aggregate_id'])) {
                     <div class="col-md-6">
                         <label class="form-label">Download Template</label>
                         <button type="button" class="btn btn-outline-primary w-100" onclick="downloadTemplate()">
-                            <span class="material-icons" style="vertical-align: middle; margin-right: 8px;">download</span> Download CSV Template
+                            <span class="material-symbols-outlined" style="vertical-align: middle; margin-right: 8px;">download</span> Download CSV Template
                         </button>
                     </div>
                 </div>
@@ -985,7 +985,7 @@ if (isset($_GET['delete_aggregate']) && isset($_GET['aggregate_id'])) {
                 </div>
                 
                 <button type="submit" class="btn btn-primary">
-                    <span class="material-icons" style="vertical-align: middle; margin-right: 8px;">upload</span> Upload Grading Scales
+                    <span class="material-symbols-outlined" style="vertical-align: middle; margin-right: 8px;">upload</span> Upload Grading Scales
                 </button>
             </form>
         </div>
@@ -1015,12 +1015,12 @@ if (isset($_GET['delete_aggregate']) && isset($_GET['aggregate_id'])) {
                 <?php foreach ($grouped_scales as $subject_name => $subject_data): ?>
                     <div style="margin-bottom: 30px;">
                         <h4 style="color: #FF6B35; margin-bottom: 15px; font-weight: 600; font-family: 'Georgia', 'Times New Roman', serif;">
-                            <span class="material-icons" style="vertical-align: middle; margin-right: 8px;">menu_book</span> <?php echo htmlspecialchars($subject_name); ?>
+                            <span class="material-symbols-outlined" style="vertical-align: middle; margin-right: 8px;">menu_book</span> <?php echo htmlspecialchars($subject_name); ?>
                             <?php if ($subject_data['subject_id']): ?>
                                 <a href="grading.php?delete_subject_scales=1&subject_id=<?php echo $subject_data['subject_id']; ?>"
                                    class="btn btn-sm btn-action float-end"
                                    onclick="return confirm('Are you sure you want to delete ALL grading scales for <?php echo htmlspecialchars($subject_name); ?>?')">
-                                    <span class="material-icons" style="color: #d93025;">delete</span> Delete All
+                                    <span class="material-symbols-outlined" style="color: #d93025;">delete</span> Delete All
                                 </a>
                             <?php endif; ?>
                         </h4>
@@ -1047,12 +1047,12 @@ if (isset($_GET['delete_aggregate']) && isset($_GET['aggregate_id'])) {
                                             <td>
                                                 <div class="action-buttons-cell">
                                                     <button class="btn btn-sm btn-action" onclick="editScale(<?php echo $scale['id']; ?>, '<?php echo $scale['min_score']; ?>', '<?php echo $scale['max_score']; ?>', '<?php echo htmlspecialchars($scale['grade_name']); ?>', '<?php echo htmlspecialchars($scale['grade_description'] ?? ''); ?>', '<?php echo $scale['points'] ?? 0; ?>')">
-                                                        <span class="material-icons" style="color: #5f6368;">edit</span> Edit
+                                                        <span class="material-symbols-outlined" style="color: #5f6368;">edit</span> Edit
                                                     </button>
                                                     <a href="grading.php?delete_scale=1&scale_id=<?php echo $scale['id']; ?>"
                                                        class="btn btn-sm btn-action"
                                                        onclick="return confirm('Are you sure you want to delete this grading scale?')">
-                                                        <span class="material-icons" style="color: #d93025;">delete</span> Delete
+                                                        <span class="material-symbols-outlined" style="color: #d93025;">delete</span> Delete
                                                     </a>
                                                 </div>
                                             </td>
@@ -1076,7 +1076,7 @@ if (isset($_GET['delete_aggregate']) && isset($_GET['aggregate_id'])) {
                     <div class="col-md-6">
                         <label class="form-label">Download Template</label>
                         <a href="grading?download_aggregate_template=1" class="btn btn-outline-primary w-100">
-                            <span class="material-icons" style="vertical-align: middle; margin-right: 8px;">download</span> Download CSV Template
+                            <span class="material-symbols-outlined" style="vertical-align: middle; margin-right: 8px;">download</span> Download CSV Template
                         </a>
                     </div>
                     <div class="col-md-6">
@@ -1087,7 +1087,7 @@ if (isset($_GET['delete_aggregate']) && isset($_GET['aggregate_id'])) {
                 </div>
 
                 <button type="submit" class="btn btn-primary">
-                    <span class="material-icons" style="vertical-align: middle; margin-right: 8px;">upload</span> Upload Aggregate Points Distribution
+                    <span class="material-symbols-outlined" style="vertical-align: middle; margin-right: 8px;">upload</span> Upload Aggregate Points Distribution
                 </button>
             </form>
         </div>
@@ -1122,7 +1122,7 @@ if (isset($_GET['delete_aggregate']) && isset($_GET['aggregate_id'])) {
                                             <a href="grading?delete_aggregate=1&aggregate_id=<?php echo $aggregate['id']; ?>"
                                                class="btn btn-sm btn-action"
                                                onclick="return confirm('Are you sure you want to delete this aggregate points distribution entry?')">
-                                                <span class="material-icons" style="color: #d93025;">delete</span> Delete
+                                                <span class="material-symbols-outlined" style="color: #d93025;">delete</span> Delete
                                             </a>
                                         </div>
                                     </td>

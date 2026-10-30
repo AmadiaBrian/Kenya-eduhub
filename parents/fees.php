@@ -184,14 +184,12 @@ try {
     <meta name="theme-color" content="#FF6B35">
     <title>Fee Payments - <?php echo htmlspecialchars($parent_name); ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
     <link rel="stylesheet" href="../assets/css/notifications.css">
     <style>
         :root {
             --primary-color: #FF6B35;
             --secondary-color: #5f6368;
-            --bg-color: #f8f9fa;
-            --card-bg: #ffffff;
             --sidebar-width: 256px;
             --header-height: 64px;
         }
@@ -207,6 +205,16 @@ try {
             font-family: 'Google Sans', 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             font-size: 14px;
             color: #202124;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .material-symbols-outlined {
+            font-size: 24px;
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
         }
         
         /* Header */
@@ -640,7 +648,7 @@ try {
             <?php if ($calendar_status['is_holiday']): ?>
                 <div style="background: #fce8e6; border: 1px solid #c5221f; padding: 16px; border-radius: 8px;">
                     <div style="display: flex; align-items: center; gap: 12px;">
-                        <i class="fas fa-exclamation-triangle" style="color: #c5221f; font-size: 20px;"></i>
+                        <span class="material-symbols-outlined" style="color: #c5221f; font-size: 20px;">warning</span>
                         <div>
                             <strong style="color: #c5221f;">School is on Holiday</strong>
                             <p style="margin: 4px 0 0 0; color: #5f6368; font-size: 14px;">
@@ -654,7 +662,7 @@ try {
             <?php elseif ($calendar_status['school_status'] === 'break'): ?>
                 <div style="background: #fef7e0; border: 1px solid #f9ab00; padding: 16px; border-radius: 8px;">
                     <div style="display: flex; align-items: center; gap: 12px;">
-                        <i class="fas fa-info-circle" style="color: #f9ab00; font-size: 20px;"></i>
+                        <span class="material-symbols-outlined" style="color: #f9ab00; font-size: 20px;">info</span>
                         <div>
                             <strong style="color: #b06000;">School is on Break</strong>
                             <p style="margin: 4px 0 0 0; color: #5f6368; font-size: 14px;">No active term is currently set.</p>
@@ -664,7 +672,7 @@ try {
             <?php else: ?>
                 <div style="background: #e6f4ea; border: 1px solid #137333; padding: 16px; border-radius: 8px;">
                     <div style="display: flex; align-items: center; gap: 12px;">
-                        <i class="fas fa-check-circle" style="color: #137333; font-size: 20px;"></i>
+                        <span class="material-symbols-outlined" style="color: #137333; font-size: 20px;">check_circle</span>
                         <div>
                             <strong style="color: #137333;">School is In Session</strong>
                             <p style="margin: 4px 0 0 0; color: #5f6368; font-size: 14px;">
@@ -698,10 +706,10 @@ try {
             <?php if ($selected_child_id): ?>
             <div class="filter-group" style="margin-top: 15px;">
                 <button class="btn" onclick="generateFeeStatement(<?php echo $selected_child_id; ?>)" style="background-color: #ff6600; color: white; border: none; width: 100%; margin-bottom: 10px; border-radius: 25px;">
-                    <i class="fas fa-file-invoice"></i> Generate Fee Statement
+                    <span class="material-symbols-outlined">receipt_long</span> Generate Fee Statement
                 </button>
                 <button class="btn" onclick="generateFeeStructure(<?php echo $selected_child_id; ?>)" style="background-color: #ff6600; color: white; border: none; width: 100%; border-radius: 25px;">
-                    <i class="fas fa-list-alt"></i> Fee Structure Document
+                    <span class="material-symbols-outlined">list_alt</span> Fee Structure Document
                 </button>
             </div>
             <?php endif; ?>
@@ -713,37 +721,37 @@ try {
             <div class="quick-access-grid">
                 <a href="dashboard" class="quick-access-item">
                     <div class="quick-access-icon">
-                        <i class="fas fa-home"></i>
+                        <span class="material-symbols-outlined">home</span>
                     </div>
                     <div class="quick-access-label">Dashboard</div>
                 </a>
                 <a href="performance" class="quick-access-item">
                     <div class="quick-access-icon">
-                        <i class="fas fa-chart-line"></i>
+                        <span class="material-symbols-outlined">trending_up</span>
                     </div>
                     <div class="quick-access-label">Performance</div>
                 </a>
                 <a href="attendance" class="quick-access-item">
                     <div class="quick-access-icon">
-                        <i class="fas fa-calendar-check"></i>
+                        <span class="material-symbols-outlined">fact_check</span>
                     </div>
                     <div class="quick-access-label">Attendance</div>
                 </a>
                 <a href="children" class="quick-access-item">
                     <div class="quick-access-icon">
-                        <i class="fas fa-child"></i>
+                        <span class="material-symbols-outlined">family_restroom</span>
                     </div>
                     <div class="quick-access-label">My Children</div>
                 </a>
                 <a href="profile" class="quick-access-item">
                     <div class="quick-access-icon">
-                        <i class="fas fa-user"></i>
+                        <span class="material-symbols-outlined">person</span>
                     </div>
                     <div class="quick-access-label">Profile</div>
                 </a>
                 <a href="#" class="quick-access-item">
                     <div class="quick-access-icon">
-                        <i class="fas fa-envelope"></i>
+                        <span class="material-symbols-outlined">mail</span>
                     </div>
                     <div class="quick-access-label">Messages</div>
                 </a>
@@ -916,7 +924,7 @@ try {
                                         </td>
                                         <td>
                                             <button class="btn btn-sm" onclick="generateReceipt(<?php echo $payment['id']; ?>)" style="background-color: #ff6600; color: white; border: none; border-radius: 25px;">
-                                                <i class="fas fa-print"></i> Receipt
+                                                <span class="material-symbols-outlined">print</span> Receipt
                                             </button>
                                         </td>
                                     </tr>
@@ -953,30 +961,30 @@ try {
                                         <td>
                                             <?php if ($reminder['reminder_type'] === 'email'): ?>
                                                 <span class="badge" style="background: #e8f0fe; color: #1a73e8;">
-                                                    <i class="fas fa-envelope"></i> Email
+                                                    <span class="material-symbols-outlined" style="font-size: 16px;">mail</span> Email
                                                 </span>
                                             <?php elseif ($reminder['reminder_type'] === 'letter'): ?>
                                                 <span class="badge" style="background: #fce8e6; color: #c5221f;">
-                                                    <i class="fas fa-file-alt"></i> Letter
+                                                    <span class="material-symbols-outlined" style="font-size: 16px;">description</span> Letter
                                                 </span>
                                             <?php else: ?>
                                                 <span class="badge" style="background: #f1f3f4; color: #5f6368;">
-                                                    <i class="fas fa-phone"></i> Manual
+                                                    <span class="material-symbols-outlined" style="font-size: 16px;">phone</span> Manual
                                                 </span>
                                             <?php endif; ?>
                                         </td>
                                         <td>
                                             <?php if ($reminder['status'] === 'sent'): ?>
                                                 <span class="badge" style="background: #e6f4ea; color: #137333;">
-                                                    <i class="fas fa-check"></i> Sent
+                                                    <span class="material-symbols-outlined" style="font-size: 16px;">check</span> Sent
                                                 </span>
                                             <?php elseif ($reminder['status'] === 'failed'): ?>
                                                 <span class="badge" style="background: #fce8e6; color: #c5221f;">
-                                                    <i class="fas fa-times"></i> Failed
+                                                    <span class="material-symbols-outlined" style="font-size: 16px;">close</span> Failed
                                                 </span>
                                             <?php else: ?>
                                                 <span class="badge" style="background: #fef7e0; color: #b06000;">
-                                                    <i class="fas fa-clock"></i> Pending
+                                                    <span class="material-symbols-outlined" style="font-size: 16px;">schedule</span> Pending
                                                 </span>
                                             <?php endif; ?>
                                         </td>
@@ -1278,7 +1286,7 @@ try {
             
             // Show loading state
             submitBtn.disabled = true;
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+            submitBtn.innerHTML = '<span class="material-symbols-outlined" style="animation: spin 1s linear infinite;">refresh</span> Processing...';
             
             // Show loading modal
             showPaymentModal('Initiating Payment', 'Please wait while we initiate your M-Pesa payment request...', 'loading');
@@ -1317,7 +1325,7 @@ try {
             })
             .finally(() => {
                 submitBtn.disabled = false;
-                submitBtn.innerHTML = '<i class="fas fa-mobile-alt"></i> Pay with M-Pesa';
+                submitBtn.innerHTML = '<span class="material-symbols-outlined">smartphone</span> Pay with M-Pesa';
             });
         });
 

@@ -4,11 +4,14 @@
 // Requires $parent_name variable to be set with parent name
 ?>
 
+<!-- Material Symbols Icons -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+
 <!-- Header -->
 <header class="header">
     <div class="header-left">
         <button class="menu-btn" onclick="toggleSidebar()">
-            <i class="fas fa-bars"></i>
+            <span class="material-symbols-outlined">menu</span>
         </button>
         <div class="logo">
             <?php require_once dirname(__DIR__) . '/../includes/logo.php'; ?>
@@ -29,8 +32,8 @@
         --primary-orange: #FF6B35;
         --primary-gold: #ffc107;
         --secondary-color: #5f6368;
-        --bg-color: #f8f9fa;
-        --card-bg: #f8f9fa;
+        --bg-color: #F0F4F9;
+        --card-bg: #F0F4F9;
         --text-color: #202124;
         --border-color: #e8eaed;
     }
@@ -64,11 +67,15 @@
         border-radius: 50%;
         color: #5f6368;
         transition: background 0.2s;
-        font-size: 18px;
     }
 
     .menu-btn:hover {
         background: #f1f3f4;
+    }
+
+    .material-symbols-outlined {
+        font-size: 24px;
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
     }
 
     .logo {

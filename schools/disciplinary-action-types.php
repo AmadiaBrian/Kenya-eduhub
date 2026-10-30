@@ -70,8 +70,7 @@ if (isset($_GET['delete'])) {
     <meta name="theme-color" content="#FF6B35">
     <title>Disciplinary Action Types - <?php echo htmlspecialchars($school_name); ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
     <link rel="stylesheet" href="../assets/css/notifications.css">
     <style>
         :root {
@@ -92,6 +91,11 @@ if (isset($_GET['delete'])) {
             font-family: 'Google Sans', 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             font-size: 14px;
             color: #202124;
+        }
+
+        .material-symbols-outlined {
+            font-size: 24px;
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
         }
 
         .main-content {
@@ -460,7 +464,7 @@ if (isset($_GET['delete'])) {
         <!-- Add New Action Type -->
         <div class="card">
             <div class="card-header">
-                <i class="fas fa-plus me-2"></i>Add New Action Type
+                <span class="material-symbols-outlined me-2">add</span>Add New Action Type
             </div>
             <div class="card-body">
                 <form method="POST">
@@ -489,10 +493,10 @@ if (isset($_GET['delete'])) {
                     </div>
                     <div style="display: flex; flex-direction: column; gap: 12px;">
                         <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-plus me-2"></i>Add Action Type
+                            <span class="material-symbols-outlined me-2">add</span>Add Action Type
                         </button>
                         <button type="button" class="btn btn-secondary" onclick="window.location.href='disciplinary'">
-                            <i class="fas fa-arrow-left me-2"></i>Back to Disciplinary
+                            <span class="material-symbols-outlined me-2">arrow_back</span>Back to Disciplinary
                         </button>
                     </div>
                 </form>
@@ -502,7 +506,7 @@ if (isset($_GET['delete'])) {
         <!-- Existing Action Types -->
         <div class="card">
             <div class="card-header">
-                <i class="fas fa-list me-2"></i>Existing Action Types
+                <span class="material-symbols-outlined me-2">list_alt</span>Existing Action Types
             </div>
             <div class="card-body">
                 <div class="table-responsive">
@@ -536,7 +540,7 @@ if (isset($_GET['delete'])) {
                                         </td>
                                         <td>
                                             <a href="?delete=<?php echo $type['id']; ?>" class="btn-action" onclick="return confirm('Are you sure you want to delete this action type?');">
-                                                <i class="fas fa-trash"></i>
+                                                <span class="material-symbols-outlined">delete</span>
                                             </a>
                                         </td>
                                     </tr>

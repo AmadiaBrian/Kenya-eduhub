@@ -57,8 +57,7 @@ try {
     <meta name="theme-color" content="#FF6B35">
     <title>Disciplinary Record - <?php echo htmlspecialchars($school_name); ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
     <link rel="stylesheet" href="../assets/css/notifications.css">
     <style>
         :root {
@@ -378,6 +377,16 @@ try {
                 grid-template-columns: 1fr;
             }
         }
+
+        .material-symbols-outlined {
+            font-size: 24px;
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body>
@@ -385,7 +394,7 @@ try {
     <header class="header">
         <div class="header-left">
             <button class="menu-btn" onclick="toggleSidebar()">
-                <i class="fas fa-bars"></i>
+                <span class="material-symbols-outlined">menu</span>
             </button>
             <div class="logo">
                 <div style="width: 40px; height: 40px; background: #FFD700; border: 3px solid #FF6B35; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 0;">
@@ -408,7 +417,7 @@ try {
         <div class="sidebar-section">
             <div class="sidebar-title">Main</div>
             <a class="nav-link" href="dashboard">
-                <i class="fas fa-home"></i> Dashboard
+                <span class="material-symbols-outlined">home</span> Dashboard
             </a>
             <a class="nav-link" href="students">
                 <i class="fas fa-users"></i> Students

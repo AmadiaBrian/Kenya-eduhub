@@ -1,8 +1,14 @@
-# RewriteEngine On
+RewriteEngine On
 
 # Allow M-Pesa callback URLs (bypass all rewrite rules)
 RewriteCond %{REQUEST_URI} /(schools|finance-managers)/payments/b2c/(b2c_result|b2c_timeout)\.php$ [NC]
 RewriteRule ^ - [L]
+
+# Rewrite resource pages
+RewriteRule ^resource/([0-9]+)$ resource.php?id=$1 [L]
+
+# Rewrite sitemap
+RewriteRule ^resources_sitemap.xml$ resources_sitemap.php [L]
 
 # Hide .php extension from URLs (works for all folders)
 RewriteCond %{THE_REQUEST} \s/(.+?)\.php[\s?] [NC]
@@ -22,3 +28,9 @@ RewriteRule ^ - [L]
 RewriteCond %{ENV:REDIRECT_STATUS} ^$
 RewriteCond %{THE_REQUEST} \.php[\s?] [NC]
 RewriteRule ^ - [F]
+
+# Handle trailing slashes
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_URI} (.+)/$
+RewriteRule ^ %1 [L,R=301]

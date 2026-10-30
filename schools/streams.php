@@ -27,15 +27,14 @@ $school_name = $_SESSION['school_name'] ?? 'School';
     <meta name="theme-color" content="#FF6B35">
     <title>Streams - <?php echo htmlspecialchars($school_name); ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
     <link rel="stylesheet" href="../assets/css/notifications.css">
     <style>
         :root {
             --primary-color: #1a73e8;
             --secondary-color: #5f6368;
-            --bg-color: #f8f9fa;
-            --card-bg: #f8f9fa;
+            --bg-color: #F0F4F9;
+            --card-bg: #F0F4F9;
         }
         
         * {
@@ -358,10 +357,15 @@ $school_name = $_SESSION['school_name'] ?? 'School';
         .quick-access-item:nth-child(4) .quick-access-icon { background: #fef7e0; color: #FFBA00; }
         .quick-access-item:nth-child(5) .quick-access-icon { background: #e8f0fe; color: #0066DA; }
         .quick-access-item:nth-child(6) .quick-access-icon { background: #fce8e6; color: #4285F4; }
-        .fa-plus { color: #00AC47; }
-        .fa-download { color: #4285F4; }
-        .fa-edit { color: #0066DA; }
-        .fa-trash { color: #EA4335; }
+        .material-symbols-outlined {
+            font-size: 24px;
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body class="dashboard-page">
@@ -433,10 +437,10 @@ $school_name = $_SESSION['school_name'] ?? 'School';
         <!-- Action Buttons -->
         <div class="d-flex flex-column gap-2 mb-3">
             <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addStreamModal" style="border-radius: 25px;">
-                <span class="material-icons" style="vertical-align: middle; margin-right: 8px;">add</span> Add Stream
+                <span class="material-symbols-outlined" style="vertical-align: middle; margin-right: 8px;">add</span> Add Stream
             </button>
             <button class="btn btn-success" onclick="exportStreams()" style="border-radius: 25px;">
-                <span class="material-icons" style="vertical-align: middle; margin-right: 8px;">download</span> Export
+                <span class="material-symbols-outlined" style="vertical-align: middle; margin-right: 8px;">download</span> Export
             </button>
         </div>
 
@@ -581,10 +585,10 @@ $school_name = $_SESSION['school_name'] ?? 'School';
                             <td>
                                 <div class="action-buttons-cell">
                                     <button class="btn btn-sm btn-action" onclick="alert('Edit functionality requires individual stream selection')">
-                                        <i class="fas fa-edit"></i>
+                                        <span class="material-symbols-outlined">edit</span>
                                     </button>
                                     <button class="btn btn-sm btn-action" onclick="alert('Delete functionality requires individual stream selection')">
-                                        <i class="fas fa-trash"></i>
+                                        <span class="material-symbols-outlined">delete</span>
                                     </button>
                                 </div>
                             </td>

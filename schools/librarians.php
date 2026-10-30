@@ -537,7 +537,7 @@ try {
                     <div class="col-md-6 mb-3">
                         <label class="form-label">&nbsp;</label>
                         <button type="submit" name="add_librarian" class="btn btn-primary">
-                            <span class="material-icons" style="vertical-align: middle; margin-right: 8px;">add</span> Add Librarian
+                            <span class="material-symbols-outlined" style="vertical-align: middle; margin-right: 8px;">add</span> Add Librarian
                         </button>
                     </div>
                 </div>
@@ -585,13 +585,13 @@ try {
                                             <input type="hidden" name="librarian_id" value="<?php echo $librarian['id']; ?>">
                                             <input type="hidden" name="status" value="<?php echo $librarian['status'] === 'active' ? 'inactive' : 'active'; ?>">
                                             <button type="submit" name="update_status" class="btn-action" title="<?php echo $librarian['status'] === 'active' ? 'Deactivate' : 'Activate'; ?>">
-                                                <span class="material-icons"><?php echo $librarian['status'] === 'active' ? 'toggle_on' : 'toggle_off'; ?></span>
+                                                <span class="material-symbols-outlined"><?php echo $librarian['status'] === 'active' ? 'toggle_on' : 'toggle_off'; ?></span>
                                             </button>
                                         </form>
                                         <form method="POST" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this librarian?');">
                                             <input type="hidden" name="librarian_id" value="<?php echo $librarian['id']; ?>">
                                             <button type="submit" name="delete_librarian" class="btn-action" title="Delete">
-                                                <span class="material-icons" style="color: #d93025;">delete</span>
+                                                <span class="material-symbols-outlined" style="color: #d93025;">delete</span>
                                             </button>
                                         </form>
                                     </td>

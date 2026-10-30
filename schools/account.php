@@ -108,15 +108,14 @@ if (empty($_SESSION['csrf_token'])) {
     <meta name="theme-color" content="#FF6B35">
     <title>Account Balance - <?php echo htmlspecialchars($school_name); ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
     <link rel="stylesheet" href="../assets/css/notifications.css">
     <style>
         :root {
             --primary-color: #FF6B35;
             --secondary-color: #5f6368;
-            --bg-color: #f8f9fa;
-            --card-bg: #f8f9fa;
+            --bg-color: #F0F4F9;
+            --card-bg: #F0F4F9;
         }
         
         * {
@@ -130,6 +129,16 @@ if (empty($_SESSION['csrf_token'])) {
             font-family: 'Google Sans', 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             font-size: 14px;
             color: #202124;
+        }
+
+        .material-symbols-outlined {
+            font-size: 24px;
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
         }
 
         .main-content {
@@ -459,7 +468,7 @@ if (empty($_SESSION['csrf_token'])) {
             
             <?php if (empty($school_withdrawal_pin)): ?>
                 <div class="alert alert-warning">
-                    <i class="fas fa-exclamation-triangle me-2"></i> 
+                    <span class="material-symbols-outlined me-2">warning</span> 
                     <strong>No withdrawal PIN set.</strong> Please set your withdrawal PIN in <a href="settings">Settings</a> before making withdrawals.
                 </div>
             <?php else: ?>
@@ -471,7 +480,7 @@ if (empty($_SESSION['csrf_token'])) {
                 <!-- PIN Verification Section -->
                 <div id="pinVerificationSection" style="display: none;">
                     <div class="alert alert-info">
-                        <i class="fas fa-lock me-2"></i> Enter your withdrawal PIN to proceed
+                        <span class="material-symbols-outlined me-2">lock</span> Enter your withdrawal PIN to proceed
                     </div>
                     <div style="margin-bottom: 20px;">
                         <label for="withdrawalPin" style="display: block; margin-bottom: 8px; color: #202124; font-weight: 500;">Withdrawal PIN</label>
@@ -479,7 +488,7 @@ if (empty($_SESSION['csrf_token'])) {
                     </div>
                     <div style="display: flex; gap: 15px;">
                         <button type="button" class="btn btn-orange" onclick="verifyWithdrawalPin()">
-                            <i class="fas fa-check"></i> Verify PIN
+                            <span class="material-symbols-outlined">check</span> Verify PIN
                         </button>
                         <button type="button" class="btn btn-secondary" onclick="hidePinVerification()">
                             Cancel
@@ -538,7 +547,7 @@ if (empty($_SESSION['csrf_token'])) {
                     
                     <div style="display: flex; gap: 15px;">
                         <button type="submit" class="btn btn-orange">
-                            <i class="fas fa-paper-plane"></i> Withdraw Money
+                            <span class="material-symbols-outlined">send</span> Withdraw Money
                         </button>
                         <button type="button" class="btn btn-secondary" onclick="hidePinVerification()">
                             Cancel
@@ -934,7 +943,7 @@ if (empty($_SESSION['csrf_token'])) {
             
             // Show loading state
             submitBtn.disabled = true;
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+            submitBtn.innerHTML = '<span class="material-symbols-outlined" style="animation: spin 1s linear infinite;">refresh</span> Processing...';
             
             // Show loading modal
             showWithdrawalModal('Initiating Withdrawal', 'Please wait while we initiate your withdrawal request...', 'loading');
@@ -989,7 +998,7 @@ if (empty($_SESSION['csrf_token'])) {
             })
             .finally(() => {
                 submitBtn.disabled = false;
-                submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Withdraw Money';
+                submitBtn.innerHTML = '<span class="material-symbols-outlined">send</span> Withdraw Money';
             });
         });
 

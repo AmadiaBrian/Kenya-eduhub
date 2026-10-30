@@ -230,8 +230,8 @@ $csrf_token = generateCSRFLite();
         :root {
             --primary-color: #1a73e8;
             --secondary-color: #5f6368;
-            --bg-color: #f8f9fa;
-            --card-bg: #f8f9fa;
+            --bg-color: #F0F4F9;
+            --card-bg: #F0F4F9;
             --sidebar-width: 256px;
             --header-height: 64px;
             --primary-orange: #FF6B35;
@@ -1340,7 +1340,7 @@ $csrf_token = generateCSRFLite();
         }
         
         .stat-card {
-            background: var(--bg-color, #f8f9fa);
+            background: var(--bg-color, #F0F4F9);
             border: 1px solid #e8eaed;
             border-radius: 8px;
             padding: 20px;

@@ -33,7 +33,7 @@ if (!isset($_SESSION['user_id'])) {
 // Session timeout check
 try {
     if (!checkSessionTimeout($conn)) {
-        header('Location: ../auth/logout');
+        header('Location: ../auth/login');
         exit;
     }
 } catch (Exception $e) {

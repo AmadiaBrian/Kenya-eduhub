@@ -10,8 +10,13 @@ require_once __DIR__ . '/../config.php';
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Page Not Found - Kenya EduHub</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
     <style>
+        .material-symbols-outlined {
+            font-size: 24px;
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
         body {
             background: var(--card-bg, #f8f9fa);
             min-height: 100vh;
@@ -65,7 +70,7 @@ require_once __DIR__ . '/../config.php';
         <div class="error-message">Page Not Found</div>
         <p style="color: #5f6368; margin-bottom: 30px;">The page you're looking for doesn't exist or has been moved.</p>
         <a href="dashboard" class="btn-home">
-            <i class="fas fa-home"></i> Go to Dashboard
+            <span class="material-symbols-outlined">home</span> Go to Dashboard
         </a>
     </div>
 

@@ -144,14 +144,12 @@ if ($parent) {
     <meta name="theme-color" content="#FF6B35">
     <title>Results - <?php echo htmlspecialchars($parent_name); ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
     <link rel="stylesheet" href="../assets/css/notifications.css">
     <style>
         :root {
             --primary-color: #FF6B35;
             --secondary-color: #5f6368;
-            --bg-color: #f8f9fa;
-            --card-bg: #ffffff;
             --sidebar-width: 256px;
             --header-height: 64px;
         }
@@ -167,6 +165,11 @@ if ($parent) {
             font-family: 'Google Sans', 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             font-size: 14px;
             color: #202124;
+        }
+
+        .material-symbols-outlined {
+            font-size: 24px;
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
         }
         
         /* Header */
@@ -216,8 +219,8 @@ if ($parent) {
             font-weight: 400;
             color: #202124;
         }
-        
-        .logo i {
+
+        .logo .material-symbols-outlined {
             color: var(--primary-color);
         }
         
@@ -293,8 +296,8 @@ if ($parent) {
             background: #e8f0fe;
             color: var(--primary-color);
         }
-        
-        .nav-link i {
+
+        .nav-link .material-symbols-outlined {
             margin-right: 12px;
             font-size: 18px;
             width: 24px;
@@ -472,6 +475,22 @@ if ($parent) {
             }
         }
         
+        /* Material Symbols Styling */
+        .material-symbols-outlined {
+            font-size: 24px;
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        /* Spinning animation for Material Symbols */
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .fa-spin {
+            animation: spin 1s linear infinite;
+        }
+
         /* Icon colors */
         .fa-search { color: #4285F4; }
         .fa-print { color: #00AC47; }
@@ -623,19 +642,19 @@ if ($parent) {
                 <div class="col-md-3">
                     <label class="form-label">&nbsp;</label>
                     <button class="btn btn-primary w-100" onclick="loadResults()">
-                        <i class="fas fa-search me-1"></i> Load Results
+                        <span class="material-symbols-outlined me-1">search</span> Load Results
                     </button>
                 </div>
                 <div class="col-md-3">
                     <label class="form-label">&nbsp;</label>
                     <button class="btn btn-success w-100" onclick="showPrintDialog()">
-                        <i class="fas fa-print me-1"></i> Print Results
+                        <span class="material-symbols-outlined me-1">print</span> Print Results
                     </button>
                 </div>
                 <div class="col-md-3">
                     <label class="form-label">&nbsp;</label>
                     <button class="btn btn-secondary w-100" onclick="resetFilters()">
-                        <i class="fas fa-redo me-1"></i> Reset Filters
+                        <span class="material-symbols-outlined me-1">refresh</span> Reset Filters
                     </button>
                 </div>
             </div>
@@ -643,7 +662,7 @@ if ($parent) {
 
         <div id="resultsContainer">
             <div class="text-center py-5">
-                <i class="fas fa-award fa-3x text-muted mb-3"></i>
+                <span class="material-symbols-outlined fa-3x text-muted mb-3">school</span>
                 <p class="text-muted">Select filters and click "Load Results" to view student results</p>
             </div>
         </div>
@@ -796,14 +815,14 @@ if ($parent) {
         // Load results
         async function loadResults() {
             const container = document.getElementById('resultsContainer');
-            container.innerHTML = '<div class="text-center py-5"><i class="fas fa-spinner fa-spin fa-2x text-muted"></i><p class="text-muted mt-2">Loading results...</p></div>';
+            container.innerHTML = '<div class="text-center py-5"><span class="material-symbols-outlined fa-spin fa-2x text-muted">refresh</span><p class="text-muted mt-2">Loading results...</p></div>';
 
             const response = await loadPerformanceRecords();
             console.log('API Response:', response);
             
             // Check if response has data
             if (!response.success) {
-                container.innerHTML = '<div class="text-center py-5"><i class="fas fa-exclamation-triangle fa-3x text-danger mb-3"></i><p class="text-danger">Failed to load performance records: ' + (response.error || 'Unknown error') + '</p></div>';
+                container.innerHTML = '<div class="text-center py-5"><span class="material-symbols-outlined fa-3x text-danger mb-3">warning</span><p class="text-danger">Failed to load performance records: ' + (response.error || 'Unknown error') + '</p></div>';
                 return;
             }
             
@@ -871,7 +890,7 @@ if ($parent) {
             console.log('Filtered records:', filtered.length);
 
             if (filtered.length === 0) {
-                container.innerHTML = '<div class="text-center py-5"><i class="fas fa-inbox fa-3x text-muted mb-3"></i><p class="text-muted">No results found for the selected filters</p></div>';
+                container.innerHTML = '<div class="text-center py-5"><span class="material-symbols-outlined fa-3x text-muted mb-3">inbox</span><p class="text-muted">No results found for the selected filters</p></div>';
                 return;
             }
 
@@ -891,7 +910,7 @@ if ($parent) {
             for (const [examType, records] of Object.entries(groupedByExamType)) {
                 html += `
                     <h4 style="color: #FF6B35; margin-bottom: 15px; font-weight: 600; margin-top: 30px;">
-                        <i class="fas fa-clipboard-list me-2"></i>${examType}
+                        <span class="material-symbols-outlined me-2">list_alt</span>${examType}
                     </h4>
                 `;
 
@@ -1022,7 +1041,7 @@ if ($parent) {
                 if (ineligibleCount > 0) {
                     html += `
                         <div class="alert alert-warning" role="alert">
-                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            <span class="material-symbols-outlined me-2">warning</span>
                             ${ineligibleCount} student(s) not shown because they have fewer than ${schoolMinSubjects} subjects assigned.
                         </div>
                     `;
@@ -1031,7 +1050,7 @@ if ($parent) {
                 // Show message about grading method
                 html += `
                     <div class="alert alert-info" role="alert">
-                        <i class="fas fa-info-circle me-2"></i>
+                        <span class="material-symbols-outlined me-2">info</span>
                         Grading uses all compulsory subjects plus the best performing non-compulsory subjects to reach ${schoolMinSubjects} subjects total. Students must have at least ${schoolMinSubjects} subjects to be graded.
                     </div>
                 `;

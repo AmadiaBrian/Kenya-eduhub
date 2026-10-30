@@ -68,8 +68,8 @@ $active_schools = count(array_filter($schools, fn($s) => $s['status'] === 'activ
             --primary-orange: #FF6B35;
             --primary-gold: #FFD700;
             --secondary-color: #5f6368;
-            --bg-color: #f8f9fa;
-            --card-bg: #f8f9fa;
+            --bg-color: #F0F4F9;
+            --card-bg: #F0F4F9;
             --sidebar-width: 256px;
             --header-height: 64px;
             --text-color: #202124;
