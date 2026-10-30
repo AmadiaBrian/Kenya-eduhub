@@ -27,15 +27,14 @@ $school_name = $_SESSION['school_name'] ?? 'School';
     <meta name="theme-color" content="#FF6B35">
     <title>Teachers - <?php echo htmlspecialchars($school_name); ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
     <link rel="stylesheet" href="../assets/css/notifications.css">
     <style>
         :root {
             --primary-color: #1a73e8;
             --secondary-color: #5f6368;
-            --bg-color: #f8f9fa;
-            --card-bg: #f8f9fa;
+            --bg-color: #F0F4F9;
+            --card-bg: #F0F4F9;
         }
         
         * {
@@ -51,9 +50,13 @@ $school_name = $_SESSION['school_name'] ?? 'School';
             color: #202124;
         }
 
-        .material-icons {
-            vertical-align: middle;
-            font-size: 20px;
+        .material-symbols-outlined {
+            font-size: 24px;
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        .quick-access-icon .material-symbols-outlined {
+            color: #5f6368;
         }
 
         .main-content {
@@ -449,37 +452,37 @@ $school_name = $_SESSION['school_name'] ?? 'School';
         <div class="quick-access-grid">
             <a href="dashboard" class="quick-access-item">
                 <div class="quick-access-icon">
-                    <span class="material-icons" style="color: #5f6368;">dashboard</span>
+                    <span class="material-symbols-outlined">dashboard</span>
                 </div>
                 <div class="quick-access-label">Dashboard</div>
             </a>
             <a href="students" class="quick-access-item">
                 <div class="quick-access-icon">
-                    <span class="material-icons" style="color: #5f6368;">school</span>
+                    <span class="material-symbols-outlined">school</span>
                 </div>
                 <div class="quick-access-label">Students</div>
             </a>
             <a href="classes" class="quick-access-item">
                 <div class="quick-access-icon">
-                    <span class="material-icons" style="color: #5f6368;">class</span>
+                    <span class="material-symbols-outlined">class</span>
                 </div>
                 <div class="quick-access-label">Classes</div>
             </a>
             <a href="attendance" class="quick-access-item">
                 <div class="quick-access-icon">
-                    <span class="material-icons" style="color: #5f6368;">event_available</span>
+                    <span class="material-symbols-outlined">event_available</span>
                 </div>
                 <div class="quick-access-label">Attendance</div>
             </a>
             <a href="performance" class="quick-access-item">
                 <div class="quick-access-icon">
-                    <span class="material-icons" style="color: #5f6368;">show_chart</span>
+                    <span class="material-symbols-outlined">trending_up</span>
                 </div>
                 <div class="quick-access-label">Performance</div>
             </a>
             <a href="fees" class="quick-access-item">
                 <div class="quick-access-icon">
-                    <span class="material-icons" style="color: #5f6368;">payments</span>
+                    <span class="material-symbols-outlined">payments</span>
                 </div>
                 <div class="quick-access-label">Fees</div>
             </a>
@@ -532,10 +535,10 @@ $school_name = $_SESSION['school_name'] ?? 'School';
         <!-- Action Buttons -->
         <div class="d-flex flex-column gap-2 mb-3">
             <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addTeacherModal" style="border-radius: 25px;">
-                <span class="material-icons" style="vertical-align: middle; margin-right: 8px;">add</span> Add Teacher
+                <span class="material-symbols-outlined" style="vertical-align: middle; margin-right: 8px;">add</span> Add Teacher
             </button>
             <button class="btn btn-success" onclick="exportTeachers()" style="border-radius: 25px;">
-                <span class="material-icons" style="vertical-align: middle; margin-right: 8px;">download</span> Export
+                <span class="material-symbols-outlined" style="vertical-align: middle; margin-right: 8px;">download</span> Export
             </button>
         </div>
 
@@ -673,13 +676,13 @@ $school_name = $_SESSION['school_name'] ?? 'School';
                                         </div>
                                         <div class="col-md-4">
                                             <button type="button" class="btn btn-danger btn-sm" onclick="removeSubjectAssignment(this)">
-                                                <span class="material-icons">close</span>
+                                                <span class="material-symbols-outlined">close</span>
                                             </button>
                                         </div>
                                     </div>
                                 </div>
                                 <button type="button" class="btn btn-sm btn-secondary" onclick="addSubjectAssignment()">
-                                    <span class="material-icons" style="vertical-align: middle; margin-right: 8px;">add</span> Add Subject Assignment
+                                    <span class="material-symbols-outlined" style="vertical-align: middle; margin-right: 8px;">add</span> Add Subject Assignment
                                 </button>
                             </div>
                         </div>
@@ -769,7 +772,7 @@ $school_name = $_SESSION['school_name'] ?? 'School';
                                     <!-- Subject assignments will be loaded here -->
                                 </div>
                                 <button type="button" class="btn btn-sm btn-secondary" onclick="addEditSubjectAssignment()">
-                                    <span class="material-icons" style="vertical-align: middle; margin-right: 8px;">add</span> Add Subject Assignment
+                                    <span class="material-symbols-outlined" style="vertical-align: middle; margin-right: 8px;">add</span> Add Subject Assignment
                                 </button>
                             </div>
                         </div>
@@ -830,7 +833,7 @@ $school_name = $_SESSION['school_name'] ?? 'School';
                 </div>
                 <div class="col-md-4">
                     <button type="button" class="btn btn-danger btn-sm" onclick="removeSubjectAssignment(this)">
-                        <span class="material-icons">close</span>
+                        <span class="material-symbols-outlined">close</span>
                     </button>
                 </div>
             `;
@@ -859,7 +862,7 @@ $school_name = $_SESSION['school_name'] ?? 'School';
                 </div>
                 <div class="col-md-4">
                     <button type="button" class="btn btn-danger btn-sm" onclick="removeEditSubjectAssignment(this)">
-                        <span class="material-icons">close</span>
+                        <span class="material-symbols-outlined">close</span>
                     </button>
                 </div>
             `;
@@ -1135,10 +1138,10 @@ $school_name = $_SESSION['school_name'] ?? 'School';
                             <td>
                                 <div class="action-buttons-cell">
                                     <button class="btn btn-sm btn-action" onclick="editTeacher(${teacher.id})">
-                                        <span class="material-icons" style="color: #5f6368;">edit</span>
+                                        <span class="material-symbols-outlined" style="color: #5f6368;">edit</span>
                                     </button>
                                     <button class="btn btn-sm btn-action" onclick="deleteTeacher(${teacher.id})">
-                                        <span class="material-icons" style="color: #d93025;">delete</span>
+                                        <span class="material-symbols-outlined" style="color: #d93025;">delete</span>
                                     </button>
                                 </div>
                             </td>
@@ -1217,7 +1220,7 @@ $school_name = $_SESSION['school_name'] ?? 'School';
                             </div>
                             <div class="col-md-2">
                                 <button type="button" class="btn btn-danger btn-sm" onclick="removeSubjectAssignment(this)">
-                                    <span class="material-icons">close</span>
+                                    <span class="material-symbols-outlined">close</span>
                                 </button>
                             </div>
                         </div>
@@ -1289,7 +1292,7 @@ $school_name = $_SESSION['school_name'] ?? 'School';
                                     </div>
                                     <div class="col-md-4">
                                         <button type="button" class="btn btn-danger btn-sm" onclick="removeEditSubjectAssignment(this)">
-                                            <span class="material-icons">close</span>
+                                            <span class="material-symbols-outlined">close</span>
                                         </button>
                                     </div>
                                 `;

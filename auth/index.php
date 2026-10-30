@@ -17,6 +17,7 @@ $allowed_routes = [
     'forgot_password',
     'reset_password',
     'verify',
+    'resend',
     'logout',
     'verify-code'
 ];
@@ -37,14 +38,14 @@ if ($route === 'logout') {
             'user_email' => $_SESSION['user_email'] ?? 'unknown'
         ]);
     }
-    
+
     session_destroy();
-    header('Location: ../index.php');
+    header('Location: login');
     exit();
 }
 
 // For protected routes, redirect if already logged in
-$protected_routes = ['login', 'register', 'forgot_password'];
+$protected_routes = ['login', 'register', 'forgot_password', 'resend'];
 if (in_array($route, $protected_routes) && isset($_SESSION['user_id'])) {
     header('Location: ../dashboard');
     exit();
@@ -96,6 +97,8 @@ if ($route === 'login') {
     require __DIR__ . '/reset_password.php';
 } elseif ($route === 'verify') {
     require __DIR__ . '/verify.php';
+} elseif ($route === 'resend') {
+    require __DIR__ . '/resend.php';
 } elseif ($route === 'verify-code') {
     require __DIR__ . '/verify-code.php';
 } elseif ($route === 'logout') {

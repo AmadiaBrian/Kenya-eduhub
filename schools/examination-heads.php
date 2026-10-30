@@ -131,8 +131,7 @@ try {
     <meta name="theme-color" content="#FF6B35">
     <title>Examination Department Heads - <?php echo htmlspecialchars($school_name); ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
     <style>
         :root {
             --primary-color: #1a73e8;
@@ -460,10 +459,15 @@ try {
         .quick-access-item:nth-child(4) .quick-access-icon { background: #fef7e0; color: #FFBA00; }
         .quick-access-item:nth-child(5) .quick-access-icon { background: #e8f0fe; color: #0066DA; }
         .quick-access-item:nth-child(6) .quick-access-icon { background: #fce8e6; color: #4285F4; }
-        .fa-plus { color: #00AC47; }
-        .fa-download { color: #4285F4; }
-        .fa-edit { color: #0066DA; }
-        .fa-trash { color: #EA4335; }
+        .material-symbols-outlined {
+            font-size: 24px;
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body class="dashboard-page">
@@ -491,7 +495,7 @@ try {
         <!-- Add New Examination Head Form -->
         <div class="card">
             <div class="card-header">
-                <i class="fas fa-plus me-2"></i>Add New Examination Department Head
+                <span class="material-symbols-outlined" style="vertical-align: middle; margin-right: 8px;">add</span>Add New Examination Department Head
             </div>
             <div class="card-body">
                 <form method="POST">
@@ -528,10 +532,10 @@ try {
                             <div class="password-input-group" style="display: flex; gap: 8px;">
                                 <input type="password" class="form-control" id="password" name="password" required placeholder="Min 8 characters" style="flex: 1;">
                                 <button type="button" class="btn btn-secondary" onclick="togglePassword()" title="Show/Hide Password">
-                                    <i class="fas fa-eye" id="eyeIcon"></i>
+                                    <span class="material-symbols-outlined" id="eyeIcon">visibility</span>
                                 </button>
                                 <button type="button" class="btn btn-secondary" onclick="generatePassword()" title="Generate Random Password">
-                                    <i class="fas fa-key"></i>
+                                    <span class="material-symbols-outlined">key</span>
                                 </button>
                             </div>
                             <div style="margin-top: 8px;">
@@ -541,7 +545,7 @@ try {
                         </div>
                     </div>
                     <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-plus me-2"></i>Add Examination Head
+                        <span class="material-symbols-outlined" style="vertical-align: middle; margin-right: 8px;">add</span>Add Examination Head
                     </button>
                 </form>
             </div>
@@ -550,7 +554,7 @@ try {
         <!-- Examination Heads List -->
         <div class="card">
             <div class="card-header">
-                <i class="fas fa-list me-2"></i>Examination Department Heads List
+                <span class="material-symbols-outlined" style="vertical-align: middle; margin-right: 8px;">list_alt</span>Examination Department Heads List
             </div>
             <div class="card-body">
                 <?php if (empty($examination_heads)): ?>
@@ -586,14 +590,14 @@ try {
                                                 <input type="hidden" name="head_id" value="<?php echo $head['id']; ?>">
                                                 <input type="hidden" name="status" value="<?php echo $head['status'] === 'active' ? 'inactive' : 'active'; ?>">
                                                 <button type="submit" class="btn-action">
-                                                    <i class="fas fa-<?php echo $head['status'] === 'active' ? 'pause' : 'play'; ?>"></i>
+                                                    <span class="material-symbols-outlined"><?php echo $head['status'] === 'active' ? 'pause' : 'play_arrow'; ?></span>
                                                 </button>
                                             </form>
                                             <form method="POST" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this examination head?');">
                                                 <input type="hidden" name="action" value="delete">
                                                 <input type="hidden" name="head_id" value="<?php echo $head['id']; ?>">
                                                 <button type="submit" class="btn-action">
-                                                    <i class="fas fa-trash"></i>
+                                                    <span class="material-symbols-outlined">delete</span>
                                                 </button>
                                             </form>
                                         </td>
@@ -667,12 +671,10 @@ try {
             const eyeIcon = document.getElementById('eyeIcon');
             if (passwordInput.type === 'password') {
                 passwordInput.type = 'text';
-                eyeIcon.classList.remove('fa-eye');
-                eyeIcon.classList.add('fa-eye-slash');
+                eyeIcon.textContent = 'visibility_off';
             } else {
                 passwordInput.type = 'password';
-                eyeIcon.classList.remove('fa-eye-slash');
-                eyeIcon.classList.add('fa-eye');
+                eyeIcon.textContent = 'visibility';
             }
         }
     </script>

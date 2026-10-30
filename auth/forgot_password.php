@@ -393,7 +393,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['new_password']) && $s
             font-size: 24px;
         }
 
-        .login-card h3 {
+        .login-card h1 {
             font-size: 24px;
             font-weight: 400;
             color: #202124;
@@ -515,7 +515,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['new_password']) && $s
                 height: 45px;
             }
 
-            .login-card h3 {
+            .login-card h1 {
                 font-size: 20px;
             }
 
@@ -547,7 +547,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['new_password']) && $s
                 height: 40px;
             }
 
-            .login-card h3 {
+            .login-card h1 {
                 font-size: 18px;
             }
         }
@@ -561,7 +561,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['new_password']) && $s
 
         <br>
 
-        <h3>Reset Password</h3>
+        <h1>Reset Password</h1>
 
         <?php if ($message): ?>
             <?php if ($message_type === 'error'): ?>

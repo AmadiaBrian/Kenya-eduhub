@@ -122,13 +122,11 @@ try {
     <meta name="theme-color" content="#FF6B35">
     <title>Fines - <?php echo htmlspecialchars($parent_name); ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
     <style>
         :root {
             --primary-color: #FF6B35;
             --secondary-color: #5f6368;
-            --bg-color: #f8f9fa;
-            --card-bg: #ffffff;
             --sidebar-width: 256px;
             --header-height: 64px;
         }
@@ -144,6 +142,16 @@ try {
             font-family: 'Google Sans', 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             font-size: 14px;
             color: #202124;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .material-symbols-outlined {
+            font-size: 24px;
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
         }
         
         /* Header */
@@ -609,14 +617,14 @@ try {
         
         <?php if (empty($children)): ?>
             <div class="alert alert-info">
-                <i class="fas fa-info-circle"></i> No children linked to your account. Please contact the school administration.
+                <span class="material-symbols-outlined">info</span> No children linked to your account. Please contact the school administration.
             </div>
         <?php else: ?>
             <!-- Overdue Books Warning -->
             <?php if (!empty($overdue_books)): ?>
                 <div class="alert alert-warning" style="border-left: 4px solid #fbbc04;">
                     <div style="display: flex; align-items: flex-start; gap: 12px;">
-                        <i class="fas fa-exclamation-triangle" style="font-size: 20px; margin-top: 2px;"></i>
+                        <span class="material-symbols-outlined" style="font-size: 20px; margin-top: 2px;">warning</span>
                         <div style="flex: 1;">
                             <strong style="font-size: 16px; display: block; margin-bottom: 8px;">Overdue Books Alert</strong>
                             <p style="margin: 0 0 12px 0; font-size: 14px; line-height: 1.5;">
@@ -653,7 +661,7 @@ try {
                                 </table>
                             </div>
                             <p style="margin: 12px 0 0 0; font-size: 13px; color: #5f6368; font-style: italic;">
-                                <i class="fas fa-lightbulb"></i> Please advise your child(ren) to return these books to the library as soon as possible.
+                                <span class="material-symbols-outlined" style="font-size: 16px; vertical-align: middle;">lightbulb</span> Please advise your child(ren) to return these books to the library as soon as possible.
                             </p>
                         </div>
                     </div>
@@ -702,7 +710,7 @@ try {
                 <h2 class="card-title">Fines for Your Children</h2>
                 <?php if (empty($fines)): ?>
                     <div class="alert alert-info">
-                        <i class="fas fa-check-circle"></i> No fines found for your children. Keep up the good work!
+                        <span class="material-symbols-outlined">check_circle</span> No fines found for your children. Keep up the good work!
                     </div>
                 <?php else: ?>
                     <div class="table-responsive">
@@ -748,7 +756,7 @@ try {
                                         <td>
                                             <?php if ($fine['status'] === 'unpaid' || $fine['status'] === 'partial' || $fine['status'] === 'pending'): ?>
                                                 <button class="btn btn-sm btn-primary" onclick="openPaymentModal(<?php echo $fine['id']; ?>, <?php echo $fine['amount'] - $fine['amount_paid']; ?>)">
-                                                    <i class="fas fa-money-bill"></i> Pay
+                                                    <span class="material-symbols-outlined">payments</span> Pay
                                                 </button>
                                             <?php else: ?>
                                                 <span style="color: #5f6368;">-</span>
@@ -869,7 +877,7 @@ try {
             
             // MPESA payment
             submitBtn.disabled = true;
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Processing...';
+            submitBtn.innerHTML = '<span class="material-symbols-outlined" style="animation: spin 1s linear infinite;">refresh</span> Processing...';
             
             const formData = new FormData();
             formData.append('fine_id', fineId);

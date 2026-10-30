@@ -34,8 +34,8 @@ $school_name = $_SESSION['school_name'] ?? 'School';
         :root {
             --primary-color: #1a73e8;
             --secondary-color: #5f6368;
-            --bg-color: #f8f9fa;
-            --card-bg: #f8f9fa;
+            --bg-color: #F0F4F9;
+            --card-bg: #F0F4F9;
         }
         
         * {
@@ -419,10 +419,10 @@ $school_name = $_SESSION['school_name'] ?? 'School';
         <!-- Action Buttons -->
         <div class="d-flex flex-column gap-2 mb-3">
             <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addClassModal" style="border-radius: 25px;">
-                <span class="material-icons" style="vertical-align: middle; margin-right: 8px;">add</span> Add Class
+                <span class="material-symbols-outlined" style="vertical-align: middle; margin-right: 8px;">add</span> Add Class
             </button>
             <button class="btn btn-success" onclick="exportClasses()" style="border-radius: 25px;">
-                <span class="material-icons" style="vertical-align: middle; margin-right: 8px;">download</span> Export
+                <span class="material-symbols-outlined" style="vertical-align: middle; margin-right: 8px;">download</span> Export
             </button>
         </div>
 
@@ -548,10 +548,10 @@ $school_name = $_SESSION['school_name'] ?? 'School';
                             <td>
                                 <div class="action-buttons-cell">
                                     <button class="btn btn-sm btn-action" onclick="editClass(${cls.id})">
-                                        <span class="material-icons" style="color: #5f6368;">edit</span>
+                                        <span class="material-symbols-outlined" style="color: #5f6368;">edit</span>
                                     </button>
                                     <button class="btn btn-sm btn-action" onclick="deleteClass(${cls.id})">
-                                        <span class="material-icons" style="color: #d93025;">delete</span>
+                                        <span class="material-symbols-outlined" style="color: #d93025;">delete</span>
                                     </button>
                                 </div>
                             </td>

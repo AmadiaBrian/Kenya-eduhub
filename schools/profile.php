@@ -155,8 +155,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['upload_logo'])) {
         :root {
             --primary-color: #FF6B35;
             --secondary-color: #5f6368;
-            --bg-color: #f8f9fa;
-            --card-bg: #ffffff;
+            --bg-color: #F0F4F9;
+            --card-bg: #F0F4F9;
         }
 
         * {
@@ -367,7 +367,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['upload_logo'])) {
                     <small class="text-muted">This prefix will be used for all student admission numbers. Example: TKNP/B/7280</small>
                 </div>
                 <button type="submit" name="update_profile" class="btn btn-primary">
-                    <span class="material-icons" style="vertical-align: middle; margin-right: 8px;">save</span> Update Profile
+                    <span class="material-symbols-outlined" style="vertical-align: middle; margin-right: 8px;">save</span> Update Profile
                 </button>
             </form>
         </div>
@@ -389,7 +389,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['upload_logo'])) {
                     <input type="password" class="form-control" name="confirm_password" placeholder="Confirm new password" required minlength="8">
                 </div>
                 <button type="submit" name="change_password" class="btn btn-primary">
-                    <span class="material-icons" style="vertical-align: middle; margin-right: 8px;">key</span> Change Password
+                    <span class="material-symbols-outlined" style="vertical-align: middle; margin-right: 8px;">key</span> Change Password
                 </button>
             </form>
         </div>
@@ -414,7 +414,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['upload_logo'])) {
                     <small class="text-muted">Accepted formats: JPG, PNG. Maximum size: 2MB</small>
                 </div>
                 <button type="submit" name="upload_logo" class="btn btn-primary">
-                    <span class="material-icons" style="vertical-align: middle; margin-right: 8px;">upload</span> Upload Logo
+                    <span class="material-symbols-outlined" style="vertical-align: middle; margin-right: 8px;">upload</span> Upload Logo
                 </button>
             </form>
         </div>

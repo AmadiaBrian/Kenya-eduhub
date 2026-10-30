@@ -52,18 +52,87 @@ try {
     <meta name="theme-color" content="#FF6B35">
     <title>Calendar - <?php echo htmlspecialchars($parent_name); ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
     <link rel="stylesheet" href="../assets/css/notifications.css">
     <style>
         :root {
             --primary-color: #FF6B35;
+            --secondary-color: #5f6368;
+            --bg-color: #f8f9fa;
+            --card-bg: #ffffff;
+            --sidebar-width: 256px;
+            --header-height: 64px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
         body {
-            background: #f8f9fa;
+            background: var(--bg-color);
             font-family: 'Google Sans', 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             font-size: 14px;
             color: #202124;
+        }
+
+        .material-symbols-outlined {
+            font-size: 24px;
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        /* Header */
+        .header {
+            position: fixed !important;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: var(--header-height);
+            background: var(--bg-color);
+            border-bottom: 1px solid #e8eaed;
+            display: flex;
+            align-items: center;
+            padding: 0 24px;
+            z-index: 1000;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            top: var(--header-height);
+            left: 0;
+            width: var(--sidebar-width);
+            height: calc(100vh - var(--header-height));
+            background: var(--bg-color);
+            overflow-y: auto;
+            transition: transform 0.3s ease;
+            z-index: 999;
+        }
+
+        .sidebar.collapsed {
+            transform: translateX(-256px);
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            margin-top: var(--header-height);
+            padding: 24px;
+            min-height: calc(100vh - var(--header-height));
+            transition: margin-left 0.3s ease;
+        }
+
+        .main-content.expanded {
+            margin-left: 0;
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 500;
+            color: #202124;
+            margin-bottom: 16px;
+            text-align: center;
         }
 
         .page-title {
@@ -75,25 +144,13 @@ try {
         }
 
         .card {
-            background: #f8f9fa;
-            border: 1px solid #e0e0e0;
+            background: var(--card-bg);
+            border: 1px solid #e8eaed;
             border-radius: 8px;
             padding: 24px;
             margin-bottom: 24px;
             width: 100%;
             max-width: 100%;
-        }
-
-        .card-body {
-            padding: 0;
-        }
-
-        .card-title {
-            font-size: 18px;
-            font-weight: 500;
-            color: #202124;
-            margin-bottom: 16px;
-            text-align: center;
         }
 
         /* Status Badge */
@@ -120,14 +177,10 @@ try {
             color: #f9ab00;
         }
 
-        /* Icon colors - Google Search Console style (gray) */
-        .fa-plus, .fa-edit, .fa-trash, .fa-download, .fa-print, .fa-filter,
-        .fa-calendar, .fa-calendar-alt, .fa-calendar-check, .fa-check-circle,
-        .fa-exclamation-circle, .fa-exclamation-triangle, .fa-info-circle,
-        .fa-search, .fa-sms, .fa-award, .fa-chart-line, .fa-redo,
-        .fa-user-graduate, .fa-book, .fa-users, .fa-clipboard-list,
-        .fa-money-bill-wave, .fa-home, .fa-user, .fa-sign-out-alt {
-            color: #5f6368;
+        /* Material Symbols Styling */
+        .material-symbols-outlined {
+            font-size: 24px;
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
         }
 
         /* Table - PDF Style */
@@ -194,7 +247,7 @@ try {
         }
     </style>
 </head>
-<body class="dashboard-page">
+<body>
     <?php require_once 'includes/header.php'; ?>
     <?php $active_page = 'calendar'; require_once 'includes/sidebar.php'; ?>
 

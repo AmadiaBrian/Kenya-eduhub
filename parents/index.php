@@ -121,7 +121,7 @@ if ($route === 'login') {
     <meta name="theme-color" content="#FF6B35">
     <title>Parent Login - Kenya EduHub</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
     <style>
         * {
             margin: 0;
@@ -130,13 +130,18 @@ if ($route === 'login') {
         }
         
         body {
-            background: var(--card-bg, #f8f9fa);
+            background: #F0F4F9;
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
             font-family: 'Google Sans', 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             color: #202124;
+        }
+
+        .material-symbols-outlined {
+            font-size: 24px;
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
         }
         
         .login-container {
@@ -174,13 +179,13 @@ if ($route === 'login') {
             outline: none;
             transition: border-color 0.2s, box-shadow 0.2s;
             font-family: inherit;
-            background: var(--card-bg, #f8f9fa);
+            background: #F0F4F9;
         }
 
         .form-control:focus {
             border-color: #FF6B35;
             box-shadow: 0 0 0 2px rgba(255, 107, 53, 0.2);
-            background: var(--card-bg, #f8f9fa);
+            background: #F0F4F9;
         }
         
         .form-control::placeholder {
@@ -409,7 +414,7 @@ if ($route === 'login') {
         
         <div class="back-link">
             <a href="../index.php">
-                <i class="fas fa-arrow-left"></i> Back to Home
+                <span class="material-symbols-outlined">arrow_back</span> Back to Home
             </a>
         </div>
     </div>

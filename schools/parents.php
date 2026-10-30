@@ -45,8 +45,8 @@ try {
         :root {
             --primary-color: #1a73e8;
             --secondary-color: #5f6368;
-            --bg-color: #f8f9fa;
-            --card-bg: #f8f9fa;
+            --bg-color: #F0F4F9;
+            --card-bg: #F0F4F9;
         }
         
         * {
@@ -573,10 +573,10 @@ try {
         <!-- Action Buttons -->
         <div class="main-action-buttons">
             <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addParentModal">
-                <span class="material-icons" style="vertical-align: middle; margin-right: 8px;">add</span> Add Parent
+                <span class="material-symbols-outlined" style="vertical-align: middle; margin-right: 8px;">add</span> Add Parent
             </button>
             <button class="btn btn-success" onclick="exportParents()">
-                <span class="material-icons" style="vertical-align: middle; margin-right: 8px;">download</span> Export
+                <span class="material-symbols-outlined" style="vertical-align: middle; margin-right: 8px;">download</span> Export
             </button>
         </div>
 
@@ -780,10 +780,10 @@ try {
                             <td>
                                 <div class="action-buttons">
                                     <button class="btn-action" onclick="editParent(${parent.id})">
-                                        <span class="material-icons" style="color: #5f6368;">edit</span>
+                                        <span class="material-symbols-outlined" style="color: #5f6368;">edit</span>
                                     </button>
                                     <button class="btn-action" onclick="deleteParent(${parent.id})">
-                                        <span class="material-icons" style="color: #d93025;">delete</span>
+                                        <span class="material-symbols-outlined" style="color: #d93025;">delete</span>
                                     </button>
                                 </div>
                             </td>

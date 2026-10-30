@@ -9,7 +9,7 @@
 
 <style>
     .kenya-eduhub-footer-unique-2026 {
-        background: var(--card-bg, #f8f9fa);
+        background: #F0F4F9;
         color: var(--text-color, #202124);
         padding: 2rem;
         text-align: center;

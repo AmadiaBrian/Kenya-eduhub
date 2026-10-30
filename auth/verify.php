@@ -11,8 +11,34 @@ if (!isset($_SESSION['verification_email']) && !isset($_SESSION['verification_ph
 // Store email/phone in local variable in case session gets cleared
 $email = $_SESSION['verification_email'] ?? null;
 $phone = $_SESSION['verification_phone'] ?? null;
+$name = '';
 $errors = [];
 $success = '';
+
+// Fetch user details if email or phone is available
+if ($email || $phone) {
+    if ($email) {
+        $stmt = $conn->prepare("SELECT name, phone FROM users WHERE email = ?");
+        $stmt->bind_param("s", $email);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        if ($result->num_rows > 0) {
+            $user = $result->fetch_assoc();
+            $name = $user['name'];
+            $phone = $user['phone'] ?? $phone;
+        }
+    } elseif ($phone) {
+        $stmt = $conn->prepare("SELECT name, email FROM users WHERE phone = ?");
+        $stmt->bind_param("s", $phone);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        if ($result->num_rows > 0) {
+            $user = $result->fetch_assoc();
+            $name = $user['name'];
+            $email = $user['email'] ?? $email;
+        }
+    }
+}
 
 // Check resend cooldown based on attempt count
 $can_resend = true;
@@ -120,9 +146,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#FF6B35">
-    <title>Verify Email - Kenya EduHub</title>
+    <meta property="og:image" content="https://kenyaeduhub.kesug.com/assets/favicon.ico">
+    <link rel="icon" type="image/x-icon" href="https://kenyaeduhub.kesug.com/assets/favicon.ico" />
+    <link rel="apple-touch-icon" href="https://kenyaeduhub.kesug.com/assets/favicon.ico">
+    <title>Verify Account - Kenya EduHub</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
     <style>
         * {
             margin: 0;
@@ -130,8 +159,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             box-sizing: border-box;
         }
 
+        .material-symbols-outlined {
+            font-size: 24px;
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
         body {
-            background: #ffffff;
+            background: #F0F4F9;
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -157,32 +196,61 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             font-weight: bold;
             color: #202124;
             margin-bottom: 8px;
+            margin-top: -10px;
         }
 
-        .auth-brand-logo .logo-circle {
-            width: 50px;
-            height: 50px;
-            background: #FFD700;
-            border: 3px solid #FF6B35;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-right: 2px;
-            flex-shrink: 0;
-        }
-
-        .auth-brand-logo .logo-circle span {
-            font-weight: bold;
-            font-size: 24px;
-        }
-
-        .verify-card h3 {
+        .verify-card h1 {
             font-size: 24px;
             font-weight: 400;
             color: #202124;
             margin-bottom: 8px;
             text-align: center;
+        }
+
+        .welcome-section {
+            background: #F0F4F9;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 24px;
+            text-align: center;
+        }
+
+        .welcome-text {
+            font-size: 18px;
+            font-weight: 500;
+            color: #202124;
+            margin-bottom: 16px;
+        }
+
+        .user-details {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .detail-item {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 14px;
+            color: #5f6368;
+        }
+
+        .detail-icon {
+            font-size: 18px;
+            color: #FF6B35;
+        }
+
+        .detail-text {
+            font-weight: 500;
+        }
+
+        .verify-instruction {
+            font-size: 13px;
+            color: #5f6368;
+            margin-top: 12px;
         }
 
         .verify-form {
@@ -214,13 +282,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             text-align: center;
             letter-spacing: 0.1em;
             font-weight: 600;
-            background: #f8f9fa;
+            background: #F0F4F9;
         }
 
         .form-control:focus {
             border-color: #FF6B35;
             box-shadow: 0 0 0 2px rgba(255, 107, 53, 0.2);
-            background: #f8f9fa;
+            background: #F0F4F9;
         }
 
         .form-control::placeholder {
@@ -270,17 +338,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             border: 1px solid #e6f4ea;
         }
 
-        .email-display {
-            background: #f8f9fa;
-            border: 1px solid #dadce0;
-            border-radius: 8px;
-            padding: 12px 16px;
-            margin-bottom: 24px;
-            text-align: center;
-            font-weight: 500;
-            color: #5f6368;
-        }
-
         .verify-links {
             text-align: center;
             margin-top: 24px;
@@ -313,7 +370,101 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 height: 45px;
             }
 
-            .verify-card h3 {
+            .verify-card h1 {
+                font-size: 20px;
+            }
+
+            .welcome-section {
+                padding: 16px;
+            }
+
+            .welcome-text {
+                font-size: 16px;
+            }
+
+            .user-details {
+                gap: 10px;
+            }
+
+            .detail-item {
+                font-size: 13px;
+            }
+
+            .detail-icon {
+                font-size: 16px;
+            }
+
+            .verify-instruction {
+                font-size: 12px;
+            }
+
+            .form-control {
+                font-size: 16px;
+            }
+
+            .btn-primary {
+                font-size: 14px;
+                padding: 12px 20px;
+            }
+
+            .verify-links {
+                font-size: 13px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .verify-card {
+                padding: 24px 20px 20px;
+            }
+
+            .auth-brand-logo {
+                font-size: 1.2rem;
+            }
+
+            .auth-brand-logo .logo-circle {
+                width: 40px;
+                height: 40px;
+            }
+
+            .verify-card h1 {
+                font-size: 18px;
+            }
+
+            .welcome-section {
+                padding: 12px;
+            }
+
+            .welcome-text {
+                font-size: 15px;
+            }
+
+            .detail-item {
+                font-size: 12px;
+                gap: 6px;
+            }
+
+            .detail-icon {
+                font-size: 14px;
+            }
+        }
+
+        /* Responsive - Mobile */
+        @media (max-width: 768px) {
+            .verify-card {
+                padding: 32px 24px 24px;
+                max-width: 100%;
+            }
+
+            .auth-brand-logo {
+                font-size: 1.3rem;
+            }
+
+            .auth-brand-logo .logo-circle {
+                width: 45px;
+                height: 45px;
+            }
+
+            .verify-card h1 {
                 font-size: 20px;
             }
 
@@ -345,22 +496,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 height: 40px;
             }
 
-            .verify-card h3 {
+            .verify-card h1 {
                 font-size: 18px;
             }
         }
     </style>
 </head>
 <body class="login-page">
-    <main class="verify-card" role="main" aria-label="Email Verification Form">
+    <main class="verify-card" role="main" aria-label="Account Verification Form">
         <div class="auth-brand-logo" aria-label="Kenya EduHub Logo">
-            <div class="logo-circle">
-                <span style="color: #FF6B35; font-size: 28px;">K</span><span style="color: #008000; font-size: 24px;">E</span>
-            </div>
-            <span class="brand-text"><span style="color: #FF6B35;">Kenya</span> <span style="color: #008000;">EduHub</span></span>
+            <?php require_once '../includes/logo.php'; ?>
         </div>
 
-        <h3>Verify Email</h3>
+        <h1>Verify Account</h1>
+
+        <div class="welcome-section">
+            <p class="welcome-text">Welcome, <?php echo htmlspecialchars($name); ?>!</p>
+            <div class="user-details">
+                <div class="detail-item">
+                    <span class="material-symbols-outlined detail-icon">mail</span>
+                    <span class="detail-text"><?php echo htmlspecialchars($email); ?></span>
+                </div>
+                <?php if ($phone): ?>
+                <div class="detail-item">
+                    <span class="material-symbols-outlined detail-icon">smartphone</span>
+                    <span class="detail-text"><?php echo htmlspecialchars($phone); ?></span>
+                </div>
+                <?php endif; ?>
+            </div>
+            <p class="verify-instruction">Please verify your account to continue</p>
+        </div>
 
         <?php if (isset($_SESSION['success'])): ?>
             <div class="alert-success" role="alert">
@@ -375,11 +540,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <?php endforeach; ?>
             </div>
         <?php endif; ?>
-
-        <div class="email-display">
-            <i class="fas fa-<?php echo $phone ? 'mobile-alt' : '-envelope'; ?> me-2"></i>
-            <?php echo htmlspecialchars($phone ? $phone : $email); ?>
-        </div>
 
         <form method="POST" novalidate class="verify-form">
             <div class="form-group">
@@ -398,8 +558,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 />
             </div>
 
-            <button type="submit" class="btn btn-primary" aria-label="Verify email address">
-                Verify Email
+            <button type="submit" class="btn btn-primary" aria-label="Verify account">
+                Verify Account
             </button>
         </form>
 
@@ -407,9 +567,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <a href="register">Register again</a>
             <br><br>
             <div style="margin-top: 16px;">
+                <p style="font-size: 13px; color: #5f6368; margin-bottom: 8px;">Need to enter your email again?</p>
+                <a href="resend" aria-label="Enter email to resend code" style="color: #FF6B35; text-decoration: none;">Resend Code</a>
+            </div>
+            <br><br>
+            <div style="margin-top: 16px;">
                 <p style="font-size: 13px; color: #5f6368; margin-bottom: 8px;">Didn't receive the code?</p>
                 <?php if ($phone): ?>
-                    <a href="#" id="resendSmsLink" onclick="resendCode('sms', event)" <?php echo !$can_resend ? 'style="color: #9aa0a6; pointer-events: none;"' : ''; ?>>Resend via SMS</a>
+                    <a href="#" id="resendSmsLink" onclick="resendCode('sms', event)" <?php echo !$can_resend ? 'style="color: #9aa0a6; pointer-events: none;"' : 'style="color: #FF6B35; text-decoration: none;"'; ?>>Resend via SMS</a>
                 <?php else: ?>
                     <span style="color: #5f6368; font-size: 13px;">No phone number provided for SMS resend</span>
                 <?php endif; ?>
@@ -451,7 +616,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     // Small delay for better UX
                     setTimeout(() => {
                         document.querySelector('form').submit();
-                    }, 500);
+                    }, 200);
                 }
             });
         });
@@ -465,8 +630,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Show loading state
             const resendBtn = e.target;
             const originalText = resendBtn.innerHTML;
-            resendBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Sending...';
+            resendBtn.innerHTML = '<span class="material-symbols-outlined" style="font-size: 16px; vertical-align: middle; animation: spin 1s linear infinite;">refresh</span> Sending...';
             resendBtn.disabled = true;
+            resendBtn.style.pointerEvents = 'none';
             
             // Prepare request data
             const requestData = {

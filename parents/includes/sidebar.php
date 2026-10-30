@@ -3,54 +3,52 @@
 // Set $active_page variable before including to highlight the active link
 ?>
 
+<!-- Material Symbols Icons -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+
 <!-- Sidebar -->
 <aside class="sidebar" id="sidebar">
-    <div class="sidebar-section">
-        <div class="sidebar-title">Main</div>
-        <a class="nav-link <?php echo ($active_page ?? '') === 'dashboard' ? 'active' : ''; ?>" href="dashboard">
-            <i class="fas fa-home"></i> Dashboard
-        </a>
-        <a class="nav-link <?php echo ($active_page ?? '') === 'children' ? 'active' : ''; ?>" href="children">
-            <i class="fas fa-child"></i> My Children
-        </a>
-        <a class="nav-link <?php echo ($active_page ?? '') === 'performance' ? 'active' : ''; ?>" href="performance">
-            <i class="fas fa-chart-line"></i> Performance
-        </a>
-        <a class="nav-link <?php echo ($active_page ?? '') === 'results' ? 'active' : ''; ?>" href="results">
-            <i class="fas fa-award"></i> Results
-        </a>
-        <a class="nav-link <?php echo ($active_page ?? '') === 'attendance' ? 'active' : ''; ?>" href="attendance">
-            <i class="fas fa-calendar-check"></i> Attendance
-        </a>
-        <a class="nav-link <?php echo ($active_page ?? '') === 'calendar' ? 'active' : ''; ?>" href="calendar">
-            <i class="fas fa-calendar"></i> Calendar
-        </a>
-        <a class="nav-link <?php echo ($active_page ?? '') === 'assignments' ? 'active' : ''; ?>" href="assignments">
-            <i class="fas fa-tasks"></i> Assignments
-        </a>
-        <a class="nav-link <?php echo ($active_page ?? '') === 'fines' ? 'active' : ''; ?>" href="fines">
-            <i class="fas fa-book"></i> Library Fines
-        </a>
-        <a class="nav-link <?php echo ($active_page ?? '') === 'fees' ? 'active' : ''; ?>" href="fees">
-            <i class="fas fa-money-bill-wave"></i> Fee Payments
-        </a>
-    </div>
-    <div class="sidebar-section">
-        <div class="sidebar-title">Account</div>
-        <a class="nav-link <?php echo ($active_page ?? '') === 'profile' ? 'active' : ''; ?>" href="profile">
-            <i class="fas fa-user"></i> Profile
-        </a>
-        <a class="nav-link" href="logout">
-            <i class="fas fa-sign-out-alt"></i> Logout
-        </a>
-    </div>
+    <a class="nav-link <?php echo ($active_page ?? '') === 'dashboard' ? 'active' : ''; ?>" href="dashboard">
+        <span class="material-symbols-outlined" style="color: #5f6368; margin-right: 32px;">dashboard</span> Dashboard
+    </a>
+    <a class="nav-link <?php echo ($active_page ?? '') === 'children' ? 'active' : ''; ?>" href="children">
+        <span class="material-symbols-outlined" style="color: #5f6368; margin-right: 32px;">family_restroom</span> My Children
+    </a>
+    <a class="nav-link <?php echo ($active_page ?? '') === 'performance' ? 'active' : ''; ?>" href="performance">
+        <span class="material-symbols-outlined" style="color: #5f6368; margin-right: 32px;">trending_up</span> Performance
+    </a>
+    <a class="nav-link <?php echo ($active_page ?? '') === 'results' ? 'active' : ''; ?>" href="results">
+        <span class="material-symbols-outlined" style="color: #5f6368; margin-right: 32px;">school</span> Results
+    </a>
+    <a class="nav-link <?php echo ($active_page ?? '') === 'attendance' ? 'active' : ''; ?>" href="attendance">
+        <span class="material-symbols-outlined" style="color: #5f6368; margin-right: 32px;">fact_check</span> Attendance
+    </a>
+    <a class="nav-link <?php echo ($active_page ?? '') === 'calendar' ? 'active' : ''; ?>" href="calendar">
+        <span class="material-symbols-outlined" style="color: #5f6368; margin-right: 32px;">calendar_month</span> Calendar
+    </a>
+    <a class="nav-link <?php echo ($active_page ?? '') === 'assignments' ? 'active' : ''; ?>" href="assignments">
+        <span class="material-symbols-outlined" style="color: #5f6368; margin-right: 32px;">assignment</span> Assignments
+    </a>
+    <a class="nav-link <?php echo ($active_page ?? '') === 'fines' ? 'active' : ''; ?>" href="fines">
+        <span class="material-symbols-outlined" style="color: #5f6368; margin-right: 32px;">menu_book</span> Library Fines
+    </a>
+    <a class="nav-link <?php echo ($active_page ?? '') === 'fees' ? 'active' : ''; ?>" href="fees">
+        <span class="material-symbols-outlined" style="color: #5f6368; margin-right: 32px;">payments</span> Fee Payments
+    </a>
+    <a class="nav-link <?php echo ($active_page ?? '') === 'profile' ? 'active' : ''; ?>" href="profile">
+        <span class="material-symbols-outlined" style="color: #5f6368; margin-right: 32px;">person</span> Profile
+    </a>
+    <a class="nav-link" href="logout" style="margin-top: auto; border-top: 1px solid var(--border-color);">
+        <span class="material-symbols-outlined" style="color: #d93025; margin-right: 32px;">logout</span> Logout
+    </a>
 </aside>
 
 <style>
     :root {
         --sidebar-width: 256px;
         --header-height: 64px;
-        --sidebar-bg: #f8f9fa;
+        --sidebar-bg: #F0F4F9;
+        --border-color: #e8eaed;
     }
 
     .sidebar {
@@ -63,6 +61,7 @@
         overflow-y: auto;
         transition: transform 0.3s ease;
         z-index: 999;
+        border-right: 1px solid var(--border-color);
     }
 
     .sidebar.collapsed {
@@ -79,23 +78,10 @@
         }
     }
 
-    .sidebar-section {
-        padding: 12px 0;
-    }
-
-    .sidebar-title {
-        padding: 8px 24px;
-        font-size: 12px;
-        font-weight: 500;
-        color: #5f6368;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-
     .nav-link {
         display: flex;
         align-items: center;
-        padding: 10px 24px;
+        padding: 16px 24px;
         color: #5f6368;
         text-decoration: none;
         transition: background 0.2s;
@@ -105,6 +91,7 @@
         text-align: left;
         cursor: pointer;
         font-size: 14px;
+        font-weight: 500;
     }
 
     .nav-link:hover {
@@ -113,28 +100,14 @@
 
     .nav-link.active {
         background: #e8f0fe;
-        color: var(--primary-color, #1a73e8);
-        border-left: 3px solid var(--primary-color, #1a73e8);
+        color: #1a73e8;
+        border-left: 3px solid #1a73e8;
     }
 
-    .nav-link i {
-        margin-right: 12px;
-        font-size: 18px;
-        width: 24px;
-        text-align: center;
+    .material-symbols-outlined {
+        font-size: 24px;
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
     }
-
-    .nav-link[href="dashboard"] i { color: #4285F4; }
-    .nav-link[href="children"] i { color: #EA4335; }
-    .nav-link[href="performance"] i { color: #00AC47; }
-    .nav-link[href="results"] i { color: #FFBA00; }
-    .nav-link[href="attendance"] i { color: #0066DA; }
-    .nav-link[href="calendar"] i { color: #EA4335; }
-    .nav-link[href="assignments"] i { color: #00AC47; }
-    .nav-link[href="fines"] i { color: #FFBA00; }
-    .nav-link[href="fees"] i { color: #4285F4; }
-    .nav-link[href="profile"] i { color: #5f6368; }
-    .nav-link[href="logout"] i { color: #EA4335; }
 </style>
 
 <script>

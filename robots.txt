@@ -1,16 +1,10 @@
 User-agent: *
 Allow: /
 
-# Sitemap
-Sitemap: https://kenyaeduhub.kesug.com/sitemap.xml
+# Sitemap - Dynamic sitemap that includes all resources
+Sitemap: https://kenyaeduhub.kesug.com/resources_sitemap.php
 
-# Allow only homepage and login page for indexing
-Allow: /
-Allow: /auth/login.php
-
-# Block all other pages from search engine indexing
-Disallow: /auth/register.php
-Disallow: /dashboard/
+# Block sensitive and private areas
 Disallow: /admin/
 Disallow: /api/
 Disallow: /includes/
@@ -18,28 +12,27 @@ Disallow: /config.php
 Disallow: *.log
 Disallow: /temp/
 Disallow: /cache/
+Disallow: /auth/verify
+Disallow: /auth/resend
+Disallow: /auth/forgot_password
+Disallow: /auth/reset_password
+Disallow: /schools/login
+Disallow: /schools/
+Disallow: /parents/login
+Disallow: /parents/
+Disallow: /librarians/
+Disallow: /finance/
+Disallow: /sms/
+Disallow: /teachers/
+Disallow: /examiners/
 
-# Crawl delay for respectful crawling
-Crawl-delay: 1
+# Allow public authentication pages
+Allow: /auth/login
+Allow: /auth/register
 
-# Specific instructions for major search engines
-User-agent: Googlebot
-Allow: /
-Allow: /auth/login.php
-Disallow: /auth/register.php
+# Allow public resource pages
+Allow: /resources
+Allow: /resource
+
+# Block dashboard (user-only area)
 Disallow: /dashboard/
-Crawl-delay: 1
-
-User-agent: Bingbot
-Allow: /
-Allow: /auth/login.php
-Disallow: /auth/register.php
-Disallow: /dashboard/
-Crawl-delay: 1
-
-User-agent: Slurp
-Allow: /
-Allow: /auth/login.php
-Disallow: /auth/register.php
-Disallow: /dashboard/
-Crawl-delay: 1

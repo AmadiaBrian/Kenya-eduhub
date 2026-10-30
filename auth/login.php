@@ -35,6 +35,13 @@ if (isset($_SESSION['user_id'])) {
     $user = $result->fetch_assoc();
     
     if ($user && $user['role'] === 'admin') {
+        // Check if there's a redirect URL stored first
+        if (isset($_SESSION['redirect_after_login'])) {
+            $redirect_url = $_SESSION['redirect_after_login'];
+            unset($_SESSION['redirect_after_login']);
+            header("Location: ../" . $redirect_url);
+            exit;
+        }
         header("Location: ../admin");
         exit;
     } else {
@@ -57,8 +64,23 @@ if (!isset($_SESSION['user_id']) && validateRememberCookie($conn)) {
     $user = $result->fetch_assoc();
     
     if ($user && $user['role'] === 'admin') {
+        // Check if there's a redirect URL stored first
+        if (isset($_SESSION['redirect_after_login'])) {
+            $redirect_url = $_SESSION['redirect_after_login'];
+            unset($_SESSION['redirect_after_login']);
+            header("Location: ../" . $redirect_url);
+            exit;
+        }
         header("Location: ../admin");
         exit;
+    }
+    
+    // Check if there's a redirect URL stored
+    if (isset($_SESSION['redirect_after_login'])) {
+        $redirect_url = $_SESSION['redirect_after_login'];
+        unset($_SESSION['redirect_after_login']);
+        header("Location: ../" . $redirect_url);
+        exit();
     }
     
     header("Location: ../dashboard");
@@ -136,7 +158,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     
                     if (password_verify($password, $user['password'])) {
                         error_log("Auth Login - Password verified, login successful");
-                        
+
+                        // Check if user is verified
+                        if ($user['is_verified'] == 0) {
+                            error_log("Auth Login - User not verified, redirecting to verification page");
+
+                            // Set verification session variables
+                            $_SESSION['verification_email'] = $user['email'];
+                            $_SESSION['verification_phone'] = $user['phone'] ?? null;
+
+                            // Redirect to verification page
+                            header("Location: verify");
+                            exit();
+                        }
+
                         // Record successful login (only for non-admin users)
                         if (!$is_admin) {
                             recordLoginAttempt($conn, $email, true);
@@ -184,6 +219,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             $_SESSION['last_activity'] = time();
                             // Continue to render page with modal (don't exit)
                         } else {
+                            // Check if there's a redirect URL stored
+                            if (isset($_SESSION['redirect_after_login'])) {
+                                $redirect_url = $_SESSION['redirect_after_login'];
+                                unset($_SESSION['redirect_after_login']);
+                                header("Location: ../" . $redirect_url);
+                                exit();
+                            }
                             // Redirect based on user role
                             header("Location: ../dashboard");
                             exit();
@@ -223,11 +265,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#FF6B35">
-    <title>Login - Free Educational Resources in Kenya</title>
-     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <meta property="og:image" content="https://kenyaeduhub.kesug.com/assets/favicon.ico">
+    <link rel="icon" type="image/x-icon" href="https://kenyaeduhub.kesug.com/assets/favicon.ico" />
+    <link rel="apple-touch-icon" href="https://kenyaeduhub.kesug.com/assets/favicon.ico">
+    <title>Login - Kenya EduHub</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="../assets/css/auth-animations.css">
+
+    <!-- Breadcrumb Schema -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+            {
+                "@type": "ListItem",
+                "position": 1,
+                "name": "Home",
+                "item": "https://kenyaeduhub.kesug.com/"
+            },
+            {
+                "@type": "ListItem",
+                "position": 2,
+                "name": "Login",
+                "item": "https://kenyaeduhub.kesug.com/auth/login"
+            }
+        ]
+    }
+    </script>
+
     <style>
         * {
             margin: 0;
@@ -236,7 +305,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         
         body {
-            background: var(--card-bg, #f8f9fa);
+            background: #F0F4F9;
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -283,7 +352,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             font-size: 24px;
         }
         
-        .login-card h3 {
+        .login-card h1 {
             font-size: 24px;
             font-weight: 400;
             color: #202124;
@@ -317,13 +386,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             outline: none;
             transition: border-color 0.2s, box-shadow 0.2s;
             font-family: inherit;
-            background: #f8f9fa;
+            background: #F0F4F9;
         }
 
         .form-control:focus {
             border-color: #FF6B35;
             box-shadow: 0 0 0 2px rgba(255, 107, 53, 0.2);
-            background: #f8f9fa;
+            background: #F0F4F9;
         }
         
         .form-control::placeholder {
@@ -490,8 +559,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
         
         <br>
-        
-        <h3>Login to Your Account</h3>
+
+        <h1>Login to Your Account</h1>
 
         <?php if (!empty($errors)): ?>
             <div class="alert-error" role="alert" aria-live="assertive">
@@ -552,17 +621,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </button>
         </form>
 
-        <p class="text-center mt-4 small">
-            <a href="forgot_password" class="forgot-password-link">Forgot Password?</a>
-        </p>
+        <div style="margin-top: 16px;">
+            <p style="font-size: 13px; color: #5f6368; margin-bottom: 8px;">Don't have an account?</p>
+            <a href="register" aria-label="Create new account" style="color: #FF6B35; text-decoration: none;">Register here</a>
+        </div>
 
-        <p class="text-center small mt-3">
-            Need to verify your email? <a href="verify" aria-label="Verify email address">Verify Email</a>
-        </p>
+        <div style="margin-top: 16px;">
+            <p style="font-size: 13px; color: #5f6368; margin-bottom: 8px;">Forgot your password?</p>
+            <a href="forgot_password" class="forgot-password-link" style="color: #FF6B35; text-decoration: none;">Reset Password</a>
+        </div>
 
-        <p class="text-center small mt-3">
-            Don't have an account? <a href="register" aria-label="Create new account">Register here</a>
-        </p>
+        <div style="margin-top: 16px;">
+            <p style="font-size: 13px; color: #5f6368; margin-bottom: 8px;">Need a new verification code?</p>
+            <a href="resend" aria-label="Resend verification code" style="color: #FF6B35; text-decoration: none;">Resend Code</a>
+        </div>
 
         <!-- Google Login Divider -->
     </main>
@@ -726,7 +798,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         .modal-btn.secondary {
-            background: #f8f9fa;
+            background: #F0F4F9;
             color: #202124;
             border: 2px solid #e8eaed;
         }

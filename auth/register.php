@@ -165,6 +165,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#FF6B35">
+    <meta property="og:image" content="https://kenyaeduhub.kesug.com/assets/favicon.ico">
+    <link rel="icon" type="image/x-icon" href="https://kenyaeduhub.kesug.com/assets/favicon.ico" />
+    <link rel="apple-touch-icon" href="https://kenyaeduhub.kesug.com/assets/favicon.ico">
     <title>Register - Free Educational Resources in Kenya</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -176,7 +179,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         body {
-            background: var(--card-bg, #f8f9fa);
+            background: #F0F4F9;
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -222,7 +225,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             font-size: 24px;
         }
 
-        .register-card h3 {
+        .register-card h1 {
             font-size: 24px;
             font-weight: 400;
             color: #202124;
@@ -257,13 +260,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             outline: none;
             transition: border-color 0.2s, box-shadow 0.2s;
             font-family: inherit;
-            background: #f8f9fa;
+            background: #F0F4F9;
         }
 
         .form-control:focus {
             border-color: #FF6B35;
             box-shadow: 0 0 0 2px rgba(255, 107, 53, 0.2);
-            background: #f8f9fa;
+            background: #F0F4F9;
         }
 
         .form-control::placeholder {
@@ -370,7 +373,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 height: 45px;
             }
 
-            .register-card h3 {
+            .register-card h1 {
                 font-size: 20px;
             }
 
@@ -402,7 +405,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 height: 40px;
             }
 
-            .register-card h3 {
+            .register-card h1 {
                 font-size: 18px;
             }
         }
@@ -416,7 +419,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         <br>
 
-        <h3>Create Your Account</h3>
+        <h1>Create Your Account</h1>
 
         <?php if (isset($_SESSION['success'])): ?>
             <div class="alert-success" role="alert">

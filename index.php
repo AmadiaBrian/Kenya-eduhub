@@ -38,8 +38,8 @@ try {
 <html lang="en">
 <head>
    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Kenya EduHub - Free CBC Curriculum Resources, KCSE KCPE Past Papers, School Management System | Best Educational Platform in Kenya</title>
-    <meta name="description" content="Kenya EduHub is Kenya's #1 education platform offering FREE CBC curriculum resources, KCSE KCSE past papers, study materials, and comprehensive school management system. Best school management software for Kenyan schools with student tracking, parent portal, teacher tools, and fee management.">
+    <title>Kenya EduHub - Free CBC Resources, KCSE KCPE Past Papers & School Management System</title>
+    <meta name="description" content="Download FREE CBC curriculum resources, KCSE KCPE past papers & revision materials. Access Kenya's best school management system with student tracking, parent portal & teacher tools. Start free today!">
     <meta name="keywords" content="free educational resources Kenya, CBC curriculum materials, KCSE past papers free download, KCPE past papers Kenya, CBC grade 1-8 resources, CBC junior secondary, CBC senior secondary, school management system Kenya, best school management software, school administration system, student tracking system, parent portal Kenya, teacher management tools, fee management system, attendance tracking Kenya, education management platform, digital learning Kenya, online school management, CBC assessment materials, free study notes Kenya, revision materials KCSE, revision materials KCPE, educational technology Kenya, school ERP system, LMS Kenya, learning management system, free teaching resources, school software Kenya, academic management system, student information system, school administration software, free educational downloads, Kenya curriculum resources, 8-4-4 system Kenya, CBC competency based curriculum, educational resources for teachers, school digitization Kenya, online education platform Kenya, free exam papers Kenya, school automation system, education technology solutions">
     <meta name="author" content="Kenya EduHub">
     <meta name="robots" content="index, follow">
@@ -53,7 +53,11 @@ try {
     <meta name="distribution" content="global">
     <meta name="rating" content="general">
     <meta name="revisit-after" content="7 days">
-    
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="https://kenyaeduhub.kesug.com/assets/favicon.ico" />
+    <link rel="apple-touch-icon" href="https://kenyaeduhub.kesug.com/assets/favicon.ico">
+
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://kenyaeduhub.kesug.com/">
@@ -212,7 +216,73 @@ try {
         ]
     }
     </script>
-    
+
+    <!-- FAQ Schema for Featured Snippets -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+            {
+                "@type": "Question",
+                "name": "How do I download KCSE past papers?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "You can download KCSE past papers from our Resources section. Simply navigate to KCSE Past Papers, select your subject and year, and click download. All papers are free with marking schemes included."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "What is the CBC curriculum in Kenya?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "CBC (Competency Based Curriculum) is Kenya's new education system focusing on developing learners' competencies and skills rather than just memorization. It includes learning areas from Grade 1 to Senior Secondary, with 2-6-6-3 structure (2 years pre-primary, 6 years primary, 6 years secondary, 3 years university)."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "Is the school management system free?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Yes, Kenya EduHub offers a free school management system for Kenyan schools. It includes student tracking, parent portal, teacher tools, fee management, attendance tracking, and CBC curriculum support. Premium features are available for larger institutions."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "Where can I find CBC grade 1-8 resources?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Kenya EduHub provides free CBC curriculum resources for Grade 1-8 including lesson plans, schemes of work, assessment tools, and learning materials. Visit our Resources section and select CBC Curriculum to access materials by grade level."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "How to prepare for KCSE exams effectively?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "To prepare for KCSE exams effectively: 1) Download past papers from our KCSE resources section, 2) Practice under timed conditions, 3) Review marking schemes to understand examiner expectations, 4) Focus on weak subjects, 5) Join study groups, 6) Use revision materials available on our platform."
+                }
+            }
+        ]
+    }
+    </script>
+
+    <!-- Breadcrumb Schema -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+            {
+                "@type": "ListItem",
+                "position": 1,
+                "name": "Home",
+                "item": "https://kenyaeduhub.kesug.com/"
+            }
+        ]
+    }
+    </script>
+
     <style>
         * {
             margin: 0;
@@ -241,8 +311,8 @@ try {
             --primary-gold: #ffc107;
             
             /* Backgrounds and Text */
-            --bg-color: #f8f9fa;
-            --card-bg: #f8f9fa;
+            --bg-color: #F0F4F9;
+            --card-bg: #F0F4F9;
             --text-color: #202124;
             --text-secondary: #5f6368;
             --border-color: #dadce0;
@@ -266,6 +336,15 @@ try {
             --text-secondary: #9aa0a6;
             --border-color: #2a2a2a;
             --divider-color: #3a3a3a;
+        }
+
+        .light-mode {
+            --bg-color: #F0F4F9;
+            --card-bg: #F0F4F9;
+            --text-color: #202124;
+            --text-secondary: #5f6368;
+            --border-color: #dadce0;
+            --divider-color: #e8eaed;
         }
 
         .dark-mode nav {
@@ -846,7 +925,7 @@ try {
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(135deg, rgba(0, 0, 0, 0.7) 0%, rgba(255, 107, 53, 0.4) 50%, rgba(0, 128, 0, 0.5) 100%);
+            background: linear-gradient(135deg, rgba(240, 244, 249, 0.3) 0%, rgba(255, 107, 53, 0.1) 50%, rgba(0, 128, 0, 0.1) 100%);
             z-index: 2;
         }
 
@@ -1065,7 +1144,7 @@ try {
         /* Government Services Section */
         .features {
             padding: 64px 0;
-            background: #f8f9fa;
+            background: var(--bg-color);
         }
         
         .section-title {
@@ -1092,7 +1171,7 @@ try {
         }
 
         .feature-card {
-            background: #f8f9fa;
+            background: var(--card-bg);
             border: 1px solid rgba(0, 0, 0, 0.05);
             border-radius: 8px;
             padding: 32px;
@@ -1144,10 +1223,10 @@ try {
 
         /* Government Stats Section */
         .stats {
-            background: #f8f9fa;
-            color: #202124;
+            background: var(--bg-color);
+            color: var(--text-color);
             padding: 80px 0;
-            border-top: 1px solid #e8eaed;
+            border-top: 1px solid var(--border-color);
         }
 
         .stats .container {
@@ -1173,8 +1252,8 @@ try {
         .stat-item {
             text-align: center;
             padding: 32px 20px;
-            background: #f8f9fa;
-            border: 1px solid #e8eaed;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
             border-radius: 12px;
             transition: border-color 0.2s ease, transform 0.2s ease;
         }
@@ -1202,7 +1281,7 @@ try {
 
         /* Footer */
         footer {
-            background: #f8f9fa;
+            background: var(--bg-color);
             color: var(--text-color);
             padding: 48px 16px 24px;
             position: relative;
@@ -1338,7 +1417,7 @@ try {
             width: 36px;
             height: 36px;
             border-radius: 50%;
-            background: #f8f9fa;
+            background: var(--card-bg);
             border: 1px solid var(--border-color);
             display: flex;
             align-items: center;
@@ -1891,7 +1970,7 @@ try {
                     <i class="fas fa-download"></i>
                     Download Free Resources
                 </a>
-                <a href="auth/login" class="cta-btn secondary">
+                <a href="#" class="cta-btn secondary">
                     <i class="fas fa-search"></i>
                     Browse Past Papers
                 </a>
@@ -2118,7 +2197,7 @@ try {
                     <h3>Platform</h3>
                     <div class="footer-links">
                         <a href="#features"><i class="fas fa-star"></i> Features</a>
-                        <a href="#resources"><i class="fas fa-database"></i> Resources</a>
+                        <a href="#"><i class="fas fa-database"></i> Resources</a>
                         <a href="#"><i class="fas fa-info-circle"></i> About Us</a>
                         <a href="#"><i class="fas fa-users"></i> Our Team</a>
                         <a href="#"><i class="fas fa-envelope"></i> Contact</a>

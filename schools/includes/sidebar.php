@@ -1,3 +1,4 @@
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
 <style>
     /* Sidebar CSS */
     :root {
@@ -12,7 +13,7 @@
         left: 0;
         width: var(--sidebar-width);
         height: calc(100vh - var(--header-height));
-        background: #f8f9fa !important;
+        background: #F0F4F9 !important;
         overflow-y: auto;
         transition: transform 0.3s ease, margin-left 0.3s ease;
         z-index: 999;
@@ -106,7 +107,7 @@
         color: var(--primary-color);
     }
 
-    .nav-link .material-icons {
+    .nav-link .material-symbols-outlined {
         margin-right: 32px;
         font-size: 20px;
         width: 24px;
@@ -114,7 +115,7 @@
         color: #5f6368;
     }
 
-    .nav-link[href="logout"] .material-icons { color: #d93025; }
+    .nav-link[href="logout"] .material-symbols-outlined { color: #d93025; }
 
     /* Mobile responsive */
     @media (max-width: 768px) {
@@ -133,85 +134,85 @@
     <div class="sidebar-section">
         <div class="sidebar-title">Main</div>
         <a class="nav-link<?php echo isset($active_page) && $active_page === 'dashboard' ? ' active' : ''; ?>" href="dashboard">
-            <span class="material-icons">dashboard</span> Dashboard
+            <span class="material-symbols-outlined">dashboard</span> Dashboard
         </a>
         <a class="nav-link<?php echo isset($active_page) && $active_page === 'students' ? ' active' : ''; ?>" href="students">
-            <span class="material-icons">school</span> Students
+            <span class="material-symbols-outlined">school</span> Students
         </a>
         <a class="nav-link<?php echo isset($active_page) && $active_page === 'teachers' ? ' active' : ''; ?>" href="teachers">
-            <span class="material-icons">person_apron</span> Teachers
+            <span class="material-symbols-outlined">person</span> Teachers
         </a>
         <a class="nav-link<?php echo isset($active_page) && $active_page === 'classes' ? ' active' : ''; ?>" href="classes">
-            <span class="material-icons">class</span> Classes
+            <span class="material-symbols-outlined">class</span> Classes
         </a>
         <a class="nav-link<?php echo isset($active_page) && $active_page === 'streams' ? ' active' : ''; ?>" href="streams">
-            <span class="material-icons">layers</span> Streams
+            <span class="material-symbols-outlined">layers</span> Streams
         </a>
         <a class="nav-link<?php echo isset($active_page) && $active_page === 'subjects' ? ' active' : ''; ?>" href="subjects">
-            <span class="material-icons">menu_book</span> Subjects
+            <span class="material-symbols-outlined">menu_book</span> Subjects
         </a>
         <a class="nav-link<?php echo isset($active_page) && $active_page === 'exam-types' ? ' active' : ''; ?>" href="exam-types">
-            <span class="material-icons">assignment</span> Exam Types
+            <span class="material-symbols-outlined">assignment</span> Exam Types
         </a>
         <a class="nav-link<?php echo isset($active_page) && $active_page === 'timetable' ? ' active' : ''; ?>" href="timetable">
-            <span class="material-icons">schedule</span> Timetable
+            <span class="material-symbols-outlined">schedule</span> Timetable
         </a>
         <a class="nav-link<?php echo isset($active_page) && $active_page === 'grading' ? ' active' : ''; ?>" href="grading">
-            <span class="material-icons">bar_chart</span> Grading
+            <span class="material-symbols-outlined">bar_chart</span> Grading
         </a>
         <a class="nav-link<?php echo isset($active_page) && $active_page === 'performance' ? ' active' : ''; ?>" href="performance">
-            <span class="material-icons">show_chart</span> Performance
+            <span class="material-symbols-outlined">trending_up</span> Performance
         </a>
         <a class="nav-link<?php echo isset($active_page) && $active_page === 'results' ? ' active' : ''; ?>" href="results">
-            <span class="material-icons">fact_check</span> Results
+            <span class="material-symbols-outlined">fact_check</span> Results
         </a>
         <a class="nav-link<?php echo isset($active_page) && $active_page === 'attendance' ? ' active' : ''; ?>" href="attendance">
-            <span class="material-icons">event_available</span> Attendance
+            <span class="material-symbols-outlined">event_available</span> Attendance
         </a>
         <a class="nav-link<?php echo isset($active_page) && $active_page === 'calendar' ? ' active' : ''; ?>" href="calendar">
-            <span class="material-icons">calendar_month</span> Calendar
+            <span class="material-symbols-outlined">calendar_month</span> Calendar
         </a>
         <a class="nav-link<?php echo isset($active_page) && $active_page === 'fees' ? ' active' : ''; ?>" href="fees">
-            <span class="material-icons">payments</span> Fees
+            <span class="material-symbols-outlined">payments</span> Fees
         </a>
         <a class="nav-link<?php echo isset($active_page) && $active_page === 'invoices' ? ' active' : ''; ?>" href="invoices">
-            <span class="material-icons">receipt_long</span> Invoices
+            <span class="material-symbols-outlined">receipt_long</span> Invoices
         </a>
         <a class="nav-link<?php echo isset($active_page) && $active_page === 'finance-managers' ? ' active' : ''; ?>" href="finance-managers">
-            <span class="material-icons">badge</span> Finance Managers
+            <span class="material-symbols-outlined">badge</span> Finance Managers
         </a>
         <a class="nav-link<?php echo isset($active_page) && $active_page === 'account' ? ' active' : ''; ?>" href="account">
-            <span class="material-icons">account_balance_wallet</span> Account Balance
+            <span class="material-symbols-outlined">account_balance_wallet</span> Account Balance
         </a>
         <a class="nav-link<?php echo isset($active_page) && $active_page === 'parents' ? ' active' : ''; ?>" href="parents">
-            <span class="material-icons">family_restroom</span> Parents
+            <span class="material-symbols-outlined">family_restroom</span> Parents
         </a>
         <a class="nav-link<?php echo isset($active_page) && $active_page === 'disciplinary' ? ' active' : ''; ?>" href="disciplinary">
-            <span class="material-icons">gavel</span> Disciplinary
+            <span class="material-symbols-outlined">gavel</span> Disciplinary
         </a>
         <a class="nav-link<?php echo isset($active_page) && $active_page === 'disciplinary-action-types' ? ' active' : ''; ?>" href="disciplinary-action-types">
-            <span class="material-icons">rule</span> Disciplinary Types
+            <span class="material-symbols-outlined">rule</span> Disciplinary Types
         </a>
         <a class="nav-link<?php echo isset($active_page) && $active_page === 'duty-assignments' ? ' active' : ''; ?>" href="duty-assignments">
-            <span class="material-icons">task_alt</span> Duty Assignments
+            <span class="material-symbols-outlined">task_alt</span> Duty Assignments
         </a>
         <a class="nav-link<?php echo isset($active_page) && $active_page === 'librarians' ? ' active' : ''; ?>" href="librarians">
-            <span class="material-icons">local_library</span> Librarians
+            <span class="material-symbols-outlined">local_library</span> Librarians
         </a>
         <a class="nav-link<?php echo isset($active_page) && $active_page === 'examination-heads' ? ' active' : ''; ?>" href="examination-heads">
-            <span class="material-icons">supervisor_account</span> Examination Heads
+            <span class="material-symbols-outlined">supervisor_account</span> Examination Heads
         </a>
     </div>
     <div class="sidebar-section">
         <div class="sidebar-title">Settings</div>
         <a class="nav-link<?php echo isset($active_page) && $active_page === 'profile' ? ' active' : ''; ?>" href="profile">
-            <span class="material-icons">person</span> Profile
+            <span class="material-symbols-outlined">person</span> Profile
         </a>
         <a class="nav-link<?php echo isset($active_page) && $active_page === 'settings' ? ' active' : ''; ?>" href="settings">
-            <span class="material-icons">settings</span> Settings
+            <span class="material-symbols-outlined">settings</span> Settings
         </a>
         <a class="nav-link<?php echo isset($active_page) && $active_page === 'logout' ? ' active' : ''; ?>" href="logout">
-            <span class="material-icons">logout</span> Logout
+            <span class="material-symbols-outlined">logout</span> Logout
         </a>
 </br>
 </br>

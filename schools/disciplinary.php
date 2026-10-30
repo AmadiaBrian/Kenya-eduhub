@@ -115,15 +115,14 @@ try {
     <meta name="theme-color" content="#FF6B35">
     <title>Disciplinary Management - <?php echo htmlspecialchars($school_name); ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
     <link rel="stylesheet" href="../assets/css/notifications.css">
     <style>
         :root {
             --primary-color: #FF6B35;
             --secondary-color: #5f6368;
-            --bg-color: #f8f9fa;
-            --card-bg: #ffffff;
+            --bg-color: #F0F4F9;
+            --card-bg: #F0F4F9;
         }
         
         * {
@@ -137,6 +136,11 @@ try {
             font-family: 'Google Sans', 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             font-size: 14px;
             color: #202124;
+        }
+
+        .material-symbols-outlined {
+            font-size: 24px;
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
         }
 
         .main-content {
@@ -1062,13 +1066,13 @@ try {
         <!-- Add New Record Button -->
         <div class="mb-4" style="display: flex; gap: 12px; flex-wrap: wrap;">
             <button class="btn btn-primary" id="addRecordModalBtn" data-bs-toggle="modal" data-bs-target="#addRecordModal" style="padding: 8px 20px; font-size: 13px; background: #FF6B35; border-color: #FF6B35; border-radius: 20px;">
-                <i class="fas fa-plus"></i> Add Disciplinary Record
+                <span class="material-symbols-outlined">add</span> Add Disciplinary Record
             </button>
             <button class="btn btn-secondary" onclick="loadRecords()" style="padding: 8px 20px; font-size: 13px; border-radius: 20px;">
-                <i class="fas fa-sync"></i> Refresh
+                <span class="material-symbols-outlined">refresh</span> Refresh
             </button>
             <a href="disciplinary-action-types" class="btn btn-info" style="padding: 8px 20px; font-size: 13px; border-radius: 20px; text-decoration: none; color: white;">
-                <i class="fas fa-cog"></i> Manage Action Types
+                <span class="material-symbols-outlined">settings</span> Manage Action Types
             </a>
         </div>
 
@@ -1140,10 +1144,10 @@ try {
                 </div>
                 <div class="form-actions" style="display: flex; gap: 12px;">
                     <button type="button" class="btn btn-primary" onclick="addRecordInline()" style="padding: 10px 24px; border-radius: 20px;">
-                        <i class="fas fa-plus"></i> Add Record
+                        <span class="material-symbols-outlined">add</span> Add Record
                     </button>
                     <button type="button" class="btn btn-secondary" onclick="document.getElementById('addRecordFormInline').reset()" style="padding: 10px 24px; border-radius: 20px;">
-                        <i class="fas fa-times"></i> Clear
+                        <span class="material-symbols-outlined">close</span> Clear
                     </button>
                 </div>
             </form>
@@ -1194,7 +1198,7 @@ try {
                 </div>
                 <div class="filter-group" style="display: flex; align-items: flex-end;">
                     <button class="btn btn-secondary" onclick="clearFilters()" style="width: 100%; padding: 10px 24px; border-radius: 20px;">
-                        <i class="fas fa-times"></i> Clear Filters
+                        <span class="material-symbols-outlined">close</span> Clear Filters
                     </button>
                 </div>
             </div>
@@ -1248,14 +1252,14 @@ try {
                                     <td>
                                         <div style="display: flex; gap: 8px;">
                                             <a href="disciplinary_view.php?id=<?php echo $record['id']; ?>" class="btn btn-sm btn-action">
-                                                <i class="fas fa-eye"></i>
+                                                <span class="material-symbols-outlined">visibility</span>
                                             </a>
                                             <button class="btn btn-sm btn-action" onclick="editRecord(<?php echo $record['id']; ?>)">
-                                                <i class="fas fa-edit"></i>
+                                                <span class="material-symbols-outlined">edit</span>
                                             </button>
                                             <?php if (in_array($record['action_type'], ['suspension', 'expulsion', 'transfer'])): ?>
                                                 <button class="btn btn-sm btn-action" onclick="generatePDF(<?php echo $record['id']; ?>)">
-                                                    <i class="fas fa-print"></i>
+                                                    <span class="material-symbols-outlined">print</span>
                                                 </button>
                                             <?php endif; ?>
                                         </div>

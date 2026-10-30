@@ -471,12 +471,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             
             <div class="form-group">
                 <label for="email">Email</label>
-                <input type="email" class="form-control" id="email" name="email" required autocomplete="username" value="<?php echo htmlspecialchars($_POST['email'] ?? ''); ?>">
+                <input type="email" class="form-control" id="email" name="email" required autocomplete="username" placeholder="Enter your admin email" value="<?php echo htmlspecialchars($_POST['email'] ?? ''); ?>">
             </div>
             <div class="form-group" style="position: relative;">
                 <label for="password">Password</label>
                 <div style="position: relative;">
-                    <input type="password" class="form-control" id="password" name="password" required autocomplete="current-password" style="padding-right: 45px;">
+                    <input type="password" class="form-control" id="password" name="password" required autocomplete="current-password" placeholder="Enter your admin password" style="padding-right: 45px;">
                     <span class="password-toggle" onclick="togglePassword()" role="button" tabindex="0" aria-label="Show or hide password">
                         <i class="fas fa-eye" id="passwordToggleIcon"></i>
                     </span>

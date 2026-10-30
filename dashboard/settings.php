@@ -396,8 +396,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         :root {
             --primary-color: #1a73e8;
             --secondary-color: #5f6368;
-            --bg-color: #f8f9fa;
-            --card-bg: #f8f9fa;
+            --bg-color: #F0F4F9;
+            --card-bg: #F0F4F9;
             --sidebar-width: 256px;
             --header-height: 64px;
             --primary-orange: #FF6B35;

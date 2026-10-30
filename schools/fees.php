@@ -53,8 +53,8 @@ try {
         :root {
             --primary-color: #FF6B35;
             --secondary-color: #5f6368;
-            --bg-color: #f8f9fa;
-            --card-bg: #f8f9fa;
+            --bg-color: #F0F4F9;
+            --card-bg: #F0F4F9;
         }
         
         * {
@@ -70,7 +70,7 @@ try {
             color: #202124;
         }
 
-        .material-icons {
+        .material-symbols-outlined {
             vertical-align: middle;
             font-size: 20px;
         }
@@ -510,7 +510,7 @@ try {
         <?php if ($calendar_status['is_holiday']): ?>
             <div style="background: #fce8e6; border: 1px solid #e8eaed; padding: 16px; border-radius: 8px; margin-bottom: 24px;">
                 <div style="display: flex; align-items: center; gap: 12px;">
-                    <span class="material-icons" style="color: #c5221f; font-size: 20px;">warning</span>
+                    <span class="material-symbols-outlined" style="color: #c5221f; font-size: 20px;">warning</span>
                     <div>
                         <strong style="color: #c5221f;">School is on Holiday</strong>
                         <p style="margin: 4px 0 0 0; color: #5f6368; font-size: 14px;">
@@ -524,7 +524,7 @@ try {
         <?php elseif ($calendar_status['school_status'] === 'break'): ?>
             <div style="background: #fef7e0; border: 1px solid #e8eaed; padding: 16px; border-radius: 8px; margin-bottom: 24px;">
                 <div style="display: flex; align-items: center; gap: 12px;">
-                    <span class="material-icons" style="color: #f9ab00; font-size: 20px;">info</span>
+                    <span class="material-symbols-outlined" style="color: #f9ab00; font-size: 20px;">info</span>
                     <div>
                         <strong style="color: #b06000;">School is on Break</strong>
                         <p style="margin: 4px 0 0 0; color: #5f6368; font-size: 14px;">No active term is currently set. Please activate a term in the Calendar.</p>
@@ -610,37 +610,37 @@ try {
             <div class="quick-access-grid">
                 <a href="dashboard" class="quick-access-item">
                     <div class="quick-access-icon">
-                        <span class="material-icons" style="color: #5f6368;">dashboard</span>
+                        <span class="material-symbols-outlined" style="color: #5f6368;">dashboard</span>
                     </div>
                     <div class="quick-access-label">Dashboard</div>
                 </a>
                 <a href="students" class="quick-access-item">
                     <div class="quick-access-icon">
-                        <span class="material-icons" style="color: #5f6368;">school</span>
+                        <span class="material-symbols-outlined" style="color: #5f6368;">school</span>
                     </div>
                     <div class="quick-access-label">Students</div>
                 </a>
                 <a href="teachers" class="quick-access-item">
                     <div class="quick-access-icon">
-                        <span class="material-icons" style="color: #5f6368;">person_apron</span>
+                        <span class="material-symbols-outlined" style="color: #5f6368;">person_apron</span>
                     </div>
                     <div class="quick-access-label">Teachers</div>
                 </a>
                 <a href="attendance" class="quick-access-item">
                     <div class="quick-access-icon">
-                        <span class="material-icons" style="color: #5f6368;">event_available</span>
+                        <span class="material-symbols-outlined" style="color: #5f6368;">event_available</span>
                     </div>
                     <div class="quick-access-label">Attendance</div>
                 </a>
                 <a href="performance" class="quick-access-item">
                     <div class="quick-access-icon">
-                        <span class="material-icons" style="color: #5f6368;">show_chart</span>
+                        <span class="material-symbols-outlined" style="color: #5f6368;">show_chart</span>
                     </div>
                     <div class="quick-access-label">Performance</div>
                 </a>
                 <a href="classes" class="quick-access-item">
                     <div class="quick-access-icon">
-                        <span class="material-icons" style="color: #5f6368;">class</span>
+                        <span class="material-symbols-outlined" style="color: #5f6368;">class</span>
                     </div>
                     <div class="quick-access-label">Classes</div>
                 </a>
@@ -650,10 +650,10 @@ try {
         <!-- Fee Structure Action Buttons -->
         <div class="action-buttons">
             <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addFeeStructureModal">
-                <span class="material-icons" style="vertical-align: middle; margin-right: 8px;">add</span> Add Fee Structure
+                <span class="material-symbols-outlined" style="vertical-align: middle; margin-right: 8px;">add</span> Add Fee Structure
             </button>
             <button class="btn btn-success" onclick="exportFeeStructure()">
-                <span class="material-icons" style="vertical-align: middle; margin-right: 8px;">download</span> Export
+                <span class="material-symbols-outlined" style="vertical-align: middle; margin-right: 8px;">download</span> Export
             </button>
         </div>
 
@@ -711,10 +711,10 @@ try {
         <!-- Fee Payments Action Buttons -->
         <div class="action-buttons">
             <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addPaymentModal">
-                <span class="material-icons" style="vertical-align: middle; margin-right: 8px;">add</span> Record Payment
+                <span class="material-symbols-outlined" style="vertical-align: middle; margin-right: 8px;">add</span> Record Payment
             </button>
             <button class="btn btn-success" onclick="exportPayments()">
-                <span class="material-icons" style="vertical-align: middle; margin-right: 8px;">download</span> Export
+                <span class="material-symbols-outlined" style="vertical-align: middle; margin-right: 8px;">download</span> Export
             </button>
         </div>
 
@@ -815,16 +815,16 @@ try {
             </div>
             <div class="d-flex gap-2 mt-3">
                 <button class="btn btn-primary" onclick="loadBalances()">
-                    <span class="material-icons" style="vertical-align: middle; margin-right: 8px;">search</span> View
+                    <span class="material-symbols-outlined" style="vertical-align: middle; margin-right: 8px;">search</span> View
                 </button>
                 <button class="btn btn-secondary" onclick="clearFilters()">
-                    <span class="material-icons" style="vertical-align: middle; margin-right: 8px;">close</span> Clear
+                    <span class="material-symbols-outlined" style="vertical-align: middle; margin-right: 8px;">close</span> Clear
                 </button>
                 <button class="btn btn-warning" onclick="sendFeeReminders()">
-                    <span class="material-icons" style="vertical-align: middle; margin-right: 8px;">notifications</span> Send Reminders
+                    <span class="material-symbols-outlined" style="vertical-align: middle; margin-right: 8px;">notifications</span> Send Reminders
                 </button>
                 <button class="btn btn-success" onclick="sendFeeBalancesViaSMS()">
-                    <span class="material-icons" style="vertical-align: middle; margin-right: 8px;">sms</span> Send SMS Balances
+                    <span class="material-symbols-outlined" style="vertical-align: middle; margin-right: 8px;">sms</span> Send SMS Balances
                 </button>
             </div>
         </div>
@@ -1038,10 +1038,10 @@ try {
                     <td>
                         <div class="action-buttons-cell">
                             <button class="btn btn-sm btn-action" onclick="editFeeStructure(${fee.id}, '${fee.class_id}', '${fee.term}', ${fee.year}, '${fee.fee_type}', ${fee.amount}, '${fee.description || ''}')">
-                                <span class="material-icons" style="color: #5f6368;">edit</span>
+                                <span class="material-symbols-outlined" style="color: #5f6368;">edit</span>
                             </button>
                             <button class="btn btn-sm btn-action" onclick="deleteFeeStructure(${fee.id})">
-                                <span class="material-icons" style="color: #d93025;">delete</span>
+                                <span class="material-symbols-outlined" style="color: #d93025;">delete</span>
                             </button>
                         </div>
                     </td>
@@ -1089,14 +1089,14 @@ try {
                     <td>
                         <div class="action-buttons-cell">
                             <button class="btn btn-sm btn-action" onclick="deletePayment(${payment.id})">
-                                <span class="material-icons" style="color: #d93025;">delete</span>
+                                <span class="material-symbols-outlined" style="color: #d93025;">delete</span>
                             </button>
                         </div>
                     </td>
                     <td>
                         <div class="action-buttons-cell">
                             <button class="btn btn-sm btn-action" onclick="generateFeeStatement(${payment.student_id})">
-                                <span class="material-icons" style="color: #5f6368;">receipt_long</span> Statement
+                                <span class="material-symbols-outlined" style="color: #5f6368;">receipt_long</span> Statement
                             </button>
                         </div>
                     </td>
@@ -1448,7 +1448,7 @@ try {
             const sendBtn = document.querySelector('button[onclick="sendFeeReminders()"]');
             const originalText = sendBtn.innerHTML;
             sendBtn.disabled = true;
-            sendBtn.innerHTML = '<span class="material-icons spin-animation">refresh</span> Sending...';
+            sendBtn.innerHTML = '<span class="material-symbols-outlined spin-animation">refresh</span> Sending...';
             
             try {
                 const response = await fetch('api/send_fee_reminders.php', {
@@ -1496,7 +1496,7 @@ try {
             
             const originalText = sendBtn.innerHTML;
             sendBtn.disabled = true;
-            sendBtn.innerHTML = '<span class="material-icons spin-animation">refresh</span> Sending...';
+            sendBtn.innerHTML = '<span class="material-symbols-outlined spin-animation">refresh</span> Sending...';
             
             try {
                 const response = await fetch('api/send_fee_reminders.php', {
@@ -1748,7 +1748,7 @@ try {
                     </td>
                     <td>
                         <button class="btn btn-sm btn-primary" onclick="generateFeeStatement(${balance.student_id})">
-                            <span class="material-icons" style="color: #5f6368;">receipt_long</span> Statement
+                            <span class="material-symbols-outlined" style="color: #5f6368;">receipt_long</span> Statement
                         </button>
                     </td>
                 </tr>
@@ -1925,7 +1925,7 @@ try {
             const sendBtn = document.querySelector('button[onclick="sendFeeBalancesViaSMS()"]');
             const originalText = sendBtn.innerHTML;
             sendBtn.disabled = true;
-            sendBtn.innerHTML = '<span class="material-icons spin-animation">refresh</span> Sending...';
+            sendBtn.innerHTML = '<span class="material-symbols-outlined spin-animation">refresh</span> Sending...';
             
             try {
                 const response = await fetch('api/send_fee_balance_sms.php', {
