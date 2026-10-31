@@ -101,7 +101,7 @@ try {
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <title>Admin Dashboard - Kenya EduHub</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <script>window.currentCSRFToken = "<?php echo $csrf_token; ?>";</script>
     <style>
@@ -1080,7 +1080,7 @@ try {
             <div class="stat-card">
                 <div style="display: flex; flex-direction: column; align-items: center; gap: 12px;">
                     <div style="width: 40px; height: 40px; border-radius: 50%; background: rgba(255, 107, 53, 0.1); display: flex; align-items: center; justify-content: center;">
-                        <i class="fas fa-users" style="color: #FF6B35; font-size: 20px;"></i>
+                        <span class="material-symbols-outlined" style="color: #FF6B35; font-size: 20px;">groups</span>
                     </div>
                     <div style="text-align: center;">
                         <h3><?php echo $total_users; ?></h3>
@@ -1091,7 +1091,7 @@ try {
             <div class="stat-card">
                 <div style="display: flex; flex-direction: column; align-items: center; gap: 12px;">
                     <div style="width: 40px; height: 40px; border-radius: 50%; background: rgba(255, 107, 53, 0.1); display: flex; align-items: center; justify-content: center;">
-                        <i class="fas fa-folder-open" style="color: #FF6B35; font-size: 20px;"></i>
+                        <span class="material-symbols-outlined" style="color: #FF6B35; font-size: 20px;">folder_open</span>
                     </div>
                     <div style="text-align: center;">
                         <h3><?php echo $total_resources; ?></h3>
@@ -1102,7 +1102,7 @@ try {
             <div class="stat-card">
                 <div style="display: flex; flex-direction: column; align-items: center; gap: 12px;">
                     <div style="width: 40px; height: 40px; border-radius: 50%; background: rgba(255, 107, 53, 0.1); display: flex; align-items: center; justify-content: center;">
-                        <i class="fas fa-download" style="color: #FF6B35; font-size: 20px;"></i>
+                        <span class="material-symbols-outlined" style="color: #FF6B35; font-size: 20px;">download</span>
                     </div>
                     <div style="text-align: center;">
                         <h3><?php echo $total_downloads; ?></h3>
@@ -1113,7 +1113,7 @@ try {
             <div class="stat-card">
                 <div style="display: flex; flex-direction: column; align-items: center; gap: 12px;">
                     <div style="width: 40px; height: 40px; border-radius: 50%; background: rgba(255, 107, 53, 0.1); display: flex; align-items: center; justify-content: center;">
-                        <i class="fas fa-clock" style="color: #FF6B35; font-size: 20px;"></i>
+                        <span class="material-symbols-outlined" style="color: #FF6B35; font-size: 20px;">schedule</span>
                     </div>
                     <div style="text-align: center;">
                         <h3><?php echo $recent_uploads; ?></h3>
@@ -1211,7 +1211,7 @@ try {
                         <div id="fileUploadArea" style="position: relative; border: 2px dashed var(--border-color); border-radius: 25px; padding: 40px 20px; text-align: center; background: var(--card-bg); cursor: pointer; transition: all 0.2s;">
                             <input type="file" id="file" name="file" accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.txt" required style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer;">
                             <div id="fileUploadLabel">
-                                <i class="fas fa-cloud-upload-alt" style="font-size: 48px; color: #9aa0a6; margin-bottom: 16px;"></i>
+                                <span class="material-symbols-outlined" style="font-size: 48px; color: #9aa0a6; margin-bottom: 16px;">cloud_upload</span>
                                 <span style="display: block; color: var(--text-color); font-weight: 500;">Click to browse or drag and drop</span>
                                 <small style="color: var(--secondary-color);">PDF, DOC, PPT, XLS, TXT (Max 20MB)</small>
                             </div>
@@ -1219,10 +1219,10 @@ try {
                     </div>
                     <div style="margin-top: 24px; display: flex; gap: 12px;" class="upload-buttons-container">
                         <button type="submit" class="btn btn-primary" id="uploadBtn">
-                            <i class="fas fa-upload"></i> Upload Resource
+                            <span class="material-symbols-outlined">upload</span> Upload Resource
                         </button>
                         <button type="reset" class="btn btn-secondary" id="clearBtn">
-                            <i class="fas fa-times"></i> Clear
+                            <span class="material-symbols-outlined">close</span> Clear
                         </button>
                     </div>
                 </form>

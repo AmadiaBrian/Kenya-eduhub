@@ -152,7 +152,7 @@ try {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#FF6B35">
     <title>Resources Management - Kenya EduHub</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <script>window.currentCSRFToken = "<?php echo $csrf_token; ?>";</script>
     <style>
@@ -621,28 +621,28 @@ try {
         <div class="stats-grid">
             <div class="stat-card">
                 <div class="stat-icon">
-                    <i class="fas fa-file-alt"></i>
+                    <span class="material-symbols-outlined">description</span>
                 </div>
                 <h3><?php echo $total_resources_count; ?></h3>
                 <p>Total Resources</p>
             </div>
             <div class="stat-card">
                 <div class="stat-icon">
-                    <i class="fas fa-download"></i>
+                    <span class="material-symbols-outlined">download</span>
                 </div>
                 <h3><?php echo $total_downloads; ?></h3>
                 <p>Total Downloads</p>
             </div>
             <div class="stat-card">
                 <div class="stat-icon">
-                    <i class="fas fa-star"></i>
+                    <span class="material-symbols-outlined">star</span>
                 </div>
                 <h3><?php echo $featured_count; ?></h3>
                 <p>Featured Resources</p>
             </div>
             <div class="stat-card">
                 <div class="stat-icon">
-                    <i class="fas fa-hdd"></i>
+                    <span class="material-symbols-outlined">storage</span>
                 </div>
                 <h3><?php echo formatFileSize($total_file_size); ?></h3>
                 <p>Total Storage</p>
@@ -657,7 +657,7 @@ try {
             <div class="card-body">
                 <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
                     <div class="search-box" style="flex: 1; min-width: 200px;">
-                        <i class="fas fa-search"></i>
+                        <span class="material-symbols-outlined">search</span>
                         <input type="text" id="searchInput" placeholder="Search resources..." value="<?php echo htmlspecialchars($search); ?>">
                     </div>
                     <select class="filter-select" id="subjectFilter">
@@ -682,28 +682,28 @@ try {
                         <?php foreach ($resources as $resource): ?>
                             <?php 
                             $fileType = strtoupper($resource['type'] ?? 'FILE');
-                            $iconClass = 'fa-file';
+                            $iconName = 'description';
                             $iconColor = '#5f6368';
-                            
+
                             switch($fileType) {
                                 case 'PDF':
-                                    $iconClass = 'fa-file-pdf';
+                                    $iconName = 'picture_as_pdf';
                                     $iconColor = '#d32f2f';
                                     break;
                                 case 'DOC':
-                                    $iconClass = 'fa-file-word';
+                                    $iconName = 'description';
                                     $iconColor = '#1976d2';
                                     break;
                                 case 'PPT':
-                                    $iconClass = 'fa-file-powerpoint';
+                                    $iconName = 'slideshow';
                                     $iconColor = '#f57c00';
                                     break;
                                 case 'XLS':
-                                    $iconClass = 'fa-file-excel';
+                                    $iconName = 'table_view';
                                     $iconColor = '#388e3c';
                                     break;
                                 case 'TXT':
-                                    $iconClass = 'fa-file-alt';
+                                    $iconName = 'description';
                                     $iconColor = '#5f6368';
                                     break;
                             }
@@ -711,25 +711,25 @@ try {
                             <div style="background: #f8f9fa; border: 1px solid #e8eaed; border-radius: 8px; padding: 20px; transition: box-shadow 0.2s;">
                                 <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 12px;">
                                     <h3 style="font-size: 16px; font-weight: 500; color: #202124; flex: 1; margin: 0;"><?php echo htmlspecialchars($resource['title'] ?? 'N/A'); ?></h3>
-                                    <i class="fas <?php echo $iconClass; ?>" style="color: <?php echo $iconColor; ?>; font-size: 24px; margin-left: 12px;"></i>
+                                    <span class="material-symbols-outlined" style="color: <?php echo $iconColor; ?>; font-size: 24px; margin-left: 12px;"><?php echo $iconName; ?></span>
                                 </div>
                                 <p style="font-size: 13px; color: #5f6368; margin-bottom: 8px;">
-                                    <i class="fas fa-folder" style="color: #FF6B35; margin-right: 8px;"></i>
+                                    <span class="material-symbols-outlined" style="color: #FF6B35; margin-right: 8px; font-size: 18px;">folder</span>
                                     <?php echo htmlspecialchars($resource['subject'] ?? 'N/A'); ?>
                                 </p>
                                 <p style="font-size: 13px; color: #5f6368; margin-bottom: 8px;">
-                                    <i class="fas fa-graduation-cap" style="color: #008000; margin-right: 8px;"></i>
+                                    <span class="material-symbols-outlined" style="color: #008000; margin-right: 8px; font-size: 18px;">school</span>
                                     <?php echo htmlspecialchars($resource['level'] ?? 'N/A'); ?>
                                 </p>
                                 <p style="font-size: 12px; color: #5f6368; margin-bottom: 12px; line-height: 1.4;">
                                     <?php echo htmlspecialchars($resource['description'] ?? 'No description available'); ?>
                                 </p>
                                 <p style="font-size: 13px; color: #5f6368; margin-bottom: 12px;">
-                                    <i class="fas fa-download" style="color: #1a73e8; margin-right: 8px;"></i>
+                                    <span class="material-symbols-outlined" style="color: #1a73e8; margin-right: 8px; font-size: 18px;">download</span>
                                     <?php echo htmlspecialchars($resource['downloads'] ?? 0); ?> downloads
                                 </p>
                                 <p style="font-size: 12px; color: #5f6368; margin-bottom: 12px;">
-                                    <i class="fas fa-calendar" style="color: #5f6368; margin-right: 8px;"></i>
+                                    <span class="material-symbols-outlined" style="color: #5f6368; margin-right: 8px; font-size: 18px;">calendar_today</span>
                                     <?php echo date('M d, Y', strtotime($resource['created_at'])); ?>
                                 </p>
                                 <div style="display: flex; gap: 8px;">

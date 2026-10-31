@@ -38,9 +38,9 @@ try {
 <html lang="en">
 <head>
    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Kenya EduHub - Free CBC Resources, KCSE KCPE Past Papers & School Management System</title>
-    <meta name="description" content="Download FREE CBC curriculum resources, KCSE KCPE past papers & revision materials. Access Kenya's best school management system with student tracking, parent portal & teacher tools. Start free today!">
-    <meta name="keywords" content="free educational resources Kenya, CBC curriculum materials, KCSE past papers free download, KCPE past papers Kenya, CBC grade 1-8 resources, CBC junior secondary, CBC senior secondary, school management system Kenya, best school management software, school administration system, student tracking system, parent portal Kenya, teacher management tools, fee management system, attendance tracking Kenya, education management platform, digital learning Kenya, online school management, CBC assessment materials, free study notes Kenya, revision materials KCSE, revision materials KCPE, educational technology Kenya, school ERP system, LMS Kenya, learning management system, free teaching resources, school software Kenya, academic management system, student information system, school administration software, free educational downloads, Kenya curriculum resources, 8-4-4 system Kenya, CBC competency based curriculum, educational resources for teachers, school digitization Kenya, online education platform Kenya, free exam papers Kenya, school automation system, education technology solutions">
+    <title>Kenya EduHub - Free Revision Materials, Past Papers & Best School Management System in Kenya</title>
+    <meta name="description" content="Download FREE revision materials, KCSE KCPE past papers, study notes, and assignments. Kenya's best modern school management system with student tracking, parent portal, teacher tools, fee management, and CBC curriculum support.">
+    <meta name="keywords" content="revision materials Kenya, past papers download, KCSE past papers free, KCPE past papers, study notes Kenya, assignments download, CBC revision materials, free exam papers, marking schemes, revision kits, class notes, homework help, Kenya educational resources, student revision, teacher resources, free study materials, past papers with answers, exam revision notes, secondary school revision, primary school revision, CBC grade 1-8 materials, junior secondary revision, senior secondary revision, form 1-4 notes, grade 7 revision, grade 8 revision, class 8 revision, KCSE revision materials, KCPE revision materials, termly exams, mock papers, prediction papers, free downloads Kenya, best school management system Kenya, modern school management software, school administration system, student tracking system, parent portal Kenya, teacher management tools, fee management system, attendance tracking Kenya, education management platform, digital learning Kenya, online school management, school ERP system, LMS Kenya, learning management system, free teaching resources, school software Kenya, academic management system, student information system, school administration software, school digitization Kenya, online education platform Kenya, school automation system, education technology solutions">
     <meta name="author" content="Kenya EduHub">
     <meta name="robots" content="index, follow">
     <meta name="googlebot" content="index, follow">
@@ -61,8 +61,8 @@ try {
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://kenyaeduhub.kesug.com/">
-    <meta property="og:title" content="Kenya EduHub - Free CBC Resources, KCSE KCPE Past Papers & School Management System">
-    <meta property="og:description" content="Access FREE CBC curriculum resources, KCSE KCPE past papers, study materials, and Kenya's best school management system. Complete education platform for students, teachers, parents, and schools.">
+    <meta property="og:title" content="Kenya EduHub - Free Revision Materials & Best School Management System in Kenya">
+    <meta property="og:description" content="Download FREE revision materials, KCSE KCPE past papers, study notes, and assignments. Kenya's best modern school management system with parent portal, teacher tools, and fee management.">
     <meta property="og:image" content="https://kenyaeduhub.kesug.com/assets/favicon.ico">
     <meta property="og:site_name" content="Kenya EduHub">
     <meta property="og:locale" content="en_KE">
@@ -71,43 +71,15 @@ try {
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:url" content="https://kenyaeduhub.kesug.com/">
-    <meta name="twitter:title" content="Kenya EduHub - Free CBC Resources & School Management System">
-    <meta name="twitter:description" content="FREE CBC curriculum resources, KCSE KCPE past papers, and comprehensive school management system for Kenyan education.">
+    <meta name="twitter:title" content="Kenya EduHub - Free Revision Materials & Best School Management System">
+    <meta name="twitter:description" content="FREE revision materials, KCSE KCPE past papers, study notes, assignments, and Kenya's best modern school management system. Download now!">
     <meta name="twitter:image" content="https://kenyaeduhub.kesug.com/assets/favicon.ico">
     <meta name="twitter:site" content="@KenyaEduHub">
     <meta name="twitter:creator" content="@KenyaEduHub">
 
     <!-- Canonical URL -->
     <link rel="canonical" href="https://kenyaeduhub.kesug.com/">
-    
-    <!-- Favicon -->
-    <link rel="icon" type="image/x-icon" href="https://kenyaeduhub.kesug.com/assets/favicon.ico" />
-    <link rel="apple-touch-icon" href="https://kenyaeduhub.kesug.com/assets/favicon.ico">
-    
-    <!-- Additional SEO Meta Tags -->
-    <meta name="subject" content="Education and School Management">
-    <meta name="copyright" content="Kenya EduHub © 2026">
-    <meta name="designer" content="Kenya EduHub">
-    <meta name="reply-to" content="otienobrian029@gmail.com">
-    <meta name="owner" content="Kenya EduHub">
-    <meta name="url" content="https://kenyaeduhub.kesug.com/">
-    <meta name="identifier-URL" content="https://kenyaeduhub.kesug.com/">
-    <meta name="directory" content="submission">
-    <meta name="pagename" content="Kenya EduHub - Education Platform">
-    <meta name="category" content="education">
-    <meta name="coverage" content="Worldwide">
-    <meta name="distribution" content="Global">
-    <meta name="HandheldFriendly" content="true">
-    <meta name="MobileOptimized" content="true">
-    <meta name="target" content="all">
-    <meta name="MobileOptimized" content="true">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <meta name="format-detection" content="telephone=no">
-    <meta name="msapplication-TileColor" content="#FF6B35">
-    <meta name="msapplication-TileImage" content="https://kenyaeduhub.kesug.com/assets/favicon.ico">
-    <meta name="theme-color" content="#FF6B35">
-    
+
     <!-- Preconnect to external resources -->
     <link rel="preconnect" href="https://cdnjs.cloudflare.com">
     <link rel="preconnect" href="https://cdn.jsdelivr.net">
@@ -124,7 +96,7 @@ try {
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
-    <!-- Structured Data for Educational Resources -->
+    <!-- Structured Data for Educational Organization -->
     <script type="application/ld+json">
     {
         "@context": "https://schema.org",
@@ -132,7 +104,7 @@ try {
         "name": "Kenya EduHub",
         "url": "https://kenyaeduhub.kesug.com/",
         "logo": "https://kenyaeduhub.kesug.com/assets/favicon.ico",
-        "description": "Kenya's comprehensive education platform offering FREE CBC curriculum resources, KCSE KCPE past papers, and complete school management system for Kenyan schools",
+        "description": "Kenya's leading platform for FREE revision materials, KCSE KCPE past papers, study notes, and assignments. Also offers the best modern school management system in Kenya with student tracking, parent portal, teacher tools, fee management, and CBC curriculum support.",
         "address": {
             "@type": "PostalAddress",
             "addressCountry": "Kenya",
@@ -152,67 +124,43 @@ try {
         "offers": [
             {
                 "@type": "Offer",
-                "description": "Free CBC curriculum educational resources and study materials",
+                "description": "Free revision materials, past papers, study notes, and assignments",
                 "price": "0",
                 "priceCurrency": "KES"
             },
             {
                 "@type": "Offer",
-                "description": "School management system for Kenyan educational institutions",
+                "description": "Free KCSE and KCPE past papers with marking schemes",
+                "price": "0",
+                "priceCurrency": "KES"
+            },
+            {
+                "@type": "Offer",
+                "description": "Best modern school management system for Kenyan schools",
                 "price": "0",
                 "priceCurrency": "KES"
             }
         ],
         "knowsAbout": [
-            "CBC Curriculum",
             "KCSE Past Papers",
             "KCPE Past Papers",
+            "Revision Materials",
+            "Study Notes",
+            "Assignments",
+            "CBC Curriculum",
+            "Marking Schemes",
+            "Exam Papers",
+            "Educational Resources",
             "School Management System",
-            "Student Information System",
-            "Learning Management System",
-            "Educational Technology"
-        ]
-    }
-    </script>
-    
-    <script type="application/ld+json">
-    {
-        "@context": "https://schema.org",
-        "@type": "WebSite",
-        "name": "Kenya EduHub",
-        "url": "https://kenyaeduhub.kesug.com/",
-        "description": "Free CBC curriculum resources, KCSE KCPE past papers, study notes, and best school management system in Kenya",
-        "potentialAction": {
-            "@type": "SearchAction",
-            "target": "https://kenyaeduhub.kesug.com/search?q={search_term_string}",
-            "query-input": "required name=search_term_string"
-        },
-        "keywords": "CBC curriculum, KCSE past papers, KCPE past papers, school management system, educational resources Kenya, student portal, parent portal, teacher tools"
-    }
-    </script>
-    
-    <script type="application/ld+json">
-    {
-        "@context": "https://schema.org",
-        "@type": "SoftwareApplication",
-        "name": "Kenya EduHub School Management System",
-        "applicationCategory": "EducationalApplication",
-        "operatingSystem": "Web",
-        "description": "Comprehensive school management system for Kenyan schools including student tracking, parent portal, teacher tools, fee management, and attendance tracking",
-        "offers": {
-            "@type": "Offer",
-            "price": "0",
-            "priceCurrency": "KES"
-        },
-        "featureList": [
-            "Student Management",
+            "Student Tracking",
             "Parent Portal",
             "Teacher Tools",
             "Fee Management",
             "Attendance Tracking",
             "Grade Management",
-            "CBC Curriculum Support",
-            "Report Generation"
+            "Report Generation",
+            "School Administration",
+            "Learning Management System"
         ]
     }
     </script>
@@ -228,39 +176,47 @@ try {
                 "name": "How do I download KCSE past papers?",
                 "acceptedAnswer": {
                     "@type": "Answer",
-                    "text": "You can download KCSE past papers from our Resources section. Simply navigate to KCSE Past Papers, select your subject and year, and click download. All papers are free with marking schemes included."
+                    "text": "You can download KCSE past papers from Kenya EduHub for FREE. Simply visit our homepage, navigate to Resources, select KCSE Past Papers, choose your subject and year, and click download. All papers include marking schemes."
                 }
             },
             {
                 "@type": "Question",
-                "name": "What is the CBC curriculum in Kenya?",
+                "name": "Where can I get free revision materials in Kenya?",
                 "acceptedAnswer": {
                     "@type": "Answer",
-                    "text": "CBC (Competency Based Curriculum) is Kenya's new education system focusing on developing learners' competencies and skills rather than just memorization. It includes learning areas from Grade 1 to Senior Secondary, with 2-6-6-3 structure (2 years pre-primary, 6 years primary, 6 years secondary, 3 years university)."
+                    "text": "Kenya EduHub offers FREE revision materials including KCSE KCPE past papers, study notes, assignments, and CBC curriculum resources. All materials are downloadable with marking schemes. Visit our Resources section to access materials by subject and grade."
                 }
             },
             {
                 "@type": "Question",
-                "name": "Is the school management system free?",
+                "name": "What is the best school management system in Kenya?",
                 "acceptedAnswer": {
                     "@type": "Answer",
-                    "text": "Yes, Kenya EduHub offers a free school management system for Kenyan schools. It includes student tracking, parent portal, teacher tools, fee management, attendance tracking, and CBC curriculum support. Premium features are available for larger institutions."
+                    "text": "Kenya EduHub offers the best modern school management system in Kenya. It includes student tracking, parent portal, teacher tools, fee management, attendance tracking, grade management, CBC curriculum support, and report generation. The system is free and designed specifically for Kenyan schools."
                 }
             },
             {
                 "@type": "Question",
-                "name": "Where can I find CBC grade 1-8 resources?",
+                "name": "Are the study notes and assignments free?",
                 "acceptedAnswer": {
                     "@type": "Answer",
-                    "text": "Kenya EduHub provides free CBC curriculum resources for Grade 1-8 including lesson plans, schemes of work, assessment tools, and learning materials. Visit our Resources section and select CBC Curriculum to access materials by grade level."
+                    "text": "Yes, all study notes, assignments, revision materials, and past papers on Kenya EduHub are completely FREE. No registration required for downloading. We provide high-quality educational resources for Kenyan students at no cost."
                 }
             },
             {
                 "@type": "Question",
-                "name": "How to prepare for KCSE exams effectively?",
+                "name": "What revision materials are available for KCSE?",
                 "acceptedAnswer": {
                     "@type": "Answer",
-                    "text": "To prepare for KCSE exams effectively: 1) Download past papers from our KCSE resources section, 2) Practice under timed conditions, 3) Review marking schemes to understand examiner expectations, 4) Focus on weak subjects, 5) Join study groups, 6) Use revision materials available on our platform."
+                    "text": "Kenya EduHub provides comprehensive KCSE revision materials including past papers from 2000 to present, marking schemes, study notes for all subjects, revision kits, mock papers, prediction papers, and topic-specific revision materials for Form 1-4 students."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "How to access CBC revision materials?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Access CBC revision materials on Kenya EduHub by visiting our Resources section. We provide CBC materials for Grade 1-8, Junior Secondary, and Senior Secondary including lesson plans, schemes of work, assessment tools, revision notes, and learning activities."
                 }
             }
         ]

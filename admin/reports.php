@@ -141,7 +141,7 @@ try {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#FF6B35">
     <title>Reports - Kenya EduHub</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <script>window.currentCSRFToken = "<?php echo $csrf_token; ?>";</script>
     <style>
@@ -567,28 +567,28 @@ try {
         <div class="stats-grid">
             <div class="stat-card">
                 <div class="stat-icon">
-                    <i class="fas fa-users"></i>
+                    <span class="material-symbols-outlined">groups</span>
                 </div>
                 <h3><?php echo number_format($total_users); ?></h3>
                 <p>Total Users</p>
             </div>
             <div class="stat-card">
                 <div class="stat-icon">
-                    <i class="fas fa-user-check"></i>
+                    <span class="material-symbols-outlined">verified_user</span>
                 </div>
                 <h3><?php echo number_format($active_users); ?></h3>
                 <p>Active Users</p>
             </div>
             <div class="stat-card">
                 <div class="stat-icon">
-                    <i class="fas fa-user-times"></i>
+                    <span class="material-symbols-outlined">person_remove</span>
                 </div>
                 <h3><?php echo number_format($inactive_users); ?></h3>
                 <p>Inactive Users</p>
             </div>
             <div class="stat-card">
                 <div class="stat-icon">
-                    <i class="fas fa-user-shield"></i>
+                    <span class="material-symbols-outlined">admin_panel_settings</span>
                 </div>
                 <h3><?php echo number_format($admin_users); ?></h3>
                 <p>Admin Users</p>

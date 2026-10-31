@@ -118,7 +118,7 @@ $total_admin_users = $stats['admins'];
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#FF6B35">
     <title>Users Management - Kenya EduHub</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <script>window.currentCSRFToken = "<?php echo $csrf_token; ?>";</script>
     <style>
@@ -430,6 +430,44 @@ $total_admin_users = $stats['admins'];
 
         .table-responsive {
             overflow-x: auto;
+            overflow-y: auto;
+            max-height: calc(100vh - var(--header-height) - 400px);
+        }
+
+        @media (min-width: 1200px) {
+            .table-responsive {
+                max-height: calc(100vh - var(--header-height) - 350px);
+            }
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--card-bg);
+        }
+
+        thead {
+            position: sticky;
+            top: 0;
+            background: var(--card-bg);
+            z-index: 10;
+        }
+
+        th {
+            padding: 12px 15px;
+            text-align: left;
+            font-weight: 500;
+            border-bottom: 2px solid var(--border-color);
+            background: var(--card-bg);
+        }
+
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        tbody tr:hover {
+            background: var(--card-hover-bg);
         }
 
         .status-badge {
@@ -603,11 +641,11 @@ $total_admin_users = $stats['admins'];
                            value="<?php echo htmlspecialchars($search); ?>"
                            style="padding: 8px 12px; border: 1px solid #e8eaed; border-radius: 25px; flex: 1; min-width: 200px; background: var(--bg-color); color: var(--text-color);">
                     <button type="submit" class="btn btn-primary btn-sm">
-                        <i class="fas fa-search"></i> Search
+                        <span class="material-symbols-outlined">search</span> Search
                     </button>
                     <?php if (!empty($search)): ?>
                         <a href="users" class="btn btn-sm btn-action">
-                            <i class="fas fa-times"></i> Clear
+                            <span class="material-symbols-outlined">close</span> Clear
                         </a>
                     <?php endif; ?>
                 </form>
@@ -655,10 +693,10 @@ $total_admin_users = $stats['admins'];
                                     <td>
                                         <?php if ($user_item['id'] != $_SESSION['user_id']): ?>
                                             <button class="btn btn-sm btn-action" onclick="toggleUserStatus(<?php echo $user_item['id']; ?>, <?php echo ($user_item['is_verified'] ?? 0) == 1 ? '0' : '1'; ?>)">
-                                                <i class="fas fa-<?php echo ($user_item['is_verified'] ?? 0) == 1 ? 'ban' : 'check'; ?>"></i>
+                                                <span class="material-symbols-outlined"><?php echo ($user_item['is_verified'] ?? 0) == 1 ? 'block' : 'check_circle'; ?></span>
                                             </button>
                                             <button class="btn btn-sm btn-action" onclick="deleteUser(<?php echo $user_item['id']; ?>)">
-                                                <i class="fas fa-trash"></i>
+                                                <span class="material-symbols-outlined">delete</span>
                                             </button>
                                         <?php else: ?>
                                             <span style="color: #5f6368; font-size: 12px;">Current User</span>
@@ -677,7 +715,7 @@ $total_admin_users = $stats['admins'];
                     <?php if ($page > 1): ?>
                         <a href="?page=<?php echo $page - 1; ?>&search=<?php echo urlencode($search); ?>" 
                            style="padding: 8px 12px; border: 1px solid #e8eaed; border-radius: 4px; text-decoration: none; color: #202124;">
-                            <i class="fas fa-chevron-left"></i> Previous
+                            <span class="material-symbols-outlined">chevron_left</span> Previous
                         </a>
                     <?php endif; ?>
                     
@@ -695,7 +733,7 @@ $total_admin_users = $stats['admins'];
                     <?php if ($page < $total_pages): ?>
                         <a href="?page=<?php echo $page + 1; ?>&search=<?php echo urlencode($search); ?>" 
                            style="padding: 8px 12px; border: 1px solid #e8eaed; border-radius: 4px; text-decoration: none; color: #202124;">
-                            Next <i class="fas fa-chevron-right"></i>
+                            Next <span class="material-symbols-outlined">chevron_right</span>
                         </a>
                     <?php endif; ?>
                 </div>
@@ -765,7 +803,7 @@ $total_admin_users = $stats['admins'];
                         if (button) {
                             const icon = button.querySelector('i');
                             if (icon) {
-                                icon.className = 'fas fa-' + (status == 1 ? 'ban' : 'check');
+                                icon.className = 'material-symbols-outlined ' + (status == 1 ? 'block' : 'check_circle');
                             }
                         }
 

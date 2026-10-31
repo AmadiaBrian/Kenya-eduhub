@@ -63,17 +63,33 @@ $user = $result->fetch_assoc();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#FF6B35">
     <title>Transaction Rates - Kenya EduHub</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <script>window.currentCSRFToken = "<?php echo $csrf_token; ?>";</script>
     <style>
         :root {
             --primary-color: #1a73e8;
+            --primary-orange: #FF6B35;
+            --primary-gold: #ffc107;
             --secondary-color: #5f6368;
-            --bg-color: #f8f9fa;
-            --card-bg: #ffffff;
+            --bg-color: #F0F4F9;
+            --card-bg: #F0F4F9;
             --sidebar-width: 256px;
             --header-height: 64px;
+            --text-color: #202124;
+            --border-color: #e8eaed;
+            --form-border-color: #dadce0;
+            --card-hover-bg: #f8f9fa;
+        }
+
+        .dark-mode {
+            --bg-color: #1a1a1a;
+            --card-bg: #1a1a1a;
+            --text-color: #e8eaed;
+            --secondary-color: #ffffff;
+            --border-color: #2a2a2a;
+            --form-border-color: #2a2a2a;
+            --card-hover-bg: #252525;
         }
         
         * {
@@ -86,7 +102,8 @@ $user = $result->fetch_assoc();
             background: var(--bg-color);
             font-family: 'Google Sans', 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             font-size: 14px;
-            color: #202124;
+            color: var(--text-color);
+            transition: background 0.3s ease, color 0.3s ease;
         }
         
         .sidebar {
@@ -119,7 +136,7 @@ $user = $result->fetch_assoc();
             padding: 8px 24px;
             font-size: 12px;
             font-weight: 500;
-            color: #5f6368;
+            color: var(--secondary-color);
             text-transform: uppercase;
             letter-spacing: 0.5px;
             cursor: pointer;
@@ -128,9 +145,13 @@ $user = $result->fetch_assoc();
             align-items: center;
             user-select: none;
         }
-        
+
         .sidebar-title:hover {
-            background: #f1f3f4;
+            background: var(--card-hover-bg);
+        }
+
+        .dark-mode .sidebar-title:hover {
+            background: rgba(255, 255, 255, 0.05);
         }
         
         .sidebar-title .chevron {
@@ -165,16 +186,25 @@ $user = $result->fetch_assoc();
             cursor: pointer;
             font-size: 14px;
         }
-        
+
         .nav-link:hover {
-            background: #f1f3f4;
+            background: var(--card-hover-bg);
         }
-        
+
         .nav-link.active {
             background: #e8f0fe;
             color: var(--primary-color);
         }
-        
+
+        .dark-mode .nav-link.active {
+            background: rgba(26, 115, 232, 0.2);
+            color: #8ab4f8;
+        }
+
+        .dark-mode .nav-link {
+            color: #ffffff;
+        }
+
         .nav-link i {
             margin-right: 12px;
             font-size: 18px;
@@ -197,7 +227,7 @@ $user = $result->fetch_assoc();
         .page-title {
             font-size: 22px;
             font-weight: 400;
-            color: #202124;
+            color: var(--text-color);
             margin-bottom: 24px;
         }
         
@@ -208,7 +238,7 @@ $user = $result->fetch_assoc();
             right: 0;
             height: var(--header-height);
             background: var(--card-bg);
-            border-bottom: 1px solid #e8eaed;
+            border-bottom: 1px solid var(--border-color);
             display: flex;
             align-items: center;
             padding: 0 24px;
@@ -230,9 +260,18 @@ $user = $result->fetch_assoc();
             color: #5f6368;
             transition: background 0.2s;
         }
-        
+
         .menu-btn:hover {
             background: #f1f3f4;
+        }
+
+        .dark-mode .menu-btn {
+            color: #ffc107;
+            font-size: 22px;
+        }
+
+        .dark-mode .menu-btn:hover {
+            background: rgba(255, 193, 7, 0.1);
         }
         
         .logo {
@@ -241,7 +280,7 @@ $user = $result->fetch_assoc();
             gap: 8px;
             font-size: 18px;
             font-weight: 400;
-            color: #202124;
+            color: var(--text-color);
         }
         
         .logo i {
@@ -253,6 +292,37 @@ $user = $result->fetch_assoc();
             display: flex;
             align-items: center;
             gap: 16px;
+        }
+
+        /* Dark mode toggle button */
+        .dark-mode-toggle {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 12px;
+            border-radius: 50%;
+            color: var(--secondary-color);
+            transition: background 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .dark-mode-toggle:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .dark-mode .dark-mode-toggle {
+            color: #ffc107;
+        }
+
+        .dark-mode .dark-mode-toggle:hover {
+            background: rgba(255, 193, 7, 0.1);
+        }
+
+        .dark-mode-toggle .material-symbols-outlined {
+            font-size: 20px;
         }
         
         .user-avatar {
@@ -272,64 +342,277 @@ $user = $result->fetch_assoc();
             .sidebar {
                 transform: translateX(-256px);
             }
-            
+
             .sidebar.show {
                 transform: translateX(0);
             }
-            
+
             .main-content {
                 margin-left: 0;
                 padding: 16px;
                 padding-top: calc(var(--header-height) + 16px);
             }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 16px !important;
+            }
+
+            .stat-card {
+                padding: 15px !important;
+            }
+
+            .stat-card h3 {
+                font-size: 24px !important;
+            }
+
+            .card {
+                padding: 15px !important;
+            }
+
+            .card-header {
+                padding: 15px !important;
+            }
+
+            .card-header h2 {
+                font-size: 16px !important;
+            }
+
+            .btn {
+                padding: 8px 16px !important;
+                font-size: 12px !important;
+            }
         }
         
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
         }
-        
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 16px !important;
+            }
+        }
+
         .stat-card {
-            background: transparent;
-            padding: 25px;
+            background: var(--bg-color, #F0F4F9);
+            border: 1px solid var(--border-color);
             border-radius: 8px;
-            border: 1px solid #e8eaed;
+            padding: 20px;
+            text-align: left;
+            box-shadow: none;
+            transition: box-shadow 0.3s ease;
         }
-        
+
+        .stat-card:hover {
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
         .stat-card h3 {
-            font-size: 36px;
-            font-weight: 400;
-            color: var(--primary-color);
-            margin-bottom: 5px;
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--text-color);
+            margin-bottom: 4px;
         }
-        
+
         .stat-card p {
             font-size: 14px;
-            color: var(--secondary-color);
+            color: #5f6368;
+            margin: 0;
+            font-weight: 500;
+        }
+
+        .stat-card i {
+            color: var(--primary-orange);
+        }
+
+        .stat-card > div > div span {
+            color: #5f6368 !important;
+        }
+
+        .stat-card > div > div span[style*="font-weight: 500"] {
+            color: #202124 !important;
+        }
+
+        .stat-card > div[style*="border-top"] {
+            border-top: 1px solid #e8eaed !important;
+        }
+
+        .stat-card span[style*="background: rgba(255, 255, 255, 0.2)"] {
+            background: #f1f3f4 !important;
+            color: #202124 !important;
+        }
+
+        /* Dark mode stat cards */
+        .dark-mode .stat-card {
+            background: var(--card-bg);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+        }
+
+        .dark-mode .stat-card:hover {
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
+        }
+
+        .dark-mode .stat-card h3 {
+            color: #ffffff;
+            text-shadow: none;
+        }
+
+        .dark-mode .stat-card p {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .dark-mode .stat-card i {
+            color: var(--primary-orange) !important;
+            filter: none;
+        }
+
+        .dark-mode .stat-card > div > div span {
+            color: rgba(255, 255, 255, 0.7) !important;
+        }
+
+        .dark-mode .stat-card > div > div span[style*="font-weight: 500"] {
+            color: #ffffff !important;
+        }
+
+        .dark-mode .stat-card > div[style*="border-top"] {
+            border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+        }
+
+        .dark-mode .stat-card span[style*="background: rgba(255, 255, 255, 0.2)"] {
+            background: rgba(255, 255, 255, 0.1) !important;
+            color: #ffffff !important;
+        }
+
+        /* Dark mode stat card inline style overrides */
+        .dark-mode .stat-card i[style*="color: #FF6B35"] {
+            color: var(--primary-orange) !important;
+        }
+
+        .dark-mode .stat-card h3 {
+            color: #ffffff !important;
+        }
+
+        .dark-mode .stat-card p {
+            color: rgba(255, 255, 255, 0.8) !important;
+        }
+
+        .dark-mode .stat-card span[style*="color: #5f6368"] {
+            color: rgba(255, 255, 255, 0.7) !important;
+        }
+
+        .dark-mode .stat-card span[style*="color: #202124"] {
+            color: #ffffff !important;
+        }
+
+        .dark-mode .stat-card div[style*="border-top: 1px solid #e8eaed"] {
+            border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+        }
+
+        .dark-mode .stat-card span[style*="background: #f1f3f4"] {
+            background: rgba(255, 255, 255, 0.1) !important;
+            color: #ffffff !important;
+        }
+
+        .dark-mode .stat-card {
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        }
+
+        /* Dark mode stat card inline style overrides for new card */
+        .dark-mode .stat-card i[style*="color: #FF6B35"] {
+            color: var(--primary-orange) !important;
+        }
+
+        .dark-mode .stat-card > div[style*="border-top: 1px solid #e8eaed"] {
+            border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+        }
+
+        .dark-mode .stat-card > div > div span[style*="color: #5f6368"] {
+            color: rgba(255, 255, 255, 0.7) !important;
+        }
+
+        .dark-mode .stat-card > div > div span[style*="color: #202124"] {
+            color: #ffffff !important;
+        }
+
+        /* Upload form dark mode */
+        input[type="text"],
+        input[type="email"],
+        input[type="password"],
+        input[type="number"],
+        select,
+        textarea {
+            background: var(--card-bg);
+            color: var(--text-color);
+            border-color: var(--border-color);
+            transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+        }
+
+        input[type="text"]:focus,
+        input[type="email"]:focus,
+        input[type="password"]:focus,
+        input[type="number"]:focus,
+        select:focus,
+        textarea:focus {
+            border-color: #FF6B35;
+            outline: none;
+        }
+
+        .dark-mode input[type="text"],
+        .dark-mode input[type="email"],
+        .dark-mode input[type="password"],
+        .dark-mode input[type="number"],
+        .dark-mode select,
+        .dark-mode textarea {
+            border-color: var(--primary-gold);
+        }
+
+        .dark-mode input[type="text"]:focus,
+        .dark-mode input[type="email"]:focus,
+        .dark-mode input[type="password"]:focus,
+        .dark-mode input[type="number"]:focus,
+        .dark-mode select:focus,
+        .dark-mode textarea:focus {
+            border-color: var(--primary-gold);
+        }
+
+        .alert {
+            background: var(--card-bg);
+            color: var(--text-color);
+            border-color: var(--border-color);
         }
         
         .card {
-            background: transparent;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
             border-radius: 8px;
-            border: 1px solid #e8eaed;
-            overflow: hidden;
+            padding: 25px;
+            transition: background 0.3s ease, border-color 0.3s ease;
         }
-        
+
         .card-header {
             background: transparent;
             padding: 20px 25px;
-            border-bottom: 1px solid #e8eaed;
+            border-bottom: 1px solid var(--border-color);
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
-        
+
         .card-header h2 {
             font-size: 20px;
             font-weight: 500;
-            color: #202124;
+            color: var(--text-color);
+        }
+
+        .card-body {
+            background: var(--card-bg);
+            transition: background 0.3s ease;
         }
         
         .btn {
@@ -510,13 +793,13 @@ $user = $result->fetch_assoc();
 </head>
 <body>
     <!-- Header -->
-    <?php require_once '../includes/header.php'; ?>
-    
+    <?php require_once __DIR__ . '/../includes/header.php'; ?>
+
     <!-- Sidebar -->
-    <?php 
+    <?php
     $active_page = 'transaction-rates';
     $in_subdirectory = true;
-    require_once '../includes/sidebar.php'; 
+    require_once __DIR__ . '/../includes/sidebar.php';
     ?>
     
     <!-- Main Content -->
@@ -885,6 +1168,6 @@ $user = $result->fetch_assoc();
     </script>
 
     <!-- Footer -->
-    <?php require_once '../../includes/copywrite.php'; ?>
+    <?php require_once __DIR__ . '/../../includes/copywrite.php'; ?>
 </body>
 </html>

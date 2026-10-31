@@ -3,11 +3,14 @@
 // Requires $user variable to be set with user data
 ?>
 
+<!-- Google Material Symbols -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+
 <!-- Header -->
 <header class="header">
     <div class="header-left">
         <button class="menu-btn" onclick="toggleSidebar()">
-            <i class="fas fa-bars"></i>
+            <span class="material-symbols-outlined">menu</span>
         </button>
         <div class="logo">
             <?php require_once dirname(__DIR__) . '/../includes/logo.php'; ?>
@@ -15,7 +18,7 @@
     </div>
     <div class="header-right">
         <button class="dark-mode-toggle" onclick="toggleDarkMode()" title="Toggle Dark Mode">
-            <i class="fas fa-moon"></i>
+            <span class="material-symbols-outlined">dark_mode</span>
         </button>
         <div class="user-avatar">
             <?php echo strtoupper(substr($user['name'] ?? 'A', 0, 1)); ?>
@@ -31,8 +34,8 @@
         --primary-orange: #FF6B35;
         --primary-gold: #ffc107;
         --secondary-color: #5f6368;
-        --bg-color: #f8f9fa;
-        --card-bg: #f8f9fa;
+        --bg-color: #F0F4F9;
+        --card-bg: #F0F4F9;
         --text-color: #202124;
         --border-color: #e8eaed;
     }
@@ -73,7 +76,13 @@
         border-radius: 50%;
         color: #5f6368;
         transition: background 0.2s;
-        font-size: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .menu-btn .material-symbols-outlined {
+        font-size: 24px;
     }
 
     .menu-btn:hover {
@@ -82,7 +91,6 @@
 
     .dark-mode .menu-btn {
         color: #ffc107;
-        font-size: 22px;
     }
 
     .dark-mode .menu-btn:hover {
@@ -116,7 +124,10 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 18px;
+    }
+
+    .dark-mode-toggle .material-symbols-outlined {
+        font-size: 20px;
     }
 
     .dark-mode-toggle:hover {

@@ -4,43 +4,46 @@
 // Set $in_subdirectory to true if called from schools subdirectory
 ?>
 
+<!-- Google Material Symbols -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+
 <!-- Sidebar -->
 <aside class="sidebar" id="sidebar">
     <a class="nav-link <?php echo ($active_page ?? '') === 'dashboard' ? 'active' : ''; ?>" href="<?php echo ($in_subdirectory ?? false) ? '../dashboard' : 'dashboard'; ?>">
-        <i class="fas fa-tachometer-alt"></i> Dashboard
+        <span class="material-symbols-outlined">dashboard</span> Dashboard
     </a>
     <a class="nav-link <?php echo ($active_page ?? '') === 'my-resources' ? 'active' : ''; ?>" href="<?php echo ($in_subdirectory ?? false) ? '../dashboard?section=resources' : 'dashboard?section=resources'; ?>">
-        <i class="fas fa-book"></i> My Resources
+        <span class="material-symbols-outlined">menu_book</span> My Resources
     </a>
     <a class="nav-link <?php echo ($active_page ?? '') === 'upload' ? 'active' : ''; ?>" href="<?php echo ($in_subdirectory ?? false) ? '../dashboard?section=upload' : 'dashboard?section=upload'; ?>">
-        <i class="fas fa-upload"></i> Upload Resource
+        <span class="material-symbols-outlined">upload</span> Upload Resource
     </a>
     <a class="nav-link <?php echo ($active_page ?? '') === 'schools' ? 'active' : ''; ?>" href="<?php echo ($in_subdirectory ?? false) ? '../schools' : 'schools'; ?>">
-        <i class="fas fa-school"></i> Schools
+        <span class="material-symbols-outlined">school</span> Schools
     </a>
     <a class="nav-link <?php echo ($active_page ?? '') === 'school-accounts' ? 'active' : ''; ?>" href="<?php echo ($in_subdirectory ?? false) ? '../school-accounts' : 'school-accounts'; ?>">
-        <i class="fas fa-wallet"></i> School Accounts
+        <span class="material-symbols-outlined">account_balance_wallet</span> School Accounts
     </a>
     <a class="nav-link <?php echo ($active_page ?? '') === 'users' ? 'active' : ''; ?>" href="<?php echo ($in_subdirectory ?? false) ? '../users' : 'users'; ?>">
-        <i class="fas fa-users"></i> Users
+        <span class="material-symbols-outlined">people</span> Users
     </a>
     <a class="nav-link <?php echo ($active_page ?? '') === 'resources' ? 'active' : ''; ?>" href="<?php echo ($in_subdirectory ?? false) ? '../resources' : 'resources'; ?>">
-        <i class="fas fa-book"></i> Resources
+        <span class="material-symbols-outlined">library_books</span> Resources
     </a>
     <a class="nav-link <?php echo ($active_page ?? '') === 'transaction-rates' ? 'active' : ''; ?>" href="<?php echo ($in_subdirectory ?? false) ? '../transaction-rates' : 'transaction-rates'; ?>">
-        <i class="fas fa-percentage"></i> Transaction Rates
+        <span class="material-symbols-outlined">percent</span> Transaction Rates
     </a>
     <a class="nav-link <?php echo ($active_page ?? '') === 'reports' ? 'active' : ''; ?>" href="<?php echo ($in_subdirectory ?? false) ? '../reports' : 'reports'; ?>">
-        <i class="fas fa-chart-bar"></i> Reports
+        <span class="material-symbols-outlined">bar_chart</span> Reports
     </a>
     <a class="nav-link <?php echo ($active_page ?? '') === 'logs' ? 'active' : ''; ?>" href="<?php echo ($in_subdirectory ?? false) ? '../logs' : 'logs'; ?>">
-        <i class="fas fa-file-alt"></i> Logs
+        <span class="material-symbols-outlined">description</span> Logs
     </a>
     <a class="nav-link <?php echo ($active_page ?? '') === 'settings' ? 'active' : ''; ?>" href="<?php echo ($in_subdirectory ?? false) ? '../settings' : 'settings'; ?>">
-        <i class="fas fa-cog"></i> Settings
+        <span class="material-symbols-outlined">settings</span> Settings
     </a>
     <a class="nav-link" href="<?php echo ($in_subdirectory ?? false) ? '../logout' : 'logout'; ?>">
-        <i class="fas fa-sign-out-alt"></i> Logout
+        <span class="material-symbols-outlined">logout</span> Logout
     </a>
 </aside>
 
@@ -98,25 +101,12 @@
         border-left: 3px solid var(--primary-color, #1a73e8);
     }
 
-    .nav-link i {
+    .nav-link .material-symbols-outlined {
         margin-right: 12px;
-        font-size: 18px;
+        font-size: 20px;
         width: 24px;
         text-align: center;
     }
-
-    .nav-link[href*="dashboard"] i { color: #4285F4; }
-    .nav-link[href*="my-resources"] i { color: #EA4335; }
-    .nav-link[href*="upload"] i { color: #00AC47; }
-    .nav-link[href*="schools"] i { color: #FFBA00; }
-    .nav-link[href*="school-accounts"] i { color: #0066DA; }
-    .nav-link[href*="users"] i { color: #4285F4; }
-    .nav-link[href*="resources"] i { color: #EA4335; }
-    .nav-link[href*="transaction-rates"] i { color: #00AC47; }
-    .nav-link[href*="reports"] i { color: #FFBA00; }
-    .nav-link[href*="logs"] i { color: #0066DA; }
-    .nav-link[href*="settings"] i { color: #5f6368; }
-    .nav-link[href*="logout"] i { color: #EA4335; }
 
     .dark-mode .sidebar {
         background: var(--bg-color, #1a1a1a);

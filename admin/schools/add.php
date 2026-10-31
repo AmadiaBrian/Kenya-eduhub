@@ -103,7 +103,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#FF6B35">
     <title>Add School - Kenya EduHub</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0">
     <script>window.currentCSRFToken = "<?php echo $csrf_token; ?>";</script>
     <style>
         :root {
@@ -498,10 +498,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 
                 <div style="display: flex; gap: 10px; margin-top: 30px;">
                     <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-save"></i> Add School
+                        <span class="material-symbols-outlined">save</span> Add School
                     </button>
                     <a href="../schools" class="btn btn-secondary">
-                        <i class="fas fa-times"></i> Cancel
+                        <span class="material-symbols-outlined">close</span> Cancel
                     </a>
                 </div>
             </form>

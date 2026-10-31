@@ -54,11 +54,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <title>Reset Password - Kenya EduHub</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <link rel="stylesheet" href="../assets/css/auth-animations.css">
+    <!-- Removed auth-animations.css to prevent style conflicts -->
     <style>
         /* Base */
         body {
-            background: var(--card-bg, #f8f9fa);
+            background: var(--card-bg, #F0F4F9) !important;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             min-height: 100vh;
             display: flex;
@@ -74,12 +74,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         html {
-            background: var(--card-bg, #f8f9fa);
+            background: var(--card-bg, #F0F4F9) !important;
         }
 
         /* Card */
         .login-card {
-            background: #ffffff;
             max-width: 420px;
             width: 100%;
             padding: 3rem 2.5rem 2.5rem;
@@ -89,18 +88,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         .login-card::before {
-            display: none;
+            display: none !important;
         }
 
         .login-card:hover {
             transform: none;
             box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
-            background: #ffffff;
-            border: 1px solid #e8eaed;
         }
 
         .login-card:hover::before {
-            display: none;
+            display: none !important;
         }
 
         .login-card h3 {
@@ -117,7 +114,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             font-size: 1rem;
             border-radius: 25px;
             border: 1px solid #dadce0;
-            background: #f8f9fa;
+            background: #F0F4F9;
             color: #202124;
             transition: border-color 0.2s, box-shadow 0.2s;
         }
@@ -131,14 +128,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         input.form-control:-webkit-autofill:hover,
         input.form-control:-webkit-autofill:focus {
             -webkit-text-fill-color: #202124;
-            -webkit-box-shadow: 0 0 0 1000px #f8f9fa inset;
+            -webkit-box-shadow: 0 0 0 1000px #F0F4F9 inset;
             transition: background-color 5000s ease-in-out 0s;
         }
 
         input.form-control:focus {
             border-color: #FF6B35;
             box-shadow: 0 0 0 2px rgba(255, 107, 53, 0.2);
-            background: #f8f9fa;
+            background: #F0F4F9;
         }
 
         /* Button */
@@ -284,7 +281,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     </style>
 </head>
-<body class="login-page">
+<body class="login-page" style="background: #F0F4F9 !important;">
+<style>
+    body.login-page {
+        background: #F0F4F9 !important;
+    }
+    body {
+        background: #F0F4F9 !important;
+    }
+    html {
+        background: #F0F4F9 !important;
+    }
+</style>
     <main class="login-card" role="main" aria-label="Password Reset Form">
         <div class="text-center mb-4">
             <div class="auth-brand-logo" aria-label="Kenya EduHub Logo">
