@@ -575,14 +575,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['ac
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#FF6B35">
     <title>Settings - Kenya EduHub</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <style>
         :root {
             --primary-color: #1a73e8;
             --secondary-color: #5f6368;
             --bg-color: #F0F4F9;
-            --card-bg: #ffffff;
+            --card-bg: #F0F4F9;
             --sidebar-width: 256px;
             --header-height: 64px;
         }
@@ -1371,7 +1371,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['ac
             <!-- Site Settings -->
             <div class="card mb-4">
                 <div class="card-header">
-                    <i class="fas fa-globe me-2"></i> Site Settings
+                    <span class="material-symbols-outlined me-2">public</span> Site Settings
                 </div>
                 <div class="card-body">
                     <form method="POST">
@@ -1406,7 +1406,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['ac
                         </div>
 
                         <button type="submit" style="width: 100%; padding: 10px 24px; border: none; border-radius: 25px; cursor: pointer; font-size: 14px; font-weight: 500; background: #FF6B35; color: white; margin-bottom: 30px;">
-                            <i class="fas fa-save me-2"></i> Save Changes
+                            <span class="material-symbols-outlined me-2">save</span> Save Changes
                         </button>
                     </form>
                 </div>
@@ -1415,7 +1415,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['ac
             <!-- System Settings -->
             <div class="card mb-4">
                 <div class="card-header">
-                    <i class="fas fa-cogs me-2"></i> System Settings
+                    <span class="material-symbols-outlined me-2">settings</span> System Settings
                 </div>
                 <div class="card-body">
                     <form method="POST">
@@ -1449,7 +1449,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['ac
                         </div>
 
                         <button type="submit" class="btn btn-primary" style="margin-bottom: 30px;">
-                            <i class="fas fa-save me-2"></i> Save Changes
+                            <span class="material-symbols-outlined me-2">save</span> Save Changes
                         </button>
                     </form>
                 </div>
@@ -1458,7 +1458,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['ac
             <!-- Backup Settings -->
             <div class="card mb-4" id="backupSection">
                 <div class="card-header">
-                    <i class="fas fa-database me-2"></i> Backup Settings
+                    <span class="material-symbols-outlined me-2">backup</span> Backup Settings
                 </div>
                 <div class="card-body" style="padding: 0;">
                     <div class="card mb-3" style="background: var(--bg-color); padding: 20px; border-radius: 8px;">
@@ -1508,17 +1508,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['ac
 
                             <div style="margin-bottom: 20px;">
                                 <button type="submit" class="btn btn-primary" style="width: 100%;">
-                                    <i class="fas fa-save me-2"></i> Save Changes
+                                    <span class="material-symbols-outlined me-2">save</span> Save Changes
                                 </button>
                             </div>
                             <div style="margin-bottom: 20px;">
                                 <button type="button" class="btn btn-success" onclick="triggerBackup()" style="width: 100%;">
-                                    <i class="fas fa-download me-2"></i> Backup Now
+                                    <span class="material-symbols-outlined me-2">download</span> Backup Now
                                 </button>
                             </div>
                             <div>
                                 <button type="button" class="btn btn-danger" onclick="clearBackups()" style="width: 100%;">
-                                    <i class="fas fa-trash me-2"></i> Clear Backups
+                                    <span class="material-symbols-outlined me-2">delete</span> Clear Backups
                                 </button>
                             </div>
                         </form>
@@ -1546,7 +1546,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['ac
                                         <td><?php echo date('Y-m-d H:i:s', $file['date']); ?></td>
                                         <td>
                                             <a href="<?php echo htmlspecialchars($backup_path . '/' . $file['name']); ?>" class="btn btn-sm btn-outline-primary" download>
-                                                <i class="fas fa-download"></i> Download
+                                                <span class="material-symbols-outlined me-2">download</span> Download
                                             </a>
                                         </td>
                                     </tr>
@@ -1566,7 +1566,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['ac
             <!-- Email Settings -->
             <div class="card mb-4" id="emailSection">
                 <div class="card-header">
-                    <i class="fas fa-envelope me-2"></i> Email SMTP Settings
+                    <span class="material-symbols-outlined me-2">email</span> Email SMTP Settings
                 </div>
                 <div class="card-body" style="padding: 0;">
                     <!-- Current Settings Display -->
@@ -1591,7 +1591,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['ac
                                     <td>
                                         <span id="displayPassword">••••••••••••••••</span>
                                         <button type="button" class="btn btn-sm btn-link" onclick="toggleDisplayPassword()" style="padding: 0; margin-left: 10px;">
-                                            <i class="fas fa-eye" id="displayPasswordIcon"></i>
+                                            <span class="material-symbols-outlined">visibility</span> id="displayPasswordIcon"></i>
                                         </button>
                                     </td>
                                 </tr>
@@ -1660,7 +1660,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['ac
                             </div>
                             <div style="margin-bottom: 12px;">
                                 <button type="button" class="btn btn-success" onclick="testSmtpConnection()" style="width: 100%;">
-                                    <i class="fas fa-vial"></i> Test Connection
+                                    <span class="material-symbols-outlined me-2">science</span> Test Connection
                                 </button>
                             </div>
                             <div>
@@ -1686,7 +1686,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['ac
             <!-- Backup Settings -->
             <div class="card mb-4">
                 <div class="card-header">
-                    <i class="fas fa-database me-2"></i> Backup Settings
+                    <span class="material-symbols-outlined me-2">backup</span> Backup Settings
                 </div>
                 <div class="card-body">
                     <form method="POST">
@@ -1719,7 +1719,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['ac
                             </div>
                             <div>
                                 <button type="button" class="btn btn-primary" style="width: 100%;">
-                                    <i class="fas fa-download"></i> Download Backup
+                                    <span class="material-symbols-outlined me-2">download</span> Download Backup
                                 </button>
                             </div>
                         </div>
@@ -1744,7 +1744,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['ac
                                 <td>
                                     <span id="displayMobitechKey">••••••••••••••••</span>
                                     <button type="button" class="btn btn-sm btn-link" onclick="toggleMobitechKey()" style="padding: 0; margin-left: 10px;">
-                                        <i class="fas fa-eye" id="displayMobitechKeyIcon"></i>
+                                        <span class="material-symbols-outlined">visibility</span> id="displayMobitechKeyIcon"></i>
                                     </button>
                                 </td>
                             </tr>
@@ -1757,7 +1757,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['ac
                                 <td>
                                     <span id="displayTextsmsKey">••••••••••••••••</span>
                                     <button type="button" class="btn btn-sm btn-link" onclick="toggleTextsmsKey()" style="padding: 0; margin-left: 10px;">
-                                        <i class="fas fa-eye" id="displayTextsmsKeyIcon"></i>
+                                        <span class="material-symbols-outlined">visibility</span> id="displayTextsmsKeyIcon"></i>
                                     </button>
                                 </td>
                             </tr>
@@ -1790,7 +1790,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['ac
             <!-- SMS Provider Selection -->
             <div class="card mb-4">
                 <div class="card-header">
-                    <i class="fas fa-sms me-2"></i> SMS Provider
+                    <span class="material-symbols-outlined me-2">sms</span> SMS Provider
                 </div>
                 <div class="card-body" style="background: var(--bg-color); padding: 20px;">
                     <div class="row">
@@ -1823,7 +1823,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['ac
                 <!-- Mobitech API Key -->
                 <div class="card mb-4" id="mobitechFields">
                     <div class="card-header">
-                        <i class="fas fa-key me-2"></i> Mobitech API Key
+                        <span class="material-symbols-outlined me-2">vpn_key</span> Mobitech API Key
                     </div>
                     <div class="card-body" style="background: var(--bg-color); padding: 20px;">
                         <label class="form-label">Mobitech API Key</label>
@@ -1835,7 +1835,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['ac
                 <!-- Mobitech Sender ID -->
                 <div class="card mb-4" id="mobitechSenderIdField">
                     <div class="card-header">
-                        <i class="fas fa-id-card me-2"></i> Mobitech Sender ID
+                        <span class="material-symbols-outlined me-2">badge</span> Mobitech Sender ID
                     </div>
                     <div class="card-body" style="background: var(--bg-color); padding: 20px;">
                         <label class="form-label">Mobitech Sender ID</label>
@@ -1847,7 +1847,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['ac
                 <!-- Text SMS API Key -->
                 <div class="card mb-4" id="textsmsFields" style="display: none;">
                     <div class="card-header">
-                        <i class="fas fa-key me-2"></i> Text SMS API Key
+                        <span class="material-symbols-outlined me-2">vpn_key</span> Text SMS API Key
                     </div>
                     <div class="card-body" style="background: var(--bg-color); padding: 20px;">
                         <label class="form-label">Text SMS API Key</label>
@@ -1859,7 +1859,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['ac
                 <!-- Text SMS Partner ID -->
                 <div class="card mb-4" id="textsmsPartnerIdField" style="display: none;">
                     <div class="card-header">
-                        <i class="fas fa-id-badge me-2"></i> Text SMS Partner ID
+                        <span class="material-symbols-outlined me-2">badge</span> Text SMS Partner ID
                     </div>
                     <div class="card-body" style="background: var(--bg-color); padding: 20px;">
                         <label class="form-label">Text SMS Partner ID</label>
@@ -1871,7 +1871,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['ac
                 <!-- Text SMS Sender ID -->
                 <div class="card mb-4" id="textsmsSenderIdField" style="display: none;">
                     <div class="card-header">
-                        <i class="fas fa-id-card me-2"></i> Text SMS Sender ID
+                        <span class="material-symbols-outlined me-2">badge</span> Text SMS Sender ID
                     </div>
                     <div class="card-body" style="background: var(--bg-color); padding: 20px;">
                         <label class="form-label">Text SMS Sender ID</label>
@@ -1883,7 +1883,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['ac
                 <!-- SMS Enabled Toggle -->
                 <div class="card mb-4">
                     <div class="card-header">
-                        <i class="fas fa-toggle-on me-2"></i> SMS Notifications
+                        <span class="material-symbols-outlined me-2">toggle_on</span> SMS Notifications
                     </div>
                     <div class="card-body" style="background: var(--bg-color); padding: 20px;">
                         <div class="form-check form-switch">
@@ -1899,7 +1899,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['ac
                 <!-- Action Buttons -->
                 <div class="card mb-4">
                     <div class="card-header">
-                        <i class="fas fa-cog me-2"></i> Actions
+                        <span class="material-symbols-outlined me-2">settings</span> Actions
                     </div>
                     <div class="card-body" style="background: var(--bg-color); padding: 20px;">
                         <div style="margin-bottom: 12px;">
@@ -1907,7 +1907,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['ac
                         </div>
                         <div style="margin-bottom: 12px;">
                             <button type="button" class="btn btn-outline-primary" onclick="checkSmsBalance()" style="width: 100%;">
-                                <i class="fas fa-wallet"></i> Check Balance
+                                <span class="material-symbols-outlined">account_balance_wallet</span> Check Balance
                             </button>
                         </div>
                         <div>
@@ -1922,7 +1922,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['ac
             <!-- SMS Balance Display -->
             <div class="card mb-4" id="smsBalanceDisplay" style="display: none;">
                 <div class="card-header">
-                    <i class="fas fa-wallet me-2"></i> SMS Balance
+                    <span class="material-symbols-outlined me-2">account_balance_wallet</span> SMS Balance
                 </div>
                 <div class="card-body" style="background: var(--bg-color); padding: 20px;">
                     <div class="table-responsive">
@@ -1947,7 +1947,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['ac
             <!-- Current M-Pesa Settings -->
             <div class="card mb-4" id="currentMpesaSettings" style="display: <?php echo !empty($mpesa_settings) ? 'block' : 'none'; ?>;">
                 <div class="card-header">
-                    <i class="fas fa-mobile-alt me-2"></i> Current M-Pesa Settings
+                    <span class="material-symbols-outlined me-2">phonelink</span> Current M-Pesa Settings
                 </div>
                 <div class="card-body" style="padding: 0;">
                     <div class="table-responsive" style="width: 100%;">
@@ -1965,7 +1965,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['ac
                                 <td>
                                     <span id="displayConsumerKey">••••••••••••••••</span>
                                     <button type="button" class="btn btn-sm btn-link" onclick="toggleConsumerKey()" style="padding: 0; margin-left: 10px;">
-                                        <i class="fas fa-eye" id="displayConsumerKeyIcon"></i>
+                                        <span class="material-symbols-outlined">visibility</span> id="displayConsumerKeyIcon"></i>
                                     </button>
                                 </td>
                             </tr>
@@ -1974,7 +1974,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['ac
                                 <td>
                                     <span id="displayConsumerSecret">••••••••••••••••</span>
                                     <button type="button" class="btn btn-sm btn-link" onclick="toggleConsumerSecret()" style="padding: 0; margin-left: 10px;">
-                                        <i class="fas fa-eye" id="displayConsumerSecretIcon"></i>
+                                        <span class="material-symbols-outlined">visibility</span> id="displayConsumerSecretIcon"></i>
                                     </button>
                                 </td>
                             </tr>
@@ -1983,7 +1983,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['ac
                                 <td>
                                     <span id="displayPasskey">••••••••••••••••</span>
                                     <button type="button" class="btn btn-sm btn-link" onclick="togglePasskey()" style="padding: 0; margin-left: 10px;">
-                                        <i class="fas fa-eye" id="displayPasskeyIcon"></i>
+                                        <span class="material-symbols-outlined">visibility</span> id="displayPasskeyIcon"></i>
                                     </button>
                                 </td>
                             </tr>
@@ -2011,7 +2011,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['ac
             <!-- M-Pesa Settings Form -->
             <div class="card mb-4">
                 <div class="card-header">
-                    <i class="fas fa-mobile-alt me-2"></i> M-Pesa Configuration
+                    <span class="material-symbols-outlined me-2">phonelink</span> M-Pesa Configuration
                 </div>
                 <div class="card-body" style="background: var(--bg-color); padding: 20px;">
                     <form method="POST">
@@ -2054,7 +2054,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['ac
                         <!-- Callback Base URL -->
                         <div class="card mb-4">
                             <div class="card-header">
-                                <i class="fas fa-link me-2"></i> Callback Base URL
+                                <span class="material-symbols-outlined me-2">link</span> Callback Base URL
                             </div>
                             <div class="card-body" style="background: var(--bg-color); padding: 20px;">
                                 <label class="form-label">Callback Base URL</label>
@@ -2066,7 +2066,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['ac
                         <!-- Consumer Key -->
                         <div class="card mb-4">
                             <div class="card-header">
-                                <i class="fas fa-key me-2"></i> Consumer Key
+                                <span class="material-symbols-outlined me-2">vpn_key</span> Consumer Key
                             </div>
                             <div class="card-body" style="background: var(--bg-color); padding: 20px;">
                                 <label class="form-label">Consumer Key</label>
@@ -2078,7 +2078,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['ac
                         <!-- Consumer Secret -->
                         <div class="card mb-4">
                             <div class="card-header">
-                                <i class="fas fa-key me-2"></i> Consumer Secret
+                                <span class="material-symbols-outlined me-2">vpn_key</span> Consumer Secret
                             </div>
                             <div class="card-body" style="background: var(--bg-color); padding: 20px;">
                                 <label class="form-label">Consumer Secret</label>
@@ -2090,7 +2090,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['ac
                         <!-- Passkey -->
                         <div class="card mb-4">
                             <div class="card-header">
-                                <i class="fas fa-key me-2"></i> Passkey
+                                <span class="material-symbols-outlined me-2">vpn_key</span> Passkey
                             </div>
                             <div class="card-body" style="background: var(--bg-color); padding: 20px;">
                                 <label class="form-label">Passkey</label>
@@ -2102,7 +2102,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['ac
                         <!-- Business Shortcode -->
                         <div class="card mb-4">
                             <div class="card-header">
-                                <i class="fas fa-hashtag me-2"></i> Business Shortcode
+                                <span class="material-symbols-outlined me-2">hashtag</span> Business Shortcode
                             </div>
                             <div class="card-body" style="background: var(--bg-color); padding: 20px;">
                                 <label class="form-label">Business Shortcode</label>
@@ -2114,7 +2114,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['ac
                         <!-- STK Push URL -->
                         <div class="card mb-4">
                             <div class="card-header">
-                                <i class="fas fa-link me-2"></i> STK Push URL
+                                <span class="material-symbols-outlined me-2">link</span> STK Push URL
                             </div>
                             <div class="card-body" style="background: var(--bg-color); padding: 20px;">
                                 <label class="form-label">STK Push URL</label>
@@ -2126,7 +2126,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['ac
                         <!-- Auth URL -->
                         <div class="card mb-4">
                             <div class="card-header">
-                                <i class="fas fa-link me-2"></i> Auth URL
+                                <span class="material-symbols-outlined me-2">link</span> Auth URL
                             </div>
                             <div class="card-body" style="background: var(--bg-color); padding: 20px;">
                                 <label class="form-label">Auth URL</label>
@@ -2138,7 +2138,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['ac
                         <!-- B2C URL -->
                         <div class="card mb-4">
                             <div class="card-header">
-                                <i class="fas fa-link me-2"></i> B2C URL
+                                <span class="material-symbols-outlined me-2">link</span> B2C URL
                             </div>
                             <div class="card-body" style="background: var(--bg-color); padding: 20px;">
                                 <label class="form-label">B2C URL</label>
@@ -2150,7 +2150,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['ac
                         <!-- B2C Shortcode -->
                         <div class="card mb-4">
                             <div class="card-header">
-                                <i class="fas fa-hashtag me-2"></i> B2C Shortcode
+                                <span class="material-symbols-outlined me-2">hashtag</span> B2C Shortcode
                             </div>
                             <div class="card-body" style="background: var(--bg-color); padding: 20px;">
                                 <label class="form-label">B2C Shortcode</label>
@@ -2162,7 +2162,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['ac
                         <!-- B2C Initiator Name -->
                         <div class="card mb-4">
                             <div class="card-header">
-                                <i class="fas fa-user me-2"></i> B2C Initiator Name
+                                <span class="material-symbols-outlined me-2">person</span> B2C Initiator Name
                             </div>
                             <div class="card-body" style="background: var(--bg-color); padding: 20px;">
                                 <label class="form-label">B2C Initiator Name</label>
@@ -2174,7 +2174,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['ac
                         <!-- B2C Initiator Password -->
                         <div class="card mb-4">
                             <div class="card-header">
-                                <i class="fas fa-key me-2"></i> B2C Initiator Password
+                                <span class="material-symbols-outlined me-2">vpn_key</span> B2C Initiator Password
                             </div>
                             <div class="card-body" style="background: var(--bg-color); padding: 20px;">
                                 <label class="form-label">B2C Initiator Password</label>
@@ -2186,7 +2186,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['ac
                         <!-- B2C Command ID -->
                         <div class="card mb-4">
                             <div class="card-header">
-                                <i class="fas fa-tag me-2"></i> B2C Command ID
+                                <span class="material-symbols-outlined me-2">label</span> B2C Command ID
                             </div>
                             <div class="card-body" style="background: var(--bg-color); padding: 20px;">
                                 <label class="form-label">B2C Command ID</label>
@@ -2198,7 +2198,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['ac
                         <!-- Transaction Type -->
                         <div class="card mb-4">
                             <div class="card-header">
-                                <i class="fas fa-tag me-2"></i> Transaction Type
+                                <span class="material-symbols-outlined me-2">label</span> Transaction Type
                             </div>
                             <div class="card-body" style="background: var(--bg-color); padding: 20px;">
                                 <label class="form-label">Transaction Type</label>
@@ -2210,7 +2210,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['ac
                         <!-- Timeout -->
                         <div class="card mb-4">
                             <div class="card-header">
-                                <i class="fas fa-clock me-2"></i> Timeout
+                                <span class="material-symbols-outlined me-2">schedule</span> Timeout
                             </div>
                             <div class="card-body" style="background: var(--bg-color); padding: 20px;">
                                 <label class="form-label">Timeout (seconds)</label>
@@ -2222,7 +2222,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['ac
                         <!-- Action Buttons -->
                         <div class="card mb-4">
                             <div class="card-header">
-                                <i class="fas fa-cog me-2"></i> Actions
+                                <span class="material-symbols-outlined me-2">settings</span> Actions
                             </div>
                             <div class="card-body" style="background: var(--bg-color); padding: 20px;">
                                 <div style="margin-bottom: 12px;">

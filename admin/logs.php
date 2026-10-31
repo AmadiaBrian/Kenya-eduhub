@@ -138,7 +138,7 @@ if (($downloadFile = $_GET['download'] ?? '') && preg_match('/^[a-zA-Z0-9_.-]+$/
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#FF6B35">
     <title>System Logs - Kenya EduHub</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <script>window.currentCSRFToken = "<?php echo $csrf_token; ?>";</script>
     <style>
@@ -543,21 +543,21 @@ if (($downloadFile = $_GET['download'] ?? '') && preg_match('/^[a-zA-Z0-9_.-]+$/
         
         <?php if (isset($_GET['cleared'])): ?>
             <div class="alert alert-success">
-                <i class="fas fa-check-circle"></i>
+                <span class="material-symbols-outlined">check_circle</span>
                 <span>Log file cleared successfully.</span>
             </div>
         <?php endif; ?>
         
         <?php if (isset($_GET['cleared_all'])): ?>
             <div class="alert alert-success">
-                <i class="fas fa-check-circle"></i>
+                <span class="material-symbols-outlined">check_circle</span>
                 <span>All log files cleared successfully.</span>
             </div>
         <?php endif; ?>
         
         <?php if ($error): ?>
             <div class="alert alert-warning">
-                <i class="fas fa-exclamation-triangle"></i>
+                <span class="material-symbols-outlined">warning</span>
                 <span><?php echo htmlspecialchars($error); ?></span>
             </div>
         <?php endif; ?>
@@ -584,15 +584,15 @@ if (($downloadFile = $_GET['download'] ?? '') && preg_match('/^[a-zA-Z0-9_.-]+$/
                 <div style="display: flex; gap: 10px; margin-top: 10px;">
                     <?php if ($currentLog): ?>
                         <a href="?download=<?php echo htmlspecialchars($logFile); ?>" class="btn btn-action">
-                            <i class="fas fa-download"></i> Download
+                            <span class="material-symbols-outlined">download</span> Download
                         </a>
                         <button type="button" class="btn btn-primary" onclick="showClearLogModal()">
-                            <i class="fas fa-trash"></i> Clear Log
+                            <span class="material-symbols-outlined">delete</span> Clear Log
                         </button>
                     <?php endif; ?>
                     <?php if (!empty($logs)): ?>
                         <button type="button" class="btn btn-primary" onclick="showClearAllLogsModal()" style="background: #d13438;">
-                            <i class="fas fa-trash-alt"></i> Clear All Logs
+                            <span class="material-symbols-outlined">delete</span> Clear All Logs
                         </button>
                     <?php endif; ?>
                 </div>

@@ -122,7 +122,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $resource) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#FF6B35">
     <title>Edit Resource - Kenya EduHub</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <script>window.currentCSRFToken = "<?php echo $csrf_token; ?>";</script>
     <style>
@@ -492,21 +492,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $resource) {
             <div class="card-header">
                 <h2>Resource Information</h2>
                 <a href="../resources" class="btn btn-outline">
-                    <i class="fas fa-arrow-left"></i> Back to Resources
+                    <span class="material-symbols-outlined">arrow_back</span> Back to Resources
                 </a>
             </div>
             
             <div class="card-body">
                 <?php if ($error): ?>
                     <div class="alert alert-danger">
-                        <i class="fas fa-exclamation-circle"></i>
+                        <span class="material-symbols-outlined">error</span>
                         <span><?php echo htmlspecialchars($error); ?></span>
                     </div>
                 <?php endif; ?>
 
                 <?php if ($success): ?>
                     <div class="alert alert-success">
-                        <i class="fas fa-check-circle"></i>
+                        <span class="material-symbols-outlined">check_circle</span>
                         <span><?php echo htmlspecialchars($success); ?></span>
                     </div>
                 <?php endif; ?>
@@ -563,7 +563,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $resource) {
                         <div class="form-actions">
                             <a href="../resources" class="btn btn-outline">Cancel</a>
                             <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-save"></i> Save Changes
+                                <span class="material-symbols-outlined">save</span> Save Changes
                             </button>
                         </div>
                     </form>

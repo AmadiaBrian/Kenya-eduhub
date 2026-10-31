@@ -59,7 +59,7 @@ $active_schools = count(array_filter($schools, fn($s) => $s['status'] === 'activ
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#FF6B35">
     <title>Schools Management - Kenya EduHub</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <script>window.currentCSRFToken = "<?php echo $csrf_token; ?>";</script>
     <style>
@@ -691,28 +691,28 @@ $active_schools = count(array_filter($schools, fn($s) => $s['status'] === 'activ
         <div class="stats-grid">
             <div class="stat-card">
                 <div class="stat-icon">
-                    <i class="fas fa-school"></i>
+                    <span class="material-symbols-outlined">school</span>
                 </div>
                 <h3><?php echo $total_schools; ?></h3>
                 <p>Total Schools</p>
             </div>
             <div class="stat-card">
                 <div class="stat-icon">
-                    <i class="fas fa-check-circle"></i>
+                    <span class="material-symbols-outlined">check_circle</span>
                 </div>
                 <h3><?php echo $active_schools; ?></h3>
                 <p>Active Schools</p>
             </div>
             <div class="stat-card">
                 <div class="stat-icon">
-                    <i class="fas fa-user-graduate"></i>
+                    <span class="material-symbols-outlined">school</span>
                 </div>
                 <h3><?php echo $total_students; ?></h3>
                 <p>Total Students</p>
             </div>
             <div class="stat-card">
                 <div class="stat-icon">
-                    <i class="fas fa-chalkboard-teacher"></i>
+                    <span class="material-symbols-outlined">person</span>
                 </div>
                 <h3><?php echo $total_teachers; ?></h3>
                 <p>Total Teachers</p>
@@ -726,7 +726,7 @@ $active_schools = count(array_filter($schools, fn($s) => $s['status'] === 'activ
             </div>
             <div class="card-body" style="padding: 20px;">
                 <button class="btn btn-primary" onclick="window.location.href='../schools-add'" style="width: 100%;">
-                    <i class="fas fa-plus"></i> Add New School
+                    <span class="material-symbols-outlined">add</span> Add New School
                 </button>
             </div>
             <div class="table-responsive" style="padding: 0 20px 20px 20px;">
@@ -771,21 +771,21 @@ $active_schools = count(array_filter($schools, fn($s) => $s['status'] === 'activ
                                     <td>
                                         <div class="action-buttons">
                                             <button class="btn btn-sm btn-action" onclick="viewSchool(<?php echo $school['id']; ?>)">
-                                                <i class="fas fa-eye"></i>
+                                                <span class="material-symbols-outlined">visibility</span>
                                             </button>
                                             <button class="btn btn-sm btn-action" onclick="editSchool(<?php echo $school['id']; ?>)">
-                                                <i class="fas fa-edit"></i>
+                                                <span class="material-symbols-outlined">edit</span>
                                             </button>
                                             <button class="btn btn-sm btn-action" onclick="managePin(<?php echo $school['id']; ?>, '<?php echo htmlspecialchars($school['school_name']); ?>')" title="Manage PIN">
-                                                <i class="fas fa-key"></i>
+                                                <span class="material-symbols-outlined">vpn_key</span>
                                             </button>
                                             <?php if ($school['status'] === 'active'): ?>
                                                 <button class="btn btn-sm btn-action" onclick="toggleStatus(<?php echo $school['id']; ?>, 'inactive')" title="Deactivate">
-                                                    <i class="fas fa-pause"></i>
+                                                    <span class="material-symbols-outlined">pause</span>
                                                 </button>
                                             <?php else: ?>
                                                 <button class="btn btn-sm btn-action" onclick="toggleStatus(<?php echo $school['id']; ?>, 'active')" title="Activate">
-                                                    <i class="fas fa-play"></i>
+                                                    <span class="material-symbols-outlined">play_arrow</span>
                                                 </button>
                                             <?php endif; ?>
                                         </div>
@@ -804,10 +804,9 @@ $active_schools = count(array_filter($schools, fn($s) => $s['status'] === 'activ
         // Dark mode toggle
         function toggleDarkMode() {
             document.body.classList.toggle('dark-mode');
-            const toggleBtn = document.querySelector('.dark-mode-toggle i');
+            const toggleBtn = document.querySelector('.dark-mode-toggle span');
             if (toggleBtn) {
-                toggleBtn.classList.toggle('fa-moon');
-                toggleBtn.classList.toggle('fa-sun');
+                toggleBtn.textContent = document.body.classList.contains('dark-mode') ? 'light_mode' : 'dark_mode';
             }
             localStorage.setItem('darkMode', document.body.classList.contains('dark-mode') ? 'dark' : 'light');
         }
@@ -817,10 +816,9 @@ $active_schools = count(array_filter($schools, fn($s) => $s['status'] === 'activ
             const savedDarkMode = localStorage.getItem('darkMode');
             if (savedDarkMode === 'dark') {
                 document.body.classList.add('dark-mode');
-                const toggleBtn = document.querySelector('.dark-mode-toggle i');
+                const toggleBtn = document.querySelector('.dark-mode-toggle span');
                 if (toggleBtn) {
-                    toggleBtn.classList.remove('fa-moon');
-                    toggleBtn.classList.add('fa-sun');
+                    toggleBtn.textContent = 'light_mode';
                 }
             }
         });
@@ -990,7 +988,7 @@ $active_schools = count(array_filter($schools, fn($s) => $s['status'] === 'activ
                             <input type="password" class="form-control" id="confirmPinInput" placeholder="Confirm PIN" minlength="4" pattern="[0-9]+" required>
                         </div>
                         <button type="button" class="btn btn-primary" onclick="savePin()">
-                            <i class="fas fa-save me-2"></i> Set PIN
+                            <span class="material-symbols-outlined me-2">save</span> Set PIN
                         </button>
                     </div>
                     
@@ -1010,12 +1008,12 @@ $active_schools = count(array_filter($schools, fn($s) => $s['status'] === 'activ
                                 <input type="password" class="form-control" id="confirmPinInput" placeholder="Confirm PIN" minlength="4" pattern="[0-9]+" required>
                             </div>
                             <button type="button" class="btn btn-primary" onclick="savePin()">
-                                <i class="fas fa-save me-2"></i> Update PIN
+                                <span class="material-symbols-outlined me-2">save</span> Update PIN
                             </button>
                         </div>
                         
                         <button type="button" id="changePinBtn" class="btn btn-primary" onclick="showChangePinForm()">
-                            <i class="fas fa-key me-2"></i> Change PIN
+                            <span class="material-symbols-outlined me-2">vpn_key</span> Change PIN
                         </button>
                     </div>
                 </div>

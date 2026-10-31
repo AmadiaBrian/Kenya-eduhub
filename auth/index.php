@@ -76,7 +76,7 @@ if (!checkRateLimit($auth_identifier, 5, 300)) { // 5 attempts per 5 minutes
 
 // Output CSRF token to JavaScript for AJAX requests
 $csrf_token = generateCSRFLite();
-echo '<script>window.currentCSRFToken = "' . $csrf_token . '";</script>';
+// echo '<script>window.currentCSRFToken = "' . $csrf_token . '";</script>'; // Temporarily disabled to test background issue
 
 // Log auth access
 logActivity('AUTH_ACCESS', 'User accessed auth route', [

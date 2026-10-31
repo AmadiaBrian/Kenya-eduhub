@@ -347,7 +347,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['new_password']) && $s
         }
 
         body {
-            background: var(--card-bg, #f8f9fa);
+            background: #F0F4F9;
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -427,13 +427,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['new_password']) && $s
             outline: none;
             transition: border-color 0.2s, box-shadow 0.2s;
             font-family: inherit;
-            background: #f8f9fa;
+            background: #F0F4F9;
         }
 
         .form-control:focus {
             border-color: #FF6B35;
             box-shadow: 0 0 0 2px rgba(255, 107, 53, 0.2);
-            background: #f8f9fa;
+            background: #F0F4F9;
         }
 
         .form-control::placeholder {
@@ -663,7 +663,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['new_password']) && $s
             $user_email = $_SESSION['reset_user_email'] ?? '';
             ?>
             <?php if ($user_name): ?>
-                <div style="text-align: center; margin-bottom: 24px; padding: 16px; background: #f8f9fa; border-radius: 12px;">
+                <div style="text-align: center; margin-bottom: 24px; padding: 16px; background: #F0F4F9; border-radius: 12px;">
                     <div style="display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 8px;">
                         <div style="width: 48px; height: 48px; background: #FFD700; border: 3px solid #FF6B35; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
                             <i class="fas fa-user" style="color: #FF6B35; font-size: 20px;"></i>

@@ -643,7 +643,7 @@ $total_schools = count($schools);
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <title>School Accounts - Kenya EduHub Admin</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <script>window.currentCSRFToken = "<?php echo $csrf_token; ?>";</script>
     <style>
@@ -1108,7 +1108,7 @@ $total_schools = count($schools);
             <!-- Manual Withdrawal Form -->
             <div class="card mb-4">
                 <div class="card-header">
-                    <i class="fas fa-money-bill-wave me-2"></i>Process Cash Withdrawal
+                    <span class="material-symbols-outlined me-2">payments</span>Process Cash Withdrawal
                 </div>
                 <div class="card-body">
                     <?php if (!empty($errors)): ?>
@@ -1140,7 +1140,7 @@ $total_schools = count($schools);
                         
                         <div id="schoolDetails" style="display: none;">
                             <div class="alert alert-info">
-                                <h5><i class="fas fa-school me-2"></i><span id="displaySchoolName"></span></h5>
+                                <h5><span class="material-symbols-outlined me-2">school</span><span id="displaySchoolName"></span></h5>
                                 <p class="mb-0 text-muted">School found. Please verify email to continue.</p>
                             </div>
                             
@@ -1154,13 +1154,13 @@ $total_schools = count($schools);
                             </div>
                             
                             <button type="button" class="btn btn-primary" id="verifyEmailBtn">
-                                <i class="fas fa-check"></i> Verify Email
+                                <span class="material-symbols-outlined">check</span> Verify Email
                             </button>
                         </div>
                         
                         <div id="schoolFullDetails" style="display: none;">
                             <div class="alert alert-success">
-                                <h5><i class="fas fa-check-circle me-2"></i>Email Verified</h5>
+                                <h5><span class="material-symbols-outlined me-2">check_circle</span>Email Verified</h5>
                                 <p class="mb-1"><strong>Email:</strong> <span id="displayEmail"></span></p>
                                 <p class="mb-1"><strong>Phone:</strong> <span id="displayPhone"></span></p>
                                 <p class="mb-0"><strong>Current Balance:</strong> <span id="displayBalance" style="font-weight: bold; color: #008000;"></span></p>
@@ -1169,7 +1169,7 @@ $total_schools = count($schools);
                         
                         <div id="pinVerification" style="display: none;">
                             <div class="alert alert-warning">
-                                <i class="fas fa-lock me-2"></i> <strong>Security Verification Required</strong>
+                                <span class="material-symbols-outlined me-2">lock</span> <strong>Security Verification Required</strong>
                             </div>
                             
                             <div class="mb-3">
@@ -1179,13 +1179,13 @@ $total_schools = count($schools);
                             </div>
                             
                             <button type="button" class="btn btn-primary" id="verifyPinBtn">
-                                <i class="fas fa-check"></i> Verify PIN
+                                <span class="material-symbols-outlined">check</span> Verify PIN
                             </button>
                         </div>
                         
                         <div id="codeVerification" style="display: none;">
                             <div class="alert alert-info">
-                                <i class="fas fa-envelope me-2"></i> <strong>Verification Code Sent</strong>
+                                <span class="material-symbols-outlined me-2">mail</span> <strong>Verification Code Sent</strong>
                                 <p class="mb-0">A 6-digit verification code has been sent to the school email. Please enter it below to continue.</p>
                             </div>
                             
@@ -1196,17 +1196,17 @@ $total_schools = count($schools);
                             </div>
                             
                             <button type="button" class="btn btn-primary" id="verifyCodeBtn">
-                                <i class="fas fa-check"></i> Verify Email Code
+                                <span class="material-symbols-outlined">check</span> Verify Email Code
                             </button>
                             
                             <button type="button" class="btn btn-outline-primary" id="resendCodeBtn" onclick="resendVerificationCode()">
-                                <i class="fas fa-redo"></i> Resend Code
+                                <span class="material-symbols-outlined">refresh</span> Resend Code
                             </button>
                         </div>
                         
                         <div id="smsCodeVerification" style="display: none;">
                             <div class="alert alert-info">
-                                <i class="fas fa-sms me-2"></i> <strong>SMS Verification Code Sent</strong>
+                                <span class="material-symbols-outlined me-2">sms</span> <strong>SMS Verification Code Sent</strong>
                                 <p class="mb-0">A different 6-digit verification code has been sent to the school phone. Please enter it below to continue.</p>
                             </div>
                             
@@ -1217,7 +1217,7 @@ $total_schools = count($schools);
                             </div>
                             
                             <button type="button" class="btn btn-primary" id="verifySmsCodeBtn">
-                                <i class="fas fa-check"></i> Verify SMS Code
+                                <span class="material-symbols-outlined">check</span> Verify SMS Code
                             </button>
                         </div>
                         
@@ -1234,7 +1234,7 @@ $total_schools = count($schools);
                             </div>
                             
                             <button type="submit" name="process_withdrawal" class="btn btn-primary">
-                                <i class="fas fa-money-bill-wave"></i> Process Withdrawal & Give Cash
+                                <span class="material-symbols-outlined">payments</span> Process Withdrawal & Give Cash
                             </button>
                         </div>
                     </form>
@@ -1244,12 +1244,12 @@ $total_schools = count($schools);
             <!-- School Accounts Table -->
             <div class="card">
                 <div class="card-header">
-                    <i class="fas fa-wallet me-2"></i>School Account Balances
+                    <span class="material-symbols-outlined me-2">account_balance_wallet</span>School Account Balances
                 </div>
                 <div class="card-body">
                     <?php if (empty($schools)): ?>
                         <div class="text-center py-5">
-                            <i class="fas fa-school" style="font-size: 48px; color: #dadce0; margin-bottom: 16px;"></i>
+                            <span class="material-symbols-outlined" style="font-size: 48px; color: #dadce0; margin-bottom: 16px;">school</span>
                             <h5>No Schools Found</h5>
                             <p class="text-muted">No schools registered in the system yet.</p>
                         </div>
@@ -1462,7 +1462,7 @@ $total_schools = count($schools);
         
         function showFormError(message) {
             const errorDiv = document.getElementById('formErrors');
-            errorDiv.innerHTML = '<i class="fas fa-exclamation-circle me-2"></i>' + message;
+            errorDiv.innerHTML = '<span class="material-symbols-outlined me-2">error</span>' + message;
             errorDiv.style.display = 'block';
         }
         
