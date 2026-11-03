@@ -137,8 +137,8 @@ if ($teacher) {
         :root {
             --primary-color: #FF6B35;
             --secondary-color: #5f6368;
-            --bg-color: #f8f9fa;
-            --card-bg: #f8f9fa;
+            --bg-color: #F0F4F9;
+            --card-bg: #F0F4F9;
             --sidebar-width: 256px;
             --header-height: 64px;
         }
@@ -150,7 +150,7 @@ if ($teacher) {
         }
         
         body {
-            background: #f8f9fa;
+            background: #F0F4F9;
             font-family: 'Google Sans', 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             font-size: 14px;
             color: #202124;
@@ -165,7 +165,7 @@ if ($teacher) {
         }
         
         .card {
-            background: #f8f9fa;
+            background: #F0F4F9;
             border: 1px solid #e0e0e0;
             border-radius: 8px;
             padding: 24px;
@@ -267,45 +267,45 @@ if ($teacher) {
             width: 100%;
             border-collapse: collapse;
             background: white;
-            border: 1px solid #000;
+            border: 2px solid #000;
             margin: 0;
+            font-family: 'Times New Roman', Times, serif;
         }
-        
-        .table-responsive {
-            width: 100%;
-            overflow-x: auto;
-        }
-        
+
         .table thead {
-            background: #FF6B35 !important;
+            background: #f0f0f0;
             border-bottom: 2px solid #000;
         }
 
         .table thead th {
-            background: #FF6B35 !important;
-            text-align: left;
-            padding: 12px;
-            font-size: 13px;
-            font-weight: 600;
-            color: #ffffff !important;
-            border: 1px solid #000;
+            background: #f0f0f0;
+            border: 2px solid #000;
             border-bottom: 2px solid #000;
-            text-transform: uppercase;
+            padding: 12px;
+            font-weight: bold;
+            color: #000;
         }
-        
+
         .table td {
             padding: 12px;
-            font-size: 13px;
+            border: 2px solid #000;
             color: #000;
-            border: 1px solid #000;
+            font-size: 13px;
         }
-        
+
         .table tbody tr:nth-child(even) {
-            background: #f9f9f9;
+            background: #fafafa;
         }
-        
+
         .table tbody tr:hover {
-            background: #f0f0f0;
+            background: #f8f9fa;
+        }
+
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+            margin: 0;
+            padding: 0;
         }
         
         /* Responsive */
@@ -364,7 +364,7 @@ if ($teacher) {
         }
     </style>
 </head>
-<body>
+<body class="login-page">
     <?php require_once 'includes/header.php'; ?>
     <?php $active_page = 'results'; require_once 'includes/sidebar.php'; ?>
     
@@ -1047,6 +1047,6 @@ if ($teacher) {
     </script>
     
     <!-- Footer -->
-    <?php require_once '../includes/copywrite.php'; ?>
+    <?php require_once __DIR__ . '/../includes/copywrite.php'; ?>
 </body>
 </html>

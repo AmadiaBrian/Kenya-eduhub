@@ -108,10 +108,10 @@ try {
     <meta name="theme-color" content="#FF6B35">
     <title>Student Subjects - <?php echo htmlspecialchars($teacher_name); ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
     <style>
         body {
-            background: #f8f9fa;
+            background: #F0F4F9;
             font-family: 'Google Sans', 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             font-size: 14px;
             color: #202124;
@@ -126,7 +126,16 @@ try {
         }
 
         .card {
-            background: #f8f9fa;
+            background: #F0F4F9;
+        }
+
+        /* Material Symbols styling */
+        .material-symbols-outlined {
+            font-size: 20px;
+            vertical-align: middle;
+            color: #5f6368;
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
             border: 1px solid #e0e0e0;
             border-radius: 8px;
             padding: 24px;
@@ -152,7 +161,7 @@ try {
             border-radius: 8px;
             padding: 10px 12px;
             font-size: 14px;
-            background: #f8f9fa;
+            background: #F0F4F9;
         }
 
         .form-control:focus {
@@ -197,6 +206,26 @@ try {
             background: #b92b20;
         }
 
+        .btn-action {
+            background: transparent;
+            color: #5f6368;
+            border: none;
+            padding: 4px 8px;
+        }
+
+        .btn-action:hover {
+            background: #e8eaed;
+            color: #202124;
+        }
+
+        .btn-action .material-symbols-outlined {
+            color: #5f6368;
+        }
+
+        .btn-action:hover .material-symbols-outlined {
+            color: #202124;
+        }
+
         .table {
             border-collapse: collapse;
             background: white;
@@ -206,34 +235,25 @@ try {
             font-family: 'Times New Roman', Times, serif;
         }
 
-        .table-responsive {
-            width: 100%;
-            overflow-x: auto;
-        }
-
         .table thead {
-            background: #FF6B35 !important;
+            background: #f0f0f0;
             border-bottom: 2px solid #000;
         }
 
         .table thead th {
-            background: #FF6B35 !important;
-            border: 1px solid #000;
+            background: #f0f0f0;
+            border: 2px solid #000;
             border-bottom: 2px solid #000;
-            padding: 10px;
+            padding: 12px;
             font-weight: bold;
-            color: #ffffff !important;
-            font-size: 12px;
-            text-transform: uppercase;
-            text-align: left;
+            color: #000;
         }
 
         .table td {
-            padding: 10px;
-            border: 1px solid #000;
+            padding: 12px;
+            border: 2px solid #000;
             color: #000;
-            font-size: 12px;
-            vertical-align: middle;
+            font-size: 13px;
         }
 
         .table tbody tr:nth-child(even) {
@@ -241,7 +261,14 @@ try {
         }
 
         .table tbody tr:hover {
-            background: #f0f0f0;
+            background: #f8f9fa;
+        }
+
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+            margin: 0;
+            padding: 0;
         }
 
         .checkbox-cell {
@@ -292,18 +319,10 @@ try {
             }
         }
 
-        /* Icon colors - Google Search Console style (gray) */
-        .fa-plus, .fa-edit, .fa-trash, .fa-download, .fa-print, .fa-filter,
-        .fa-calendar, .fa-calendar-alt, .fa-calendar-check, .fa-check-circle,
-        .fa-exclamation-circle, .fa-exclamation-triangle, .fa-info-circle,
-        .fa-search, .fa-sms, .fa-award, .fa-chart-line, .fa-redo,
-        .fa-user-graduate, .fa-book, .fa-users, .fa-clipboard-list,
-        .fa-money-bill-wave, .fa-home, .fa-user, .fa-sign-out-alt {
-            color: #5f6368;
-        }
+
     </style>
 </head>
-<body>
+<body class="login-page">
     <?php require_once 'includes/header.php'; ?>
     <?php $active_page = 'student-subjects'; require_once 'includes/sidebar.php'; ?>
 
@@ -350,16 +369,16 @@ try {
                 
                 <div class="mb-3">
                     <button type="button" class="btn btn-primary" onclick="selectAllStudents()">
-                        <i class="fas fa-check-double me-2"></i> Select All Students
+                        <span class="material-symbols-outlined me-2">select_all</span> Select All Students
                     </button>
                     <button type="button" class="btn btn-secondary" onclick="deselectAllStudents()">
-                        <i class="fas fa-times me-2"></i> Deselect All
+                        <span class="material-symbols-outlined me-2">deselect</span> Deselect All
                     </button>
                     <button type="button" class="btn btn-warning" onclick="autoAssignCompulsory()">
-                        <i class="fas fa-magic me-2"></i> Auto-Assign Compulsory Subjects
+                        <span class="material-symbols-outlined me-2">auto_awesome</span> Auto-Assign Compulsory Subjects
                     </button>
                     <button type="submit" class="btn btn-success">
-                        <i class="fas fa-save me-2"></i> Save Assignments
+                        <span class="material-symbols-outlined me-2">save</span> Save Assignments
                     </button>
                 </div>
             </form>
@@ -392,8 +411,8 @@ try {
                                 <td><?php echo htmlspecialchars($student['stream_name'] ?? '-'); ?></td>
                                 <td id="subjects-<?php echo $student['id']; ?>">Loading...</td>
                                 <td>
-                                    <button class="btn btn-sm btn-info" onclick="editStudentSubjects(<?php echo $student['id']; ?>, '<?php echo htmlspecialchars($student['first_name'] . ' ' . $student['last_name']); ?>')">
-                                        <i class="fas fa-edit"></i> Edit
+                                    <button class="btn btn-sm btn-action" onclick="editStudentSubjects(<?php echo $student['id']; ?>, '<?php echo htmlspecialchars($student['first_name'] . ' ' . $student['last_name']); ?>')" title="Edit">
+                                        <span class="material-symbols-outlined">edit</span>
                                     </button>
                                 </td>
                             </tr>
@@ -668,6 +687,6 @@ try {
         }
     </script>
 
-    <?php require_once '../includes/copywrite.php'; ?>
+    <?php require_once __DIR__ . '/../includes/copywrite.php'; ?>
 </body>
 </html>

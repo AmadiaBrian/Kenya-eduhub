@@ -123,14 +123,14 @@ try {
     <meta name="theme-color" content="#FF6B35">
     <title>Dashboard - <?php echo htmlspecialchars($teacher_name); ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
     <link rel="stylesheet" href="../assets/css/notifications.css">
     <style>
         :root {
             --primary-color: #FF6B35;
             --secondary-color: #5f6368;
-            --bg-color: #f8f9fa;
-            --card-bg: #f8f9fa;
+            --bg-color: #F0F4F9;
+            --card-bg: #F0F4F9;
             --sidebar-width: 256px;
             --header-height: 64px;
         }
@@ -142,7 +142,7 @@ try {
         }
         
         body {
-            background: #f8f9fa;
+            background: #F0F4F9;
             font-family: 'Google Sans', 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             font-size: 14px;
             color: #202124;
@@ -150,7 +150,7 @@ try {
         
         /* Welcome Container */
         .welcome-container {
-            background: #f8f9fa;
+            background: #F0F4F9;
             border: 1px solid #e0e0e0;
             border-radius: 8px;
             padding: 24px;
@@ -188,7 +188,7 @@ try {
         
         /* Cards */
         .card {
-            background: #f8f9fa;
+            background: #F0F4F9;
             border: 1px solid #e0e0e0;
             border-radius: 8px;
             padding: 24px;
@@ -221,7 +221,7 @@ try {
         }
         
         .stat-card {
-            background: #f8f9fa;
+            background: #F0F4F9;
             border: 1px solid #e0e0e0;
             border-radius: 8px;
             padding: 24px;
@@ -283,7 +283,7 @@ try {
         }
         
         .action-card {
-            background: #f8f9fa;
+            background: #F0F4F9;
             border: 1px solid #e0e0e0;
             border-radius: 8px;
             padding: 20px;
@@ -475,18 +475,16 @@ try {
             }
         }
 
-        /* Icon colors - Google Search Console style (gray) */
-        .fa-plus, .fa-edit, .fa-trash, .fa-download, .fa-print, .fa-filter,
-        .fa-calendar, .fa-calendar-alt, .fa-calendar-check, .fa-check-circle,
-        .fa-exclamation-circle, .fa-exclamation-triangle, .fa-info-circle,
-        .fa-search, .fa-sms, .fa-award, .fa-chart-line, .fa-redo,
-        .fa-user-graduate, .fa-book, .fa-users, .fa-clipboard-list,
-        .fa-money-bill-wave, .fa-home, .fa-user, .fa-sign-out-alt {
+        /* Material Symbols styling */
+        .material-symbols-outlined {
+            font-size: 20px;
+            vertical-align: middle;
             color: #5f6368;
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
         }
     </style>
 </head>
-<body>
+<body class="login-page">
     <?php require_once 'includes/header.php'; ?>
     <?php $active_page = 'dashboard'; require_once 'includes/sidebar.php'; ?>
     
@@ -509,48 +507,79 @@ try {
         </div>
         
         <!-- Calendar Status -->
-        <div style="margin-bottom: 24px;">
+        <div class="card" style="background: rgba(255, 107, 53, 0.85); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.3); box-shadow: 0 8px 32px rgba(255, 107, 53, 0.3); padding: 40px; min-height: 150px; margin-bottom: 24px;">
+            <h2 class="card-title" style="color: white;">School Session Status</h2>
             <?php if ($calendar_status['is_holiday']): ?>
-                <div style="background: #fce8e6; border: 1px solid #c5221f; padding: 16px; border-radius: 8px;">
-                    <div style="display: flex; align-items: center; gap: 12px;">
-                        <i class="fas fa-exclamation-triangle" style="color: #c5221f; font-size: 20px;"></i>
-                        <div>
-                            <strong style="color: #c5221f;">School is on Holiday</strong>
-                            <p style="margin: 4px 0 0 0; color: #5f6368; font-size: 14px;">
-                                <?php echo htmlspecialchars($calendar_status['current_holiday']['holiday_name']); ?> 
-                                (<?php echo date('M j, Y', strtotime($calendar_status['current_holiday']['start_date'])); ?> - 
-                                <?php echo date('M j, Y', strtotime($calendar_status['current_holiday']['end_date'])); ?>)
-                            </p>
-                        </div>
+                <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 12px;">
+                    <span class="material-symbols-outlined" style="color: white; font-size: 32px;">beach_access</span>
+                    <div>
+                        <p style="color: white; font-weight: 600; margin: 0; font-size: 16px;">
+                            School is on Holiday
+                        </p>
+                        <p style="color: white; margin: 6px 0 0 0; font-size: 14px;">
+                            <?php echo htmlspecialchars($calendar_status['current_holiday']['holiday_name']); ?>
+                            (<?php echo date('M j, Y', strtotime($calendar_status['current_holiday']['start_date'])); ?> -
+                            <?php echo date('M j, Y', strtotime($calendar_status['current_holiday']['end_date'])); ?>)
+                        </p>
                     </div>
+                </div>
+                <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.3);">
+                    <p style="color: white; margin: 0; font-size: 13px;">
+                        <span class="material-symbols-outlined" style="vertical-align: middle; margin-right: 8px;">schedule</span>
+                        Term will resume after holiday
+                    </p>
+                    <p style="color: white; margin: 8px 0 0 0; font-size: 13px;">
+                        <span class="material-symbols-outlined" style="vertical-align: middle; margin-right: 8px;">event</span>
+                        Today: <?php echo date('F j, Y'); ?>
+                    </p>
                 </div>
             <?php elseif ($calendar_status['school_status'] === 'break'): ?>
-                <div style="background: #fef7e0; border: 1px solid #f9ab00; padding: 16px; border-radius: 8px;">
-                    <div style="display: flex; align-items: center; gap: 12px;">
-                        <i class="fas fa-info-circle" style="color: #f9ab00; font-size: 20px;"></i>
-                        <div>
-                            <strong style="color: #b06000;">School is on Break</strong>
-                            <p style="margin: 4px 0 0 0; color: #5f6368; font-size: 14px;">No active term is currently set.</p>
-                        </div>
+                <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 12px;">
+                    <span class="material-symbols-outlined" style="color: white; font-size: 32px;">event_busy</span>
+                    <div>
+                        <p style="color: white; font-weight: 600; margin: 0; font-size: 16px;">
+                            School is on Break
+                        </p>
+                        <p style="color: white; margin: 6px 0 0 0; font-size: 14px;">
+                            No active term for current date
+                        </p>
                     </div>
                 </div>
+                <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.3);">
+                    <p style="color: white; margin: 0; font-size: 13px;">
+                        <span class="material-symbols-outlined" style="vertical-align: middle; margin-right: 8px;">calendar_month</span>
+                        Academic Year: <?php echo $calendar_status['current_year']; ?>
+                    </p>
+                    <p style="color: white; margin: 8px 0 0 0; font-size: 13px;">
+                        <span class="material-symbols-outlined" style="vertical-align: middle; margin-right: 8px;">event</span>
+                        Today: <?php echo date('F j, Y'); ?>
+                    </p>
+                </div>
             <?php else: ?>
-                <div style="background: #e6f4ea; border: 1px solid #137333; padding: 16px; border-radius: 8px;">
-                    <div style="display: flex; align-items: center; gap: 12px;">
-                        <i class="fas fa-check-circle" style="color: #137333; font-size: 20px;"></i>
-                        <div>
-                            <strong style="color: #137333;">School is In Session</strong>
-                            <p style="margin: 4px 0 0 0; color: #5f6368; font-size: 14px;">
-                                <?php if ($calendar_status['current_term']): ?>
-                                    Active Term: <?php echo htmlspecialchars($calendar_status['current_term']['term_name']); ?> 
-                                    (<?php echo date('M j, Y', strtotime($calendar_status['current_term']['start_date'])); ?> - 
-                                    <?php echo date('M j, Y', strtotime($calendar_status['current_term']['end_date'])); ?>)
-                                <?php else: ?>
-                                    Year: <?php echo $calendar_status['current_year']; ?>
-                                <?php endif; ?>
-                            </p>
-                        </div>
+                <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 12px;">
+                    <span class="material-symbols-outlined" style="color: white; font-size: 32px;">school</span>
+                    <div>
+                        <p style="color: white; font-weight: 600; margin: 0; font-size: 16px;">
+                            School is in Session
+                        </p>
+                        <p style="color: white; margin: 6px 0 0 0; font-size: 14px;">
+                            <?php echo htmlspecialchars($calendar_status['current_term']['term_name']); ?>
+                        </p>
+                        <p style="color: white; margin: 4px 0 0 0; font-size: 13px; opacity: 0.9;">
+                            <?php echo date('M j, Y', strtotime($calendar_status['current_term']['start_date'])); ?> -
+                            <?php echo date('M j, Y', strtotime($calendar_status['current_term']['end_date'])); ?>
+                        </p>
                     </div>
+                </div>
+                <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.3);">
+                    <p style="color: white; margin: 0; font-size: 13px;">
+                        <span class="material-symbols-outlined" style="vertical-align: middle; margin-right: 8px;">calendar_month</span>
+                        Academic Year: <?php echo $calendar_status['current_year']; ?>
+                    </p>
+                    <p style="color: white; margin: 8px 0 0 0; font-size: 13px;">
+                        <span class="material-symbols-outlined" style="vertical-align: middle; margin-right: 8px;">event</span>
+                        Today: <?php echo date('F j, Y'); ?>
+                    </p>
                 </div>
             <?php endif; ?>
         </div>
@@ -558,19 +587,19 @@ try {
         <!-- Statistics Grid -->
         <div class="stats-grid">
             <div class="stat-card">
-                <div class="stat-icon"><i class="fas fa-user-graduate"></i></div>
+                <div class="stat-icon"><span class="material-symbols-outlined">school</span></div>
                 <div class="stat-label">Total Students</div>
                 <div class="stat-value"><?php echo $stats['total_students'] ?? 0; ?></div>
                 <div class="stat-change">In your class</div>
             </div>
             <div class="stat-card">
-                <div class="stat-icon"><i class="fas fa-calendar-check"></i></div>
+                <div class="stat-icon"><span class="material-symbols-outlined">fact_check</span></div>
                 <div class="stat-label">Attendance Today</div>
                 <div class="stat-value"><?php echo $stats['attendance_today'] ?? 0; ?></div>
                 <div class="stat-change">Records taken</div>
             </div>
             <div class="stat-card">
-                <div class="stat-icon"><i class="fas fa-user-check"></i></div>
+                <div class="stat-icon"><span class="material-symbols-outlined">how_to_reg</span></div>
                 <div class="stat-label">Present Today</div>
                 <div class="stat-value"><?php echo $stats['present_today'] ?? 0; ?></div>
                 <div class="stat-change positive">
@@ -583,7 +612,7 @@ try {
                 </div>
             </div>
             <div class="stat-card">
-                <div class="stat-icon"><i class="fas fa-chart-line"></i></div>
+                <div class="stat-icon"><span class="material-symbols-outlined">trending_up</span></div>
                 <div class="stat-label">Performance Records</div>
                 <div class="stat-value"><?php echo $stats['performance_records'] ?? 0; ?></div>
                 <div class="stat-change">This term</div>
@@ -598,28 +627,28 @@ try {
                 <div class="quick-actions">
                     <a href="attendance" class="action-card primary">
                         <div class="action-icon">
-                            <i class="fas fa-calendar-check"></i>
+                            <span class="material-symbols-outlined">fact_check</span>
                         </div>
                         <div class="action-title">Take Attendance</div>
                         <div class="action-description">Mark daily attendance</div>
                     </a>
                     <a href="performance" class="action-card">
                         <div class="action-icon">
-                            <i class="fas fa-chart-line"></i>
+                            <span class="material-symbols-outlined">trending_up</span>
                         </div>
                         <div class="action-title">Record Performance</div>
                         <div class="action-description">Update student grades</div>
                     </a>
                     <a href="students" class="action-card">
                         <div class="action-icon">
-                            <i class="fas fa-user-graduate"></i>
+                            <span class="material-symbols-outlined">school</span>
                         </div>
                         <div class="action-title">View Students</div>
                         <div class="action-description">Manage student records</div>
                     </a>
                     <a href="parents" class="action-card">
                         <div class="action-icon">
-                            <i class="fas fa-users"></i>
+                            <span class="material-symbols-outlined">groups</span>
                         </div>
                         <div class="action-title">View Parents</div>
                         <div class="action-description">Contact parents</div>
@@ -633,7 +662,7 @@ try {
                 <div class="activity-list">
                     <div class="activity-item">
                         <div class="activity-icon">
-                            <i class="fas fa-calendar-check"></i>
+                            <span class="material-symbols-outlined">fact_check</span>
                         </div>
                         <div class="activity-content">
                             <div class="activity-title">Attendance taken for your class</div>
@@ -642,7 +671,7 @@ try {
                     </div>
                     <div class="activity-item">
                         <div class="activity-icon">
-                            <i class="fas fa-chart-line"></i>
+                            <span class="material-symbols-outlined">trending_up</span>
                         </div>
                         <div class="activity-content">
                             <div class="activity-title">Performance records updated</div>
@@ -651,7 +680,7 @@ try {
                     </div>
                     <div class="activity-item">
                         <div class="activity-icon">
-                            <i class="fas fa-user-graduate"></i>
+                            <span class="material-symbols-outlined">school</span>
                         </div>
                         <div class="activity-content">
                             <div class="activity-title">New student enrolled in your class</div>
@@ -666,6 +695,6 @@ try {
     <script src="../assets/js/notifications.js"></script>
     
     <!-- Footer -->
-    <?php require_once '../includes/copywrite.php'; ?>
+    <?php require_once __DIR__ . '/../includes/copywrite.php'; ?>
 </body>
 </html>

@@ -142,13 +142,13 @@ try {
     <meta name="theme-color" content="#FF6B35">
     <title>My Duties - <?php echo htmlspecialchars($teacher_name); ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0">
     <link rel="stylesheet" href="../assets/css/notifications.css">
     <style>
         :root {
             --primary-color: #FF6B35;
             --secondary-color: #5f6368;
-            --bg-color: #f8f9fa;
+            --bg-color: #F0F4F9;
             --card-bg: #ffffff;
             --sidebar-width: 256px;
             --header-height: 64px;
@@ -161,7 +161,7 @@ try {
         }
         
         body {
-            background: #f8f9fa;
+            background: #F0F4F9;
             font-family: 'Google Sans', 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             font-size: 14px;
             color: #202124;
@@ -176,7 +176,7 @@ try {
         }
         
         .card {
-            background: #f8f9fa;
+            background: #F0F4F9;
             border: 1px solid #e0e0e0;
             border-radius: 8px;
             padding: 24px;
@@ -306,7 +306,7 @@ try {
         
         .duty-card {
             border-left: 4px solid var(--primary-color);
-            background: #f8f9fa;
+            background: #F0F4F9;
             border-radius: 8px;
             box-shadow: 0 1px 3px rgba(0,0,0,0.1);
             transition: box-shadow 0.2s;
@@ -330,7 +330,7 @@ try {
         }
         
         .bg-light {
-            background: #f8f9fa;
+            background: #F0F4F9;
             border: 1px solid #e8eaed;
         }
         
@@ -436,7 +436,7 @@ try {
         .printer-select {
             margin-bottom: 15px;
             padding: 10px;
-            background: #f8f9fa;
+            background: #F0F4F9;
             border-radius: 4px;
         }
         
@@ -593,7 +593,7 @@ try {
         }
     </style>
 </head>
-<body>
+<body class="login-page">
     <?php require_once 'includes/header.php'; ?>
     <?php $active_page = 'duty'; require_once 'includes/sidebar.php'; ?>
     
@@ -601,7 +601,7 @@ try {
         <?php if ($current_duty): ?>
             <div class="card" style="border-left: 4px solid #28a745; background: #d4edda;">
                 <h4 class="mb-3" style="color: #155724;">
-                    <i class="fas fa-user-shield me-2"></i>You are on Duty This Week
+                    <span class="material-symbols-outlined me-2">verified_user</span>You are on Duty This Week
                 </h4>
                 <p class="mb-2">
                     <strong>Week:</strong> <?php echo date('F j, Y', strtotime($current_duty['week_start'])); ?> - <?php echo date('F j, Y', strtotime($current_duty['week_end'])); ?>
@@ -611,7 +611,7 @@ try {
         <?php else: ?>
             <div class="card" style="border-left: 4px solid #FF6B35;">
                 <h4 class="mb-3" style="color: #FF6B35;">
-                    <i class="fas fa-info-circle me-2"></i>Not on Duty This Week
+                    <span class="material-symbols-outlined me-2">info</span>Not on Duty This Week
                 </h4>
                 <p class="mb-0 text-muted">You are not assigned to duty this week. Check back for your upcoming duty assignments.</p>
             </div>
@@ -624,7 +624,7 @@ try {
                 <!-- Leaveout Chit Section -->
                 <div class="mb-4">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                        <h5 class="mb-0"><i class="fas fa-file-medical me-2"></i>Create Leaveout Chit (Sick Student)</h5>
+                        <h5 class="mb-0"><span class="material-symbols-outlined me-2">medical_services</span>Create Leaveout Chit (Sick Student)</h5>
                     </div>
                     
                     <form method="POST" id="chitForm">
@@ -651,7 +651,7 @@ try {
                             <div class="col-md-3 mb-3">
                                 <label class="form-label">&nbsp;</label>
                                 <button type="submit" name="create_leaveout" class="btn btn-primary w-100">
-                                    <i class="fas fa-plus me-2"></i>Create Chit
+                                    <span class="material-symbols-outlined me-2">add</span>Create Chit
                                 </button>
                             </div>
                         </div>
@@ -660,7 +660,7 @@ try {
                 
                 <!-- Incident Reporting Section -->
                 <div class="mb-4">
-                    <h5 class="mb-3"><i class="fas fa-exclamation-triangle me-2"></i>Report Incident to Administration</h5>
+                    <h5 class="mb-3"><span class="material-symbols-outlined me-2">warning</span>Report Incident to Administration</h5>
                     <form method="POST">
                         <div class="row">
                             <div class="col-md-3 mb-3">
@@ -690,7 +690,7 @@ try {
                             <div class="col-md-2 mb-3">
                                 <label class="form-label">&nbsp;</label>
                                 <button type="submit" name="report_incident" class="btn btn-danger w-100">
-                                    <i class="fas fa-paper-plane me-2"></i>Report
+                                    <span class="material-symbols-outlined me-2">send</span>Report
                                 </button>
                             </div>
                         </div>
@@ -699,7 +699,7 @@ try {
                 
                 <!-- Cleanliness Check Section -->
                 <div class="mb-4">
-                    <h5 class="mb-3"><i class="fas fa-broom me-2"></i>Record Cleanliness Check</h5>
+                    <h5 class="mb-3"><span class="material-symbols-outlined me-2">cleaning_services</span>Record Cleanliness Check</h5>
                     <form method="POST">
                         <div class="row">
                             <div class="col-md-3 mb-3">
@@ -730,7 +730,7 @@ try {
                             <div class="col-md-2 mb-3">
                                 <label class="form-label">&nbsp;</label>
                                 <button type="submit" name="record_cleanliness" class="btn btn-success w-100">
-                                    <i class="fas fa-check me-2"></i>Record
+                                    <span class="material-symbols-outlined me-2">check</span>Record
                                 </button>
                             </div>
                         </div>
@@ -742,7 +742,7 @@ try {
             <div class="row">
                 <div class="col-md-4">
                     <div class="card">
-                        <h5 class="mb-3"><i class="fas fa-file-medical me-2"></i>Recent Leaveout Chits</h5>
+                        <h5 class="mb-3"><span class="material-symbols-outlined me-2">medical_services</span>Recent Leaveout Chits</h5>
                         <div class="mb-3">
                             <label class="form-label small">Printer Type:</label>
                             <select id="printerType" class="form-select form-select-sm">
@@ -769,7 +769,7 @@ try {
                                             data-school="<?php echo htmlspecialchars($teacher['school_name'] ?? 'School'); ?>"
                                             onclick="printExistingChit(this)" 
                                             class="btn btn-sm btn-primary mt-1">
-                                        <i class="fas fa-print"></i> Print
+                                        <span class="material-symbols-outlined">print</span> Print
                                     </button>
                                 </div>
                             <?php endforeach; ?>
@@ -778,7 +778,7 @@ try {
                 </div>
                 <div class="col-md-4">
                     <div class="card">
-                        <h5 class="mb-3"><i class="fas fa-exclamation-triangle me-2"></i>Recent Incidents</h5>
+                        <h5 class="mb-3"><span class="material-symbols-outlined me-2">warning</span>Recent Incidents</h5>
                         <?php if (empty($incidents)): ?>
                             <p class="text-muted small">No incidents reported</p>
                         <?php else: ?>
@@ -798,7 +798,7 @@ try {
                 </div>
                 <div class="col-md-4">
                     <div class="card">
-                        <h5 class="mb-3"><i class="fas fa-broom me-2"></i>Cleanliness Checks</h5>
+                        <h5 class="mb-3"><span class="material-symbols-outlined me-2">cleaning_services</span>Cleanliness Checks</h5>
                         <?php if (empty($cleanliness_checks)): ?>
                             <p class="text-muted small">No checks recorded</p>
                         <?php else: ?>
@@ -947,6 +947,6 @@ try {
     <script src="../assets/js/notifications.js"></script>
     
     <!-- Footer -->
-    <?php require_once '../includes/copywrite.php'; ?>
+    <?php require_once __DIR__ . '/../includes/copywrite.php'; ?>
 </body>
 </html>

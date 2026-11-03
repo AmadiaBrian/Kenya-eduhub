@@ -26,6 +26,10 @@ if (!isset($user['role']) || $user['role'] !== 'admin') {
     exit();
 }
 
+// Capture success/error messages from URL
+$success_message = $_GET['success'] ?? '';
+$error_message = $_GET['error'] ?? '';
+
 // Get all schools with statistics
 $schools = [];
 try {
@@ -642,12 +646,15 @@ $active_schools = count(array_filter($schools, fn($s) => $s['status'] === 'activ
         /* Action buttons container */
         .action-buttons {
             display: flex;
-            gap: 5px;
-            flex-wrap: wrap;
+            gap: 4px;
+            flex-wrap: nowrap;
+            align-items: center;
         }
 
         .action-buttons .btn {
             width: auto;
+            padding: 6px 12px;
+            font-size: 12px;
         }
 
         @media (max-width: 768px) {
@@ -686,6 +693,18 @@ $active_schools = count(array_filter($schools, fn($s) => $s['status'] === 'activ
     <!-- Main Content -->
     <main class="main-content" id="mainContent">
         <h1 class="page-title">Schools Management</h1>
+        
+        <?php if ($success_message): ?>
+            <div class="alert alert-success" style="background: #e6f4ea; color: #137333; border: 1px solid #ceead6; padding: 12px 16px; border-radius: 8px; margin-bottom: 24px;">
+                <?php echo htmlspecialchars($success_message); ?>
+            </div>
+        <?php endif; ?>
+        
+        <?php if ($error_message): ?>
+            <div class="alert alert-danger" style="background: #fce8e6; color: #c5221f; border: 1px solid #f9dedc; padding: 12px 16px; border-radius: 8px; margin-bottom: 24px;">
+                <?php echo htmlspecialchars($error_message); ?>
+            </div>
+        <?php endif; ?>
         
         <!-- Statistics -->
         <div class="stats-grid">
@@ -737,6 +756,7 @@ $active_schools = count(array_filter($schools, fn($s) => $s['status'] === 'activ
                             <th>School Name</th>
                             <th>Type</th>
                             <th>County</th>
+                            <th>Phone</th>
                             <th>Students</th>
                             <th>Teachers</th>
                             <th>Classes</th>
@@ -748,7 +768,7 @@ $active_schools = count(array_filter($schools, fn($s) => $s['status'] === 'activ
                     <tbody>
                         <?php if (empty($schools)): ?>
                             <tr>
-                                <td colspan="10" style="text-align: center; padding: 40px;">
+                                <td colspan="11" style="text-align: center; padding: 40px;">
                                     No schools found. <a href="../schools-add" style="color: var(--primary-color);">Add your first school</a>
                                 </td>
                             </tr>
@@ -759,6 +779,7 @@ $active_schools = count(array_filter($schools, fn($s) => $s['status'] === 'activ
                                     <td><?php echo htmlspecialchars($school['school_name']); ?></td>
                                     <td><?php echo htmlspecialchars($school['school_type']); ?></td>
                                     <td><?php echo htmlspecialchars($school['county']); ?></td>
+                                    <td><?php echo htmlspecialchars($school['phone']); ?></td>
                                     <td><?php echo $school['student_count']; ?></td>
                                     <td><?php echo $school['teacher_count']; ?></td>
                                     <td><?php echo $school['class_count']; ?></td>
@@ -1046,6 +1067,6 @@ $active_schools = count(array_filter($schools, fn($s) => $s['status'] === 'activ
     </div>
 
     <!-- Footer -->
-    <?php require_once '../../includes/copywrite.php'; ?>
+    <?php require_once __DIR__ . '/../../includes/copywrite.php'; ?>
 </body>
 </html>

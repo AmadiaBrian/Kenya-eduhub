@@ -40,11 +40,11 @@ if ($teacher && $teacher['teacher_type'] === 'subject_teacher') {
     <meta name="theme-color" content="#FF6B35">
     <title>Students - <?php echo htmlspecialchars($teacher_name); ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
     <link rel="stylesheet" href="../assets/css/notifications.css">
     <style>
         body {
-            background: #f8f9fa;
+            background: #F0F4F9;
             font-family: 'Google Sans', 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             font-size: 14px;
             color: #202124;
@@ -59,7 +59,7 @@ if ($teacher && $teacher['teacher_type'] === 'subject_teacher') {
         }
 
         .card {
-            background: #f8f9fa;
+            background: #F0F4F9;
             border: 1px solid #e0e0e0;
             border-radius: 8px;
             padding: 24px;
@@ -71,6 +71,14 @@ if ($teacher && $teacher['teacher_type'] === 'subject_teacher') {
 
         .card-body {
             padding: 0;
+        }
+
+        /* Material Symbols styling */
+        .material-symbols-outlined {
+            font-size: 20px;
+            vertical-align: middle;
+            color: #5f6368;
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
         }
 
         .card-title {
@@ -86,7 +94,7 @@ if ($teacher && $teacher['teacher_type'] === 'subject_teacher') {
             border-radius: 8px;
             padding: 10px 12px;
             font-size: 14px;
-            background: #f8f9fa;
+            background: #F0F4F9;
         }
 
         .form-control:focus {
@@ -123,76 +131,74 @@ if ($teacher && $teacher['teacher_type'] === 'subject_teacher') {
         }
 
         .btn-action {
-            background: #f8f9fa;
-            color: #000;
-            border: 1px solid #000;
+            background: transparent;
+            color: #5f6368;
+            border: none;
+            padding: 4px 8px;
         }
 
         .btn-action:hover {
-            background: #e9ecef;
+            background: #e8eaed;
+            color: #202124;
         }
 
-        .btn-action i {
-            color: #000;
+        .btn-action .material-symbols-outlined {
+            color: #5f6368;
+        }
+
+        .btn-action:hover .material-symbols-outlined {
+            color: #202124;
         }
 
         .table {
             width: 100%;
             border-collapse: collapse;
             background: white;
-            border: 1px solid #000;
+            border: 2px solid #000;
             margin: 0;
+            font-family: 'Times New Roman', Times, serif;
+        }
+
+        .table thead {
+            background: #f0f0f0;
+            border-bottom: 2px solid #000;
+        }
+
+        .table thead th {
+            background: #f0f0f0;
+            border: 2px solid #000;
+            border-bottom: 2px solid #000;
+            padding: 12px;
+            font-weight: bold;
+            color: #000;
+        }
+
+        .table td {
+            padding: 12px;
+            border: 2px solid #000;
+            color: #000;
+            font-size: 13px;
+        }
+
+        .table tbody tr:nth-child(even) {
+            background: #fafafa;
+        }
+
+        .table tbody tr:hover {
+            background: #f8f9fa;
         }
 
         .table-responsive {
             width: 100%;
             overflow-x: auto;
+            margin: 0;
+            padding: 0;
         }
 
-        .table thead {
-            background: #FF6B35 !important;
-            border-bottom: 2px solid #000;
-        }
 
-        .table thead th {
-            background: #FF6B35 !important;
-            text-align: left;
-            padding: 12px;
-            font-size: 13px;
-            font-weight: 600;
-            color: #ffffff !important;
-            border: 1px solid #000;
-            border-bottom: 2px solid #000;
-            text-transform: uppercase;
-        }
-
-        .table td {
-            padding: 12px;
-            font-size: 13px;
-            color: #000;
-            border: 1px solid #000;
-        }
-
-        .table tbody tr:nth-child(even) {
-            background: #f9f9f9;
-        }
-
-        .table tbody tr:hover {
-            background: #f0f0f0;
-        }
-
-        /* Icon colors - Google Search Console style (gray) */
-        .fa-plus, .fa-edit, .fa-trash, .fa-download, .fa-print, .fa-filter,
-        .fa-calendar, .fa-calendar-alt, .fa-calendar-check, .fa-check-circle,
-        .fa-exclamation-circle, .fa-exclamation-triangle, .fa-info-circle,
-        .fa-search, .fa-sms, .fa-award, .fa-chart-line, .fa-redo,
-        .fa-user-graduate, .fa-book, .fa-users, .fa-clipboard-list,
-        .fa-money-bill-wave, .fa-home, .fa-user, .fa-sign-out-alt {
-            color: #5f6368;
-        }
     </style>
 </head>
-<body>
+<body class="login-page">
     <?php require_once 'includes/header.php'; ?>
     <?php $active_page = 'students'; require_once 'includes/sidebar.php'; ?>
 
@@ -204,7 +210,7 @@ if ($teacher && $teacher['teacher_type'] === 'subject_teacher') {
             <div class="card-header d-flex justify-content-between align-items-center">
                 <span>Filter Students</span>
                 <button class="btn btn-sm btn-info" onclick="exportStudents()" style="border-radius: 25px;">
-                    <i class="fas fa-download me-1"></i> Export CSV
+                    <span class="material-symbols-outlined me-1">download</span> Export CSV
                 </button>
             </div>
             <div class="card-body">
@@ -252,7 +258,7 @@ if ($teacher && $teacher['teacher_type'] === 'subject_teacher') {
                     <div class="col-md-1">
                         <label class="form-label">&nbsp;</label>
                         <button class="btn btn-secondary w-100" onclick="resetFilters()" style="border-radius: 25px;">
-                            <i class="fas fa-undo"></i>
+                            <span class="material-symbols-outlined">refresh</span>
                         </button>
                     </div>
                 </div>
@@ -493,8 +499,8 @@ if ($teacher && $teacher['teacher_type'] === 'subject_teacher') {
                                                         <strong>${balanceText}</strong>
                                                     </td>
                                                     <td>
-                                                        <button class="btn btn-sm btn-action" onclick="viewStudentDetails(${student.id})" style="border-radius: 25px;">
-                                                            <i class="fas fa-eye"></i> View
+                                                        <button class="btn btn-sm btn-action" onclick="viewStudentDetails(${student.id})" title="View Details">
+                                                            <span class="material-symbols-outlined">visibility</span>
                                                         </button>
                                                     </td>
                                                 </tr>
@@ -707,6 +713,6 @@ if ($teacher && $teacher['teacher_type'] === 'subject_teacher') {
     </script>
     <script src="../assets/js/notifications.js"></script>
 
-    <?php require_once '../includes/copywrite.php'; ?>
+    <?php require_once __DIR__ . '/../includes/copywrite.php'; ?>
 </body>
 </html>

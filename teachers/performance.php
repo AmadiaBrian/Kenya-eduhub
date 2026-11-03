@@ -430,7 +430,7 @@ if ($teacher) {
         :root {
             --primary-color: #FF6B35;
             --secondary-color: #5f6368;
-            --bg-color: #f8f9fa;
+            --bg-color: #F0F4F9;
             --card-bg: #ffffff;
         }
 
@@ -441,7 +441,7 @@ if ($teacher) {
         }
 
         body {
-            background: #f8f9fa;
+            background: #F0F4F9;
             font-family: 'Google Sans', 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             font-size: 14px;
             color: #202124;
@@ -457,7 +457,7 @@ if ($teacher) {
 
         /* Cards */
         .card {
-            background: #f8f9fa;
+            background: #F0F4F9;
             border: 1px solid #e0e0e0;
             border-radius: 8px;
             padding: 24px;
@@ -484,13 +484,13 @@ if ($teacher) {
             border-radius: 8px;
             padding: 10px 12px;
             font-size: 14px;
-            background: #f8f9fa;
+            background: #F0F4F9;
         }
 
         .form-control:focus {
             border-color: var(--primary-color);
             box-shadow: 0 0 0 2px rgba(255, 107, 53, 0.2);
-            background: #f8f9fa;
+            background: #F0F4F9;
         }
 
         .btn {
@@ -525,45 +525,45 @@ if ($teacher) {
             width: 100%;
             border-collapse: collapse;
             background: white;
-            border: 1px solid #000;
+            border: 2px solid #000;
             margin: 0;
+            font-family: 'Times New Roman', Times, serif;
+        }
+
+        .table thead {
+            background: #f0f0f0;
+            border-bottom: 2px solid #000;
+        }
+
+        .table thead th {
+            background: #f0f0f0;
+            border: 2px solid #000;
+            border-bottom: 2px solid #000;
+            padding: 12px;
+            font-weight: bold;
+            color: #000;
+        }
+
+        .table td {
+            padding: 12px;
+            border: 2px solid #000;
+            color: #000;
+            font-size: 13px;
+        }
+
+        .table tbody tr:nth-child(even) {
+            background: #fafafa;
+        }
+
+        .table tbody tr:hover {
+            background: #f8f9fa;
         }
 
         .table-responsive {
             width: 100%;
             overflow-x: auto;
-        }
-
-        .table thead {
-            background: #FF6B35 !important;
-            border-bottom: 2px solid #000;
-        }
-
-        .table thead th {
-            background: #FF6B35 !important;
-            text-align: left;
-            padding: 12px;
-            font-size: 13px;
-            font-weight: 600;
-            color: #ffffff !important;
-            border: 1px solid #000;
-            border-bottom: 2px solid #000;
-            text-transform: uppercase;
-        }
-
-        .table td {
-            padding: 12px;
-            font-size: 13px;
-            color: #000;
-            border: 1px solid #000;
-        }
-
-        .table tbody tr:nth-child(even) {
-            background: #f9f9f9;
-        }
-
-        .table tbody tr:hover {
-            background: #f0f0f0;
+            margin: 0;
+            padding: 0;
         }
 
         /* Responsive */
@@ -615,7 +615,7 @@ if ($teacher) {
         }
     </style>
 </head>
-<body>
+<body class="login-page">
     <?php require_once 'includes/header.php'; ?>
     <?php $active_page = 'performance'; require_once 'includes/sidebar.php'; ?>
 
@@ -701,7 +701,7 @@ if ($teacher) {
                     <!-- Modern File Upload Zone -->
                     <div class="mb-3">
                         <label class="form-label">Upload CSV File</label>
-                        <div id="dropZone" style="border: 2px dashed #dadce0; border-radius: 8px; padding: 20px; text-align: center; cursor: pointer; transition: all 0.3s; background: #f8f9fa;">
+                        <div id="dropZone" style="border: 2px dashed #dadce0; border-radius: 8px; padding: 20px; text-align: center; cursor: pointer; transition: all 0.3s; background: #F0F4F9;">
                             <input type="file" class="form-control" name="performance_file" accept=".csv" required id="fileInput" style="display: none;">
                             <div id="dropZoneContent">
                                 <i class="fas fa-cloud-upload-alt" style="font-size: 32px; color: #dadce0; margin-bottom: 12px;"></i>
@@ -1718,13 +1718,13 @@ if ($teacher) {
             dropZone.addEventListener('dragleave', (e) => {
                 e.preventDefault();
                 dropZone.style.borderColor = '#dadce0';
-                dropZone.style.background = '#f8f9fa';
+                dropZone.style.background = '#F0F4F9';
             });
             
             dropZone.addEventListener('drop', (e) => {
                 e.preventDefault();
                 dropZone.style.borderColor = '#dadce0';
-                dropZone.style.background = '#f8f9fa';
+                dropZone.style.background = '#F0F4F9';
                 
                 if (e.dataTransfer.files.length > 0) {
                     const file = e.dataTransfer.files[0];
@@ -1805,6 +1805,6 @@ if ($teacher) {
     <script src="../assets/js/notifications.js"></script>
     
     <!-- Footer -->
-    <?php require_once '../includes/copywrite.php'; ?>
+    <?php require_once __DIR__ . '/../includes/copywrite.php'; ?>
 </body>
 </html>

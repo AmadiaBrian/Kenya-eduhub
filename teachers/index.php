@@ -120,13 +120,20 @@ if ($route === 'login') {
         }
         
         body {
-            background: var(--card-bg, #f8f9fa);
+            background: #F0F4F9;
             min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            font-family: 'Google Sans', 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #202124;
+        }
+
+        .login-wrapper {
+            flex: 1;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-family: 'Google Sans', 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            color: #202124;
+            width: 100%;
         }
         
         .login-container {
@@ -137,41 +144,7 @@ if ($route === 'login') {
             flex-direction: column;
             align-items: center;
         }
-        
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: #202124;
-            margin-bottom: 8px;
-        }
-        
-        .logo-circle {
-            width: 50px;
-            height: 50px;
-            background: #FFD700;
-            border: 3px solid #FF6B35;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-right: 2px;
-            flex-shrink: 0;
-        }
-        
-        .logo-circle span {
-            font-weight: bold;
-            font-size: 24px;
-        }
-        
-        .logo p {
-            font-size: 16px;
-            color: #5f6368;
-            margin-bottom: 40px;
-        }
-        
+
         .login-form {
             width: 100%;
         }
@@ -198,7 +171,7 @@ if ($route === 'login') {
             outline: none;
             transition: border-color 0.2s, box-shadow 0.2s;
             font-family: inherit;
-            background: var(--bg-color, #f8f9fa);
+            background: #F0F4F9;
         }
         
         .form-control:focus {
@@ -298,29 +271,11 @@ if ($route === 'login') {
                 padding: 24px 20px;
                 max-width: 100%;
             }
-            
-            .logo {
-                font-size: 1.25rem;
-                gap: 0.5rem;
-            }
-            
-            .logo div:first-child {
-                width: 40px;
-                height: 40px;
-            }
-            
-            .logo div:first-child span {
-                font-size: 20px;
-            }
-            
-            .logo div:first-child span span:first-child {
-                font-size: 24px;
-            }
-            
+
             h1 {
                 font-size: 20px !important;
             }
-            
+
             p {
                 font-size: 14px !important;
             }
@@ -344,25 +299,7 @@ if ($route === 'login') {
             .login-container {
                 padding: 20px 16px;
             }
-            
-            .logo {
-                font-size: 1.1rem;
-                gap: 0.4rem;
-            }
-            
-            .logo div:first-child {
-                width: 36px;
-                height: 36px;
-            }
-            
-            .logo div:first-child span {
-                font-size: 18px;
-            }
-            
-            .logo div:first-child span span:first-child {
-                font-size: 22px;
-            }
-            
+
             h1 {
                 font-size: 18px !important;
             }
@@ -379,8 +316,9 @@ if ($route === 'login') {
         }
     </style>
 </head>
-<body>
-    <div class="login-container">
+<body class="login-page">
+    <div class="login-wrapper">
+        <div class="login-container">
         <div class="logo">
             <?php require_once '../includes/logo.php'; ?>
         </div>
@@ -424,9 +362,10 @@ if ($route === 'login') {
             </a>
         </div>
     </div>
-    
+    </div>
+
     <!-- Footer -->
-    <?php require_once '../includes/copywrite.php'; ?>
+    <?php require_once __DIR__ . '/../includes/copywrite.php'; ?>
     
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>

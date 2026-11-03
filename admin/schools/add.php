@@ -525,6 +525,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </script>
 
     <!-- Footer -->
-    <?php require_once '../../includes/copywrite.php'; ?>
+    <?php require_once __DIR__ . '/../../includes/copywrite.php'; ?>
 </body>
 </html>

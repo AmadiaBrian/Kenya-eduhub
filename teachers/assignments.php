@@ -136,7 +136,7 @@ try {
     <meta name="theme-color" content="#FF6B35">
     <title>Assignments - <?php echo htmlspecialchars($teacher_name); ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0">
     <link rel="stylesheet" href="../assets/css/notifications.css">
     <style>
         :root {
@@ -151,7 +151,7 @@ try {
         
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #f8f9fa;
+            background: #F0F4F9;
             color: #202124;
         }
         
@@ -171,7 +171,7 @@ try {
         }
         
         .card {
-            background: #f8f9fa;
+            background: #F0F4F9;
             border: 1px solid #e0e0e0;
             border-radius: 8px;
             padding: 24px;
@@ -213,7 +213,7 @@ try {
         }
         
         .card {
-            background: #f8f9fa;
+            background: #F0F4F9;
             border: 1px solid #e0e0e0;
             border-radius: 8px;
             padding: 24px;
@@ -246,7 +246,7 @@ try {
             border-radius: 25px;
             outline: none;
             transition: border-color 0.2s;
-            background: #f8f9fa;
+            background: #F0F4F9;
         }
         
         .form-control:focus {
@@ -266,7 +266,7 @@ try {
             padding: 20px;
             border: 2px dashed #dadce0;
             border-radius: 25px;
-            background: #f8f9fa;
+            background: #F0F4F9;
             cursor: pointer;
             transition: all 0.3s;
             text-align: center;
@@ -432,30 +432,46 @@ try {
         .table {
             width: 100%;
             border-collapse: collapse;
+            background: white;
+            border: 2px solid #000;
+            margin: 0;
+            font-family: 'Times New Roman', Times, serif;
         }
 
         .table thead {
-            background: #FF6B35 !important;
+            background: #f0f0f0;
             border-bottom: 2px solid #000;
         }
 
         .table th {
-            text-align: left;
-            padding: 12px;
-            font-size: 13px;
-            font-weight: 600;
-            color: #ffffff !important;
-            background: #FF6B35 !important;
-            border: 1px solid #000;
+            background: #f0f0f0;
+            border: 2px solid #000;
             border-bottom: 2px solid #000;
-            text-transform: uppercase;
+            padding: 12px;
+            font-weight: bold;
+            color: #000;
         }
 
         .table td {
             padding: 12px;
-            font-size: 13px;
+            border: 2px solid #000;
             color: #000;
-            border: 1px solid #000;
+            font-size: 13px;
+        }
+
+        .table tbody tr:nth-child(even) {
+            background: #fafafa;
+        }
+
+        .table tbody tr:hover {
+            background: #f8f9fa;
+        }
+
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+            margin: 0;
+            padding: 0;
         }
         
         .badge {
@@ -679,20 +695,21 @@ try {
             }
         }
 
-        /* Icon colors - Google Search Console style (gray) */
-        .fa-plus, .fa-edit, .fa-trash, .fa-download, .fa-print, .fa-filter,
-        .fa-calendar, .fa-calendar-alt, .fa-calendar-check, .fa-check-circle,
-        .fa-exclamation-circle, .fa-exclamation-triangle, .fa-info-circle,
-        .fa-search, .fa-sms, .fa-award, .fa-chart-line, .fa-redo,
-        .fa-user-graduate, .fa-book, .fa-users, .fa-clipboard-list,
-        .fa-money-bill-wave, .fa-home, .fa-user, .fa-sign-out-alt,
-        .fa-cloud-upload-alt, .fa-copy, .fa-chart-bar, .fa-eye,
-        .fa-envelope, .fa-phone {
+        /* Material Symbols styling */
+        .material-symbols-outlined {
+            font-size: 20px;
+            vertical-align: middle;
             color: #5f6368;
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
         }
     </style>
 </head>
-<body>
+<body class="login-page">
     <?php require_once 'includes/header.php'; ?>
     <?php $active_page = 'assignments'; require_once 'includes/sidebar.php'; ?>
     
@@ -707,7 +724,7 @@ try {
             <?php if ($calendar_status['is_holiday']): ?>
                 <div style="background: #fce8e6; border: 1px solid #c5221f; padding: 16px; border-radius: 8px;">
                     <div style="display: flex; align-items: center; gap: 12px;">
-                        <i class="fas fa-exclamation-triangle" style="color: #c5221f; font-size: 20px;"></i>
+                        <span class="material-symbols-outlined" style="color: #c5221f; font-size: 20px;">warning</span>
                         <div>
                             <strong style="color: #c5221f;">School is on Holiday</strong>
                             <p style="margin: 4px 0 0 0; color: #5f6368; font-size: 14px;">
@@ -721,7 +738,7 @@ try {
             <?php elseif ($calendar_status['school_status'] === 'break'): ?>
                 <div style="background: #fef7e0; border: 1px solid #f9ab00; padding: 16px; border-radius: 8px;">
                     <div style="display: flex; align-items: center; gap: 12px;">
-                        <i class="fas fa-info-circle" style="color: #f9ab00; font-size: 20px;"></i>
+                        <span class="material-symbols-outlined" style="color: #f9ab00; font-size: 20px;">info</span>
                         <div>
                             <strong style="color: #b06000;">School is on Break</strong>
                             <p style="margin: 4px 0 0 0; color: #5f6368; font-size: 14px;">No active term is currently set.</p>
@@ -731,7 +748,7 @@ try {
             <?php else: ?>
                 <div style="background: #e6f4ea; border: 1px solid #137333; padding: 16px; border-radius: 8px;">
                     <div style="display: flex; align-items: center; gap: 12px;">
-                        <i class="fas fa-check-circle" style="color: #137333; font-size: 20px;"></i>
+                        <span class="material-symbols-outlined" style="color: #137333; font-size: 20px;">check_circle</span>
                         <div>
                             <strong style="color: #137333;">School is In Session</strong>
                             <p style="margin: 4px 0 0 0; color: #5f6368; font-size: 14px;">
@@ -809,14 +826,14 @@ try {
                     <div class="file-upload-wrapper">
                         <div class="file-upload-label" id="fileUploadLabel">
                             <div style="display: flex; flex-direction: column; align-items: center;">
-                                <i class="fas fa-cloud-upload-alt"></i>
+                                <span class="material-symbols-outlined">cloud_upload</span>
                                 <div class="upload-text">Click to upload or drag and drop</div>
                                 <div class="upload-subtext">PDF, DOC, DOCX, PPT, PPTX, TXT, JPG, JPEG, PNG (Max 10MB)</div>
                             </div>
                             <input type="file" class="file-upload-input" name="file" required accept=".pdf,.doc,.docx,.ppt,.pptx,.txt,.jpg,.jpeg,.png" onchange="handleFileSelect(this)">
                         </div>
                         <div class="file-selected" id="fileSelected">
-                            <i class="fas fa-check-circle"></i>
+                            <span class="material-symbols-outlined">check_circle</span>
                             <span id="fileName"></span>
                         </div>
                     </div>
@@ -824,7 +841,7 @@ try {
                 
                 <div class="upload-buttons-container">
                     <button type="button" onclick="uploadAssignment()" class="btn btn-primary">
-                        <i class="fas fa-upload me-2"></i> Upload Assignment
+                        <span class="material-symbols-outlined me-2">upload</span> Upload Assignment
                     </button>
                 </div>
             </form>
@@ -834,7 +851,7 @@ try {
             <h2 class="card-title">Recent Assignments</h2>
             
             <!-- Search and Filter -->
-            <div style="margin-bottom: 20px; padding: 16px; background: #f8f9fa; border-radius: 25px;">
+            <div style="margin-bottom: 20px; padding: 16px; background: #F0F4F9; border-radius: 25px;">
                 <div style="display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end;">
                     <div style="flex: 1; min-width: 200px;">
                         <label style="font-size: 12px; font-weight: 500; color: #5f6368; margin-bottom: 8px; display: block;">Search</label>
@@ -860,7 +877,7 @@ try {
                         </select>
                     </div>
                     <button onclick="resetFilters()" class="btn" style="background: white; border: 1px solid #dadce0; color: #5f6368; padding: 12px 24px; border-radius: 25px;">
-                        <i class="fas fa-redo"></i> Reset
+                        <span class="material-symbols-outlined">refresh</span> Reset
                     </button>
                 </div>
             </div>
@@ -871,7 +888,7 @@ try {
                     <span id="selectedCount">0</span> assignments selected
                 </span>
                 <button onclick="bulkDelete()" class="btn" style="background: #d93025; color: white; padding: 8px 20px; border-radius: 25px; font-size: 13px;">
-                    <i class="fas fa-trash"></i> Delete Selected
+                    <span class="material-symbols-outlined">delete</span> Delete Selected
                 </button>
                 <button onclick="clearSelection()" class="btn" style="background: white; border: 1px solid #dadce0; color: #5f6368; padding: 8px 20px; border-radius: 25px; font-size: 13px;">
                     Clear Selection
@@ -923,21 +940,21 @@ try {
                             <div class="assignment-meta">
                                 <?php if ($assignment['class_name']): ?>
                                     <div class="assignment-meta-item">
-                                        <i class="fas fa-users"></i>
+                                        <span class="material-symbols-outlined">groups</span>
                                         <?php echo htmlspecialchars($assignment['class_name']); ?>
                                     </div>
                                 <?php endif; ?>
                                 
                                 <?php if ($assignment['subject_name']): ?>
                                     <div class="assignment-meta-item">
-                                        <i class="fas fa-book"></i>
+                                        <span class="material-symbols-outlined">menu_book</span>
                                         <?php echo htmlspecialchars($assignment['subject_name']); ?>
                                     </div>
                                 <?php endif; ?>
                                 
                                 <?php if ($assignment['due_date']): ?>
                                     <div class="assignment-meta-item">
-                                        <i class="fas fa-calendar"></i>
+                                        <span class="material-symbols-outlined">event</span>
                                         Due: <?php echo date('M d, Y', strtotime($assignment['due_date'])); ?>
                                     </div>
                                 <?php endif; ?>
@@ -954,29 +971,29 @@ try {
                             
                             <div style="margin-top: 12px; display: flex; gap: 8px;">
                                 <a href="../api/download_assignment.php?assignment_id=<?php echo $assignment['id']; ?>" class="action-btn-download" style="flex: 1;">
-                                    <i class="fas fa-download"></i> Download
+                                    <span class="material-symbols-outlined">download</span> Download
                                 </a>
                                 <button onclick="previewAssignment(<?php echo $assignment['id']; ?>, '<?php echo htmlspecialchars($assignment['file_name']); ?>')" class="action-btn-preview" title="Preview">
-                                    <i class="fas fa-eye"></i>
+                                    <span class="material-symbols-outlined">visibility</span>
                                 </button>
                                 <button onclick="viewAnalytics(<?php echo $assignment['id']; ?>)" class="action-btn-analytics" title="View Analytics">
-                                    <i class="fas fa-chart-bar"></i>
+                                    <span class="material-symbols-outlined">bar_chart</span>
                                 </button>
                                 <button onclick="editAssignment(<?php echo $assignment['id']; ?>)" class="action-btn-edit" title="Edit">
-                                    <i class="fas fa-edit"></i>
+                                    <span class="material-symbols-outlined">edit</span>
                                 </button>
                                 <button onclick="duplicateAssignment(<?php echo $assignment['id']; ?>)" class="action-btn-duplicate" title="Duplicate">
-                                    <i class="fas fa-copy"></i>
+                                    <span class="material-symbols-outlined">content_copy</span>
                                 </button>
                                 <button onclick="deleteAssignment(<?php echo $assignment['id']; ?>, '<?php echo htmlspecialchars($assignment['title']); ?>')" class="action-btn-delete">
-                                    <i class="fas fa-trash"></i>
+                                    <span class="material-symbols-outlined">delete</span>
                                 </button>
                             </div>
                             
                             <?php if (!empty($assignment['download_count']) && (int)$assignment['download_count'] > 0): ?>
                                 <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid #e8eaed;">
                                     <div style="font-size: 12px; font-weight: 500; color: #5f6368; margin-bottom: 8px;">
-                                        <i class="fas fa-download" style="color: #FF6B35;"></i> Downloads: <?php echo (int)$assignment['download_count']; ?>
+                                        <span class="material-symbols-outlined" style="color: #FF6B35; font-size: 16px; vertical-align: middle;">download</span> Downloads: <?php echo (int)$assignment['download_count']; ?>
                                     </div>
                                     <?php if (!empty($assignment['downloads'])): ?>
                                         <div style="margin-bottom: 8px;">
@@ -995,7 +1012,7 @@ try {
                                             <?php endif; ?>
                                         </div>
                                         <button onclick="viewAnalytics(<?php echo $assignment['id']; ?>)" style="background: none; border: none; color: #1967d2; font-size: 11px; cursor: pointer; padding: 0;">
-                                            <i class="fas fa-chart-bar"></i> View all downloads
+                                            <span class="material-symbols-outlined" style="font-size: 14px; vertical-align: middle;">bar_chart</span> View all downloads
                                         </button>
                                     <?php endif; ?>
                                 </div>
@@ -1090,15 +1107,15 @@ try {
                     
                     <div id="analyticsContent">
                         <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 20px;">
-                            <div style="background: #f8f9fa; padding: 16px; border-radius: 12px; text-align: center;">
+                            <div style="background: #F0F4F9; padding: 16px; border-radius: 12px; text-align: center;">
                                 <div style="font-size: 24px; font-weight: 500; color: #7b1fa2;" id="totalDownloads">0</div>
                                 <div style="font-size: 12px; color: #5f6368; margin-top: 4px;">Total Downloads</div>
                             </div>
-                            <div style="background: #f8f9fa; padding: 16px; border-radius: 12px; text-align: center;">
+                            <div style="background: #F0F4F9; padding: 16px; border-radius: 12px; text-align: center;">
                                 <div style="font-size: 24px; font-weight: 500; color: #1967d2;" id="uniqueDownloaders">0</div>
                                 <div style="font-size: 12px; color: #5f6368; margin-top: 4px;">Unique Users</div>
                             </div>
-                            <div style="background: #f8f9fa; padding: 16px; border-radius: 12px; text-align: center;">
+                            <div style="background: #F0F4F9; padding: 16px; border-radius: 12px; text-align: center;">
                                 <div style="font-size: 24px; font-weight: 500; color: #188038;" id="lastDownload">-</div>
                                 <div style="font-size: 12px; color: #5f6368; margin-top: 4px;">Last Download</div>
                             </div>
@@ -1126,7 +1143,7 @@ try {
                 <div style="display: flex; align-items: center; justify-content: space-between; padding: 24px 32px 0 32px; border-bottom: none;">
                     <p style="font-size: 22px; font-weight: 400; color: #202124;">Preview: <span id="previewFileName" style="font-weight: 400; font-size: 18px;"></span></p>
                     <button onclick="closePreviewModal()" style="background: none; border: none; cursor: pointer; padding: 8px; border-radius: 50%;">
-                        <i class="fas fa-times" style="color: #5f6368; font-size: 18px;"></i>
+                        <span class="material-symbols-outlined" style="color: #5f6368; font-size: 24px;">close</span>
                     </button>
                 </div>
                 <div id="previewContent" style="padding: 24px 32px; height: calc(90vh - 80px); overflow: auto;">
@@ -1285,7 +1302,7 @@ try {
             notification.style.borderRadius = '25px';
             notification.style.boxShadow = '0 4px 6px rgba(0,0,0,0.1)';
             notification.style.animation = 'slideIn 0.3s ease';
-            notification.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'} me-2"></i>${message}`;
+            notification.innerHTML = `<span class="material-symbols-outlined me-2">${type === 'success' ? 'check_circle' : 'error'}</span>${message}`;
             
             document.body.appendChild(notification);
             
@@ -1391,7 +1408,7 @@ try {
             
             const fileExt = fileName.split('.').pop().toLowerCase();
             const previewContent = document.getElementById('previewContent');
-            previewContent.innerHTML = '<div style="display: flex; align-items: center; justify-content: center; height: 100%; color: #5f6368;"><i class="fas fa-spinner fa-spin"></i> Loading...</div>';
+            previewContent.innerHTML = '<div style="display: flex; align-items: center; justify-content: center; height: 100%; color: #5f6368;"><span class="material-symbols-outlined" style="animation: spin 1s linear infinite;">refresh</span> Loading...</div>';
             
             if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(fileExt)) {
                 // Image preview
@@ -1428,10 +1445,10 @@ try {
             } else {
                 previewContent.innerHTML = `
                     <div style="text-align: center; padding: 40px;">
-                        <i class="fas fa-file" style="font-size: 48px; color: #dadce0; margin-bottom: 16px;"></i>
+                        <span class="material-symbols-outlined" style="font-size: 48px; color: #dadce0; margin-bottom: 16px;">description</span>
                         <p style="color: #5f6368; margin-bottom: 12px;">Preview not available for .${fileExt} files</p>
                         <a href="../api/download_assignment.php?assignment_id=${assignmentId}" class="btn btn-primary" style="display: inline-flex; align-items: center; gap: 8px;">
-                            <i class="fas fa-download"></i> Download to View
+                            <span class="material-symbols-outlined">download</span> Download to View
                         </a>
                     </div>
                 `;
@@ -1531,7 +1548,7 @@ try {
                     successDiv.style.borderRadius = '8px';
                     successDiv.style.boxShadow = '0 4px 6px rgba(0,0,0,0.1)';
                     successDiv.style.animation = 'slideIn 0.3s ease';
-                    successDiv.innerHTML = '<i class="fas fa-check-circle me-2"></i>' + data.message;
+                    successDiv.innerHTML = '<span class="material-symbols-outlined me-2">check_circle</span>' + data.message;
                     
                     document.body.appendChild(successDiv);
                     
@@ -1562,7 +1579,7 @@ try {
                     errorDiv.style.borderRadius = '8px';
                     errorDiv.style.boxShadow = '0 4px 6px rgba(0,0,0,0.1)';
                     errorDiv.style.animation = 'slideIn 0.3s ease';
-                    errorDiv.innerHTML = '<i class="fas fa-exclamation-circle me-2"></i>' + data.error;
+                    errorDiv.innerHTML = '<span class="material-symbols-outlined me-2">error</span>' + data.error;
                     
                     document.body.appendChild(errorDiv);
                     
@@ -1588,7 +1605,7 @@ try {
                 errorDiv.style.borderRadius = '8px';
                 errorDiv.style.boxShadow = '0 4px 6px rgba(0,0,0,0.1)';
                 errorDiv.style.animation = 'slideIn 0.3s ease';
-                errorDiv.innerHTML = '<i class="fas fa-exclamation-circle me-2"></i>Error uploading assignment: ' + error.message;
+                errorDiv.innerHTML = '<span class="material-symbols-outlined me-2">error</span>Error uploading assignment: ' + error.message;
                 
                 document.body.appendChild(errorDiv);
                 
@@ -1638,7 +1655,7 @@ try {
                     successDiv.className = 'toast toast-success';
                     successDiv.innerHTML = `
                         <div class="toast-icon">
-                            <i class="fas fa-check-circle"></i>
+                            <span class="material-symbols-outlined">check_circle</span>
                         </div>
                         <div class="toast-content">
                             <div class="toast-title">Success</div>
@@ -1662,7 +1679,7 @@ try {
                     errorDiv.className = 'toast toast-error';
                     errorDiv.innerHTML = `
                         <div class="toast-icon">
-                            <i class="fas fa-exclamation-circle"></i>
+                            <span class="material-symbols-outlined">error</span>
                         </div>
                         <div class="toast-content">
                             <div class="toast-title">Error</div>
@@ -1689,7 +1706,7 @@ try {
                 errorDiv.className = 'toast toast-error';
                 errorDiv.innerHTML = `
                     <div class="toast-icon">
-                        <i class="fas fa-exclamation-circle"></i>
+                        <span class="material-symbols-outlined">error</span>
                     </div>
                     <div class="toast-content">
                         <div class="toast-title">Error</div>
@@ -1712,6 +1729,6 @@ try {
     <script src="../assets/js/notifications.js"></script>
     
     <!-- Footer -->
-    <?php require_once '../includes/copywrite.php'; ?>
+    <?php require_once __DIR__ . '/../includes/copywrite.php'; ?>
 </body>
 </html>

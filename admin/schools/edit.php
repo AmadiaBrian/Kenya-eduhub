@@ -141,6 +141,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta name="theme-color" content="#FF6B35">
     <title>Edit School - Kenya EduHub</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <script>window.currentCSRFToken = "<?php echo $csrf_token; ?>";</script>
     <style>
         :root {
@@ -468,13 +469,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </head>
 <body>
     <!-- Header -->
-    <?php require_once '../includes/header.php'; ?>
-    
+    <?php require_once __DIR__ . '/../includes/header.php'; ?>
+
     <!-- Sidebar -->
-    <?php 
+    <?php
     $active_page = 'schools';
     $in_subdirectory = true;
-    require_once '../includes/sidebar.php'; 
+    require __DIR__ . '/../includes/sidebar.php';
     ?>
     
     <!-- Main Content -->
@@ -577,6 +578,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </script>
 
     <!-- Footer -->
-    <?php require_once '../../includes/copywrite.php'; ?>
+    <?php require_once __DIR__ . '/../../includes/copywrite.php'; ?>
 </body>
 </html>

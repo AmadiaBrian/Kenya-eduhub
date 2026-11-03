@@ -1,3 +1,4 @@
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0">
 <style>
     /* Sidebar CSS */
     :root {
@@ -12,7 +13,7 @@
         left: 0;
         width: var(--sidebar-width);
         height: calc(100vh - var(--header-height));
-        background: #f8f9fa !important;
+        background: #F0F4F9 !important;
         border-right: 1px solid #e0e0e0;
         overflow-y: auto;
         transition: transform 0.3s ease, margin-left 0.3s ease;
@@ -66,9 +67,9 @@
         color: var(--primary-color);
     }
 
-    .nav-link i {
+    .nav-link .material-symbols-outlined {
         margin-right: 12px;
-        font-size: 18px;
+        font-size: 20px;
         width: 24px;
         text-align: center;
         color: #5f6368;
@@ -165,49 +166,49 @@
     <div class="sidebar-section">
         <div class="sidebar-title">Main</div>
         <a class="nav-link <?php echo ($active_page ?? '') === 'dashboard' ? 'active' : ''; ?>" href="dashboard">
-            <i class="fas fa-home"></i> Dashboard
+            <span class="material-symbols-outlined">dashboard</span> Dashboard
         </a>
         <a class="nav-link <?php echo ($active_page ?? '') === 'timetable' ? 'active' : ''; ?>" href="timetable">
-            <i class="fas fa-calendar-alt"></i> Timetable
+            <span class="material-symbols-outlined">schedule</span> Timetable
         </a>
         <a class="nav-link <?php echo ($active_page ?? '') === 'attendance' ? 'active' : ''; ?>" href="attendance">
-            <i class="fas fa-calendar-check"></i> Attendance
+            <span class="material-symbols-outlined">fact_check</span> Attendance
         </a>
         <a class="nav-link <?php echo ($active_page ?? '') === 'calendar' ? 'active' : ''; ?>" href="calendar">
-            <i class="fas fa-calendar"></i> Calendar
+            <span class="material-symbols-outlined">calendar_today</span> Calendar
         </a>
         <a class="nav-link <?php echo ($active_page ?? '') === 'performance' ? 'active' : ''; ?>" href="performance">
-            <i class="fas fa-chart-line"></i> Performance
+            <span class="material-symbols-outlined">trending_up</span> Performance
         </a>
         <a class="nav-link <?php echo ($active_page ?? '') === 'results' ? 'active' : ''; ?>" href="results">
-            <i class="fas fa-award"></i> Results
+            <span class="material-symbols-outlined">emoji_events</span> Results
         </a>
         <a class="nav-link <?php echo ($active_page ?? '') === 'students' ? 'active' : ''; ?>" href="students">
-            <i class="fas fa-user-graduate"></i> Students
+            <span class="material-symbols-outlined">school</span> Students
         </a>
         <a class="nav-link <?php echo ($active_page ?? '') === 'student-subjects' ? 'active' : ''; ?>" href="student-subjects">
-            <i class="fas fa-book"></i> Student Subjects
+            <span class="material-symbols-outlined">menu_book</span> Student Subjects
         </a>
         <a class="nav-link <?php echo ($active_page ?? '') === 'assignments' ? 'active' : ''; ?>" href="assignments">
-            <i class="fas fa-tasks"></i> Assignments
+            <span class="material-symbols-outlined">assignment</span> Assignments
         </a>
         <a class="nav-link <?php echo ($active_page ?? '') === 'parents' ? 'active' : ''; ?>" href="parents">
-            <i class="fas fa-users"></i> Parents
+            <span class="material-symbols-outlined">groups</span> Parents
         </a>
         <a class="nav-link <?php echo ($active_page ?? '') === 'duty' ? 'active' : ''; ?>" href="duty">
-            <i class="fas fa-clipboard-list"></i> My Duties
+            <span class="material-symbols-outlined">assignment</span> My Duties
         </a>
         <a class="nav-link <?php echo ($active_page ?? '') === 'fees' ? 'active' : ''; ?>" href="fees">
-            <i class="fas fa-money-bill-wave"></i> Fee Payments
+            <span class="material-symbols-outlined">payments</span> Fee Payments
         </a>
     </div>
     <div class="sidebar-section">
         <div class="sidebar-title">Account</div>
         <a class="nav-link <?php echo ($active_page ?? '') === 'profile' ? 'active' : ''; ?>" href="profile">
-            <i class="fas fa-user"></i> Profile
+            <span class="material-symbols-outlined">person</span> Profile
         </a>
         <a class="nav-link <?php echo ($active_page ?? '') === 'logout' ? 'active' : ''; ?>" href="logout">
-            <i class="fas fa-sign-out-alt"></i> Logout
+            <span class="material-symbols-outlined">logout</span> Logout
         </a>
     </div>
 </aside>

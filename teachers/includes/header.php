@@ -1,3 +1,4 @@
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0">
 <style>
     /* Header CSS */
     :root {
@@ -10,7 +11,7 @@
         left: 0;
         right: 0;
         height: var(--header-height);
-        background: #f8f9fa !important;
+        background: #F0F4F9 !important;
         border-bottom: 1px solid #e0e0e0;
         display: flex;
         align-items: center;
@@ -39,6 +40,10 @@
         background: #f1f3f4;
     }
 
+    .menu-btn .material-symbols-outlined {
+        font-size: 24px;
+    }
+
     .header-right {
         margin-left: auto;
         display: flex;
@@ -63,7 +68,7 @@
 <header class="header">
     <div class="header-left">
         <button class="menu-btn" onclick="toggleSidebar()">
-            <i class="fas fa-bars"></i>
+            <span class="material-symbols-outlined">menu</span>
         </button>
         <?php require_once dirname(__DIR__) . '/../includes/logo.php'; ?>
     </div>
