@@ -1137,7 +1137,7 @@ try {
                 });
                 const mobitechData = await mobitechResponse.json();
                 mobitechBalance.textContent = mobitechData.success ? mobitechData.balance + ' SMS' : 'Error: ' + (mobitechData.error || 'Unknown');
-                
+
                 // Check Text SMS balance
                 const textsmsResponse = await fetch('api/check_balance.php', {
                     method: 'POST',

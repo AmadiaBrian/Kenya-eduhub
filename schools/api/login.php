@@ -43,7 +43,7 @@ try {
     // Check if account is active
     if ($school['status'] !== 'active') {
         log_security_event('SCHOOL_LOGIN_BLOCKED', "Inactive account: $email (Status: {$school['status']})");
-        error_response('Your account is ' . $school['status'] . '. Please contact support.');
+        error_response('Your school is still not active. Please wait for system approval and try again.');
     }
     
     // Verify password

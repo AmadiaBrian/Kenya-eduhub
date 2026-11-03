@@ -24,6 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } else {
             $fullName = sanitizeStrict($_POST['full_name']); // XSS protection
             $email = sanitizeStrict($_POST['email']); // XSS protection
+            $phone = sanitizeStrict($_POST['phone'] ?? ''); // XSS protection
             $password = $_POST['password'];
             $confirmPassword = $_POST['confirm_password'];
 
@@ -37,6 +38,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $errors[] = "Email is required";
             } elseif (!validateEmailLite($email)) {
                 $errors[] = "Invalid email format";
+            }
+
+            if (empty($phone)) {
+                $errors[] = "Phone number is required";
+            } elseif (!preg_match('/^[0-9]{10,15}$/', $phone)) {
+                $errors[] = "Phone number must be 10-15 digits";
             }
 
             if (empty($password)) {
@@ -100,7 +107,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'name' => $fullName,
                     'email' => $email,
                     'password' => $password,
-                    'phone' => $_POST['phone'] ?? ''
+                    'phone' => $phone
                 ];
                 
                 $ch = curl_init($apiUrl);
@@ -128,12 +135,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 error_log("Registration Debug - Success Check: " . (isset($result['success']) && $result['success'] ? 'TRUE' : 'FALSE'));
                 
                 if ($httpCode === 200 && isset($result['success']) && $result['success']) {
-                    // Store email and/or phone for verification page
+                    // Store email and phone for verification page
                     $_SESSION['verification_email'] = $email;
-                    if (isset($_POST['phone']) && !empty($_POST['phone'])) {
-                        $_SESSION['verification_phone'] = $_POST['phone'];
-                    }
-                    error_log("Registration successful for email: $email" . (isset($_POST['phone']) ? ", phone: " . $_POST['phone'] : ""));
+                    $_SESSION['verification_phone'] = $phone;
+                    error_log("Registration successful for email: $email, phone: $phone");
                     header("Location: verify");
                     exit();
                 } else {
@@ -474,7 +479,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
 
             <div class="form-group">
-                <label for="phone">Phone Number (Optional)</label>
+                <label for="phone">Phone Number *</label>
                 <input
                     type="tel"
                     id="phone"
@@ -483,6 +488,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     placeholder="07XXXXXXXX"
                     autocomplete="tel"
                     pattern="^(07|01)[0-9]{8}$|^\+254[71][0-9]{8}$"
+                    required
                     value="<?php echo isset($_POST['phone']) ? sanitizeOutput($_POST['phone']) : ''; ?>"
                 />
                 <small style="color: #5f6368; font-size: 12px;">Enter to receive verification code via SMS (Kenya format: 07XXXXXXXX, 01XXXXXXXX, +2547XXXXXXXX, or +2541XXXXXXXX)</small>

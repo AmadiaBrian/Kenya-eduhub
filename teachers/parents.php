@@ -16,19 +16,14 @@ $teacher_type = $_SESSION['teacher_type'] ?? 'class_teacher';
     <meta name="theme-color" content="#FF6B35">
     <title>Parents - <?php echo htmlspecialchars($teacher_name); ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
     <link rel="stylesheet" href="../assets/css/notifications.css">
     <style>
         body {
-            background: #f8f9fa;
+            background: #F0F4F9;
             font-family: 'Google Sans', 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             font-size: 14px;
             color: #202124;
-        }
-
-        .main-content {
-            width: 100%;
-            max-width: 100%;
         }
 
         .page-title {
@@ -40,7 +35,7 @@ $teacher_type = $_SESSION['teacher_type'] ?? 'class_teacher';
         }
 
         .card {
-            background: #f8f9fa;
+            background: #F0F4F9;
             border: 1px solid #e0e0e0;
             border-radius: 8px;
             padding: 24px;
@@ -70,7 +65,7 @@ $teacher_type = $_SESSION['teacher_type'] ?? 'class_teacher';
         }
 
         .stat-card {
-            background: #f8f9fa;
+            background: #F0F4F9;
             border: 1px solid #e0e0e0;
             border-radius: 8px;
             padding: 24px;
@@ -98,6 +93,10 @@ $teacher_type = $_SESSION['teacher_type'] ?? 'class_teacher';
             color: #FF6B35;
             margin-bottom: 12px;
             text-align: center;
+        }
+
+        .stat-icon .material-symbols-outlined {
+            color: #FF6B35;
         }
 
         .stat-value {
@@ -137,7 +136,7 @@ $teacher_type = $_SESSION['teacher_type'] ?? 'class_teacher';
             border-radius: 8px;
             padding: 10px 12px;
             font-size: 14px;
-            background: #f8f9fa;
+            background: #F0F4F9;
         }
 
         .form-control:focus {
@@ -184,62 +183,68 @@ $teacher_type = $_SESSION['teacher_type'] ?? 'class_teacher';
         }
 
         .btn-action {
-            background: #f8f9fa;
-            color: #000;
-            border: 1px solid #000;
+            background: transparent;
+            color: #5f6368;
+            border: none;
+            padding: 4px 8px;
         }
 
         .btn-action:hover {
-            background: #e9ecef;
+            background: #e8eaed;
+            color: #202124;
         }
 
-        .btn-action i {
-            color: #000;
+        .btn-action .material-symbols-outlined {
+            color: #5f6368;
+        }
+
+        .btn-action:hover .material-symbols-outlined {
+            color: #202124;
         }
 
         .table {
             width: 100%;
             border-collapse: collapse;
             background: white;
-            border: 1px solid #000;
+            border: 2px solid #000;
             margin: 0;
+            font-family: 'Times New Roman', Times, serif;
+        }
+
+        .table thead {
+            background: #f0f0f0;
+            border-bottom: 2px solid #000;
+        }
+
+        .table thead th {
+            background: #f0f0f0;
+            border: 2px solid #000;
+            border-bottom: 2px solid #000;
+            padding: 12px;
+            font-weight: bold;
+            color: #000;
+        }
+
+        .table td {
+            padding: 12px;
+            border: 2px solid #000;
+            color: #000;
+            font-size: 13px;
+        }
+
+        .table tbody tr:nth-child(even) {
+            background: #fafafa;
+        }
+
+        .table tbody tr:hover {
+            background: #f8f9fa;
         }
 
         .table-responsive {
             width: 100%;
             overflow-x: auto;
-        }
-
-        .table thead {
-            background: #FF6B35 !important;
-            border-bottom: 2px solid #000;
-        }
-
-        .table thead th {
-            background: #FF6B35 !important;
-            text-align: left;
-            padding: 12px;
-            font-size: 13px;
-            font-weight: 600;
-            color: #ffffff !important;
-            border: 1px solid #000;
-            border-bottom: 2px solid #000;
-            text-transform: uppercase;
-        }
-
-        .table td {
-            padding: 12px;
-            font-size: 13px;
-            color: #000;
-            border: 1px solid #000;
-        }
-
-        .table tbody tr:nth-child(even) {
-            background: #f9f9f9;
-        }
-
-        .table tbody tr:hover {
-            background: #f0f0f0;
+            margin: 0;
+            padding: 0;
         }
 
         .action-buttons-cell {
@@ -248,16 +253,16 @@ $teacher_type = $_SESSION['teacher_type'] ?? 'class_teacher';
             align-items: center;
         }
 
-        /* Icon colors - Google Search Console style (gray) */
-        .fa-plus, .fa-edit, .fa-trash, .fa-download, .fa-print, .fa-filter,
-        .fa-calendar, .fa-calendar-alt, .fa-calendar-check, .fa-check-circle,
-        .fa-exclamation-circle, .fa-exclamation-triangle, .fa-info-circle,
-        .fa-search, .fa-sms, .fa-award, .fa-chart-line, .fa-redo,
-        .fa-user-graduate, .fa-book, .fa-users, .fa-clipboard-list,
-        .fa-money-bill-wave, .fa-home, .fa-user, .fa-sign-out-alt,
-        .fa-envelope, .fa-phone, .fa-male, .fa-female, .fa-undo,
-        .fa-paper-plane, .fa-eraser, .fa-times {
+        /* Material Symbols styling */
+        .material-symbols-outlined {
+            font-size: 20px;
+            vertical-align: middle;
             color: #5f6368;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
         }
 
         /* Mobile responsive */
@@ -316,7 +321,7 @@ $teacher_type = $_SESSION['teacher_type'] ?? 'class_teacher';
         }
     </style>
 </head>
-<body>
+<body class="login-page">
     <?php require_once 'includes/header.php'; ?>
     <?php $active_page = 'parents'; require_once 'includes/sidebar.php'; ?>
 
@@ -327,25 +332,25 @@ $teacher_type = $_SESSION['teacher_type'] ?? 'class_teacher';
         <!-- Parent Statistics -->
         <div class="stats-grid" id="parentStats">
             <div class="stat-card">
-                <div class="stat-icon"><i class="fas fa-users"></i></div>
+                <div class="stat-icon"><span class="material-symbols-outlined">groups</span></div>
                 <div class="stat-label">Total Parents</div>
                 <div class="stat-value" id="totalParents">0</div>
                 <div class="stat-change">All parents</div>
             </div>
             <div class="stat-card">
-                <div class="stat-icon"><i class="fas fa-user-graduate"></i></div>
+                <div class="stat-icon"><span class="material-symbols-outlined">school</span></div>
                 <div class="stat-label">Linked Students</div>
                 <div class="stat-value" id="linkedStudents">0</div>
                 <div class="stat-change">Linked to parents</div>
             </div>
             <div class="stat-card">
-                <div class="stat-icon"><i class="fas fa-male"></i></div>
+                <div class="stat-icon"><span class="material-symbols-outlined">man</span></div>
                 <div class="stat-label">Fathers</div>
                 <div class="stat-value" id="fathersCount">0</div>
                 <div class="stat-change">Registered fathers</div>
             </div>
             <div class="stat-card">
-                <div class="stat-icon"><i class="fas fa-female"></i></div>
+                <div class="stat-icon"><span class="material-symbols-outlined">woman</span></div>
                 <div class="stat-label">Mothers</div>
                 <div class="stat-value" id="mothersCount">0</div>
                 <div class="stat-change">Registered mothers</div>
@@ -356,7 +361,7 @@ $teacher_type = $_SESSION['teacher_type'] ?? 'class_teacher';
             <div class="card-header d-flex justify-content-between align-items-center">
                 <span>Search Parents</span>
                 <button class="btn btn-sm btn-info" onclick="exportParents()" style="border-radius: 25px;">
-                    <i class="fas fa-download me-1"></i> Export CSV
+                    <span class="material-symbols-outlined me-1">download</span> Export CSV
                 </button>
             </div>
             <div class="card-body">
@@ -377,13 +382,13 @@ $teacher_type = $_SESSION['teacher_type'] ?? 'class_teacher';
                     <div class="col-md-3">
                         <label class="form-label">&nbsp;</label>
                         <button class="btn btn-secondary w-100" onclick="resetFilters()" style="border-radius: 25px;">
-                            <i class="fas fa-undo"></i> Reset
+                            <span class="material-symbols-outlined">refresh</span> Reset
                         </button>
                     </div>
                     <div class="col-md-2">
                         <label class="form-label">&nbsp;</label>
                         <button class="btn btn-primary w-100" onclick="toggleComposeSection()" style="border-radius: 25px;">
-                            <i class="fas fa-envelope"></i> Compose
+                            <span class="material-symbols-outlined">mail</span> Compose
                         </button>
                     </div>
                 </div>
@@ -393,9 +398,9 @@ $teacher_type = $_SESSION['teacher_type'] ?? 'class_teacher';
         <!-- Email Composition Section -->
         <div class="card mb-4" id="composeSection" style="display: none;">
             <div class="card-header d-flex justify-content-between align-items-center">
-                <span><i class="fas fa-edit me-2"></i>Compose Email</span>
+                <span><span class="material-symbols-outlined me-2">edit</span>Compose Email</span>
                 <button class="btn btn-sm btn-secondary" onclick="toggleComposeSection()" style="border-radius: 25px;">
-                    <i class="fas fa-times"></i>
+                    <span class="material-symbols-outlined">close</span>
                 </button>
             </div>
             <div class="card-body">
@@ -415,10 +420,10 @@ $teacher_type = $_SESSION['teacher_type'] ?? 'class_teacher';
                 </div>
                 <div class="d-flex gap-2">
                     <button class="btn btn-primary" id="sendEmailBtn" onclick="sendComposedEmail()" style="border-radius: 25px;">
-                        <i class="fas fa-paper-plane me-2"></i> <span id="sendEmailText">Send Email</span>
+                        <span class="material-symbols-outlined me-2">send</span> <span id="sendEmailText">Send Email</span>
                     </button>
                     <button class="btn btn-secondary" onclick="clearComposeForm()" style="border-radius: 25px;">
-                        <i class="fas fa-eraser me-2"></i> Clear
+                        <span class="material-symbols-outlined me-2">delete_sweep</span> Clear
                     </button>
                 </div>
             </div>
@@ -541,14 +546,14 @@ $teacher_type = $_SESSION['teacher_type'] ?? 'class_teacher';
                     <td>${parent.linked_students || 'No students linked'}</td>
                     <td>
                         <div class="action-buttons-cell">
-                            <button class="btn btn-sm btn-action" onclick="sendEmail(${parent.id})" style="border-radius: 25px;" title="Send Email">
-                                <i class="fas fa-envelope"></i>
+                            <button class="btn btn-sm btn-action" onclick="sendEmail(${parent.id})" title="Send Email">
+                                <span class="material-symbols-outlined">mail</span>
                             </button>
-                            <a href="tel:${parent.phone}" class="btn btn-sm btn-action" style="border-radius: 25px;" title="Call">
-                                <i class="fas fa-phone"></i>
+                            <a href="tel:${parent.phone}" class="btn btn-sm btn-action" title="Call">
+                                <span class="material-symbols-outlined">phone</span>
                             </a>
-                            <button class="btn btn-sm btn-action" onclick="viewParentDetails(${parent.id})" style="border-radius: 25px;" title="View Details">
-                                <i class="fas fa-eye"></i>
+                            <button class="btn btn-sm btn-action" onclick="viewParentDetails(${parent.id})" title="View Details">
+                                <span class="material-symbols-outlined">visibility</span>
                             </button>
                         </div>
                     </td>
@@ -629,7 +634,7 @@ $teacher_type = $_SESSION['teacher_type'] ?? 'class_teacher';
             const btn = document.getElementById('sendEmailBtn');
             const btnText = document.getElementById('sendEmailText');
             btn.disabled = true;
-            btnText.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Sending...';
+            btnText.innerHTML = '<span class="material-symbols-outlined me-2" style="animation: spin 1s linear infinite;">refresh</span>Sending...';
             
             try {
                 const response = await fetch('../schools/api/send_email.php', {
@@ -766,5 +771,5 @@ $teacher_type = $_SESSION['teacher_type'] ?? 'class_teacher';
     <!-- Footer -->
     
 </body>
-<?php require_once '../includes/copywrite.php'; ?>
+<?php require_once __DIR__ . '/../includes/copywrite.php'; ?>
 </html>

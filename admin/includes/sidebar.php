@@ -2,6 +2,17 @@
 // Admin Sidebar Include
 // Set $active_page variable before including to highlight the active link
 // Set $in_subdirectory to true if called from schools subdirectory
+
+// Get admin base path from current request
+$request_uri = $_SERVER['REQUEST_URI'];
+$path_parts = parse_url($request_uri, PHP_URL_PATH);
+// Find the admin directory in the path
+$admin_pos = strpos($path_parts, '/admin/');
+if ($admin_pos !== false) {
+    $admin_base = substr($path_parts, 0, $admin_pos + 6); // +6 for '/admin'
+} else {
+    $admin_base = '/admin';
+}
 ?>
 
 <!-- Google Material Symbols -->
@@ -9,40 +20,40 @@
 
 <!-- Sidebar -->
 <aside class="sidebar" id="sidebar">
-    <a class="nav-link <?php echo ($active_page ?? '') === 'dashboard' ? 'active' : ''; ?>" href="<?php echo ($in_subdirectory ?? false) ? '../dashboard' : 'dashboard'; ?>">
+    <a class="nav-link <?php echo ($active_page ?? '') === 'dashboard' ? 'active' : ''; ?>" href="<?php echo $admin_base; ?>/dashboard">
         <span class="material-symbols-outlined">dashboard</span> Dashboard
     </a>
-    <a class="nav-link <?php echo ($active_page ?? '') === 'my-resources' ? 'active' : ''; ?>" href="<?php echo ($in_subdirectory ?? false) ? '../dashboard?section=resources' : 'dashboard?section=resources'; ?>">
+    <a class="nav-link <?php echo ($active_page ?? '') === 'my-resources' ? 'active' : ''; ?>" href="<?php echo $admin_base; ?>/dashboard?section=resources">
         <span class="material-symbols-outlined">menu_book</span> My Resources
     </a>
-    <a class="nav-link <?php echo ($active_page ?? '') === 'upload' ? 'active' : ''; ?>" href="<?php echo ($in_subdirectory ?? false) ? '../dashboard?section=upload' : 'dashboard?section=upload'; ?>">
+    <a class="nav-link <?php echo ($active_page ?? '') === 'upload' ? 'active' : ''; ?>" href="<?php echo $admin_base; ?>/dashboard?section=upload">
         <span class="material-symbols-outlined">upload</span> Upload Resource
     </a>
-    <a class="nav-link <?php echo ($active_page ?? '') === 'schools' ? 'active' : ''; ?>" href="<?php echo ($in_subdirectory ?? false) ? '../schools' : 'schools'; ?>">
+    <a class="nav-link <?php echo ($active_page ?? '') === 'schools' ? 'active' : ''; ?>" href="<?php echo $admin_base; ?>/schools">
         <span class="material-symbols-outlined">school</span> Schools
     </a>
-    <a class="nav-link <?php echo ($active_page ?? '') === 'school-accounts' ? 'active' : ''; ?>" href="<?php echo ($in_subdirectory ?? false) ? '../school-accounts' : 'school-accounts'; ?>">
+    <a class="nav-link <?php echo ($active_page ?? '') === 'school-accounts' ? 'active' : ''; ?>" href="<?php echo $admin_base; ?>/school-accounts">
         <span class="material-symbols-outlined">account_balance_wallet</span> School Accounts
     </a>
-    <a class="nav-link <?php echo ($active_page ?? '') === 'users' ? 'active' : ''; ?>" href="<?php echo ($in_subdirectory ?? false) ? '../users' : 'users'; ?>">
+    <a class="nav-link <?php echo ($active_page ?? '') === 'users' ? 'active' : ''; ?>" href="<?php echo $admin_base; ?>/users">
         <span class="material-symbols-outlined">people</span> Users
     </a>
-    <a class="nav-link <?php echo ($active_page ?? '') === 'resources' ? 'active' : ''; ?>" href="<?php echo ($in_subdirectory ?? false) ? '../resources' : 'resources'; ?>">
+    <a class="nav-link <?php echo ($active_page ?? '') === 'resources' ? 'active' : ''; ?>" href="<?php echo $admin_base; ?>/resources">
         <span class="material-symbols-outlined">library_books</span> Resources
     </a>
-    <a class="nav-link <?php echo ($active_page ?? '') === 'transaction-rates' ? 'active' : ''; ?>" href="<?php echo ($in_subdirectory ?? false) ? '../transaction-rates' : 'transaction-rates'; ?>">
+    <a class="nav-link <?php echo ($active_page ?? '') === 'transaction-rates' ? 'active' : ''; ?>" href="<?php echo $admin_base; ?>/transaction-rates">
         <span class="material-symbols-outlined">percent</span> Transaction Rates
     </a>
-    <a class="nav-link <?php echo ($active_page ?? '') === 'reports' ? 'active' : ''; ?>" href="<?php echo ($in_subdirectory ?? false) ? '../reports' : 'reports'; ?>">
+    <a class="nav-link <?php echo ($active_page ?? '') === 'reports' ? 'active' : ''; ?>" href="<?php echo $admin_base; ?>/reports">
         <span class="material-symbols-outlined">bar_chart</span> Reports
     </a>
-    <a class="nav-link <?php echo ($active_page ?? '') === 'logs' ? 'active' : ''; ?>" href="<?php echo ($in_subdirectory ?? false) ? '../logs' : 'logs'; ?>">
+    <a class="nav-link <?php echo ($active_page ?? '') === 'logs' ? 'active' : ''; ?>" href="<?php echo $admin_base; ?>/logs">
         <span class="material-symbols-outlined">description</span> Logs
     </a>
-    <a class="nav-link <?php echo ($active_page ?? '') === 'settings' ? 'active' : ''; ?>" href="<?php echo ($in_subdirectory ?? false) ? '../settings' : 'settings'; ?>">
+    <a class="nav-link <?php echo ($active_page ?? '') === 'settings' ? 'active' : ''; ?>" href="<?php echo $admin_base; ?>/settings">
         <span class="material-symbols-outlined">settings</span> Settings
     </a>
-    <a class="nav-link" href="<?php echo ($in_subdirectory ?? false) ? '../logout' : 'logout'; ?>">
+    <a class="nav-link" href="<?php echo $admin_base; ?>/logout">
         <span class="material-symbols-outlined">logout</span> Logout
     </a>
 </aside>

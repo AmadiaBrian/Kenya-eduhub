@@ -74,11 +74,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta name="theme-color" content="#FF6B35">
     <title>Profile - <?php echo htmlspecialchars($teacher_name); ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0">
     <link rel="stylesheet" href="../assets/css/notifications.css">
     <style>
         :root {
             --primary-color: #FF6B35;
+        }
+
+        body {
+            background: #F0F4F9;
+            font-family: 'Google Sans', 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 14px;
+            color: #202124;
         }
 
         .page-title {
@@ -90,7 +97,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         .card {
-            background: #f8f9fa;
+            background: #F0F4F9;
             border: 1px solid #e0e0e0;
             border-radius: 8px;
             padding: 24px;
@@ -116,7 +123,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             border-radius: 8px;
             padding: 10px 12px;
             font-size: 14px;
-            background: #f8f9fa;
+            background: #F0F4F9;
         }
 
         .form-control:focus {
@@ -156,7 +163,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     </style>
 </head>
-<body>
+<body class="login-page">
     <?php require_once 'includes/header.php'; ?>
     <?php $active_page = 'profile'; require_once 'includes/sidebar.php'; ?>
     
@@ -241,7 +248,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
                 
                 <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-save me-2"></i> Update Profile
+                    <span class="material-symbols-outlined me-2">save</span> Update Profile
                 </button>
             </form>
         </div>
@@ -253,6 +260,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </main>
     
     <script src="../assets/js/notifications.js"></script>
-    <?php require_once '../includes/copywrite.php'; ?>
+    <?php require_once __DIR__ . '/../includes/copywrite.php'; ?>
 </body>
 </html>
