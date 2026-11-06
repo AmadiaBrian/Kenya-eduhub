@@ -2185,7 +2185,7 @@ $csrf_token = generateCSRFLite();
 
     <?php require_once 'includes/scripts.php'; ?>
     <?php require_once 'includes/footer.php'; ?>
-        <script></
+        <script>
         // Close sidebar when clicking outside on mobile
         document.addEventListener('click', function(event) {
             const sidebar = document.getElementById('sidebar');

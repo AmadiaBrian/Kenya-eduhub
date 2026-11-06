@@ -37,10 +37,11 @@ try {
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <meta name="theme-color" content="#FF6B35">
    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Kenya EduHub - Free Revision Materials, Past Papers & Best School Management System in Kenya</title>
-    <meta name="description" content="Download FREE revision materials, KCSE KCPE past papers, study notes, and assignments. Kenya's best modern school management system with student tracking, parent portal, teacher tools, fee management, and CBC curriculum support.">
-    <meta name="keywords" content="revision materials Kenya, past papers download, KCSE past papers free, KCPE past papers, study notes Kenya, assignments download, CBC revision materials, free exam papers, marking schemes, revision kits, class notes, homework help, Kenya educational resources, student revision, teacher resources, free study materials, past papers with answers, exam revision notes, secondary school revision, primary school revision, CBC grade 1-8 materials, junior secondary revision, senior secondary revision, form 1-4 notes, grade 7 revision, grade 8 revision, class 8 revision, KCSE revision materials, KCPE revision materials, termly exams, mock papers, prediction papers, free downloads Kenya, best school management system Kenya, modern school management software, school administration system, student tracking system, parent portal Kenya, teacher management tools, fee management system, attendance tracking Kenya, education management platform, digital learning Kenya, online school management, school ERP system, LMS Kenya, learning management system, free teaching resources, school software Kenya, academic management system, student information system, school administration software, school digitization Kenya, online education platform Kenya, school automation system, education technology solutions">
+    <title>Kenya EduHub - Free Educational Resources, Past Papers & Study Materials | Download KCSE, KCPE Notes</title>
+    <meta name="description" content="Kenya EduHub offers FREE educational resources, past papers, study notes, and learning materials for Kenyan students. Download KCSE, KCPE past papers, revision materials, and educational resources for all levels.">
+    <meta name="keywords" content="free educational resources Kenya, KCSE past papers, KCPE past papers, free study materials Kenya, download past papers, educational notes, Kenya education, learning resources, free textbooks, revision materials, exam papers, Kenyan curriculum, study guides, educational downloads, teaching resources, free learning materials">
     <meta name="author" content="Kenya EduHub">
     <meta name="robots" content="index, follow">
     <meta name="googlebot" content="index, follow">
@@ -61,8 +62,8 @@ try {
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://kenyaeduhub.kesug.com/">
-    <meta property="og:title" content="Kenya EduHub - Free Revision Materials & Best School Management System in Kenya">
-    <meta property="og:description" content="Download FREE revision materials, KCSE KCPE past papers, study notes, and assignments. Kenya's best modern school management system with parent portal, teacher tools, and fee management.">
+    <meta property="og:title" content="Kenya EduHub - Free Educational Resources, Past Papers & Study Materials">
+    <meta property="og:description" content="Download FREE KCSE, KCPE past papers, study notes, and educational resources in Kenya. Access thousands of learning materials for students and teachers.">
     <meta property="og:image" content="https://kenyaeduhub.kesug.com/assets/favicon.ico">
     <meta property="og:site_name" content="Kenya EduHub">
     <meta property="og:locale" content="en_KE">
@@ -71,8 +72,8 @@ try {
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:url" content="https://kenyaeduhub.kesug.com/">
-    <meta name="twitter:title" content="Kenya EduHub - Free Revision Materials & Best School Management System">
-    <meta name="twitter:description" content="FREE revision materials, KCSE KCPE past papers, study notes, assignments, and Kenya's best modern school management system. Download now!">
+    <meta name="twitter:title" content="Kenya EduHub - Free Educational Resources & Past Papers">
+    <meta name="twitter:description" content="Download FREE educational resources, past papers, and study materials for Kenyan students. KCSE, KCPE, revision materials available.">
     <meta name="twitter:image" content="https://kenyaeduhub.kesug.com/assets/favicon.ico">
     <meta name="twitter:site" content="@KenyaEduHub">
     <meta name="twitter:creator" content="@KenyaEduHub">
@@ -104,7 +105,7 @@ try {
         "name": "Kenya EduHub",
         "url": "https://kenyaeduhub.kesug.com/",
         "logo": "https://kenyaeduhub.kesug.com/assets/favicon.ico",
-        "description": "Kenya's leading platform for FREE revision materials, KCSE KCPE past papers, study notes, and assignments. Also offers the best modern school management system in Kenya with student tracking, parent portal, teacher tools, fee management, and CBC curriculum support.",
+        "description": "Kenya's premier platform for free educational resources, past papers, and study materials",
         "address": {
             "@type": "PostalAddress",
             "addressCountry": "Kenya",
@@ -124,19 +125,7 @@ try {
         "offers": [
             {
                 "@type": "Offer",
-                "description": "Free revision materials, past papers, study notes, and assignments",
-                "price": "0",
-                "priceCurrency": "KES"
-            },
-            {
-                "@type": "Offer",
-                "description": "Free KCSE and KCPE past papers with marking schemes",
-                "price": "0",
-                "priceCurrency": "KES"
-            },
-            {
-                "@type": "Offer",
-                "description": "Best modern school management system for Kenyan schools",
+                "description": "Free educational resources and study materials",
                 "price": "0",
                 "priceCurrency": "KES"
             }
@@ -151,16 +140,12 @@ try {
             "Marking Schemes",
             "Exam Papers",
             "Educational Resources",
-            "School Management System",
-            "Student Tracking",
-            "Parent Portal",
-            "Teacher Tools",
-            "Fee Management",
-            "Attendance Tracking",
-            "Grade Management",
-            "Report Generation",
-            "School Administration",
-            "Learning Management System"
+            "Free Learning Materials",
+            "Study Guides",
+            "Homework Help",
+            "Kenyan Curriculum",
+            "Student Revision",
+            "Teacher Resources"
         ]
     }
     </script>
@@ -189,14 +174,6 @@ try {
             },
             {
                 "@type": "Question",
-                "name": "What is the best school management system in Kenya?",
-                "acceptedAnswer": {
-                    "@type": "Answer",
-                    "text": "Kenya EduHub offers the best modern school management system in Kenya. It includes student tracking, parent portal, teacher tools, fee management, attendance tracking, grade management, CBC curriculum support, and report generation. The system is free and designed specifically for Kenyan schools."
-                }
-            },
-            {
-                "@type": "Question",
                 "name": "Are the study notes and assignments free?",
                 "acceptedAnswer": {
                     "@type": "Answer",
@@ -220,6 +197,22 @@ try {
                 }
             }
         ]
+    }
+    </script>
+
+    <!-- WebSite Schema -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "Kenya EduHub",
+        "url": "https://kenyaeduhub.kesug.com/",
+        "description": "Download free educational resources, KCSE past papers, KCPE past papers, study notes, and learning materials in Kenya",
+        "potentialAction": {
+            "@type": "SearchAction",
+            "target": "https://kenyaeduhub.kesug.com/search?q={search_term_string}",
+            "query-input": "required name=search_term_string"
+        }
     }
     </script>
 

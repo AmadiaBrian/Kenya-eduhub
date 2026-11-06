@@ -71,29 +71,627 @@ if ($route === 'login') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#FF6B35">
-    <title>Kenya EduHub - Schools Portal</title>
+    <title>Kenya EduHub - Best School Management System in Kenya | School Portal Login</title>
+    <meta name="description" content="Kenya's best school management system portal. Login to access student tracking, parent portal, teacher tools, fee management, attendance tracking, CBC curriculum support, and comprehensive school administration. Transform your school with modern education technology.">
+    <meta name="keywords" content="best school management system in Kenya, school management system Kenya, school portal login, student tracking system, parent portal Kenya, teacher management tools, fee management system, attendance tracking Kenya, education management platform, school ERP system, LMS Kenya, learning management system, school software Kenya, academic management system, student information system, school administration software, school digitization Kenya, CBC curriculum management, Kenyan school portal, modern school software, comprehensive school management, education ERP Kenya, school management software for Kenyan schools">
+    <meta name="author" content="Kenya EduHub">
+    <meta name="robots" content="index, follow">
+    <meta name="googlebot" content="index, follow">
+    <meta name="language" content="English">
+    <meta name="geo.region" content="KE">
+    <meta name="geo.placename" content="Kenya">
+    <meta name="category" content="Education">
+    <meta name="distribution" content="global">
+    <meta name="rating" content="general">
+    <meta name="revisit-after" content="7 days">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://kenyaeduhub.kesug.com/schools/">
+    <meta property="og:title" content="Kenya EduHub - Best School Management System in Kenya | School Portal Login">
+    <meta property="og:description" content="Login to Kenya's best school management system. Access student tracking, parent portal, teacher tools, fee management, attendance tracking, CBC curriculum support, and comprehensive school administration. Transform your school with modern education technology.">
+    <meta property="og:image" content="https://kenyaeduhub.kesug.com/assets/favicon.ico">
+    <meta property="og:site_name" content="Kenya EduHub">
+    <meta property="og:locale" content="en_KE">
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="https://kenyaeduhub.kesug.com/schools/">
+    <meta name="twitter:title" content="Kenya EduHub - Best School Management System in Kenya">
+    <meta name="twitter:description" content="Kenya's best school management system portal. Login to access student tracking, parent portal, teacher tools, fee management, attendance tracking, CBC curriculum support, and comprehensive school administration. Transform your school with modern education technology.">
+    <meta name="twitter:image" content="https://kenyaeduhub.kesug.com/assets/favicon.ico">
+    <meta name="twitter:site" content="@KenyaEduHub">
+    <meta name="twitter:creator" content="@KenyaEduHub">
+
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://kenyaeduhub.kesug.com/schools/">
+
+    <!-- Google Material Icons -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+
+    <!-- Structured Data for School Management System -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "EducationalOrganization",
+        "name": "Kenya EduHub",
+        "url": "https://kenyaeduhub.kesug.com/schools/",
+        "logo": "https://kenyaeduhub.kesug.com/assets/favicon.ico",
+        "description": "Kenya's best school management system with student tracking, parent portal, teacher tools, fee management, attendance tracking, CBC curriculum support, and comprehensive school administration. Transform your school with modern education technology.",
+        "address": {
+            "@type": "PostalAddress",
+            "addressCountry": "Kenya",
+            "addressLocality": "Nairobi"
+        },
+        "contactPoint": {
+            "@type": "ContactPoint",
+            "telephone": "+254 717 016 902",
+            "contactType": "customer service",
+            "availableLanguage": ["English", "Swahili"]
+        },
+        "sameAs": [
+            "https://twitter.com/KenyaEduHub",
+            "https://facebook.com/KenyaEduHub",
+            "https://instagram.com/KenyaEduHub"
+        ],
+        "offers": [
+            {
+                "@type": "Offer",
+                "description": "Best school management system for Kenyan schools",
+                "priceCurrency": "KES"
+            },
+            {
+                "@type": "Offer",
+                "description": "Comprehensive student tracking and parent portal",
+                "priceCurrency": "KES"
+            },
+            {
+                "@type": "Offer",
+                "description": "Teacher management tools and fee management system",
+                "priceCurrency": "KES"
+            }
+        ],
+        "knowsAbout": [
+            "Best School Management System in Kenya",
+            "School Management System",
+            "Student Tracking",
+            "Parent Portal",
+            "Teacher Tools",
+            "Fee Management",
+            "Attendance Tracking",
+            "Grade Management",
+            "Report Generation",
+            "School Administration",
+            "Learning Management System",
+            "CBC Curriculum Management",
+            "Kenyan School Portal",
+            "Digital School Solutions",
+            "Education ERP Kenya",
+            "School Management Software",
+            "Student Information System",
+            "Academic Management System",
+            "Education Technology Solutions"
+        ]
+    }
+    </script>
+
+    <!-- FAQ Schema for School Management -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+            {
+                "@type": "Question",
+                "name": "What is the best school management system in Kenya?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Kenya EduHub offers the best school management system in Kenya. It includes student tracking, parent portal, teacher tools, fee management, attendance tracking, grade management, CBC curriculum support, and report generation. The system is designed specifically for Kenyan schools."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "How does the student tracking system work?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Kenya EduHub's student tracking system allows schools to monitor student attendance, grades, performance, and disciplinary records in real-time. Parents can access their children's progress through the parent portal, while teachers can update records from their dashboard."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "How do I get started with Kenya EduHub?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Simply register your school on the platform, provide your school details, and you'll be ready to start using all the features. The system is designed specifically for Kenyan schools with CBC curriculum support."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "What features does the parent portal include?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "The parent portal includes real-time access to student grades, attendance records, fee payment status, exam results, disciplinary reports, and direct communication with teachers. Parents can also track their children's academic performance and receive SMS notifications."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "Does the system support CBC curriculum?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Yes, Kenya EduHub's school management system fully supports the Competency-Based Curriculum (CBC) for Grade 1-8, Junior Secondary, and Senior Secondary levels. It includes subject management, grade tracking, and report generation aligned with CBC requirements."
+                }
+            }
+        ]
+    }
+    </script>
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-        
+
+        html {
+            scroll-behavior: smooth;
+        }
+
         body {
             background: #F0F4F9;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
             font-family: 'Google Sans', 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             color: #202124;
         }
 
-        .material-symbols-outlined {
+        .material-icons {
             font-size: 24px;
-            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+
+        /* Hero Section */
+        .hero-section {
+            background: linear-gradient(135deg, #FF6B35 0%, #FF8C5A 50%, #008000 100%);
+            padding: 100px 20px;
+            text-align: center;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/></svg>');
+            background-size: 100px 100px;
+            opacity: 0.5;
+        }
+
+        .hero-section::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.2) 0%, transparent 70%);
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0); }
+            50% { transform: translate(-20px, 20px); }
+        }
+
+        .hero-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-badge {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 50px;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .hero-title {
+            font-size: 56px;
+            font-weight: 800;
+            margin-bottom: 24px;
+            line-height: 1.2;
+            color: white;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+
+        .hero-subtitle {
+            font-size: 20px;
+            margin-bottom: 40px;
+            opacity: 0.95;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            line-height: 1.8;
+            color: rgba(255, 255, 255, 0.95);
+        }
+
+        .hero-cta {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            margin-bottom: 50px;
+        }
+
+        .hero-cta .btn-primary {
+            background: white;
+            color: #FF6B35;
+            padding: 16px 40px;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: 600;
+            text-decoration: none;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .hero-cta .btn-primary:hover {
+            background: #f8f8f8;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+
+        .hero-cta .btn-secondary {
+            background: transparent;
+            color: white;
+            padding: 16px 40px;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: 600;
+            text-decoration: none;
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .hero-cta .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.8);
+        }
+
+        .hero-stats {
+            display: flex;
+            justify-content: center;
+            gap: 80px;
+            margin-top: 60px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 48px;
+            font-weight: 800;
+            margin-bottom: 8px;
+            color: white;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+
+        .stat-label {
+            font-size: 16px;
+            opacity: 0.9;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        /* Features Section */
+        .features-section {
+            padding: 80px 20px;
+            background: #F0F4F9;
+        }
+
+        .logo-container {
+            margin-top: 40px;
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .logo-cta {
+            padding: 12px 32px;
+            background: #FF6B35;
+            color: white;
+            border-radius: 50px;
+            font-size: 14px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(255, 107, 53, 0.3);
+        }
+
+        .logo-cta:hover {
+            background: #e55a2b;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 107, 53, 0.4);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-title {
+            font-size: 36px;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 16px;
+            color: #202124;
+        }
+
+        .section-subtitle {
+            font-size: 18px;
+            text-align: center;
+            color: #5f6368;
+            margin-bottom: 60px;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+
+        .feature-card {
+            background: #F0F4F9;
+            padding: 40px 30px;
+            border-radius: 12px;
+            text-align: center;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+        }
+
+        .feature-icon {
+            font-size: 48px;
+            color: #5f6368;
+            margin-bottom: 20px;
+        }
+
+        .feature-card h3 {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #202124;
+        }
+
+        .feature-card p {
+            font-size: 14px;
+            color: #5f6368;
+            line-height: 1.6;
+        }
+
+        /* How It Works Section */
+        .how-it-works-section {
+            padding: 80px 20px;
+            background: #F0F4F9;
+        }
+
+        .steps-container {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-top: 60px;
+        }
+
+        .step-item {
+            flex: 1;
+            max-width: 300px;
+            text-align: center;
+        }
+
+        .step-number {
+            width: 60px;
+            height: 60px;
+            background: #FF6B35;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: 700;
+            margin: 0 auto 20px;
+        }
+
+        .step-item h3 {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #202124;
+        }
+
+        .step-item p {
+            font-size: 14px;
+            color: #5f6368;
+            line-height: 1.6;
+        }
+
+        /* Benefits Section */
+        .benefits-section {
+            padding: 80px 40px;
+            background: #F0F4F9;
+        }
+
+        .benefits-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 40px;
+            margin-top: 60px;
+            max-width: 1400px;
+            margin-left: auto;
+            margin-right: auto;
+            padding: 0 20px;
+        }
+
+        .benefit-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            gap: 16px;
+        }
+
+        .benefit-icon {
+            font-size: 40px;
+            color: #008000;
+            flex-shrink: 0;
+        }
+
+        .benefit-item h3 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #202124;
+        }
+
+        .benefit-item p {
+            font-size: 14px;
+            color: #5f6368;
+            line-height: 1.7;
+        }
+
+        /* Auth Section */
+        .auth-section {
+            padding: 80px 20px 0 20px;
+            background: #F0F4F9;
+        }
+
+        /* CTA Section */
+        .cta-section {
+            padding: 80px 20px;
+            background: #F0F4F9;
+            text-align: center;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            margin-top: 40px;
+        }
+
+        .cta-button {
+            padding: 16px 40px;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-block;
+        }
+
+        .cta-button.primary {
+            background: #FF6B35;
+            color: white;
+            border: none;
+            box-shadow: 0 4px 15px rgba(255, 107, 53, 0.3);
+        }
+
+        .cta-button.primary:hover {
+            background: #e55a2b;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 107, 53, 0.4);
+        }
+
+        .cta-button.secondary {
+            background: transparent;
+            color: #FF6B35;
+            border: 2px solid #FF6B35;
+        }
+
+        .cta-button.secondary:hover {
+            background: rgba(255, 107, 53, 0.1);
+            transform: translateY(-2px);
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 32px;
+            }
+
+            .hero-subtitle {
+                font-size: 16px;
+            }
+
+            .hero-stats {
+                flex-direction: column;
+                gap: 30px;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .steps-container {
+                flex-direction: column;
+                gap: 30px;
+            }
+
+            .benefits-grid {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+
+            .auth-container {
+                flex-direction: column;
+                padding: 30px 20px;
+            }
+
+            .auth-info {
+                padding-right: 0;
+                text-align: center;
+            }
+
+            .auth-form-container {
+                max-width: 100%;
+            }
+
+            .footer-content {
+                grid-template-columns: 1fr;
+            }
+
+            .cta-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .cta-button {
+                width: 100%;
+                max-width: 300px;
+            }
         }
         
         .auth-container {
@@ -103,99 +701,31 @@ if ($route === 'login') {
             display: flex;
             gap: 60px;
             align-items: center;
-            margin-bottom: 60px;
+            margin: 0 auto;
         }
         
         .auth-info {
             flex: 1;
             padding-right: 40px;
         }
-        
-        .auth-info .logo-circle {
-            width: 50px;
-            height: 50px;
-            background: #FFD700;
-            border: 3px solid #FF6B35;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 16px;
-            flex-shrink: 0;
-        }
-        
-        .auth-info .logo-circle span {
-            font-weight: bold;
-            font-size: 24px;
-        }
-        
-        .auth-info .logo-text {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: white;
-            margin-bottom: 24px;
-        }
-        
-        .auth-info .logo-text .logo-circle {
-            width: 50px;
-            height: 50px;
-            background: #FFD700;
-            border: 3px solid #FF6B35;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-right: 2px;
-            flex-shrink: 0;
-            margin-bottom: 0;
-        }
-        
+
         .auth-info h1 {
-            font-size: 24px;
-            font-weight: 400;
+            font-size: 28px;
+            font-weight: 600;
             color: #202124;
-            margin-bottom: 8px;
+            margin-bottom: 16px;
         }
-        
-        .auth-info h2 {
-            font-size: 18px;
-            font-weight: 400;
-            color: #5f6368;
-            margin-bottom: 24px;
-        }
-        
+
         .auth-info p {
             font-size: 14px;
             color: #5f6368;
-            line-height: 1.5;
-            margin-bottom: 16px;
-        }
-        
-        .feature-list {
-            list-style: none;
-            margin-top: 24px;
-        }
-        
-        .feature-list li {
-            display: flex;
-            align-items: center;
-            padding: 8px 0;
-            font-size: 14px;
-            color: #5f6368;
-        }
-        
-        .feature-list li i {
-            color: #FF6B35;
-            margin-right: 12px;
-            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 12px;
         }
         
         .auth-form-container {
             flex: 1;
-            max-width: 400px;
+            max-width: 450px;
             width: 100%;
         }
         
@@ -331,26 +861,38 @@ if ($route === 'login') {
         }
         
         @media (max-width: 900px) {
+            .hero-title {
+                font-size: 36px;
+            }
+
+            .hero-subtitle {
+                font-size: 16px;
+            }
+
+            .hero-stats {
+                gap: 40px;
+            }
+
+            .features-grid {
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            }
+
+            .steps-container {
+                gap: 30px;
+            }
+
             .auth-container {
                 flex-direction: column;
                 max-width: 450px;
                 gap: 32px;
                 padding: 32px 24px;
             }
-            
+
             .auth-info {
                 padding-right: 0;
                 text-align: center;
             }
-            
-            .auth-info > div:first-child {
-                justify-content: center;
-            }
-            
-            .feature-list {
-                text-align: left;
-            }
-            
+
             .auth-form-container {
                 max-width: 100%;
             }
@@ -358,21 +900,21 @@ if ($route === 'login') {
         
         @media (max-width: 768px) {
             .auth-container {
-                padding: 24px 20px;
-                gap: 24px;
-                max-width: 100%;
+                flex-direction: column;
+                padding: 30px 20px;
+            }
+
+            .auth-info {
+                padding-right: 0;
+                text-align: center;
             }
 
             .auth-info h1 {
-                font-size: 20px;
+                font-size: 24px;
             }
 
-            .auth-info h2 {
-                font-size: 16px;
-            }
-
-            .feature-list li {
-                font-size: 13px;
+            .auth-info p {
+                font-size: 14px;
             }
 
             .auth-form-container {
@@ -383,36 +925,19 @@ if ($route === 'login') {
         @media (max-width: 480px) {
             .auth-container {
                 padding: 20px 16px;
-                gap: 20px;
-                max-width: 100%;
-            }
-
-            .auth-info > div:first-child {
-                font-size: 1.25rem;
-                gap: 0.5rem;
             }
 
             .auth-info h1 {
-                font-size: 18px;
-            }
-
-            .auth-info h2 {
-                font-size: 14px;
+                font-size: 20px;
             }
 
             .auth-info p {
                 font-size: 13px;
             }
 
-            .feature-list li {
-                font-size: 12px;
-                padding: 6px 0;
-            }
-
             .form-control {
                 padding: 12px 14px;
                 font-size: 15px;
-                width: 100%;
             }
 
             .btn-primary {
@@ -428,22 +953,7 @@ if ($route === 'login') {
                 padding: 10px 12px;
                 font-size: 13px;
             }
-
-            .auth-form-container {
-                max-width: 100%;
-            }
         }
-            
-            .auth-info > div:first-child > div:first-child {
-                width: 40px;
-                height: 40px;
-            }
-            
-            .auth-info > div:first-child > div:first-child span {
-                font-size: 20px;
-            }
-            
-            .auth-info > div:first-child > div:first-child span span:first-child {
                 font-size: 24px;
             }
             
@@ -482,79 +992,158 @@ if ($route === 'login') {
                 font-size: 14px;
             }
         }
-        
-        @media (max-width: 360px) {
-            .auth-container {
-                padding: 20px 16px;
-                gap: 20px;
-            }
-            
-            .auth-info > div:first-child {
-                font-size: 1.1rem;
-                gap: 0.4rem;
-            }
-            
-            .auth-info > div:first-child > div:first-child {
-                width: 36px;
-                height: 36px;
-            }
-            
-            .auth-info > div:first-child > div:first-child span {
-                font-size: 18px;
-            }
-            
-            .auth-info > div:first-child > div:first-child span span:first-child {
-                font-size: 22px;
-            }
-            
-            .auth-info h1 {
-                font-size: 18px;
-            }
-            
-            .auth-tabs {
-                gap: 8px;
-            }
-            
-            .auth-tab {
-                padding: 8px 12px;
-                font-size: 12px;
-            }
-            
-            .auth-form h2 {
-                font-size: 18px;
-            }
-            
-            .form-control {
-                padding: 11px 12px;
-                font-size: 14px;
-            }
-            
-            .btn-primary {
-                padding: 10px 16px;
-                font-size: 13px;
-            }
-        }
     </style>
 </head>
 <body class="login-page">
-    <div class="auth-container">
+    <div class="logo-container">
+        <?php require_once __DIR__ . '/../includes/logo.php'; ?>
+        <a href="#auth-section" class="logo-cta">Login to Your School</a>
+    </div>
+
+    <!-- Features Section -->
+    <section class="features-section">
+        <div class="container">
+            <h2 class="section-title">Comprehensive School Management Features</h2>
+            <p class="section-subtitle">Everything you need to run your school efficiently in one powerful platform</p>
+
+            <div class="features-grid">
+                <div class="feature-card">
+                    <span class="material-icons feature-icon">school</span>
+                    <h3>Student Management</h3>
+                    <p>Complete student records management with enrollment, admission tracking, personal profiles, academic history, disciplinary records, and comprehensive data management for every student from admission to graduation.</p>
+                </div>
+                <div class="feature-card">
+                    <span class="material-icons feature-icon">groups</span>
+                    <h3>Class & Stream Management</h3>
+                    <p>Organize classes, streams, and subjects efficiently. Assign teachers to specific classes, manage class schedules, track student assignments to classes and streams, and maintain structured academic organization.</p>
+                </div>
+                <div class="feature-card">
+                    <span class="material-icons feature-icon">people</span>
+                    <h3>Parent Portal</h3>
+                    <p>Real-time access for parents to monitor their children's progress, attendance records, fee payment status, exam results, disciplinary reports, and direct communication with teachers via SMS and email notifications.</p>
+                </div>
+                <div class="feature-card">
+                    <span class="material-icons feature-icon">trending_up</span>
+                    <h3>Performance Tracking</h3>
+                    <p>Track student performance with detailed analytics, comparative reports, grade management, subject-wise performance analysis, trend identification, and data-driven insights to improve academic outcomes.</p>
+                </div>
+                <div class="feature-card">
+                    <span class="material-icons feature-icon">fact_check</span>
+                    <h3>Attendance System</h3>
+                    <p>Digital attendance tracking with automated reports, absence notifications to parents, pattern analysis, attendance percentage calculations, and daily/weekly/monthly attendance summaries for administrative oversight.</p>
+                </div>
+                <div class="feature-card">
+                    <span class="material-icons feature-icon">payments</span>
+                    <h3>Fee Management</h3>
+                    <p>Streamline fee collection with automated invoicing, payment tracking, receipt generation, balance statements, payment reminders via SMS, and comprehensive financial reporting for school administrators.</p>
+                </div>
+                <div class="feature-card">
+                    <span class="material-icons feature-icon">menu_book</span>
+                    <h3>Exam & Grading</h3>
+                    <p>Complete exam management with automated grading, report card generation, subject-wise assessment, term reports, performance analytics, and CBC-compliant grading scales and report formats.</p>
+                </div>
+                <div class="feature-card">
+                    <span class="material-icons feature-icon">schedule</span>
+                    <h3>Timetable Management</h3>
+                    <p>Create and manage school timetables, assign teachers to classes, schedule exams and activities, avoid scheduling conflicts, and share timetables with teachers, students, and parents seamlessly.</p>
+                </div>
+                <div class="feature-card">
+                    <span class="material-icons feature-icon">abc</span>
+                    <h3>CBC Curriculum Support</h3>
+                    <p>Full support for Competency-Based Curriculum with assessment tools, learning activity tracking, rubric-based grading, progress reports aligned with CBC requirements, and strand/sub-strand management.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section class="how-it-works-section">
+        <div class="container">
+            <h2 class="section-title">How Kenya EduHub Works</h2>
+            <p class="section-subtitle">A simple three-step process to transform your school administration</p>
+            
+            <div class="steps-container">
+                <div class="step-item">
+                    <div class="step-number">1</div>
+                    <h3>Register Your School</h3>
+                    <p>Sign up with your school details including name, contact information, county, school type (Primary, Secondary, College, or University), and address. The registration process is straightforward and takes only a few minutes to complete.</p>
+                </div>
+                <div class="step-item">
+                    <div class="step-number">2</div>
+                    <h3>Setup Your School</h3>
+                    <p>Configure your school by adding students, teachers, classes, streams, and subjects. Import data easily from spreadsheets, set up academic sessions, define fee structures, and customize the system to match your school's specific requirements and workflows.</p>
+                </div>
+                <div class="step-item">
+                    <div class="step-number">3</div>
+                    <h3>Start Managing</h3>
+                    <p>Begin using all features immediately - track attendance, manage grades, handle fee payments, generate reports, communicate with parents, and streamline your entire school administration process from one centralized dashboard accessible from any device.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Benefits Section -->
+    <section class="benefits-section">
+        <h2 class="section-title">Why Choose Kenya EduHub?</h2>
+        <p class="section-subtitle">The trusted choice for schools across Kenya seeking modern education technology solutions</p>
+
+        <div class="benefits-grid">
+                <div class="benefit-item">
+                    <span class="material-icons benefit-icon">check_circle</span>
+                    <h3>Comprehensive Features</h3>
+                    <p>All the tools you need to manage your school efficiently in one powerful platform. From student enrollment to graduation, handle every aspect of school administration without switching between multiple systems.</p>
+                </div>
+                <div class="benefit-item">
+                    <span class="material-icons benefit-icon">check_circle</span>
+                    <h3>Easy to Use</h3>
+                    <p>Intuitive interface designed for teachers and administrators with no technical expertise required. The system is user-friendly with clear navigation, making it easy for staff to adopt and use effectively from day one.</p>
+                </div>
+                <div class="benefit-item">
+                    <span class="material-icons benefit-icon">check_circle</span>
+                    <h3>Secure & Reliable</h3>
+                    <p>Bank-level security with encrypted data storage, secure login authentication, regular data backups, and compliance with data protection regulations. Your school information is always protected and accessible only to authorized users.</p>
+                </div>
+                <div class="benefit-item">
+                    <span class="material-icons benefit-icon">check_circle</span>
+                    <h3>24/7 Support</h3>
+                    <p>Dedicated support team available to help you with any questions, technical issues, or guidance. Get assistance via email, phone, or chat whenever you need it to ensure smooth operations.</p>
+                </div>
+                <div class="benefit-item">
+                    <span class="material-icons benefit-icon">check_circle</span>
+                    <h3>CBC Compliant</h3>
+                    <p>Fully aligned with Kenya's Competency-Based Curriculum requirements including assessment tools, rubric-based grading, progress reports, strand and sub-strand management, and all CBC reporting standards mandated by the Ministry of Education.</p>
+                </div>
+                <div class="benefit-item">
+                    <span class="material-icons benefit-icon">check_circle</span>
+                    <h3>Mobile Friendly</h3>
+                    <p>Access from any device - desktop, tablet, or mobile phone. The responsive design ensures you can manage your school from anywhere, whether you're in the office, at home, or on the go, with full functionality across all devices.</p>
+                </div>
+            </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <div class="container">
+            <h2 class="section-title">Ready to Transform Your School?</h2>
+            <p class="section-subtitle">Join hundreds of Kenyan schools already using Kenya EduHub to streamline operations and improve educational outcomes</p>
+            <div class="cta-buttons">
+                <a href="#auth-section" class="cta-button primary">Register Your School</a>
+                <a href="#features" class="cta-button secondary">Learn More</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Login/Register Section -->
+    <section class="auth-section" id="auth-section">
+        <div class="auth-container">
         <div class="auth-info">
             <?php require_once __DIR__ . '/../includes/logo.php'; ?>
             <br>
             <br>
-            
 
-            <h1>Schools Portal</h1>
-            <p>Manage your school efficiently with our comprehensive management system. Streamline student records, attendance, performance tracking, and parent communication.</p>
-            
-            <ul class="feature-list">
-                <li><span class="material-symbols-outlined">school</span> Student Management</li>
-                <li><span class="material-symbols-outlined">groups</span> Class & Stream Management</li>
-                <li><span class="material-symbols-outlined">people</span> Parent Portal</li>
-                <li><span class="material-symbols-outlined">trending_up</span> Performance Tracking</li>
-                <li><span class="material-symbols-outlined">fact_check</span> Attendance System</li>
-                <li><span class="material-symbols-outlined">payments</span> Fee Management</li>
-            </ul>
+            <h1>Kenya EduHub School Management System</h1>
+            <p>A comprehensive digital platform designed specifically for Kenyan schools to streamline administration, enhance communication, and improve educational outcomes. Our system integrates student management, parent portals, teacher tools, fee management, attendance tracking, and CBC curriculum support into one unified solution.</p>
+            <p>Join 500+ schools across Kenya already using Kenya EduHub to transform their educational institutions with modern technology and data-driven decision making.</p>
         </div>
         
         <div class="auth-form-container">
@@ -754,6 +1343,7 @@ if ($route === 'login') {
 </br>
 </br>
 </br>
+
     <?php require_once __DIR__ . '/../includes/copywrite.php'; ?>
 </body>
 </html>

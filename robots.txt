@@ -16,8 +16,13 @@ Disallow: /auth/verify
 Disallow: /auth/resend
 Disallow: /auth/forgot_password
 Disallow: /auth/reset_password
+
+# Allow school portal landing page for SEO
+Allow: /schools/
+Disallow: /schools/dashboard
+Disallow: /schools/api
 Disallow: /schools/login
-Disallow: /schools/
+
 Disallow: /parents/login
 Disallow: /parents/
 Disallow: /librarians/
