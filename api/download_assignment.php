@@ -10,7 +10,9 @@ $user_name = '';
 
 // Debug logging - check all session variables
 error_log("Session data: " . json_encode($_SESSION));
+error_log("Session ID: " . session_id());
 
+// Check for parent, teacher, or student session
 if (isset($_SESSION['parent_id'])) {
     $user_type = 'parent';
     $user_id = $_SESSION['parent_id'];
@@ -23,9 +25,15 @@ if (isset($_SESSION['parent_id'])) {
     $user_type = 'student';
     $user_id = $_SESSION['student_id'];
     $user_name = $_SESSION['student_name'] ?? 'Student';
+} elseif (isset($_SESSION['user_id'])) {
+    // Fallback for general user session
+    $user_type = 'user';
+    $user_id = $_SESSION['user_id'];
+    $user_name = $_SESSION['name'] ?? 'User';
 } else {
     header('HTTP/1.0 401 Unauthorized');
-    echo 'Unauthorized access';
+    echo 'Unauthorized access - No valid session found. Available keys: ' . implode(', ', array_keys($_SESSION));
+    error_log("No valid session variables found. Available keys: " . implode(', ', array_keys($_SESSION)));
     exit;
 }
 
