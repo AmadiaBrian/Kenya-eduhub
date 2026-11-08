@@ -24,19 +24,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
     exit();
 }
 
-// Check authentication
-if (!isset($_SESSION['parent_id'])) {
+// Check authentication - support session, GET, or POST parent_id
+$parent_id = $_SESSION['parent_id'] ?? $_GET['parent_id'] ?? $_POST['parent_id'] ?? null;
+
+if (!$parent_id) {
     echo json_encode(['success' => false, 'error' => 'Not authenticated']);
     exit;
 }
 
-$parent_id = $_SESSION['parent_id'];
-$parent_name = $_SESSION['parent_name'] ?? 'Parent';
-$school_id = $_SESSION['school_id'];
-$school_name = $_SESSION['school_name'] ?? '';
-
 try {
-    // Get parent details
+    // Get parent details and school name
     $stmt = $pdo->prepare("SELECT p.*, s.school_name FROM parents p JOIN schools s ON p.school_id = s.id WHERE p.id = ?");
     $stmt->execute([$parent_id]);
     $parent = $stmt->fetch();
@@ -45,6 +42,16 @@ try {
         echo json_encode(['success' => false, 'error' => 'Parent not found']);
         exit;
     }
+    
+    $school_id = $parent['school_id'];
+    $school_name = $parent['school_name'] ?? '';
+    $parent_name = $parent['first_name'] . ' ' . $parent['last_name'];
+
+    // Update session for consistency
+    $_SESSION['parent_id'] = $parent['id'];
+    $_SESSION['parent_name'] = $parent_name;
+    $_SESSION['school_id'] = $school_id;
+    $_SESSION['school_name'] = $school_name;
     
     // Get calendar status to find active term
     $current_year = date('Y');
@@ -66,13 +73,13 @@ try {
     
     $current_term = $terms[0] ?? 'Term 1';
     
-    // Get children of this parent
+    // Get children of this parent (removed strict status check)
     $stmt = $pdo->prepare("SELECT s.*, c.class_name, st.stream_name
                            FROM students s
                            JOIN student_parents sp ON s.id = sp.student_id
                            LEFT JOIN classes c ON s.class_id = c.id
                            LEFT JOIN streams st ON s.stream_id = st.id
-                           WHERE sp.parent_id = ? AND s.status = 'active'
+                           WHERE sp.parent_id = ?
                            ORDER BY s.first_name, s.last_name");
     $stmt->execute([$parent_id]);
     $children = $stmt->fetchAll();
@@ -152,16 +159,17 @@ try {
         'success' => true,
         'parent' => [
             'id' => $parent['id'],
-            'name' => $parent['first_name'] . ' ' . $parent['last_name'],
+            'name' => $parent_name,
             'email' => $parent['email'],
             'phone' => $parent['phone'],
-            'school_name' => $school_name
+            'school_name' => $school_name,
+            'school_id' => $school_id
         ],
         'children' => array_map(function($child) {
             return [
                 'id' => $child['id'],
                 'name' => $child['first_name'] . ' ' . $child['last_name'],
-                'admission_number' => $child['admission_number'],
+                'admission_number' => $child['admission_number'] ?? '',
                 'class' => $child['class_name'] ?? 'Not assigned',
                 'stream' => $child['stream_name'] ?? 'Not assigned'
             ];

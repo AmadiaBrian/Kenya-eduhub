@@ -24,14 +24,23 @@ if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
     exit();
 }
 
-// Check authentication
-if (!isset($_SESSION['parent_id'])) {
+// Check authentication - support session, GET, or POST parent_id
+$parent_id = $_SESSION['parent_id'] ?? $_GET['parent_id'] ?? $_POST['parent_id'] ?? null;
+
+if (!$parent_id) {
     echo json_encode(['success' => false, 'error' => 'Not authenticated']);
     exit;
 }
 
-$parent_id = $_SESSION['parent_id'];
-$school_id = $_SESSION['school_id'];
+// Get school_id if not in session
+if (!isset($_SESSION['school_id']) || empty($_SESSION['school_id'])) {
+    $stmt = $pdo->prepare("SELECT school_id FROM parents WHERE id = ?");
+    $stmt->execute([$parent_id]);
+    $p = $stmt->fetch();
+    $school_id = $p['school_id'] ?? 0;
+} else {
+    $school_id = $_SESSION['school_id'];
+}
 
 try {
     // Get current year and term
@@ -71,7 +80,7 @@ try {
         $terms = ['Term 1', 'Term 2', 'Term 3'];
     }
     
-    // Get current term based on actual date range from database (not is_active flag)
+    // Get current term based on actual date range from database
     $today = date('Y-m-d');
     $active_term = null;
     try {
@@ -88,72 +97,66 @@ try {
     // Use active term if available, otherwise use first term
     $current_term = $active_term ?? ($terms[0] ?? 'Term 1');
     
-    // Get children of this parent
+    // Get children of this parent (removed strict status check)
     $stmt = $pdo->prepare("SELECT s.*, c.class_name, st.stream_name 
                            FROM students s
                            JOIN student_parents sp ON s.id = sp.student_id
                            LEFT JOIN classes c ON s.class_id = c.id
                            LEFT JOIN streams st ON s.stream_id = st.id
-                           WHERE sp.parent_id = ? AND s.status = 'active'
+                           WHERE sp.parent_id = ?
                            ORDER BY s.first_name, s.last_name");
     $stmt->execute([$parent_id]);
     $children = $stmt->fetchAll();
     
-    // Get student subject assignments for filtering
-    $student_subject_assignments = [];
-    try {
-        $stmt = $pdo->prepare("SELECT ss.student_id, st.admission_number, s.subject_name, s.id as subject_id, sc.is_compulsory
-                              FROM student_subjects ss
-                              JOIN students st ON ss.student_id = st.id
-                              JOIN subjects s ON ss.subject_id = s.id
-                              LEFT JOIN subject_categories sc ON s.category_id = sc.id
-                              WHERE ss.school_id = ? AND st.status = 'active'");
-        $stmt->execute([$school_id]);
-        $assignments = $stmt->fetchAll();
+    // Get filter parameters from request
+    $filter_term = $_GET['term'] ?? $current_term;
+    $filter_year = $_GET['year'] ?? $current_year;
+    $filter_child_id = $_GET['child_id'] ?? '';
+    $filter_exam_type = $_GET['exam_type'] ?? '';
 
-        // Group by admission_number for easier matching
-        foreach ($assignments as $assignment) {
-            $admission_number = $assignment['admission_number'];
-            $subject_name = $assignment['subject_name'];
-            $is_compulsory = $assignment['is_compulsory'] ?? 0;
-            if (!isset($student_subject_assignments[$admission_number])) {
-                $student_subject_assignments[$admission_number] = [];
-            }
-            $student_subject_assignments[$admission_number][] = [
-                'subject_name' => $subject_name,
-                'is_compulsory' => $is_compulsory
-            ];
-        }
-    } catch (PDOException $e) {
-        error_log("Failed to fetch student subject assignments: " . $e->getMessage());
-    }
-    
     // Get performance data for all children
     $performance_data = [];
     
     foreach ($children as $child) {
-        $stmt = $pdo->prepare("SELECT ap.*, et.exam_type_name, et.exam_type_code,
-                                            (SELECT gs.points FROM grading_scales gs
-                                            WHERE gs.school_id = ?
-                                            AND ap.marks BETWEEN gs.min_score AND gs.max_score
-                                            AND UPPER(ap.grade) = UPPER(gs.grade_name)
-                                            LIMIT 1) as grade_points
-                               FROM academic_performance ap
-                               LEFT JOIN exam_types et ON ap.exam_type_id = et.id
-                               WHERE ap.student_id = ?
-                               ORDER BY ap.created_at DESC");
-        $stmt->execute([$school_id, $child['id']]);
+        if ($filter_child_id && $child['id'] != $filter_child_id) {
+            continue;
+        }
+
+        $query = "SELECT ap.*, et.exam_type_name, et.exam_type_code,
+                            (SELECT gs.points FROM grading_scales gs
+                            WHERE gs.school_id = ?
+                            AND ap.marks BETWEEN gs.min_score AND gs.max_score
+                            AND UPPER(ap.grade) = UPPER(gs.grade_name)
+                            LIMIT 1) as grade_points
+                   FROM academic_performance ap
+                   LEFT JOIN exam_types et ON ap.exam_type_id = et.id
+                   WHERE ap.student_id = ?";
+        
+        $params = [$school_id, $child['id']];
+
+        if ($filter_term) {
+            $query .= " AND ap.term = ?";
+            $params[] = $filter_term;
+        }
+
+        if ($filter_year) {
+            $query .= " AND ap.year = ?";
+            $params[] = $filter_year;
+        }
+
+        if ($filter_exam_type) {
+            $query .= " AND ap.exam_type_id = ?";
+            $params[] = $filter_exam_type;
+        }
+        
+        $query .= " ORDER BY ap.created_at DESC";
+
+        $stmt = $pdo->prepare($query);
+        $stmt->execute($params);
         $child_performance = $stmt->fetchAll();
         
-        // Get assigned subjects for this child
-        $child_admission = $child['admission_number'];
-        $assigned_subjects = $student_subject_assignments[$child_admission] ?? [];
-        $assigned_subject_names = array_column($assigned_subjects, 'subject_name');
-        
-        // Filter performance to only include assigned subjects
-        $filtered_performance = array_filter($child_performance, function($perf) use ($assigned_subject_names) {
-            return in_array($perf['subject'], $assigned_subject_names);
-        });
+        // Use all performance records directly without filtering out unassigned subjects
+        $filtered_performance = $child_performance;
         
         if (!empty($filtered_performance)) {
             // Group performance by exam type
