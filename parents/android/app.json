@@ -7,7 +7,6 @@
     "icon": "./assets/images/app-icon.png",
     "scheme": "kenya-eduhub-parents",
     "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
     "ios": {
       "supportsTablet": true
     },
@@ -16,7 +15,6 @@
         "backgroundColor": "#FFD700",
         "foregroundImage": "./assets/images/app-icon.png"
       },
-      "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
       "package": "com.amadia.kenyaeduhub.parents",
       "permissions": [
