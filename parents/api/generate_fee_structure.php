@@ -1,5 +1,9 @@
 <?php
 // Fee Structure Document Generation API for Parents
+error_reporting(0);
+ini_set('display_errors', 0);
+ini_set('log_errors', 1);
+
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
@@ -114,30 +118,23 @@ try {
         $total_fees += $term_total;
     }
     
-    // Generate PDF fee structure document
-    require_once __DIR__ . '/../../vendor/tecnickcom/tcpdf/tcpdf.php';
+    // Generate PDF fee structure document using FPDF
+    require_once __DIR__ . '/../../tools/fpdf/fpdf.php';
     
     // Create new PDF document
-    $pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
+    $pdf = new FPDF('P', 'mm', 'A4');
     
     // Set document information
-    $pdf->SetCreator('Kenya EduHub');
-    $pdf->SetAuthor($student['school_name']);
     $pdf->SetTitle('Fee Structure - ' . $class_name);
+    $pdf->SetAuthor($student['school_name']);
+    $pdf->SetCreator('Kenya EduHub');
     
     // Set margins
     $pdf->SetMargins(15, 15, 15);
-    $pdf->SetHeaderMargin(5);
-    $pdf->SetFooterMargin(10);
-    
-    // Set auto page breaks
-    $pdf->SetAutoPageBreak(TRUE, 15);
+    $pdf->SetAutoPageBreak(true, 15);
     
     // Add a page
     $pdf->AddPage();
-    
-    // Set font
-    $pdf->SetFont('helvetica', '', 10);
     
     // Professional Header Box
     $pdf->SetFillColor(240, 240, 240);
@@ -285,11 +282,11 @@ try {
     $pdf->Ln(3);
     
     $pdf->SetFont('helvetica', '', 9);
-    $pdf->MultiCell(0, 5, '• This fee structure is subject to change by the school administration. Please confirm with the school office for the most current fee information.', 0, 'L');
+    $pdf->MultiCell(0, 5, "• This fee structure is subject to change by the school administration. Please confirm with the school office for the most current fee information.", 0, 'L');
     $pdf->Ln(2);
-    $pdf->MultiCell(0, 5, '• Payment deadlines and methods are as communicated by the school. Late payments may attract penalties.', 0, 'L');
+    $pdf->MultiCell(0, 5, "• Payment deadlines and methods are as communicated by the school. Late payments may attract penalties.", 0, 'L');
     $pdf->Ln(2);
-    $pdf->MultiCell(0, 5, '• For any inquiries regarding fees, please contact the school administration office.', 0, 'L');
+    $pdf->MultiCell(0, 5, "• For any inquiries regarding fees, please contact the school administration office.", 0, 'L');
     
     $pdf->Ln(15);
     
@@ -308,7 +305,6 @@ try {
     $structure_filename = 'fee_structure_' . $safe_admission . '_' . $current_year . '.pdf';
     $structure_path = __DIR__ . '/../receipts/' . $structure_filename;
     
-    // Create receipts directory if not exists
     if (!is_dir(__DIR__ . '/../receipts')) {
         mkdir(__DIR__ . '/../receipts', 0777, true);
     }
@@ -323,5 +319,8 @@ try {
     
 } catch (Exception $e) {
     error_log("Fee structure generation error: " . $e->getMessage());
-    echo json_encode(['success' => false, 'error' => 'Failed to generate fee structure document']);
+    echo json_encode(['success' => false, 'error' => 'Failed to generate fee structure document: ' . $e->getMessage()]);
+} catch (Error $e) {
+    error_log("Fee structure generation error: " . $e->getMessage());
+    echo json_encode(['success' => false, 'error' => 'Failed to generate fee structure document: ' . $e->getMessage()]);
 }

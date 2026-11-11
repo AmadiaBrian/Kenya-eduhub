@@ -88,9 +88,12 @@ try {
     $stats = [
         'total_children' => count($children),
         'total_fees_due' => 0,
-        'attendance_rate' => 0,
+        'attendance_rate' => 0.0,
         'performance_records' => 0
     ];
+    
+    $total_attendance_sum = 0;
+    $attendance_child_count = 0;
     
     foreach ($children as $child) {
         $child_id = $child['id'];
@@ -121,28 +124,32 @@ try {
         $balance = $year_total_fees - $year_total_paid;
         $stats['total_fees_due'] += max(0, $balance);
         
-        // Get attendance records
+        // Get attendance records (last 30 days)
         $stmt = $pdo->prepare("SELECT COUNT(*) as total FROM attendance WHERE student_id = ? AND date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)");
         $stmt->execute([$child_id]);
-        $attendance_total = $stmt->fetch()['total'];
+        $attendance_total = intval($stmt->fetch()['total'] ?? 0);
         
         $stmt = $pdo->prepare("SELECT COUNT(*) as present FROM attendance WHERE student_id = ? AND date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY) AND status = 'present'");
         $stmt->execute([$child_id]);
-        $attendance_present = $stmt->fetch()['present'];
+        $attendance_present = intval($stmt->fetch()['present'] ?? 0);
         
         if ($attendance_total > 0) {
-            $stats['attendance_rate'] += ($attendance_present / $attendance_total) * 100;
+            $child_attendance_percentage = ($attendance_present / $attendance_total) * 100;
+            $total_attendance_sum += $child_attendance_percentage;
+            $attendance_child_count++;
         }
         
         // Get performance records
         $stmt = $pdo->prepare("SELECT COUNT(*) as total FROM academic_performance WHERE student_id = ? AND term = ? AND year = ?");
         $stmt->execute([$child_id, $current_term, $current_year]);
-        $stats['performance_records'] += $stmt->fetch()['total'];
+        $stats['performance_records'] += intval($stmt->fetch()['total'] ?? 0);
     }
     
-    // Calculate average attendance rate
-    if ($stats['total_children'] > 0) {
-        $stats['attendance_rate'] = round($stats['attendance_rate'] / $stats['total_children'], 1);
+    // Calculate average attendance rate correctly only for children with recorded attendance
+    if ($attendance_child_count > 0) {
+        $stats['attendance_rate'] = round($total_attendance_sum / $attendance_child_count, 1);
+    } else {
+        $stats['attendance_rate'] = 0.0;
     }
     
     // Get recent notifications/announcements
