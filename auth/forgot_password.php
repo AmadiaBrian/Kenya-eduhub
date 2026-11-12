@@ -11,7 +11,21 @@ use PHPMailer\PHPMailer\PHPMailer;
 // Initialize
 $message = '';
 $message_type = 'success'; // 'success' or 'error'
-$step = $_SESSION['step'] ?? 1;
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (isset($_POST['code'])) {
+        $step = 2;
+    } elseif (isset($_POST['new_password'])) {
+        $step = 3;
+    } elseif (isset($_POST['method']) || isset($_POST['email']) || isset($_POST['phone']) || (isset($_POST['step']) && $_POST['step'] == '1')) {
+        $step = 1;
+    } else {
+        $step = $_SESSION['step'] ?? 1;
+    }
+} else {
+    $step = $_SESSION['step'] ?? 1;
+}
+
 $email = $_SESSION['reset_email'] ?? null;
 $phone = $_SESSION['reset_phone'] ?? null;
 
