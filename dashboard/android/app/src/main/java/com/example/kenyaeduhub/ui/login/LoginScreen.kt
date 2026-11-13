@@ -4,8 +4,10 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -15,6 +17,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.activity.compose.BackHandler
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -28,7 +32,20 @@ fun LoginScreen(
     onNavigateForgotPassword: () -> Unit,
     onNavigateResend: () -> Unit
 ) {
+    val context = LocalContext.current
     var passwordVisible by remember { mutableStateOf(false) }
+    var lastBackPressTime by remember { mutableLongStateOf(0L) }
+
+    BackHandler {
+        val currentTime = System.currentTimeMillis()
+        if (currentTime - lastBackPressTime < 2000L) {
+            (context as? android.app.Activity)?.finish()
+        } else {
+            lastBackPressTime = currentTime
+            com.example.kenyaeduhub.utils.triggerExitVibration(context)
+            android.widget.Toast.makeText(context, "Press back again to exit", android.widget.Toast.LENGTH_SHORT).show()
+        }
+    }
 
     Box(
         modifier = Modifier
@@ -36,6 +53,7 @@ fun LoginScreen(
             .background(Color(0xFFF0F4F9))
             .statusBarsPadding()
             .navigationBarsPadding()
+            .imePadding()
             .padding(24.dp),
         contentAlignment = Alignment.Center
     ) {
@@ -43,6 +61,7 @@ fun LoginScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .widthIn(max = 450.dp)
+                .verticalScroll(rememberScrollState())
                 .padding(horizontal = 16.dp, vertical = 24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -129,28 +148,6 @@ fun LoginScreen(
                 Spacer(modifier = Modifier.height(16.dp))
             }
 
-            // Success Message Alert
-            viewModel.successMessage?.let { success ->
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(25.dp))
-                        .background(Color(0xFFE6F4EA))
-                        .border(1.dp, Color(0xFFE6F4EA), RoundedCornerShape(25.dp))
-                        .padding(16.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = success,
-                        color = Color(0xFF137333),
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Medium,
-                        textAlign = TextAlign.Center
-                    )
-                }
-                Spacer(modifier = Modifier.height(16.dp))
-            }
-
             // Email Field
             OutlinedTextField(
                 value = viewModel.email,
@@ -197,8 +194,24 @@ fun LoginScreen(
                 ),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(bottom = 24.dp)
+                    .padding(bottom = 8.dp)
             )
+
+            // Forgot Password Link
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 24.dp),
+                horizontalArrangement = Arrangement.End
+            ) {
+                Text(
+                    text = "Forgot password?",
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = Color(0xFFFF6B35),
+                    modifier = Modifier.clickable { onNavigateForgotPassword() }
+                )
+            }
 
             // Login Button
             Button(
@@ -224,40 +237,16 @@ fun LoginScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Links
-            Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                    Text(text = "Don't have an account?", fontSize = 13.sp, color = Color(0xFF5F6368))
-                    Text(
-                        text = "Register here",
-                        fontSize = 13.sp,
-                        fontWeight = FontWeight.Medium,
-                        color = Color(0xFFFF6B35),
-                        modifier = Modifier.clickable { onNavigateRegister() }
-                    )
-                }
-
-                Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                    Text(text = "Forgot your password?", fontSize = 13.sp, color = Color(0xFF5F6368))
-                    Text(
-                        text = "Reset Password",
-                        fontSize = 13.sp,
-                        fontWeight = FontWeight.Medium,
-                        color = Color(0xFFFF6B35),
-                        modifier = Modifier.clickable { onNavigateForgotPassword() }
-                    )
-                }
-
-                Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                    Text(text = "Need a new verification code?", fontSize = 13.sp, color = Color(0xFF5F6368))
-                    Text(
-                        text = "Resend Code",
-                        fontSize = 13.sp,
-                        fontWeight = FontWeight.Medium,
-                        color = Color(0xFFFF6B35),
-                        modifier = Modifier.clickable { onNavigateResend() }
-                    )
-                }
+            // Link to Register
+            Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                Text(text = "Don't have an account?", fontSize = 13.sp, color = Color(0xFF5F6368))
+                Text(
+                    text = "Register",
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = Color(0xFFFF6B35),
+                    modifier = Modifier.clickable { onNavigateRegister() }
+                )
             }
         }
     }

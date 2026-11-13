@@ -1,5 +1,6 @@
 package com.example.kenyaeduhub.data
 
+import com.example.kenyaeduhub.utils.formatNetworkError
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
@@ -32,9 +33,20 @@ sealed class ForgotPasswordResult {
     data class Error(val message: String) : ForgotPasswordResult()
 }
 
+sealed class VerifyResult {
+    data class Success(val message: String) : VerifyResult()
+    data class Error(val message: String) : VerifyResult()
+}
+
+sealed class ResendVerificationResult {
+    data class Success(val message: String, val attemptCount: Int) : ResendVerificationResult()
+    data class Error(val message: String) : ResendVerificationResult()
+}
+
 class AuthRepository {
     companion object {
         var sessionCookie: String? = null
+        var csrfToken: String? = null
     }
 
     suspend fun login(email: String, password: String): LoginResult = withContext(Dispatchers.IO) {
@@ -50,8 +62,8 @@ class AuthRepository {
                 }
                 doOutput = true
                 doInput = true
-                connectTimeout = 15000
-                readTimeout = 15000
+                connectTimeout = 120000
+                readTimeout = 120000
             }
 
             val jsonParam = JSONObject().apply {
@@ -84,30 +96,40 @@ class AuthRepository {
 
             val responseText = BufferedReader(InputStreamReader(stream, "UTF-8")).use { it.readText() }
 
-            val jsonResponse = JSONObject(responseText)
-            val success = jsonResponse.optBoolean("success", false)
-            val message = jsonResponse.optString("message", "Unknown error")
+            val jsonResponse = try {
+                JSONObject(responseText)
+            } catch (e: Exception) {
+                null
+            }
 
-            if (success) {
-                val userObj = jsonResponse.optJSONObject("user")
-                val user = if (userObj != null) {
-                    User(
-                        id = userObj.optInt("id", 0),
-                        name = userObj.optString("name", ""),
-                        email = userObj.optString("email", ""),
-                        role = userObj.optString("role", "user"),
-                        phone = userObj.optString("phone", "")
-                    )
+            if (jsonResponse != null) {
+                val success = jsonResponse.optBoolean("success", false)
+                val message = jsonResponse.optString("message", "An error occurred")
+
+                if (success) {
+                    val userObj = jsonResponse.optJSONObject("user")
+                    val user = if (userObj != null) {
+                        User(
+                            id = userObj.optInt("id", 0),
+                            name = userObj.optString("name", ""),
+                            email = userObj.optString("email", ""),
+                            role = userObj.optString("role", "user"),
+                            phone = userObj.optString("phone", "")
+                        )
+                    } else {
+                        User(0, "", email, "user", "")
+                    }
+                    val sessionId = jsonResponse.optString("session_id", "")
+                    csrfToken = jsonResponse.optString("csrf_token", "")
+                    LoginResult.Success(user, sessionId, message)
                 } else {
-                    User(0, "", email, "user", "")
+                    LoginResult.Error(message)
                 }
-                val sessionId = jsonResponse.optString("session_id", "")
-                LoginResult.Success(user, sessionId, message)
             } else {
-                LoginResult.Error(message)
+                LoginResult.Error("Unable to reach Kenya EduHub server. Please check your internet connection or server status.")
             }
         } catch (e: Exception) {
-            LoginResult.Error("Network error: ${e.localizedMessage ?: "Please check your connection"}")
+            LoginResult.Error(formatNetworkError(e))
         } finally {
             connection?.disconnect()
         }
@@ -126,8 +148,8 @@ class AuthRepository {
                 }
                 doOutput = true
                 doInput = true
-                connectTimeout = 15000
-                readTimeout = 15000
+                connectTimeout = 120000
+                readTimeout = 120000
             }
 
             val jsonParam = JSONObject().apply {
@@ -161,17 +183,130 @@ class AuthRepository {
             }
 
             val responseText = BufferedReader(InputStreamReader(stream, "UTF-8")).use { it.readText() }
-            val jsonResponse = JSONObject(responseText)
-            val success = jsonResponse.optBoolean("success", false)
-            val message = jsonResponse.optString("message", "Unknown error")
 
-            if (success) {
-                RegisterResult.Success(message)
+            val jsonResponse = try {
+                JSONObject(responseText)
+            } catch (e: Exception) {
+                null
+            }
+
+            if (jsonResponse != null) {
+                val success = jsonResponse.optBoolean("success", false)
+                val message = jsonResponse.optString("message", "An error occurred")
+
+                if (success) {
+                    RegisterResult.Success(message)
+                } else {
+                    RegisterResult.Error(message)
+                }
             } else {
-                RegisterResult.Error(message)
+                RegisterResult.Error("Unable to reach Kenya EduHub server. Please check your internet connection or server status.")
             }
         } catch (e: Exception) {
-            RegisterResult.Error("Network error: ${e.localizedMessage ?: "Please check your connection"}")
+            RegisterResult.Error(formatNetworkError(e))
+        } finally {
+            connection?.disconnect()
+        }
+    }
+
+    suspend fun verifyAccount(identifier: String, code: String): VerifyResult = withContext(Dispatchers.IO) {
+        var connection: HttpURLConnection? = null
+        try {
+            val url = URL(ApiConfig.VERIFY_URL)
+            connection = (url.openConnection() as HttpURLConnection).apply {
+                requestMethod = "POST"
+                setRequestProperty("Content-Type", "application/json; charset=utf-8")
+                setRequestProperty("Accept", "application/json")
+                sessionCookie?.let { setRequestProperty("Cookie", it) }
+                doOutput = true
+                doInput = true
+                connectTimeout = 120000
+                readTimeout = 120000
+            }
+
+            val jsonParam = JSONObject().apply {
+                put("email", identifier)
+                put("phone", identifier)
+                put("code", code)
+            }
+
+            OutputStreamWriter(connection.outputStream, "UTF-8").use { writer ->
+                writer.write(jsonParam.toString())
+                writer.flush()
+            }
+
+            val responseCode = connection.responseCode
+            val stream = if (responseCode in 200..299) connection.inputStream else (connection.errorStream ?: connection.inputStream)
+            val responseText = BufferedReader(InputStreamReader(stream, "UTF-8")).use { it.readText() }
+
+            val jsonResponse = try {
+                JSONObject(responseText)
+            } catch (e: Exception) {
+                null
+            }
+
+            if (jsonResponse != null) {
+                val success = jsonResponse.optBoolean("success", false)
+                val msg = jsonResponse.optString("message", if (success) "Verification successful!" else "Verification failed")
+
+                if (success) VerifyResult.Success(msg) else VerifyResult.Error(msg)
+            } else {
+                VerifyResult.Error("Unable to reach Kenya EduHub server. Please check your internet connection or server status.")
+            }
+        } catch (e: Exception) {
+            VerifyResult.Error(formatNetworkError(e))
+        } finally {
+            connection?.disconnect()
+        }
+    }
+
+    suspend fun resendVerificationCode(email: String, phone: String, method: String): ResendVerificationResult = withContext(Dispatchers.IO) {
+        var connection: HttpURLConnection? = null
+        try {
+            val url = URL(ApiConfig.RESEND_VERIFICATION_URL)
+            connection = (url.openConnection() as HttpURLConnection).apply {
+                requestMethod = "POST"
+                setRequestProperty("Content-Type", "application/json; charset=utf-8")
+                setRequestProperty("Accept", "application/json")
+                sessionCookie?.let { setRequestProperty("Cookie", it) }
+                doOutput = true
+                doInput = true
+                connectTimeout = 120000
+                readTimeout = 120000
+            }
+
+            val jsonParam = JSONObject().apply {
+                if (email.isNotBlank()) put("email", email)
+                if (phone.isNotBlank()) put("phone", phone)
+                put("method", method)
+            }
+
+            OutputStreamWriter(connection.outputStream, "UTF-8").use { writer ->
+                writer.write(jsonParam.toString())
+                writer.flush()
+            }
+
+            val responseCode = connection.responseCode
+            val stream = if (responseCode in 200..299) connection.inputStream else (connection.errorStream ?: connection.inputStream)
+            val responseText = BufferedReader(InputStreamReader(stream, "UTF-8")).use { it.readText() }
+
+            val jsonResponse = try {
+                JSONObject(responseText)
+            } catch (e: Exception) {
+                null
+            }
+
+            if (jsonResponse != null) {
+                val success = jsonResponse.optBoolean("success", false)
+                val msg = jsonResponse.optString("message", if (success) "Verification code sent!" else "Failed to resend code")
+                val attemptCount = jsonResponse.optInt("attempt_count", 0)
+
+                if (success) ResendVerificationResult.Success(msg, attemptCount) else ResendVerificationResult.Error(msg)
+            } else {
+                ResendVerificationResult.Error("Unable to reach Kenya EduHub server. Please check connection.")
+            }
+        } catch (e: Exception) {
+            ResendVerificationResult.Error(formatNetworkError(e))
         } finally {
             connection?.disconnect()
         }
@@ -191,8 +326,8 @@ class AuthRepository {
                 }
                 doOutput = true
                 doInput = true
-                connectTimeout = 20000
-                readTimeout = 20000
+                connectTimeout = 120000
+                readTimeout = 120000
             }
 
             val query = params.entries.joinToString("&") {
@@ -241,8 +376,8 @@ class AuthRepository {
                 sessionCookie?.let { setRequestProperty("Cookie", it) }
                 doOutput = true
                 doInput = true
-                connectTimeout = 20000
-                readTimeout = 20000
+                connectTimeout = 120000
+                readTimeout = 120000
             }
 
             OutputStreamWriter(connection.outputStream, "UTF-8").use { writer ->
@@ -265,18 +400,27 @@ class AuthRepository {
             val stream = if (responseCode in 200..299) connection.inputStream else (connection.errorStream ?: connection.inputStream)
             val responseText = BufferedReader(InputStreamReader(stream, "UTF-8")).use { it.readText() }
 
-            val jsonResponse = JSONObject(responseText)
-            val success = jsonResponse.optBoolean("success", false)
-            val message = jsonResponse.optString("message", "An error occurred")
-            val nextStep = jsonResponse.optInt("nextStep", 2)
+            val jsonResponse = try {
+                JSONObject(responseText)
+            } catch (e: Exception) {
+                null
+            }
 
-            if (success) {
-                ForgotPasswordResult.Success(message, nextStep)
+            if (jsonResponse != null) {
+                val success = jsonResponse.optBoolean("success", false)
+                val message = jsonResponse.optString("message", "An error occurred")
+                val nextStep = jsonResponse.optInt("nextStep", 2)
+
+                if (success) {
+                    ForgotPasswordResult.Success(message, nextStep)
+                } else {
+                    ForgotPasswordResult.Error(message)
+                }
             } else {
-                ForgotPasswordResult.Error(message)
+                ForgotPasswordResult.Error("Unable to reach Kenya EduHub server. Please check your internet connection or server status.")
             }
         } catch (e: Exception) {
-            ForgotPasswordResult.Error("Network error: ${e.localizedMessage ?: "Please check your connection"}")
+            ForgotPasswordResult.Error(formatNetworkError(e))
         } finally {
             connection?.disconnect()
         }

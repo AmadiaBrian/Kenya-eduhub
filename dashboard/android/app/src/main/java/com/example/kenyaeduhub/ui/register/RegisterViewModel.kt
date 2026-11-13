@@ -23,7 +23,7 @@ class RegisterViewModel(
     var errorMessage by mutableStateOf<String?>(null)
     var successMessage by mutableStateOf<String?>(null)
 
-    fun register(onSuccess: (String) -> Unit) {
+    fun register(onSuccess: (String, String, String) -> Unit) {
         errorMessage = null
         successMessage = null
 
@@ -49,12 +49,15 @@ class RegisterViewModel(
         }
 
         isLoading = true
+        val regEmail = email.trim()
+        val regPhone = phone.trim()
+
         viewModelScope.launch {
-            when (val result = authRepository.register(fullName.trim(), email.trim(), phone.trim(), password)) {
+            when (val result = authRepository.register(fullName.trim(), regEmail, regPhone, password)) {
                 is RegisterResult.Success -> {
                     isLoading = false
                     successMessage = result.message
-                    onSuccess(result.message)
+                    onSuccess(regEmail, regPhone, result.message)
                 }
                 is RegisterResult.Error -> {
                     isLoading = false

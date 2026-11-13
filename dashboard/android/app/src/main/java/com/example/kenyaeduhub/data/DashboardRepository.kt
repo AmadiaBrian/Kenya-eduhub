@@ -1,9 +1,13 @@
 package com.example.kenyaeduhub.data
 
+import android.content.Context
+import android.net.Uri
+import com.example.kenyaeduhub.utils.formatNetworkError
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
 import java.io.BufferedReader
+import java.io.DataOutputStream
 import java.io.InputStreamReader
 import java.io.OutputStreamWriter
 import java.net.HttpURLConnection
@@ -50,6 +54,11 @@ sealed class SettingsResult {
     data class Error(val message: String) : SettingsResult()
 }
 
+sealed class UploadResult {
+    data class Success(val message: String) : UploadResult()
+    data class Error(val message: String) : UploadResult()
+}
+
 class DashboardRepository {
 
     suspend fun getDashboardData(userId: Int, email: String): DashboardResult = withContext(Dispatchers.IO) {
@@ -63,8 +72,8 @@ class DashboardRepository {
                 AuthRepository.sessionCookie?.let { setRequestProperty("Cookie", it) }
                 doOutput = true
                 doInput = true
-                connectTimeout = 15000
-                readTimeout = 15000
+                connectTimeout = 120000
+                readTimeout = 120000
             }
 
             val jsonParam = JSONObject().apply {
@@ -81,82 +90,91 @@ class DashboardRepository {
             val stream = if (responseCode in 200..299) connection.inputStream else (connection.errorStream ?: connection.inputStream)
             val responseText = BufferedReader(InputStreamReader(stream, "UTF-8")).use { it.readText() }
 
-            val jsonResponse = JSONObject(responseText)
-            val success = jsonResponse.optBoolean("success", false)
+            val jsonResponse = try {
+                JSONObject(responseText)
+            } catch (e: Exception) {
+                null
+            }
 
-            if (success) {
-                val userObj = jsonResponse.optJSONObject("user")
-                val currentUser = User(
-                    id = userObj?.optInt("id", userId) ?: userId,
-                    name = userObj?.optString("name", "") ?: "",
-                    email = userObj?.optString("email", email) ?: email,
-                    role = userObj?.optString("role", "user") ?: "user",
-                    phone = userObj?.optString("phone", "") ?: ""
-                )
-                val accountAge = userObj?.optString("account_age", "New Member") ?: "New Member"
-                val activityLevel = userObj?.optString("activity_level", "Getting Started") ?: "Getting Started"
+            if (jsonResponse != null) {
+                val success = jsonResponse.optBoolean("success", false)
 
-                val statsObj = jsonResponse.optJSONObject("stats")
-                val stats = DashboardStats(
-                    myResourcesCount = statsObj?.optInt("my_resources_count", 0) ?: 0,
-                    totalDownloads = statsObj?.optInt("total_downloads", 0) ?: 0,
-                    recentUploads = statsObj?.optInt("recent_uploads", 0) ?: 0,
-                    allResourcesCount = statsObj?.optInt("all_resources_count", 0) ?: 0
-                )
-
-                val myResArray = jsonResponse.optJSONArray("my_resources")
-                val myResources = mutableListOf<ResourceItem>()
-                if (myResArray != null) {
-                    for (i in 0 until myResArray.length()) {
-                        val item = myResArray.getJSONObject(i)
-                        myResources.add(
-                            ResourceItem(
-                                id = item.optInt("id", 0),
-                                title = item.optString("title", "Untitled"),
-                                subject = item.optString("subject", "General"),
-                                fileType = item.optString("file_type", "PDF"),
-                                uploaderName = item.optString("uploader_name", currentUser.name),
-                                description = item.optString("description", "No description"),
-                                downloads = item.optInt("downloads", 0)
-                            )
-                        )
-                    }
-                }
-
-                val allResArray = jsonResponse.optJSONArray("all_resources")
-                val allResources = mutableListOf<ResourceItem>()
-                if (allResArray != null) {
-                    for (i in 0 until allResArray.length()) {
-                        val item = allResArray.getJSONObject(i)
-                        allResources.add(
-                            ResourceItem(
-                                id = item.optInt("id", 0),
-                                title = item.optString("title", "Untitled"),
-                                subject = item.optString("subject", "General"),
-                                fileType = item.optString("file_type", "PDF"),
-                                uploaderName = item.optString("uploader_name", "Unknown"),
-                                description = item.optString("description", "No description"),
-                                downloads = item.optInt("downloads", 0)
-                            )
-                        )
-                    }
-                }
-
-                DashboardResult.Success(
-                    DashboardData(
-                        user = currentUser,
-                        accountAge = accountAge,
-                        activityLevel = activityLevel,
-                        stats = stats,
-                        myResources = myResources,
-                        allResources = allResources
+                if (success) {
+                    val userObj = jsonResponse.optJSONObject("user")
+                    val currentUser = User(
+                        id = userObj?.optInt("id", userId) ?: userId,
+                        name = userObj?.optString("name", "") ?: "",
+                        email = userObj?.optString("email", email) ?: email,
+                        role = userObj?.optString("role", "user") ?: "user",
+                        phone = userObj?.optString("phone", "") ?: ""
                     )
-                )
+                    val accountAge = userObj?.optString("account_age", "New Member") ?: "New Member"
+                    val activityLevel = userObj?.optString("activity_level", "Getting Started") ?: "Getting Started"
+
+                    val statsObj = jsonResponse.optJSONObject("stats")
+                    val stats = DashboardStats(
+                        myResourcesCount = statsObj?.optInt("my_resources_count", 0) ?: 0,
+                        totalDownloads = statsObj?.optInt("total_downloads", 0) ?: 0,
+                        recentUploads = statsObj?.optInt("recent_uploads", 0) ?: 0,
+                        allResourcesCount = statsObj?.optInt("all_resources_count", 0) ?: 0
+                    )
+
+                    val myResArray = jsonResponse.optJSONArray("my_resources")
+                    val myResources = mutableListOf<ResourceItem>()
+                    if (myResArray != null) {
+                        for (i in 0 until myResArray.length()) {
+                            val item = myResArray.getJSONObject(i)
+                            myResources.add(
+                                ResourceItem(
+                                    id = item.optInt("id", 0),
+                                    title = item.optString("title", "Untitled"),
+                                    subject = item.optString("subject", "General"),
+                                    fileType = item.optString("file_type", "PDF"),
+                                    uploaderName = item.optString("uploader_name", currentUser.name),
+                                    description = item.optString("description", "No description"),
+                                    downloads = item.optInt("downloads", 0)
+                                )
+                            )
+                        }
+                    }
+
+                    val allResArray = jsonResponse.optJSONArray("all_resources")
+                    val allResources = mutableListOf<ResourceItem>()
+                    if (allResArray != null) {
+                        for (i in 0 until allResArray.length()) {
+                            val item = allResArray.getJSONObject(i)
+                            allResources.add(
+                                ResourceItem(
+                                    id = item.optInt("id", 0),
+                                    title = item.optString("title", "Untitled"),
+                                    subject = item.optString("subject", "General"),
+                                    fileType = item.optString("file_type", "PDF"),
+                                    uploaderName = item.optString("uploader_name", "Unknown"),
+                                    description = item.optString("description", "No description"),
+                                    downloads = item.optInt("downloads", 0)
+                                )
+                            )
+                        }
+                    }
+
+                    DashboardResult.Success(
+                        DashboardData(
+                            user = currentUser,
+                            accountAge = accountAge,
+                            activityLevel = activityLevel,
+                            stats = stats,
+                            myResources = myResources,
+                            allResources = allResources
+                        )
+                    )
+                } else {
+                    DashboardResult.Error(jsonResponse.optString("message", "Failed to load dashboard"))
+                }
             } else {
-                DashboardResult.Error(jsonResponse.optString("message", "Failed to load dashboard"))
+                DashboardResult.Error("Unable to reach Kenya EduHub server. Please check your connection or server status.")
             }
         } catch (e: Exception) {
-            DashboardResult.Error("Network error: ${e.localizedMessage ?: "Please check your connection"}")
+            DashboardResult.Error(formatNetworkError(e))
         } finally {
             connection?.disconnect()
         }
@@ -173,8 +191,8 @@ class DashboardRepository {
                 AuthRepository.sessionCookie?.let { setRequestProperty("Cookie", it) }
                 doOutput = true
                 doInput = true
-                connectTimeout = 15000
-                readTimeout = 15000
+                connectTimeout = 120000
+                readTimeout = 120000
             }
 
             val jsonParam = JSONObject().apply {
@@ -194,27 +212,36 @@ class DashboardRepository {
             val stream = if (responseCode in 200..299) connection.inputStream else (connection.errorStream ?: connection.inputStream)
             val responseText = BufferedReader(InputStreamReader(stream, "UTF-8")).use { it.readText() }
 
-            val jsonResponse = JSONObject(responseText)
-            val success = jsonResponse.optBoolean("success", false)
-            val msg = jsonResponse.optString("message", if (success) "Profile updated successfully!" else "Failed to update profile")
+            val jsonResponse = try {
+                JSONObject(responseText)
+            } catch (e: Exception) {
+                null
+            }
 
-            if (success) {
-                val userObj = jsonResponse.optJSONObject("user")
-                val updatedUser = if (userObj != null) {
-                    User(
-                        id = userObj.optInt("id", userId),
-                        name = userObj.optString("name", name),
-                        email = userObj.optString("email", email),
-                        role = userObj.optString("role", "user"),
-                        phone = userObj.optString("phone", phone)
-                    )
-                } else null
-                ProfileResult.Success(msg, updatedUser)
+            if (jsonResponse != null) {
+                val success = jsonResponse.optBoolean("success", false)
+                val msg = jsonResponse.optString("message", if (success) "Profile updated successfully!" else "Failed to update profile")
+
+                if (success) {
+                    val userObj = jsonResponse.optJSONObject("user")
+                    val updatedUser = if (userObj != null) {
+                        User(
+                            id = userObj.optInt("id", userId),
+                            name = userObj.optString("name", name),
+                            email = userObj.optString("email", email),
+                            role = userObj.optString("role", "user"),
+                            phone = userObj.optString("phone", phone)
+                        )
+                    } else null
+                    ProfileResult.Success(msg, updatedUser)
+                } else {
+                    ProfileResult.Error(msg)
+                }
             } else {
-                ProfileResult.Error(msg)
+                ProfileResult.Error("Unable to reach Kenya EduHub server. Please check your connection or server status.")
             }
         } catch (e: Exception) {
-            ProfileResult.Error("Network error: ${e.localizedMessage ?: "Please check your connection"}")
+            ProfileResult.Error(formatNetworkError(e))
         } finally {
             connection?.disconnect()
         }
@@ -231,8 +258,8 @@ class DashboardRepository {
                 AuthRepository.sessionCookie?.let { setRequestProperty("Cookie", it) }
                 doOutput = true
                 doInput = true
-                connectTimeout = 15000
-                readTimeout = 15000
+                connectTimeout = 120000
+                readTimeout = 120000
             }
 
             val jsonParam = JSONObject().apply {
@@ -252,17 +279,26 @@ class DashboardRepository {
             val stream = if (responseCode in 200..299) connection.inputStream else (connection.errorStream ?: connection.inputStream)
             val responseText = BufferedReader(InputStreamReader(stream, "UTF-8")).use { it.readText() }
 
-            val jsonResponse = JSONObject(responseText)
-            val success = jsonResponse.optBoolean("success", false)
-            val msg = jsonResponse.optString("message", if (success) "Password changed successfully!" else "Failed to change password")
+            val jsonResponse = try {
+                JSONObject(responseText)
+            } catch (e: Exception) {
+                null
+            }
 
-            if (success) {
-                ProfileResult.Success(msg, null)
+            if (jsonResponse != null) {
+                val success = jsonResponse.optBoolean("success", false)
+                val msg = jsonResponse.optString("message", if (success) "Password changed successfully!" else "Failed to change password")
+
+                if (success) {
+                    ProfileResult.Success(msg, null)
+                } else {
+                    ProfileResult.Error(msg)
+                }
             } else {
-                ProfileResult.Error(msg)
+                ProfileResult.Error("Unable to reach Kenya EduHub server. Please check your connection or server status.")
             }
         } catch (e: Exception) {
-            ProfileResult.Error("Network error: ${e.localizedMessage ?: "Please check your connection"}")
+            ProfileResult.Error(formatNetworkError(e))
         } finally {
             connection?.disconnect()
         }
@@ -288,8 +324,8 @@ class DashboardRepository {
                 AuthRepository.sessionCookie?.let { setRequestProperty("Cookie", it) }
                 doOutput = true
                 doInput = true
-                connectTimeout = 15000
-                readTimeout = 15000
+                connectTimeout = 120000
+                readTimeout = 120000
             }
 
             val jsonParam = JSONObject().apply {
@@ -313,13 +349,22 @@ class DashboardRepository {
             val stream = if (responseCode in 200..299) connection.inputStream else (connection.errorStream ?: connection.inputStream)
             val responseText = BufferedReader(InputStreamReader(stream, "UTF-8")).use { it.readText() }
 
-            val jsonResponse = JSONObject(responseText)
-            val success = jsonResponse.optBoolean("success", false)
-            val msg = jsonResponse.optString("message", if (success) "Settings saved successfully!" else "Failed to save settings")
+            val jsonResponse = try {
+                JSONObject(responseText)
+            } catch (e: Exception) {
+                null
+            }
 
-            if (success) SettingsResult.Success(msg) else SettingsResult.Error(msg)
+            if (jsonResponse != null) {
+                val success = jsonResponse.optBoolean("success", false)
+                val msg = jsonResponse.optString("message", if (success) "Settings saved successfully!" else "Failed to save settings")
+
+                if (success) SettingsResult.Success(msg) else SettingsResult.Error(msg)
+            } else {
+                SettingsResult.Error("Unable to reach Kenya EduHub server. Please check your connection or server status.")
+            }
         } catch (e: Exception) {
-            SettingsResult.Error("Network error: ${e.localizedMessage ?: "Please check your connection"}")
+            SettingsResult.Error(formatNetworkError(e))
         } finally {
             connection?.disconnect()
         }
@@ -336,8 +381,8 @@ class DashboardRepository {
                 AuthRepository.sessionCookie?.let { setRequestProperty("Cookie", it) }
                 doOutput = true
                 doInput = true
-                connectTimeout = 15000
-                readTimeout = 15000
+                connectTimeout = 120000
+                readTimeout = 120000
             }
 
             val jsonParam = JSONObject().apply {
@@ -356,13 +401,111 @@ class DashboardRepository {
             val stream = if (responseCode in 200..299) connection.inputStream else (connection.errorStream ?: connection.inputStream)
             val responseText = BufferedReader(InputStreamReader(stream, "UTF-8")).use { it.readText() }
 
-            val jsonResponse = JSONObject(responseText)
-            val success = jsonResponse.optBoolean("success", false)
-            val msg = jsonResponse.optString("message", if (success) "Account deleted successfully." else "Failed to delete account")
+            val jsonResponse = try {
+                JSONObject(responseText)
+            } catch (e: Exception) {
+                null
+            }
 
-            if (success) SettingsResult.Success(msg) else SettingsResult.Error(msg)
+            if (jsonResponse != null) {
+                val success = jsonResponse.optBoolean("success", false)
+                val msg = jsonResponse.optString("message", if (success) "Account deleted successfully." else "Failed to delete account")
+
+                if (success) SettingsResult.Success(msg) else SettingsResult.Error(msg)
+            } else {
+                SettingsResult.Error("Unable to reach Kenya EduHub server. Please check your connection or server status.")
+            }
         } catch (e: Exception) {
-            SettingsResult.Error("Network error: ${e.localizedMessage ?: "Please check your connection"}")
+            SettingsResult.Error(formatNetworkError(e))
+        } finally {
+            connection?.disconnect()
+        }
+    }
+
+    suspend fun uploadResource(
+        context: Context,
+        userId: Int,
+        title: String,
+        level: String,
+        subject: String,
+        type: String,
+        description: String,
+        fileUri: Uri,
+        fileName: String
+    ): UploadResult = withContext(Dispatchers.IO) {
+        var connection: HttpURLConnection? = null
+        val boundary = "*****" + System.currentTimeMillis() + "*****"
+        val twoHyphens = "--"
+        val lineEnd = "\r\n"
+
+        try {
+            val url = URL(ApiConfig.UPLOAD_URL)
+            connection = (url.openConnection() as HttpURLConnection).apply {
+                requestMethod = "POST"
+                setRequestProperty("Cache-Control", "no-cache")
+                setRequestProperty("Content-Type", "multipart/form-data; boundary=$boundary")
+                setRequestProperty("Accept", "application/json")
+                AuthRepository.sessionCookie?.let { setRequestProperty("Cookie", it) }
+                doOutput = true
+                doInput = true
+                connectTimeout = 120000
+                readTimeout = 120000
+            }
+
+            DataOutputStream(connection.outputStream).use { dos ->
+                fun writeFormField(key: String, value: String) {
+                    dos.writeBytes("$twoHyphens$boundary$lineEnd")
+                    dos.writeBytes("Content-Disposition: form-data; name=\"$key\"$lineEnd")
+                    dos.writeBytes("Content-Type: text/plain; charset=UTF-8$lineEnd$lineEnd")
+                    dos.write(value.toByteArray(Charsets.UTF_8))
+                    dos.writeBytes(lineEnd)
+                }
+
+                writeFormField("user_id", userId.toString())
+                AuthRepository.csrfToken?.let { writeFormField("csrf_token", it) }
+                writeFormField("title", title)
+                writeFormField("level", level)
+                writeFormField("subject", subject)
+                writeFormField("type", type)
+                writeFormField("description", description)
+
+                // Write file stream
+                dos.writeBytes("$twoHyphens$boundary$lineEnd")
+                dos.writeBytes("Content-Disposition: form-data; name=\"file\"; filename=\"$fileName\"$lineEnd")
+                dos.writeBytes("Content-Type: application/octet-stream$lineEnd$lineEnd")
+
+                context.contentResolver.openInputStream(fileUri)?.use { inputStream ->
+                    val buffer = ByteArray(4096)
+                    var bytesRead: Int
+                    while (inputStream.read(buffer).also { bytesRead = it } != -1) {
+                        dos.write(buffer, 0, bytesRead)
+                    }
+                }
+                dos.writeBytes(lineEnd)
+                dos.writeBytes("$twoHyphens$boundary$twoHyphens$lineEnd")
+                dos.flush()
+            }
+
+            val responseCode = connection.responseCode
+            val stream = if (responseCode in 200..299) connection.inputStream else (connection.errorStream ?: connection.inputStream)
+            val responseText = BufferedReader(InputStreamReader(stream, "UTF-8")).use { it.readText() }
+
+            val jsonResponse = try {
+                JSONObject(responseText)
+            } catch (e: Exception) {
+                null
+            }
+
+            if (jsonResponse != null) {
+                val success = jsonResponse.optBoolean("success", false)
+                val msg = jsonResponse.optString("message", if (success) "Resource uploaded successfully" else "Upload failed")
+
+                if (success) UploadResult.Success(msg) else UploadResult.Error(msg)
+            } else {
+                UploadResult.Error("Unable to reach Kenya EduHub server. Please check your connection or server status.")
+            }
+        } catch (e: Exception) {
+            UploadResult.Error(formatNetworkError(e))
         } finally {
             connection?.disconnect()
         }
