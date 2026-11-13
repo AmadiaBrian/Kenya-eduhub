@@ -12,4 +12,8 @@ object ApiConfig {
     val DASHBOARD_URL = "${BASE_URL}dashboard.php"
     val PROFILE_URL = "${BASE_URL}profile.php"
     val SETTINGS_URL = "${BASE_URL}settings.php"
+    val DOWNLOAD_URL = "${BASE_URL}download.php"
+    val UPLOAD_URL = "${BASE_URL}upload.php"
+    val VERIFY_URL = "${BASE_URL}verify.php"
+    val RESEND_VERIFICATION_URL = "${BASE_URL}resend_verification.php"
 }

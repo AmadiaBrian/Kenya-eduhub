@@ -23,6 +23,9 @@ class ForgotPasswordViewModel(
     val errorMessage = MutableStateFlow<String?>(null)
     val successMessage = MutableStateFlow<String?>(null)
 
+    val resendAttemptCount = MutableStateFlow(0)
+    val cooldownSeconds = MutableStateFlow(0)
+
     fun resetState() {
         step.value = 1
         method.value = "email"
@@ -34,6 +37,8 @@ class ForgotPasswordViewModel(
         isLoading.value = false
         errorMessage.value = null
         successMessage.value = null
+        resendAttemptCount.value = 0
+        cooldownSeconds.value = 0
     }
 
     fun goToStep1() {
@@ -42,7 +47,16 @@ class ForgotPasswordViewModel(
         successMessage.value = null
     }
 
+    fun triggerResendCooldown() {
+        resendAttemptCount.value += 1
+        cooldownSeconds.value = when (resendAttemptCount.value) {
+            1 -> 120 // 2 minutes for 2nd attempt
+            else -> 360 // 6 minutes for 3rd and subsequent attempts
+        }
+    }
+
     fun resendCode() {
+        triggerResendCooldown()
         submitStep1 { }
     }
 

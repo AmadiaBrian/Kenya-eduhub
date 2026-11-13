@@ -4,8 +4,10 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -18,6 +20,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.delay
 
 @Composable
 fun ForgotPasswordScreen(
@@ -36,8 +39,19 @@ fun ForgotPasswordScreen(
     val errorMessage by viewModel.errorMessage.collectAsState()
     val successMessage by viewModel.successMessage.collectAsState()
 
+    val cooldownSeconds by viewModel.cooldownSeconds.collectAsState()
+    val canResend = cooldownSeconds <= 0
+
     var newPasswordVisible by remember { mutableStateOf(false) }
     var confirmPasswordVisible by remember { mutableStateOf(false) }
+
+    // Countdown Timer Loop
+    LaunchedEffect(cooldownSeconds) {
+        if (cooldownSeconds > 0) {
+            delay(1000L)
+            viewModel.cooldownSeconds.value -= 1
+        }
+    }
 
     Box(
         modifier = Modifier
@@ -45,6 +59,7 @@ fun ForgotPasswordScreen(
             .background(Color(0xFFF0F4F9))
             .statusBarsPadding()
             .navigationBarsPadding()
+            .imePadding()
             .padding(24.dp),
         contentAlignment = Alignment.Center
     ) {
@@ -52,10 +67,11 @@ fun ForgotPasswordScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .widthIn(max = 450.dp)
+                .verticalScroll(rememberScrollState())
                 .padding(horizontal = 16.dp, vertical = 24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Brand Logo & Circle (kenya-eduhub-logo-unique-2026)
+            // Brand Logo & Circle
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center,
@@ -109,22 +125,10 @@ fun ForgotPasswordScreen(
             }
 
             Text(
-                text = "Reset Password",
+                text = "Forgot Password",
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Normal,
                 color = Color(0xFF202124),
-                modifier = Modifier.padding(bottom = 8.dp)
-            )
-
-            Text(
-                text = when (step) {
-                    1 -> "Enter your email or phone to receive a reset code."
-                    2 -> "Enter the 6-digit verification code sent to you."
-                    else -> "Enter your new password below."
-                },
-                fontSize = 14.sp,
-                color = Color(0xFF5F6368),
-                textAlign = TextAlign.Center,
                 modifier = Modifier.padding(bottom = 24.dp)
             )
 
@@ -174,12 +178,51 @@ fun ForgotPasswordScreen(
 
             when (step) {
                 1 -> {
+                    // Step 1: Select Method & Enter Email/Phone
+                    Text(
+                        text = "Choose reset method:",
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Medium,
+                        color = Color(0xFF5F6368),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 12.dp)
+                    )
+
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 20.dp),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        FilterChip(
+                            selected = method == "email",
+                            onClick = { viewModel.method.value = "email" },
+                            label = { Text("Reset via Email") },
+                            colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = Color(0xFFE8F0FE),
+                                selectedLabelColor = Color(0xFFFF6B35)
+                            ),
+                            modifier = Modifier.weight(1f)
+                        )
+                        FilterChip(
+                            selected = method == "sms",
+                            onClick = { viewModel.method.value = "sms" },
+                            label = { Text("Reset via SMS") },
+                            colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = Color(0xFFE8F0FE),
+                                selectedLabelColor = Color(0xFFFF6B35)
+                            ),
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
+
                     if (method == "email") {
                         OutlinedTextField(
                             value = email,
                             onValueChange = { viewModel.email.value = it },
                             label = { Text("Email address") },
-                            placeholder = { Text("Enter your email address") },
+                            placeholder = { Text("Enter your registered email") },
                             singleLine = true,
                             shape = RoundedCornerShape(25.dp),
                             colors = OutlinedTextFieldDefaults.colors(
@@ -190,28 +233,14 @@ fun ForgotPasswordScreen(
                             ),
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(bottom = 8.dp)
+                                .padding(bottom = 24.dp)
                         )
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 8.dp)
-                                .padding(bottom = 24.dp),
-                            horizontalArrangement = Arrangement.End
-                        ) {
-                            Text(
-                                text = "Send code via SMS instead",
-                                color = Color(0xFF1A73E8),
-                                fontSize = 13.sp,
-                                modifier = Modifier.clickable { viewModel.method.value = "sms" }
-                            )
-                        }
                     } else {
                         OutlinedTextField(
                             value = phone,
                             onValueChange = { viewModel.phone.value = it },
                             label = { Text("Phone Number") },
-                            placeholder = { Text("Enter your phone number") },
+                            placeholder = { Text("e.g. 0712345678 or +254712345678") },
                             singleLine = true,
                             shape = RoundedCornerShape(25.dp),
                             colors = OutlinedTextFieldDefaults.colors(
@@ -222,32 +251,12 @@ fun ForgotPasswordScreen(
                             ),
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(bottom = 4.dp)
+                                .padding(bottom = 24.dp)
                         )
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 8.dp)
-                                .padding(bottom = 16.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                text = "Kenya format: 07XXXXXXXX",
-                                color = Color(0xFF5F6368),
-                                fontSize = 11.sp
-                            )
-                            Text(
-                                text = "Send code via email instead",
-                                color = Color(0xFF1A73E8),
-                                fontSize = 13.sp,
-                                modifier = Modifier.clickable { viewModel.method.value = "email" }
-                            )
-                        }
                     }
 
                     Button(
-                        onClick = { viewModel.submitStep1 {} },
+                        onClick = { viewModel.submitStep1 { } },
                         enabled = !isLoading,
                         shape = RoundedCornerShape(25.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF6B35)),
@@ -269,10 +278,22 @@ fun ForgotPasswordScreen(
                 }
 
                 2 -> {
+                    // Step 2: Enter Verification Code
+                    val sendTarget = if (method == "email") email else phone
+                    Text(
+                        text = "A reset code was sent to $sendTarget. Enter the code below:",
+                        fontSize = 13.sp,
+                        color = Color(0xFF5F6368),
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 20.dp)
+                    )
+
                     OutlinedTextField(
                         value = code,
                         onValueChange = { viewModel.code.value = it },
-                        label = { Text("Verification Code") },
+                        label = { Text("Reset Code") },
                         placeholder = { Text("Enter 6-digit code") },
                         singleLine = true,
                         shape = RoundedCornerShape(25.dp),
@@ -284,11 +305,11 @@ fun ForgotPasswordScreen(
                         ),
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(bottom = 24.dp)
+                            .padding(bottom = 16.dp)
                     )
 
                     Button(
-                        onClick = { viewModel.submitStep2 {} },
+                        onClick = { viewModel.submitStep2 { } },
                         enabled = !isLoading,
                         shape = RoundedCornerShape(25.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF6B35)),
@@ -308,36 +329,59 @@ fun ForgotPasswordScreen(
                         }
                     }
 
+                    Spacer(modifier = Modifier.height(16.dp))
+
                     Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 16.dp)
-                            .padding(horizontal = 8.dp),
+                        modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
+                        TextButton(
+                            onClick = { if (canResend) viewModel.resendCode() },
+                            enabled = canResend && !isLoading
+                        ) {
+                            Text(
+                                text = "Resend Code",
+                                color = if (canResend) Color(0xFFFF6B35) else Color(0xFF9AA0A6),
+                                fontSize = 13.sp,
+                                fontWeight = FontWeight.Medium
+                            )
+                        }
+                        TextButton(onClick = { viewModel.goToStep1() }) {
+                            Text("Change Details", color = Color(0xFF5F6368), fontSize = 13.sp)
+                        }
+                    }
+
+                    if (!canResend) {
+                        Spacer(modifier = Modifier.height(4.dp))
+                        val minutes = cooldownSeconds / 60
+                        val seconds = cooldownSeconds % 60
+                        val formattedTime = if (minutes > 0) "${minutes} min ${seconds} sec" else "${seconds} sec"
                         Text(
-                            text = "Didn't receive code? Resend",
-                            color = Color(0xFF1A73E8),
-                            fontSize = 13.sp,
-                            fontWeight = FontWeight.Medium,
-                            modifier = Modifier.clickable(enabled = !isLoading) { viewModel.resendCode() }
-                        )
-                        Text(
-                            text = "Change details",
+                            text = "Please wait $formattedTime before resending",
+                            fontSize = 12.sp,
                             color = Color(0xFF5F6368),
-                            fontSize = 13.sp,
-                            modifier = Modifier.clickable(enabled = !isLoading) { viewModel.goToStep1() }
+                            textAlign = TextAlign.Center
                         )
                     }
                 }
 
-                else -> {
+                3 -> {
+                    // Step 3: Enter New Password & Confirm
+                    Text(
+                        text = "Enter your new password below:",
+                        fontSize = 13.sp,
+                        color = Color(0xFF5F6368),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 20.dp)
+                    )
+
                     OutlinedTextField(
                         value = newPassword,
                         onValueChange = { viewModel.newPassword.value = it },
                         label = { Text("New Password") },
-                        placeholder = { Text("Enter new password") },
+                        placeholder = { Text("New Password") },
                         singleLine = true,
                         visualTransformation = if (newPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                         trailingIcon = {
@@ -366,8 +410,8 @@ fun ForgotPasswordScreen(
                     OutlinedTextField(
                         value = confirmPassword,
                         onValueChange = { viewModel.confirmPassword.value = it },
-                        label = { Text("Confirm Password") },
-                        placeholder = { Text("Confirm new password") },
+                        label = { Text("Confirm New Password") },
+                        placeholder = { Text("Confirm New Password") },
                         singleLine = true,
                         visualTransformation = if (confirmPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                         trailingIcon = {
@@ -425,12 +469,13 @@ fun ForgotPasswordScreen(
                 }
             }
 
-Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(24.dp))
 
-            // Link to Login
+            // Back to Login Link
             Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                Text(text = "Remembered your password?", fontSize = 13.sp, color = Color(0xFF5F6368))
                 Text(
-                    text = "Back to Login",
+                    text = "Login",
                     fontSize = 13.sp,
                     fontWeight = FontWeight.Medium,
                     color = Color(0xFFFF6B35),

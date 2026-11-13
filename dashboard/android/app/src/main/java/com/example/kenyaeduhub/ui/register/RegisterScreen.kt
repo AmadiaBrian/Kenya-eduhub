@@ -4,8 +4,10 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -22,7 +24,7 @@ import androidx.compose.ui.unit.sp
 @Composable
 fun RegisterScreen(
     viewModel: RegisterViewModel,
-    onRegisterSuccess: (String) -> Unit,
+    onRegisterSuccess: (String, String, String) -> Unit,
     onNavigateLogin: () -> Unit
 ) {
     var passwordVisible by remember { mutableStateOf(false) }
@@ -34,6 +36,7 @@ fun RegisterScreen(
             .background(Color(0xFFF0F4F9))
             .statusBarsPadding()
             .navigationBarsPadding()
+            .imePadding()
             .padding(24.dp),
         contentAlignment = Alignment.Center
     ) {
@@ -41,10 +44,11 @@ fun RegisterScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .widthIn(max = 450.dp)
+                .verticalScroll(rememberScrollState())
                 .padding(horizontal = 16.dp, vertical = 24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Brand Logo & Circle (kenya-eduhub-logo-unique-2026)
+            // Brand Logo & Circle
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center,
