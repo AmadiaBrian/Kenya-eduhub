@@ -121,107 +121,96 @@ try {
     // Generate PDF fee structure document using FPDF
     require_once __DIR__ . '/../../tools/fpdf/fpdf.php';
     
-    // Create new PDF document
-    $pdf = new FPDF('P', 'mm', 'A4');
-    
-    // Set document information
+    if (!class_exists('ParentFeeStructurePDF')) {
+        class ParentFeeStructurePDF extends FPDF {
+            public $schoolName;
+            public $schoolAddress;
+            public $schoolContact;
+            public $currentYear;
+
+            function Header() {
+                $this->SetFont('Arial', 'B', 16);
+                $this->SetTextColor(255, 107, 53);
+                $this->Cell(0, 8, strtoupper($this->schoolName), 0, 1, 'C');
+
+                $this->SetFont('Arial', '', 8);
+                $this->SetTextColor(95, 99, 104);
+                $schoolDetails = trim($this->schoolAddress . ($this->schoolContact ? ' | ' . $this->schoolContact : ''), ' |');
+                $this->Cell(0, 4, $schoolDetails, 0, 1, 'C');
+
+                $this->SetFont('Arial', 'B', 12);
+                $this->SetTextColor(32, 33, 36);
+                $this->Cell(0, 6, 'OFFICIAL FEE STRUCTURE', 0, 1, 'C');
+
+                $this->SetFont('Arial', '', 10);
+                $this->SetTextColor(95, 99, 104);
+                $this->Cell(0, 5, 'Academic Year: ' . $this->currentYear . ' | Date: ' . date('F j, Y'), 0, 1, 'C');
+
+                $this->Ln(3);
+                $this->SetDrawColor(255, 107, 53);
+                $this->SetLineWidth(0.8);
+                $this->Line(10, $this->GetY(), 200, $this->GetY());
+                $this->Ln(5);
+                $this->SetLineWidth(0.3);
+                $this->SetTextColor(0, 0, 0);
+            }
+
+            function Footer() {
+                $this->SetY(-15);
+                $this->SetFont('Arial', 'I', 8);
+                $this->SetTextColor(128, 128, 128);
+                $this->Cell(0, 10, 'KENYA EDUHUB PARENT PORTAL - OFFICIAL FEE STRUCTURE | Page ' . $this->PageNo() . '/{nb}', 0, 0, 'C');
+            }
+        }
+    }
+
+    $pdf = new ParentFeeStructurePDF('P', 'mm', 'A4');
+    $pdf->schoolName = $student['school_name'] ?? 'Kenya EduHub';
+    $pdf->schoolAddress = $student['school_address'] ?? '';
+    $school_contact = [];
+    if (!empty($student['school_phone'])) {
+        $school_contact[] = 'Phone: ' . $student['school_phone'];
+    }
+    if (!empty($student['school_email'])) {
+        $school_contact[] = 'Email: ' . $student['school_email'];
+    }
+    $pdf->schoolContact = implode(' | ', $school_contact);
+    $pdf->currentYear = $current_year;
     $pdf->SetTitle('Fee Structure - ' . $class_name);
     $pdf->SetAuthor($student['school_name']);
     $pdf->SetCreator('Kenya EduHub');
-    
-    // Set margins
-    $pdf->SetMargins(15, 15, 15);
-    $pdf->SetAutoPageBreak(true, 15);
-    
-    // Add a page
+    $pdf->SetMargins(10, 15, 10);
+    $pdf->SetAutoPageBreak(true, 18);
+    $pdf->AliasNbPages();
     $pdf->AddPage();
-    
-    // Professional Header Box
-    $pdf->SetFillColor(240, 240, 240);
-    $pdf->Rect(15, 15, 180, 35, 'F');
-    $pdf->SetDrawColor(200, 200, 200);
-    $pdf->Rect(15, 15, 180, 35, 'D');
-    
-    // School Header
-    $pdf->SetFont('helvetica', 'B', 18);
-    $pdf->Cell(0, 8, $student['school_name'], 0, 1, 'C');
-    
-    $pdf->SetFont('helvetica', '', 9);
-    $pdf->Cell(0, 5, $student['school_address'], 0, 1, 'C');
-    $pdf->Cell(0, 5, 'Phone: ' . $student['school_phone'] . ' | Email: ' . $student['school_email'], 0, 1, 'C');
-    
-    $pdf->Ln(8);
-    
-    // Document Title with border
-    $pdf->SetFont('helvetica', 'B', 16);
-    $pdf->SetFillColor(255, 102, 0);
-    $pdf->SetTextColor(255, 255, 255);
-    $pdf->Cell(0, 12, 'FEE STRUCTURE DOCUMENT', 0, 1, 'C', true);
-    $pdf->SetTextColor(0, 0, 0);
-    
-    $pdf->Ln(5);
-    
-    // Document Date and Academic Year
-    $pdf->SetFillColor(248, 249, 250);
-    $pdf->Rect(15, 65, 180, 20, 'F');
-    $pdf->SetDrawColor(220, 220, 220);
-    $pdf->Rect(15, 65, 180, 20, 'D');
-    
-    $pdf->SetFont('helvetica', '', 10);
-    $pdf->Cell(50, 7, 'Document Date:', 0, 0, 'L');
-    $pdf->SetFont('helvetica', 'B', 11);
-    $pdf->Cell(80, 7, date('d M Y'), 0, 0, 'L');
-    $pdf->SetFont('helvetica', '', 10);
-    $pdf->Cell(30, 7, 'Academic Year:', 0, 0, 'R');
-    $pdf->SetFont('helvetica', 'B', 11);
-    $pdf->Cell(20, 7, $current_year, 0, 1, 'R');
-    
-    $pdf->Ln(10);
+    $pdf->SetLineWidth(0.3);
     
     // Student Information Section
-    $pdf->SetFont('helvetica', 'B', 12);
-    $pdf->SetTextColor(255, 102, 0);
-    $pdf->Cell(0, 8, 'STUDENT INFORMATION', 0, 1, 'L');
+    $pdf->SetFillColor(240, 244, 249);
+    $pdf->SetDrawColor(220, 224, 230);
+    $pdf->Rect(10, $pdf->GetY(), 190, 25, 'DF');
+    $pdf->SetXY(15, $pdf->GetY() + 3);
     $pdf->SetTextColor(0, 0, 0);
-    
-    $pdf->SetDrawColor(200, 200, 200);
-    $pdf->Line(15, $pdf->GetY(), 195, $pdf->GetY());
-    $pdf->Ln(3);
-    
-    $pdf->SetFont('helvetica', '', 10);
-    $pdf->Cell(40, 7, 'Student Name:', 0, 0, 'L');
-    $pdf->SetFont('helvetica', 'B', 10);
-    $pdf->Cell(140, 7, $student['first_name'] . ' ' . $student['last_name'], 0, 1, 'L');
-    
-    $pdf->SetFont('helvetica', '', 10);
-    $pdf->Cell(40, 7, 'Admission No:', 0, 0, 'L');
-    $pdf->SetFont('helvetica', 'B', 10);
-    $pdf->Cell(140, 7, $student['admission_number'], 0, 1, 'L');
-    
-    $pdf->SetFont('helvetica', '', 10);
-    $pdf->Cell(40, 7, 'Class:', 0, 0, 'L');
-    $pdf->SetFont('helvetica', 'B', 10);
-    $pdf->Cell(140, 7, $class_name, 0, 1, 'L');
-    
-    $pdf->SetFont('helvetica', '', 10);
-    $pdf->Cell(40, 7, 'Parent Name:', 0, 0, 'L');
-    $pdf->SetFont('helvetica', 'B', 10);
-    $pdf->Cell(140, 7, $parent['parent_name'], 0, 1, 'L');
-    
+    $pdf->SetFont('Arial', 'B', 10);
+    $pdf->Cell(90, 5, 'Candidate: ' . strtoupper($student['first_name'] . ' ' . $student['last_name']), 0, 0);
+    $pdf->Cell(90, 5, 'Class: ' . $class_name, 0, 1);
+    $pdf->SetX(15);
+    $pdf->Cell(90, 5, 'Admission No: ' . $student['admission_number'], 0, 0);
+    $pdf->Cell(90, 5, 'Parent: ' . ($parent['parent_name'] ?? '-'), 0, 1);
     $pdf->Ln(8);
     
     // Fee Structure Section
-    $pdf->SetFont('helvetica', 'B', 12);
-    $pdf->SetTextColor(255, 102, 0);
+    $pdf->SetFont('Arial', 'B', 11);
+    $pdf->SetTextColor(255, 107, 53);
     $pdf->Cell(0, 8, 'FEE STRUCTURE', 0, 1, 'L');
     $pdf->SetTextColor(0, 0, 0);
     
-    $pdf->SetDrawColor(200, 200, 200);
-    $pdf->Line(15, $pdf->GetY(), 195, $pdf->GetY());
+    $pdf->SetDrawColor(255, 107, 53);
+    $pdf->Line(10, $pdf->GetY(), 200, $pdf->GetY());
     $pdf->Ln(3);
     
     if (empty($fee_structures)) {
-        $pdf->SetFont('helvetica', '', 10);
+        $pdf->SetFont('Arial', '', 10);
         $pdf->Cell(0, 7, 'No fee structure has been set for this class and academic year.', 0, 1, 'C');
     } else {
         foreach ($terms as $term) {
@@ -229,30 +218,34 @@ try {
             
             if (!empty($term_data['fees'])) {
                 // Term header
-                $pdf->SetFont('helvetica', 'B', 11);
-                $pdf->SetFillColor(255, 102, 0);
-                $pdf->SetTextColor(255, 255, 255);
-                $pdf->Cell(0, 8, $term, 0, 1, 'L', true);
+                $pdf->SetFont('Arial', 'B', 10);
+                $pdf->SetFillColor(240, 244, 249);
+                $pdf->SetDrawColor(255, 107, 53);
+                $pdf->SetTextColor(32, 33, 36);
+                $pdf->Cell(0, 8, $term, 1, 1, 'L', true);
                 $pdf->SetTextColor(0, 0, 0);
                 
                 // Fee table header
-                $pdf->SetFillColor(240, 240, 240);
-                $pdf->SetFont('helvetica', 'B', 9);
-                $pdf->Cell(100, 7, 'Fee Type', 1, 0, 'L', true);
+                $pdf->SetFillColor(232, 236, 239);
+                $pdf->SetFont('Arial', 'B', 9);
+                $pdf->Cell(110, 7, 'Fee Type', 1, 0, 'L', true);
                 $pdf->Cell(80, 7, 'Amount (KES)', 1, 1, 'R', true);
                 
                 // Fee table data
-                $pdf->SetFont('helvetica', '', 9);
-                foreach ($term_data['fees'] as $fee) {
-                    $pdf->Cell(100, 7, $fee['fee_type'], 1, 0, 'L');
-                    $pdf->Cell(80, 7, number_format($fee['amount'], 2), 1, 1, 'R');
+                $pdf->SetFont('Arial', '', 9);
+                foreach ($term_data['fees'] as $fee_index => $fee) {
+                    $fill = ($fee_index % 2 === 1);
+                    $pdf->SetFillColor($fill ? 250 : 255, $fill ? 250 : 255, $fill ? 250 : 255);
+                    $pdf->Cell(110, 7, $fee['fee_type'], 1, 0, 'L', true);
+                    $pdf->Cell(80, 7, number_format($fee['amount'], 2), 1, 1, 'R', true);
                 }
                 
                 // Term total
-                $pdf->SetFillColor(255, 102, 0);
-                $pdf->SetTextColor(255, 255, 255);
-                $pdf->SetFont('helvetica', 'B', 10);
-                $pdf->Cell(100, 8, $term . ' Total', 1, 0, 'L', true);
+                $pdf->SetFillColor(240, 244, 249);
+                $pdf->SetDrawColor(255, 107, 53);
+                $pdf->SetTextColor(32, 33, 36);
+                $pdf->SetFont('Arial', 'B', 9);
+                $pdf->Cell(110, 8, $term . ' Total', 1, 0, 'L', true);
                 $pdf->Cell(80, 8, number_format($term_data['total'], 2), 1, 1, 'R', true);
                 $pdf->SetTextColor(0, 0, 0);
                 
@@ -261,10 +254,11 @@ try {
         }
         
         // Grand total
-        $pdf->SetFillColor(0, 51, 102);
-        $pdf->SetTextColor(255, 255, 255);
-        $pdf->SetFont('helvetica', 'B', 12);
-        $pdf->Cell(100, 10, 'ANNUAL TOTAL', 1, 0, 'L', true);
+        $pdf->SetFillColor(240, 244, 249);
+        $pdf->SetDrawColor(255, 107, 53);
+        $pdf->SetTextColor(32, 33, 36);
+        $pdf->SetFont('Arial', 'B', 10);
+        $pdf->Cell(110, 10, 'ANNUAL TOTAL', 1, 0, 'L', true);
         $pdf->Cell(80, 10, number_format($total_fees, 2), 1, 1, 'R', true);
         $pdf->SetTextColor(0, 0, 0);
     }
@@ -272,33 +266,23 @@ try {
     $pdf->Ln(10);
     
     // Notes Section
-    $pdf->SetFont('helvetica', 'B', 12);
-    $pdf->SetTextColor(255, 102, 0);
+    $pdf->SetFont('Arial', 'B', 11);
+    $pdf->SetTextColor(255, 107, 53);
     $pdf->Cell(0, 8, 'IMPORTANT NOTES', 0, 1, 'L');
     $pdf->SetTextColor(0, 0, 0);
     
-    $pdf->SetDrawColor(200, 200, 200);
-    $pdf->Line(15, $pdf->GetY(), 195, $pdf->GetY());
+    $pdf->SetDrawColor(255, 107, 53);
+    $pdf->Line(10, $pdf->GetY(), 200, $pdf->GetY());
     $pdf->Ln(3);
     
-    $pdf->SetFont('helvetica', '', 9);
+    $pdf->SetFont('Arial', '', 9);
     $pdf->MultiCell(0, 5, "• This fee structure is subject to change by the school administration. Please confirm with the school office for the most current fee information.", 0, 'L');
     $pdf->Ln(2);
     $pdf->MultiCell(0, 5, "• Payment deadlines and methods are as communicated by the school. Late payments may attract penalties.", 0, 'L');
     $pdf->Ln(2);
     $pdf->MultiCell(0, 5, "• For any inquiries regarding fees, please contact the school administration office.", 0, 'L');
     
-    $pdf->Ln(15);
-    
-    // Professional Footer
-    $pdf->SetDrawColor(200, 200, 200);
-    $pdf->Line(15, $pdf->GetY(), 195, $pdf->GetY());
-    $pdf->Ln(8);
-    
-    $pdf->SetFont('helvetica', 'I', 8);
-    $pdf->Cell(0, 5, 'This is an official fee structure document generated by Kenya EduHub School Management System', 0, 1, 'C');
-    $pdf->Cell(0, 5, 'Generated on: ' . date('d M Y H:i:s'), 0, 1, 'C');
-    $pdf->Cell(0, 5, 'For inquiries, please contact the school administration', 0, 1, 'C');
+    $pdf->Ln(5);
     
     // Output PDF
     $safe_admission = preg_replace('/[^a-zA-Z0-9]/', '_', $student['admission_number']);

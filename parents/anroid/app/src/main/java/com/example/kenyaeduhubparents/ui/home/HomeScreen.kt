@@ -1,5 +1,12 @@
 package com.example.kenyaeduhubparents.ui.home
 
+import android.app.Activity
+import android.content.Context
+import android.os.Build
+import android.os.VibrationEffect
+import android.os.Vibrator
+import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import com.example.kenyaeduhubparents.ui.attendance.AttendanceScreen
 
 import androidx.compose.foundation.background
@@ -98,6 +105,44 @@ fun HomeScreen(
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     var currentRoute by remember { mutableStateOf("dashboard") }
+    val context = LocalContext.current
+    var backPressedTime by remember { mutableStateOf(0L) }
+
+    BackHandler {
+        when {
+            drawerState.isOpen -> {
+                scope.launch { drawerState.close() }
+            }
+            currentRoute != "dashboard" -> {
+                currentRoute = "dashboard"
+            }
+            else -> {
+                val currentTime = System.currentTimeMillis()
+                if (currentTime - backPressedTime < 2000) {
+                    (context as? Activity)?.finish()
+                } else {
+                    backPressedTime = currentTime
+
+                    val vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                        val vibratorManager = context.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as? android.os.VibratorManager
+                        vibratorManager?.defaultVibrator
+                    } else {
+                        @Suppress("DEPRECATION")
+                        context.getSystemService(Context.VIBRATOR_SERVICE) as? android.os.Vibrator
+                    }
+
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        vibrator?.vibrate(VibrationEffect.createOneShot(200, VibrationEffect.DEFAULT_AMPLITUDE))
+                    } else {
+                        @Suppress("DEPRECATION")
+                        vibrator?.vibrate(200)
+                    }
+
+                    Toast.makeText(context, "Press again to exit", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -273,7 +318,7 @@ fun AppDrawer(
 ) {
     ModalDrawerSheet(
         modifier = modifier.width(280.dp),
-        drawerContainerColor = Color(0xFFF0F4F9)
+        drawerContainerColor = MaterialTheme.colorScheme.surface
     ) {
         Column(
             modifier = Modifier
@@ -291,7 +336,7 @@ fun AppDrawer(
                 com.example.kenyaeduhubparents.ui.components.KenyaEduHubLogo()
             }
 
-            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp), color = Color(0xFFE8EAED))
+            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp), color = MaterialTheme.colorScheme.outlineVariant)
 
             val navItems = listOf(
                 Triple("dashboard", "Dashboard", Icons.Filled.Dashboard),
@@ -309,25 +354,25 @@ fun AppDrawer(
             navItems.forEach { (route, label, icon) ->
                 val isActive = currentRoute == route
                 NavigationDrawerItem(
-                    icon = { Icon(imageVector = icon, contentDescription = label, tint = if (isActive) Color(0xFF1A73E8) else Color(0xFF5F6368)) },
-                    label = { Text(text = label, fontWeight = FontWeight.Medium, color = if (isActive) Color(0xFF1A73E8) else Color(0xFF5F6368)) },
+                    icon = { Icon(imageVector = icon, contentDescription = label, tint = if (isActive) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant) },
+                    label = { Text(text = label, fontWeight = FontWeight.Medium, color = if (isActive) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant) },
                     selected = isActive,
                     onClick = { onRouteSelected(route) },
                     modifier = Modifier.padding(horizontal = 12.dp),
                     shape = RoundedCornerShape(24.dp),
                     colors = NavigationDrawerItemDefaults.colors(
-                        selectedContainerColor = Color(0xFFE8F0FE),
+                        selectedContainerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f),
                         unselectedContainerColor = Color.Transparent
                     )
                 )
             }
 
             Spacer(modifier = Modifier.weight(1f))
-            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp), color = Color(0xFFE8EAED))
+            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp), color = MaterialTheme.colorScheme.outlineVariant)
 
             NavigationDrawerItem(
-                icon = { Icon(imageVector = Icons.AutoMirrored.Filled.Logout, contentDescription = "Logout", tint = Color(0xFFD93025)) },
-                label = { Text(text = "Logout", fontWeight = FontWeight.Medium, color = Color(0xFFD93025)) },
+                icon = { Icon(imageVector = Icons.AutoMirrored.Filled.Logout, contentDescription = "Logout", tint = MaterialTheme.colorScheme.error) },
+                label = { Text(text = "Logout", fontWeight = FontWeight.Medium, color = MaterialTheme.colorScheme.error) },
                 selected = false,
                 onClick = onLogout,
                 modifier = Modifier.padding(horizontal = 12.dp),

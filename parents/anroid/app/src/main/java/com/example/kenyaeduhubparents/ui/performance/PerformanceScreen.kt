@@ -289,15 +289,15 @@ fun PdfPerformanceReportCard(
         Card(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(12.dp),
-            colors = CardDefaults.cardColors(containerColor = Color.White),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
             elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
         ) {
             Column(
                 modifier = Modifier.padding(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text(text = child?.fullName ?: "Student", fontWeight = FontWeight.Bold, fontSize = 16.sp)
-                Text(text = "No performance records found.", fontSize = 12.sp, color = Color.Gray, modifier = Modifier.padding(top = 8.dp))
+                Text(text = child?.fullName ?: "Student", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = MaterialTheme.colorScheme.onSurface)
+                Text(text = "No performance records found.", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(top = 8.dp))
             }
         }
     } else {
@@ -305,13 +305,13 @@ fun PdfPerformanceReportCard(
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
-                colors = CardDefaults.cardColors(containerColor = Color.White),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
                 elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
             ) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .border(2.dp, Color.Black, RoundedCornerShape(12.dp))
+                        .border(2.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(12.dp))
                         .padding(16.dp),
                     verticalArrangement = Arrangement.spacedBy(14.dp)
                 ) {
@@ -325,7 +325,7 @@ fun PdfPerformanceReportCard(
                             text = "PERFORMANCE REPORT",
                             fontWeight = FontWeight.Bold,
                             fontSize = 16.sp,
-                            color = Color.Black,
+                            color = MaterialTheme.colorScheme.onSurface,
                             textAlign = TextAlign.Center
                         )
                         Text(
@@ -339,30 +339,30 @@ fun PdfPerformanceReportCard(
                             text = child?.fullName ?: "Student",
                             fontWeight = FontWeight.SemiBold,
                             fontSize = 14.sp,
-                            color = Color.DarkGray
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                         Text(
                             text = "Class: ${child?.displayClass ?: "No Class"} | Stream: ${child?.displayStream ?: "No Stream"} | Term: $term | Year: $year",
                             fontSize = 12.sp,
-                            color = Color.Gray,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                             textAlign = TextAlign.Center
                         )
                     }
-                    HorizontalDivider(thickness = 2.dp, color = Color.DarkGray)
+                    HorizontalDivider(thickness = 2.dp, color = MaterialTheme.colorScheme.outlineVariant)
 
                     // Table Header Row
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .background(Color(0xFFF0F0F0))
-                            .border(1.dp, Color.Black)
+                            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+                            .border(1.dp, MaterialTheme.colorScheme.outlineVariant)
                             .padding(8.dp),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Text(text = "Subject", fontWeight = FontWeight.Bold, fontSize = 12.sp, modifier = Modifier.weight(2.5f))
-                        Text(text = "Marks", fontWeight = FontWeight.Bold, fontSize = 12.sp, modifier = Modifier.weight(1f))
-                        Text(text = "Grade", fontWeight = FontWeight.Bold, fontSize = 12.sp, modifier = Modifier.weight(1f))
-                        Text(text = "Pts", fontWeight = FontWeight.Bold, fontSize = 12.sp, modifier = Modifier.weight(0.8f))
+                        Text(text = "Subject", fontWeight = FontWeight.Bold, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.weight(2.5f))
+                        Text(text = "Marks", fontWeight = FontWeight.Bold, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.weight(1f))
+                        Text(text = "Grade", fontWeight = FontWeight.Bold, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.weight(1f))
+                        Text(text = "Pts", fontWeight = FontWeight.Bold, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.weight(0.8f))
                     }
 
                     // Records for this exam type
@@ -370,24 +370,24 @@ fun PdfPerformanceReportCard(
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .border(1.dp, Color.LightGray)
+                                .border(1.dp, MaterialTheme.colorScheme.outlineVariant)
                                 .padding(8.dp),
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text(text = record.subject, fontSize = 12.sp, color = Color.Black, modifier = Modifier.weight(2.5f))
-                            Text(text = String.format("%.1f", record.marks), fontSize = 12.sp, color = Color.Black, modifier = Modifier.weight(1f))
-                            Text(text = record.grade, fontWeight = FontWeight.Bold, fontSize = 12.sp, color = Color.Black, modifier = Modifier.weight(1f))
-                            Text(text = record.gradePoints?.toString() ?: "-", fontSize = 12.sp, color = Color.Black, modifier = Modifier.weight(0.8f))
+                            Text(text = record.subject, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.weight(2.5f))
+                            Text(text = String.format("%.1f", record.marks), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.weight(1f))
+                            Text(text = record.grade, fontWeight = FontWeight.Bold, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.weight(1f))
+                            Text(text = record.gradePoints?.toString() ?: "-", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.weight(0.8f))
                         }
                     }
 
                     // Footer
-                    HorizontalDivider(color = Color.LightGray)
+                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                     Text(
                         text = "Kenya EduHub Performance System",
                         fontSize = 10.sp,
-                        color = Color.Gray,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         fontStyle = androidx.compose.ui.text.font.FontStyle.Italic,
                         modifier = Modifier.fillMaxWidth(),
                         textAlign = TextAlign.Center

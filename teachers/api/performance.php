@@ -3,7 +3,7 @@
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type, Authorization');
+header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Session-Token');
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
@@ -12,13 +12,40 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 
 require_once '../../config.php';
 
-// Get session token from header
-$headers = getallheaders();
-$session_token = $headers['Authorization'] ?? '';
+function getAuthSessionToken() {
+    $headers = function_exists('getallheaders') ? getallheaders() : [];
+    foreach ($headers as $key => $val) {
+        if (strcasecmp($key, 'X-Session-Token') === 0 && !empty($val)) {
+            return trim($val);
+        }
+        if (strcasecmp($key, 'Authorization') === 0 && !empty($val)) {
+            if (preg_match('/Bearer\s+(.*)$/i', $val, $matches)) {
+                return trim($matches[1]);
+            }
+            return trim($val);
+        }
+    }
+    if (!empty($_SERVER['HTTP_X_SESSION_TOKEN'])) return trim($_SERVER['HTTP_X_SESSION_TOKEN']);
+    if (!empty($_SERVER['HTTP_AUTHORIZATION'])) {
+        $val = $_SERVER['HTTP_AUTHORIZATION'];
+        if (preg_match('/Bearer\s+(.*)$/i', $val, $matches)) return trim($matches[1]);
+        return trim($val);
+    }
+    if (!empty($_SERVER['REDIRECT_HTTP_AUTHORIZATION'])) {
+        $val = $_SERVER['REDIRECT_HTTP_AUTHORIZATION'];
+        if (preg_match('/Bearer\s+(.*)$/i', $val, $matches)) return trim($matches[1]);
+        return trim($val);
+    }
+    if (!empty($_GET['session_token'])) return trim($_GET['session_token']);
+    if (!empty($_POST['session_token'])) return trim($_POST['session_token']);
+    return '';
+}
+
+$session_token = getAuthSessionToken();
 
 if (empty($session_token)) {
     http_response_code(401);
-    echo json_encode(['error' => 'No session token provided']);
+    echo json_encode(['success' => false, 'error' => 'No session token provided']);
     exit;
 }
 
@@ -34,7 +61,7 @@ try {
 
     if (!$session) {
         http_response_code(401);
-        echo json_encode(['error' => 'Invalid or expired session']);
+        echo json_encode(['success' => false, 'error' => 'Invalid or expired session']);
         exit;
     }
 
@@ -42,7 +69,86 @@ try {
     $teacher_name = $session['first_name'] . ' ' . $session['last_name'];
     $school_id = $session['school_id'];
     $class_id = $session['class_id'] ?? null;
-    $teacher_type = $session['teacher_type'];
+    $teacher_type = $session['teacher_type'] ?? 'teacher';
+
+    // Get grading scales for the teacher's school first so they are available for grade calculation
+    $grading_scales = [];
+    $all_subjects = [];
+    $exam_types = [];
+    $aggregate_distribution = [];
+    try {
+        $stmt = $pdo->prepare("SELECT id, subject_name FROM subjects WHERE school_id = ? AND status = 'active' ORDER BY subject_name");
+        $stmt->execute([$school_id]);
+        $all_subjects = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $stmt = $pdo->prepare("SELECT id, exam_type_name, exam_type_code FROM exam_types WHERE school_id = ? AND is_active = 1 ORDER BY exam_type_name");
+        $stmt->execute([$school_id]);
+        $exam_types = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $stmt = $pdo->prepare("SELECT gs.*, s.subject_name, s.id as subject_db_id
+                              FROM grading_scales gs
+                              LEFT JOIN subjects s ON gs.subject_id = s.id
+                              WHERE gs.school_id = ?
+                              ORDER BY gs.subject_id, gs.min_score");
+        $stmt->execute([$school_id]);
+        $grading_scales = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $stmt = $pdo->prepare("SELECT * FROM aggregate_points_distribution WHERE school_id = ? ORDER BY min_points DESC");
+        $stmt->execute([$school_id]);
+        $aggregate_distribution = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        error_log("Failed to fetch grading data: " . $e->getMessage());
+    }
+
+    // Handle POST request to save/update performance records
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $json_data = file_get_contents('php://input');
+        $data = json_decode($json_data, true);
+
+        $records = $data['performance'] ?? [];
+        if (!empty($records)) {
+            try {
+                $pdo->beginTransaction();
+                $count = 0;
+
+                foreach ($records as $record) {
+                    $student_id = intval($record['student_id'] ?? 0);
+                    $term = trim($record['term'] ?? '');
+                    $year = trim($record['year'] ?? '');
+                    $exam_type_id = intval($record['exam_type_id'] ?? 0);
+                    $subject = trim($record['subject'] ?? '');
+                    $marks = floatval($record['marks'] ?? 0);
+                    $grade = trim($record['grade'] ?? '');
+                    $remarks = trim($record['remarks'] ?? '');
+
+                    if ($student_id > 0 && !empty($term) && !empty($year) && !empty($subject)) {
+                        // Check if record exists
+                        $stmt = $pdo->prepare("SELECT id FROM academic_performance WHERE student_id = ? AND term = ? AND year = ? AND subject = ? AND exam_type_id = ?");
+                        $stmt->execute([$student_id, $term, $year, $subject, $exam_type_id]);
+                        $existing = $stmt->fetch();
+
+                        if ($existing) {
+                            $stmt = $pdo->prepare("UPDATE academic_performance SET marks = ?, grade = ?, remarks = ? WHERE id = ?");
+                            $stmt->execute([$marks, $grade, $remarks, $existing['id']]);
+                        } else {
+                            $stmt = $pdo->prepare("INSERT INTO academic_performance (student_id, term, year, subject, exam_type_id, marks, grade, remarks) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+                            $stmt->execute([$student_id, $term, $year, $subject, $exam_type_id, $marks, $grade, $remarks]);
+                        }
+                        $count++;
+                    }
+                }
+
+                $pdo->commit();
+                echo json_encode(['success' => true, 'count' => $count, 'message' => "Successfully saved $count performance records"]);
+                exit;
+            } catch (Exception $e) {
+                $pdo->rollBack();
+                http_response_code(500);
+                echo json_encode(['success' => false, 'error' => 'Failed to save performance: ' . $e->getMessage()]);
+                exit;
+            }
+        }
+    }
 
     // Get class name
     $class_name = null;
@@ -55,14 +161,9 @@ try {
 
     // Load calendar helpers
     require_once __DIR__ . '/../../includes/calendar_helpers.php';
-
-    // Get calendar status
     $calendar_status = getSchoolCalendarStatus($pdo, $school_id);
-
-    // Get active term from calendar status
     $active_term = $calendar_status['current_term']['term_name'] ?? null;
 
-    // Get terms from database for current year
     $terms = [];
     try {
         $current_year = date('Y');
@@ -81,22 +182,19 @@ try {
         $terms = ['Term 1', 'Term 2', 'Term 3'];
     }
 
-    // Use active term if available, otherwise use first term
     $current_term = $active_term ?? ($terms[0] ?? 'Term 1');
 
-    // Get streams for the teacher's class (for class teachers)
     $streams = [];
     if ($class_id) {
         try {
-            $stmt = $pdo->prepare("SELECT * FROM streams WHERE class_id = ?");
+            $stmt = $pdo->prepare("SELECT id, stream_name FROM streams WHERE class_id = ?");
             $stmt->execute([$class_id]);
-            $streams = $stmt->fetchAll();
+            $streams = $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
             error_log("Failed to fetch streams: " . $e->getMessage());
         }
     }
 
-    // Get subject assignments for subject teachers
     $subject_assignments = [];
     if ($teacher_type === 'subject_teacher') {
         try {
@@ -106,49 +204,15 @@ try {
                                  LEFT JOIN subjects s ON ts.subject_id = s.id
                                  WHERE ts.teacher_id = ?");
             $stmt->execute([$teacher_id]);
-            $subject_assignments = $stmt->fetchAll();
+            $subject_assignments = $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
             error_log("Failed to fetch subject assignments: " . $e->getMessage());
         }
     }
 
-    // Get grading scales for the teacher's school with subject information
-    $grading_scales = [];
-    $all_subjects = [];
-    $exam_types = [];
-    $aggregate_distribution = [];
-    try {
-        // Fetch all subjects for the school
-        $stmt = $pdo->prepare("SELECT * FROM subjects WHERE school_id = ? AND status = 'active' ORDER BY subject_name");
-        $stmt->execute([$school_id]);
-        $all_subjects = $stmt->fetchAll();
-
-        // Fetch exam types for the school
-        $stmt = $pdo->prepare("SELECT * FROM exam_types WHERE school_id = ? AND is_active = 1 ORDER BY exam_type_name");
-        $stmt->execute([$school_id]);
-        $exam_types = $stmt->fetchAll();
-
-        // Get all grading scales for this school
-        $stmt = $pdo->prepare("SELECT gs.*, s.subject_name, s.id as subject_db_id, s.school_id as subject_school_id
-                              FROM grading_scales gs
-                              LEFT JOIN subjects s ON gs.subject_id = s.id
-                              WHERE gs.school_id = ?
-                              ORDER BY gs.subject_id, gs.min_score");
-        $stmt->execute([$school_id]);
-        $grading_scales = $stmt->fetchAll();
-
-        // Get aggregate points distribution
-        $stmt = $pdo->prepare("SELECT * FROM aggregate_points_distribution WHERE school_id = ? ORDER BY min_points DESC");
-        $stmt->execute([$school_id]);
-        $aggregate_distribution = $stmt->fetchAll();
-    } catch (PDOException $e) {
-        error_log("Failed to fetch performance data: " . $e->getMessage());
-    }
-
-    // Get subjects without performance records
     $subjects_without_performance = [];
     try {
-        $stmt = $pdo->prepare("SELECT DISTINCT s.* FROM subjects s
+        $stmt = $pdo->prepare("SELECT DISTINCT s.id, s.subject_name FROM subjects s
                              WHERE s.school_id = ? AND s.status = 'active'
                              AND s.id NOT IN (
                                  SELECT DISTINCT ap.subject_id
@@ -158,68 +222,59 @@ try {
                              )
                              ORDER BY s.subject_name");
         $stmt->execute([$school_id, $school_id]);
-        $subjects_without_performance = $stmt->fetchAll();
+        $subjects_without_performance = $stmt->fetchAll(PDO::FETCH_ASSOC);
     } catch (PDOException $e) {
         error_log("Failed to fetch subjects without performance: " . $e->getMessage());
     }
 
-    // Get student subject assignments for filtering total points calculation
-    $student_subject_assignments = [];
-    try {
-        $stmt = $pdo->prepare("SELECT ss.student_id, st.admission_number, s.subject_name, s.id as subject_id, sc.is_compulsory
-                              FROM student_subjects ss
-                              JOIN students st ON ss.student_id = st.id
-                              JOIN subjects s ON ss.subject_id = s.id
-                              LEFT JOIN subject_categories sc ON s.category_id = sc.id
-                              WHERE ss.school_id = ?");
-        $stmt->execute([$school_id]);
-        $assignments = $stmt->fetchAll();
-
-        // Group by admission_number for easier matching
-        foreach ($assignments as $assignment) {
-            $admission_number = $assignment['admission_number'];
-            $subject_name = $assignment['subject_name'];
-            $is_compulsory = $assignment['is_compulsory'] ?? 0;
-            if (!isset($student_subject_assignments[$admission_number])) {
-                $student_subject_assignments[$admission_number] = [];
-            }
-            $student_subject_assignments[$admission_number][] = [
-                'subject_name' => $subject_name,
-                'is_compulsory' => $is_compulsory
-            ];
-        }
-    } catch (PDOException $e) {
-        error_log("Failed to fetch student subject assignments: " . $e->getMessage());
-    }
-
-    // Get school minimum subjects requirement
-    $school_min_subjects = 7;
-    $school_max_subjects = 8;
-    try {
-        $stmt = $pdo->prepare("SELECT min_subjects, max_subjects FROM schools WHERE id = ?");
-        $stmt->execute([$school_id]);
-        $school_limits = $stmt->fetch();
-        $school_min_subjects = $school_limits['min_subjects'] ?? 7;
-        $school_max_subjects = $school_limits['max_subjects'] ?? 8;
-    } catch (PDOException $e) {
-        error_log("Failed to fetch school subject limits: " . $e->getMessage());
-    }
-
-    // Get performance records
+    // Get performance records with exact subquery for points from grading_scales table
     $performance_records = [];
     try {
         $query = "SELECT ap.*, st.admission_number, st.first_name, st.last_name, st.gender, 
-                         c.class_name, s.subject_name, et.exam_type_name
+                         c.class_name, str.stream_name, s.subject_name, et.exam_type_name,
+                         (SELECT gs.points FROM grading_scales gs
+                          WHERE gs.school_id = ?
+                          AND ap.marks BETWEEN gs.min_score AND gs.max_score
+                          AND UPPER(ap.grade) = UPPER(gs.grade_name)
+                          LIMIT 1) as grade_points
                   FROM academic_performance ap
                   JOIN students st ON ap.student_id = st.id
                   LEFT JOIN classes c ON st.class_id = c.id
+                  LEFT JOIN streams str ON st.stream_id = str.id
                   LEFT JOIN subjects s ON UPPER(ap.subject) = UPPER(s.subject_name) AND s.school_id = ?
                   LEFT JOIN exam_types et ON ap.exam_type_id = et.id
                   WHERE st.school_id = ?
                   ORDER BY ap.year DESC, ap.term, s.subject_name, ap.marks DESC";
         $stmt = $pdo->prepare($query);
-        $stmt->execute([$school_id, $school_id]);
-        $performance_records = $stmt->fetchAll();
+        $stmt->execute([$school_id, $school_id, $school_id]);
+        $raw_records = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        foreach ($raw_records as $record) {
+            $marks = floatval($record['marks'] ?? 0);
+            $grade = trim($record['grade'] ?? '');
+            $points = $record['grade_points'];
+
+            // Fallback if subquery points was null (e.g. if grade name differed in case or marks slightly off)
+            if ($points === null || $points === false) {
+                foreach ($grading_scales as $scale) {
+                    if (!empty($grade) && strtoupper($grade) === strtoupper($scale['grade_name'] ?? '')) {
+                        $points = intval($scale['points'] ?? 0);
+                        break;
+                    }
+                    if ($marks >= $scale['min_score'] && $marks <= $scale['max_score']) {
+                        $points = intval($scale['points'] ?? 0);
+                        if (empty($grade)) {
+                            $grade = $scale['grade_name'] ?? '';
+                        }
+                        break;
+                    }
+                }
+            }
+
+            $record['grade'] = $grade;
+            $record['grade_points'] = intval($points ?? 0);
+            $performance_records[] = $record;
+        }
     } catch (PDOException $e) {
         error_log("Failed to fetch performance records: " . $e->getMessage());
     }
@@ -245,16 +300,11 @@ try {
         'exam_types' => $exam_types,
         'aggregate_distribution' => $aggregate_distribution,
         'subjects_without_performance' => $subjects_without_performance,
-        'student_subject_assignments' => $student_subject_assignments,
-        'school_limits' => [
-            'min_subjects' => $school_min_subjects,
-            'max_subjects' => $school_max_subjects
-        ],
         'performance_records' => $performance_records
     ]);
 
 } catch (PDOException $e) {
     http_response_code(500);
-    echo json_encode(['error' => 'Database error']);
+    echo json_encode(['success' => false, 'error' => 'Database error: ' . $e->getMessage()]);
     exit;
 }

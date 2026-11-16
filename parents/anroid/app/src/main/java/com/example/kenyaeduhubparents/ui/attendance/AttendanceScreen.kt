@@ -322,14 +322,14 @@ fun AttendanceScreen(
                                     Row(
                                         modifier = Modifier
                                             .fillMaxWidth()
-                                            .background(Color(0xFFF0F0F0))
-                                            .border(1.dp, Color.Black)
+                                            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+                                            .border(1.dp, MaterialTheme.colorScheme.outlineVariant)
                                             .padding(8.dp),
                                         horizontalArrangement = Arrangement.SpaceBetween
                                     ) {
-                                        Text(text = "Date", fontWeight = FontWeight.Bold, fontSize = 12.sp, modifier = Modifier.weight(1.5f))
-                                        Text(text = "Status", fontWeight = FontWeight.Bold, fontSize = 12.sp, modifier = Modifier.weight(1f))
-                                        Text(text = "Remarks", fontWeight = FontWeight.Bold, fontSize = 12.sp, modifier = Modifier.weight(2f))
+                                        Text(text = "Date", fontWeight = FontWeight.Bold, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.weight(1.5f))
+                                        Text(text = "Status", fontWeight = FontWeight.Bold, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.weight(1f))
+                                        Text(text = "Remarks", fontWeight = FontWeight.Bold, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.weight(2f))
                                     }
 
                                     records.forEach { record ->
@@ -394,12 +394,12 @@ private fun AttendanceRecordRow(record: AttendanceRecord) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .border(1.dp, Color.LightGray, RoundedCornerShape(8.dp))
+            .border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(8.dp))
             .padding(8.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(text = record.date, fontSize = 12.sp, color = Color.Black, modifier = Modifier.weight(1.5f))
+        Text(text = record.date, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.weight(1.5f))
         Box(
             modifier = Modifier
                 .background(statusColor.copy(alpha = 0.12f), RoundedCornerShape(999.dp))
@@ -410,7 +410,7 @@ private fun AttendanceRecordRow(record: AttendanceRecord) {
         ) {
             TestText(record.displayStatus, statusColor)
         }
-        Text(text = record.remarks ?: "-", fontSize = 12.sp, color = Color.Black, modifier = Modifier.weight(2f))
+        Text(text = record.remarks ?: "-", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.weight(2f))
     }
 }
 

@@ -1,179 +1,211 @@
 <?php
-// Teacher Profile API
-// Session-based authentication
-session_start();
+// Teachers Profile API
 header('Content-Type: application/json');
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
+header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Session-Token');
 
-// Check if teacher is authenticated
-if (!isset($_SESSION['teacher_id'])) {
-    http_response_code(401);
-    echo json_encode(['error' => 'Not authenticated']);
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
     exit;
 }
 
-require_once __DIR__ . '/../../config.php';
+require_once '../../config.php';
 
-$teacher_id = $_SESSION['teacher_id'];
-$school_id = $_SESSION['school_id'] ?? null;
-
-// Handle GET requests - fetch profile data
-if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-    $action = $_GET['action'] ?? '';
-    
-    if ($action === 'get_profile') {
-        try {
-            // Get teacher details
-            $stmt = $pdo->prepare("SELECT t.*, s.school_name FROM teachers t JOIN schools s ON t.school_id = s.id WHERE t.id = ?");
-            $stmt->execute([$teacher_id]);
-            $teacher = $stmt->fetch();
-            
-            if (!$teacher) {
-                http_response_code(404);
-                echo json_encode(['error' => 'Teacher not found']);
-                exit;
-            }
-            
-            // Get subjects for the school
-            $stmt = $pdo->prepare("SELECT * FROM subjects WHERE school_id = ? AND status = 'active' ORDER BY subject_name");
-            $stmt->execute([$teacher['school_id']]);
-            $subjects = $stmt->fetchAll();
-            
-            echo json_encode([
-                'success' => true,
-                'teacher' => [
-                    'id' => $teacher['id'],
-                    'first_name' => $teacher['first_name'],
-                    'last_name' => $teacher['last_name'],
-                    'email' => $teacher['email'],
-                    'phone' => $teacher['phone'],
-                    'id_number' => $teacher['id_number'],
-                    'address' => $teacher['address'] ?? '',
-                    'subject' => $teacher['subject'] ?? '',
-                    'teacher_type' => $teacher['teacher_type'],
-                    'school_id' => $teacher['school_id'],
-                    'school_name' => $teacher['school_name'],
-                    'class_id' => $teacher['class_id'] ?? null,
-                    'class_name' => $teacher['class_name'] ?? null,
-                    'stream_id' => $teacher['stream_id'] ?? null,
-                    'stream_name' => $teacher['stream_name'] ?? null,
-                    'status' => $teacher['status'],
-                    'created_at' => $teacher['created_at']
-                ],
-                'subjects' => $subjects
-            ]);
-        } catch (PDOException $e) {
-            error_log("Failed to fetch teacher profile: " . $e->getMessage());
-            http_response_code(500);
-            echo json_encode(['error' => 'Failed to fetch profile']);
-            exit;
+function getAuthSessionToken() {
+    $headers = function_exists('getallheaders') ? getallheaders() : [];
+    foreach ($headers as $key => $val) {
+        if (strcasecmp($key, 'X-Session-Token') === 0 && !empty($val)) {
+            return trim($val);
         }
-    } else {
-        http_response_code(400);
-        echo json_encode(['error' => 'Invalid action']);
-        exit;
+        if (strcasecmp($key, 'Authorization') === 0 && !empty($val)) {
+            if (preg_match('/Bearer\s+(.*)$/i', $val, $matches)) {
+                return trim($matches[1]);
+            }
+            return trim($val);
+        }
     }
+    if (!empty($_SERVER['HTTP_X_SESSION_TOKEN'])) return trim($_SERVER['HTTP_X_SESSION_TOKEN']);
+    if (!empty($_SERVER['HTTP_AUTHORIZATION'])) {
+        $val = $_SERVER['HTTP_AUTHORIZATION'];
+        if (preg_match('/Bearer\s+(.*)$/i', $val, $matches)) return trim($matches[1]);
+        return trim($val);
+    }
+    if (!empty($_SERVER['REDIRECT_HTTP_AUTHORIZATION'])) {
+        $val = $_SERVER['REDIRECT_HTTP_AUTHORIZATION'];
+        if (preg_match('/Bearer\s+(.*)$/i', $val, $matches)) return trim($matches[1]);
+        return trim($val);
+    }
+    if (!empty($_GET['session_token'])) return trim($_GET['session_token']);
+    if (!empty($_POST['session_token'])) return trim($_POST['session_token']);
+    return '';
 }
 
-// Handle POST requests - update profile
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $action = $_POST['action'] ?? '';
-    
-    if ($action === 'update_profile') {
-        $first_name = trim($_POST['first_name'] ?? '');
-        $last_name = trim($_POST['last_name'] ?? '');
-        $email = trim($_POST['email'] ?? '');
-        $phone = trim($_POST['phone'] ?? '');
-        $id_number = trim($_POST['id_number'] ?? '');
-        $address = trim($_POST['address'] ?? '');
-        $subject = trim($_POST['subject'] ?? '');
+$session_token = getAuthSessionToken();
+
+if (empty($session_token)) {
+    http_response_code(401);
+    echo json_encode(['success' => false, 'error' => 'No session token provided']);
+    exit;
+}
+
+try {
+    // Verify session token
+    $stmt = $pdo->prepare("SELECT ts.*, t.*, s.school_name
+                          FROM teacher_sessions ts
+                          JOIN teachers t ON ts.teacher_id = t.id
+                          JOIN schools s ON t.school_id = s.id
+                          WHERE ts.session_token = ? AND ts.expires_at > NOW()");
+    $stmt->execute([$session_token]);
+    $session = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$session) {
+        http_response_code(401);
+        echo json_encode(['success' => false, 'error' => 'Invalid or expired session']);
+        exit;
+    }
+
+    $teacher_id = $session['teacher_id'];
+    $school_id = $session['school_id'];
+
+    // Handle POST - Update profile or password
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $json_raw = file_get_contents('php://input');
+        $input = json_decode($json_raw, true) ?? $_POST;
         
-        // Validation
-        $errors = [];
-        if (empty($first_name)) $errors[] = 'First name is required';
-        if (empty($last_name)) $errors[] = 'Last name is required';
-        if (empty($email)) $errors[] = 'Email is required';
-        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) $errors[] = 'Invalid email format';
-        if (empty($phone)) $errors[] = 'Phone is required';
-        if (empty($id_number)) $errors[] = 'ID number is required';
-        
-        if (!empty($errors)) {
-            http_response_code(400);
-            echo json_encode(['error' => 'Validation failed', 'errors' => $errors]);
-            exit;
-        }
-        
-        try {
-            $stmt = $pdo->prepare("UPDATE teachers SET first_name = ?, last_name = ?, email = ?, phone = ?, id_number = ?, address = ?, subject = ? WHERE id = ?");
-            $stmt->execute([$first_name, $last_name, $email, $phone, $id_number, $address, $subject, $teacher_id]);
-            
-            // Update session
-            $_SESSION['teacher_name'] = $first_name . ' ' . $last_name;
-            
-            echo json_encode([
-                'success' => true,
-                'message' => 'Profile updated successfully'
-            ]);
-        } catch (PDOException $e) {
-            error_log("Failed to update teacher profile: " . $e->getMessage());
-            http_response_code(500);
-            echo json_encode(['error' => 'Failed to update profile']);
-            exit;
-        }
-    } elseif ($action === 'change_password') {
-        $current_password = $_POST['current_password'] ?? '';
-        $new_password = $_POST['new_password'] ?? '';
-        $confirm_password = $_POST['confirm_password'] ?? '';
-        
-        // Validation
-        $errors = [];
-        if (empty($current_password)) $errors[] = 'Current password is required';
-        if (empty($new_password)) $errors[] = 'New password is required';
-        if (strlen($new_password) < 8) $errors[] = 'New password must be at least 8 characters';
-        if ($new_password !== $confirm_password) $errors[] = 'Passwords do not match';
-        
-        if (!empty($errors)) {
-            http_response_code(400);
-            echo json_encode(['error' => 'Validation failed', 'errors' => $errors]);
-            exit;
-        }
-        
-        try {
-            // Verify current password
+        $action = $input['action'] ?? 'update_profile';
+
+        if ($action === 'change_password') {
+            $current_password = $input['current_password'] ?? '';
+            $new_password = $input['new_password'] ?? '';
+            $confirm_password = $input['confirm_password'] ?? '';
+
+            if (empty($current_password) || empty($new_password)) {
+                http_response_code(400);
+                echo json_encode(['success' => false, 'error' => 'Current and new password are required']);
+                exit;
+            }
+
+            if ($new_password !== $confirm_password) {
+                http_response_code(400);
+                echo json_encode(['success' => false, 'error' => 'Passwords do not match']);
+                exit;
+            }
+
             $stmt = $pdo->prepare("SELECT password FROM teachers WHERE id = ?");
             $stmt->execute([$teacher_id]);
-            $teacher = $stmt->fetch();
-            
-            if (!$teacher) {
-                http_response_code(404);
-                echo json_encode(['error' => 'Teacher not found']);
-                exit;
-            }
-            
-            if (!password_verify($current_password, $teacher['password'])) {
+            $t = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if (!$t || !password_verify($current_password, $t['password'])) {
                 http_response_code(401);
-                echo json_encode(['error' => 'Current password is incorrect']);
+                echo json_encode(['success' => false, 'error' => 'Current password is incorrect']);
                 exit;
             }
-            
-            // Update password
-            $hashed_password = password_hash($new_password, PASSWORD_DEFAULT);
+
+            $hashed = password_hash($new_password, PASSWORD_DEFAULT);
             $stmt = $pdo->prepare("UPDATE teachers SET password = ? WHERE id = ?");
-            $stmt->execute([$hashed_password, $teacher_id]);
-            
+            $stmt->execute([$hashed, $teacher_id]);
+
+            echo json_encode(['success' => true, 'message' => 'Password changed successfully']);
+            exit;
+        } else {
+            // Update Profile
+            $first_name = trim($input['first_name'] ?? '');
+            $last_name = trim($input['last_name'] ?? '');
+            $email = trim($input['email'] ?? '');
+            $phone = trim($input['phone'] ?? '');
+            $id_number = trim($input['id_number'] ?? '');
+            $address = trim($input['address'] ?? '');
+            $subject = trim($input['subject'] ?? '');
+
+            $errors = [];
+            if (empty($first_name)) $errors[] = 'First name is required';
+            if (empty($last_name)) $errors[] = 'Last name is required';
+            if (empty($email)) $errors[] = 'Email is required';
+            if (empty($phone)) $errors[] = 'Phone is required';
+            if (empty($id_number)) $errors[] = 'ID number is required';
+
+            if (!empty($errors)) {
+                http_response_code(400);
+                echo json_encode(['success' => false, 'error' => implode(', ', $errors)]);
+                exit;
+            }
+
+            $stmt = $pdo->prepare("UPDATE teachers SET first_name = ?, last_name = ?, email = ?, phone = ?, id_number = ?, address = ?, subject = ? WHERE id = ?");
+            $stmt->execute([$first_name, $last_name, $email, $phone, $id_number, $address, $subject, $teacher_id]);
+
+            // Re-fetch updated profile
+            $stmt = $pdo->prepare("SELECT t.*, s.school_name FROM teachers t JOIN schools s ON t.school_id = s.id WHERE t.id = ?");
+            $stmt->execute([$teacher_id]);
+            $updated_teacher = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            $full_name = trim(($updated_teacher['first_name'] ?? '') . ' ' . ($updated_teacher['last_name'] ?? ''));
+
             echo json_encode([
                 'success' => true,
-                'message' => 'Password changed successfully'
+                'message' => 'Profile updated successfully!',
+                'teacher' => [
+                    'id' => $updated_teacher['id'],
+                    'first_name' => $updated_teacher['first_name'],
+                    'last_name' => $updated_teacher['last_name'],
+                    'name' => $full_name,
+                    'email' => $updated_teacher['email'],
+                    'phone' => $updated_teacher['phone'],
+                    'id_number' => $updated_teacher['id_number'],
+                    'address' => $updated_teacher['address'] ?? '',
+                    'subject' => $updated_teacher['subject'] ?? '',
+                    'teacher_type' => $updated_teacher['teacher_type'] ?? 'teacher',
+                    'school_id' => $updated_teacher['school_id'],
+                    'school_name' => $updated_teacher['school_name'] ?? ''
+                ]
             ]);
-        } catch (PDOException $e) {
-            error_log("Failed to change password: " . $e->getMessage());
-            http_response_code(500);
-            echo json_encode(['error' => 'Failed to change password']);
             exit;
         }
-    } else {
-        http_response_code(400);
-        echo json_encode(['error' => 'Invalid action']);
+    }
+
+    // GET request - Return teacher details and active school subjects
+    $stmt = $pdo->prepare("SELECT t.*, s.school_name FROM teachers t JOIN schools s ON t.school_id = s.id WHERE t.id = ?");
+    $stmt->execute([$teacher_id]);
+    $teacher = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$teacher) {
+        http_response_code(404);
+        echo json_encode(['success' => false, 'error' => 'Teacher profile not found']);
         exit;
     }
+
+    $subjects = [];
+    try {
+        $stmt = $pdo->prepare("SELECT id, subject_name, subject_code FROM subjects WHERE school_id = ? AND status = 'active' ORDER BY subject_name");
+        $stmt->execute([$school_id]);
+        $subjects = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        error_log("Failed to fetch subjects in profile API: " . $e->getMessage());
+    }
+
+    $full_name = trim(($teacher['first_name'] ?? '') . ' ' . ($teacher['last_name'] ?? ''));
+
+    echo json_encode([
+        'success' => true,
+        'teacher' => [
+            'id' => $teacher['id'],
+            'first_name' => $teacher['first_name'],
+            'last_name' => $teacher['last_name'],
+            'name' => $full_name,
+            'email' => $teacher['email'],
+            'phone' => $teacher['phone'],
+            'id_number' => $teacher['id_number'],
+            'address' => $teacher['address'] ?? '',
+            'subject' => $teacher['subject'] ?? '',
+            'teacher_type' => $teacher['teacher_type'] ?? 'teacher',
+            'school_id' => $teacher['school_id'],
+            'school_name' => $teacher['school_name'] ?? ''
+        ],
+        'subjects' => $subjects
+    ]);
+
+} catch (PDOException $e) {
+    http_response_code(500);
+    echo json_encode(['success' => false, 'error' => 'Database error: ' . $e->getMessage()]);
+    exit;
 }
-?>

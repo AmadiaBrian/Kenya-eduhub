@@ -641,32 +641,32 @@ fun FeesScreen(
                                         Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                                             Row(
                                                 modifier = Modifier
-                                                    .background(Color(0xFFF0F0F0))
-                                                    .border(1.dp, Color.Black)
+                                                    .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+                                                    .border(1.dp, MaterialTheme.colorScheme.outlineVariant)
                                                     .padding(8.dp),
                                                 horizontalArrangement = Arrangement.spacedBy(12.dp)
                                             ) {
-                                                Text(text = "Fee Type", fontWeight = FontWeight.Bold, fontSize = 12.sp, modifier = Modifier.width(100.dp))
-                                                Text(text = "Term", fontWeight = FontWeight.Bold, fontSize = 12.sp, modifier = Modifier.width(70.dp))
-                                                Text(text = "Amount", fontWeight = FontWeight.Bold, fontSize = 12.sp, modifier = Modifier.width(80.dp))
-                                                Text(text = "Paid", fontWeight = FontWeight.Bold, fontSize = 12.sp, modifier = Modifier.width(80.dp))
-                                                Text(text = "Balance", fontWeight = FontWeight.Bold, fontSize = 12.sp, modifier = Modifier.width(80.dp))
-                                                Text(text = "Status", fontWeight = FontWeight.Bold, fontSize = 12.sp, modifier = Modifier.width(80.dp))
+                                                Text(text = "Fee Type", fontWeight = FontWeight.Bold, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.width(100.dp))
+                                                Text(text = "Term", fontWeight = FontWeight.Bold, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.width(70.dp))
+                                                Text(text = "Amount", fontWeight = FontWeight.Bold, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.width(80.dp))
+                                                Text(text = "Paid", fontWeight = FontWeight.Bold, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.width(80.dp))
+                                                Text(text = "Balance", fontWeight = FontWeight.Bold, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.width(80.dp))
+                                                Text(text = "Status", fontWeight = FontWeight.Bold, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.width(80.dp))
                                             }
 
                                             feeWrapper.feeStructureStatus.forEach { status ->
                                                 Row(
                                                     modifier = Modifier
-                                                        .border(1.dp, Color.LightGray)
+                                                        .border(1.dp, MaterialTheme.colorScheme.outlineVariant)
                                                         .padding(8.dp),
                                                     horizontalArrangement = Arrangement.spacedBy(12.dp),
                                                     verticalAlignment = Alignment.CenterVertically
                                                 ) {
-                                                    Text(text = status.feeType, fontSize = 12.sp, color = Color.Black, modifier = Modifier.width(100.dp))
-                                                    Text(text = status.term, fontSize = 12.sp, color = Color.Black, modifier = Modifier.width(70.dp))
-                                                    Text(text = "KES ${String.format("%,.0f", status.amount)}", fontSize = 12.sp, color = Color.Black, modifier = Modifier.width(80.dp))
-                                                    Text(text = "KES ${String.format("%,.0f", status.paid)}", fontSize = 12.sp, color = Color.Black, modifier = Modifier.width(80.dp))
-                                                    Text(text = "KES ${String.format("%,.0f", status.balance)}", fontWeight = FontWeight.Bold, fontSize = 12.sp, color = Color.Black, modifier = Modifier.width(80.dp))
+                                                    Text(text = status.feeType, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.width(100.dp))
+                                                    Text(text = status.term, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.width(70.dp))
+                                                    Text(text = "KES ${String.format("%,.0f", status.amount)}", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.width(80.dp))
+                                                    Text(text = "KES ${String.format("%,.0f", status.paid)}", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.width(80.dp))
+                                                    Text(text = "KES ${String.format("%,.0f", status.balance)}", fontWeight = FontWeight.Bold, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.width(80.dp))
                                                     val statusColor = if (status.balance <= 0) Color(0xFF137333) else Color(0xFFC5221F)
                                                     Text(text = status.status, fontWeight = FontWeight.Bold, fontSize = 12.sp, color = statusColor, modifier = Modifier.width(80.dp))
                                                 }
@@ -711,32 +711,32 @@ fun FeesScreen(
                                         Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                                             Row(
                                                 modifier = Modifier
-                                                    .background(Color(0xFFF0F0F0))
-                                                    .border(1.dp, Color.Black)
+                                                    .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+                                                    .border(1.dp, MaterialTheme.colorScheme.outlineVariant)
                                                     .padding(8.dp),
                                                 horizontalArrangement = Arrangement.spacedBy(12.dp)
                                             ) {
-                                                Text(text = "Date", fontWeight = FontWeight.Bold, fontSize = 12.sp, modifier = Modifier.width(90.dp))
-                                                Text(text = "Fee Type", fontWeight = FontWeight.Bold, fontSize = 12.sp, modifier = Modifier.width(90.dp))
-                                                Text(text = "Amount", fontWeight = FontWeight.Bold, fontSize = 12.sp, modifier = Modifier.width(80.dp))
-                                                Text(text = "Method", fontWeight = FontWeight.Bold, fontSize = 12.sp, modifier = Modifier.width(80.dp))
-                                                Text(text = "Receipt", fontWeight = FontWeight.Bold, fontSize = 12.sp, modifier = Modifier.width(90.dp))
-                                                Text(text = "Status", fontWeight = FontWeight.Bold, fontSize = 12.sp, modifier = Modifier.width(70.dp))
+                                                Text(text = "Date", fontWeight = FontWeight.Bold, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.width(90.dp))
+                                                Text(text = "Fee Type", fontWeight = FontWeight.Bold, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.width(90.dp))
+                                                Text(text = "Amount", fontWeight = FontWeight.Bold, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.width(80.dp))
+                                                Text(text = "Method", fontWeight = FontWeight.Bold, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.width(80.dp))
+                                                Text(text = "Receipt", fontWeight = FontWeight.Bold, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.width(90.dp))
+                                                Text(text = "Status", fontWeight = FontWeight.Bold, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.width(70.dp))
                                             }
 
                                             feeWrapper.payments.forEach { payment ->
                                                 Row(
                                                     modifier = Modifier
-                                                        .border(1.dp, Color.LightGray)
+                                                        .border(1.dp, MaterialTheme.colorScheme.outlineVariant)
                                                         .padding(8.dp),
                                                     horizontalArrangement = Arrangement.spacedBy(12.dp),
                                                     verticalAlignment = Alignment.CenterVertically
                                                 ) {
-                                                    Text(text = payment.paymentDate, fontSize = 12.sp, color = Color.Black, modifier = Modifier.width(90.dp))
-                                                    Text(text = payment.feeType ?: "Tuition", fontSize = 12.sp, color = Color.Black, modifier = Modifier.width(90.dp))
-                                                    Text(text = "KES ${String.format("%,.0f", payment.amount)}", fontSize = 12.sp, color = Color.Black, modifier = Modifier.width(80.dp))
-                                                    Text(text = payment.paymentMethod ?: "-", fontSize = 12.sp, color = Color.Black, modifier = Modifier.width(80.dp))
-                                                    Text(text = payment.receiptNumber ?: "-", fontSize = 12.sp, color = Color.Black, modifier = Modifier.width(90.dp))
+                                                    Text(text = payment.paymentDate, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.width(90.dp))
+                                                    Text(text = payment.feeType ?: "Tuition", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.width(90.dp))
+                                                    Text(text = "KES ${String.format("%,.0f", payment.amount)}", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.width(80.dp))
+                                                    Text(text = payment.paymentMethod ?: "-", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.width(80.dp))
+                                                    Text(text = payment.receiptNumber ?: "-", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.width(90.dp))
                                                     Text(text = payment.status, fontWeight = FontWeight.Bold, fontSize = 12.sp, color = Color(0xFF137333), modifier = Modifier.width(70.dp))
                                                 }
                                             }

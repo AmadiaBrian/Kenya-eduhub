@@ -498,13 +498,13 @@ fun StudentReportCard(report: StudentExamReport) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .border(2.dp, Color.Black, RoundedCornerShape(12.dp))
+                .border(2.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(12.dp))
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
@@ -518,27 +518,27 @@ fun StudentReportCard(report: StudentExamReport) {
                     text = "STUDENT RESULT REPORT",
                     fontWeight = FontWeight.Bold,
                     fontSize = 16.sp,
-                    color = Color.Black
+                    color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
                     text = report.studentName,
                     fontWeight = FontWeight.SemiBold,
                     fontSize = 14.sp,
-                    color = Color.DarkGray
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Text(
                     text = "Adm: ${report.admissionNumber} | Class: ${report.className} (${report.streamName})",
                     fontSize = 12.sp,
-                    color = Color.Gray
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Text(
                     text = "Exam: ${report.examType} | Term: ${report.term} | Year: ${report.year}",
                     fontSize = 12.sp,
-                    color = Color.Gray
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
 
-            HorizontalDivider(thickness = 1.5.dp, color = Color.DarkGray)
+            HorizontalDivider(thickness = 1.5.dp, color = MaterialTheme.colorScheme.outlineVariant)
 
             // Table of Assigned Subjects
             Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -546,16 +546,16 @@ fun StudentReportCard(report: StudentExamReport) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(Color(0xFFF0F0F0))
-                        .border(1.dp, Color.Black)
+                        .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+                        .border(1.dp, MaterialTheme.colorScheme.outlineVariant)
                         .padding(8.dp),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Text(text = "Subject", fontWeight = FontWeight.Bold, fontSize = 12.sp, modifier = Modifier.weight(2f))
-                    Text(text = "Marks", fontWeight = FontWeight.Bold, fontSize = 12.sp, modifier = Modifier.weight(1f), textAlign = TextAlign.Center)
-                    Text(text = "Grade", fontWeight = FontWeight.Bold, fontSize = 12.sp, modifier = Modifier.weight(1f), textAlign = TextAlign.Center)
-                    Text(text = "Pts", fontWeight = FontWeight.Bold, fontSize = 12.sp, modifier = Modifier.weight(0.8f), textAlign = TextAlign.Center)
-                    Text(text = "Grading", fontWeight = FontWeight.Bold, fontSize = 12.sp, modifier = Modifier.weight(0.8f), textAlign = TextAlign.Center)
+                    Text(text = "Subject", fontWeight = FontWeight.Bold, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.weight(2f))
+                    Text(text = "Marks", fontWeight = FontWeight.Bold, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.weight(1f), textAlign = TextAlign.Center)
+                    Text(text = "Grade", fontWeight = FontWeight.Bold, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.weight(1f), textAlign = TextAlign.Center)
+                    Text(text = "Pts", fontWeight = FontWeight.Bold, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.weight(0.8f), textAlign = TextAlign.Center)
+                    Text(text = "Grading", fontWeight = FontWeight.Bold, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.weight(0.8f), textAlign = TextAlign.Center)
                 }
 
                 val gradingNames = report.gradingSubjects.map { it.subjectName }
@@ -564,40 +564,40 @@ fun StudentReportCard(report: StudentExamReport) {
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .border(1.dp, Color.LightGray)
+                            .border(1.dp, MaterialTheme.colorScheme.outlineVariant)
                             .padding(8.dp),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text(text = sub.subjectName, fontSize = 12.sp, color = Color.Black, modifier = Modifier.weight(2f))
-                        Text(text = if (sub.hasRecord) String.format("%.1f", sub.marks) else "-", fontSize = 12.sp, color = Color.Black, modifier = Modifier.weight(1f), textAlign = TextAlign.Center)
-                        Text(text = if (sub.hasRecord) sub.grade else "-", fontWeight = FontWeight.Bold, fontSize = 12.sp, color = Color.Black, modifier = Modifier.weight(1f), textAlign = TextAlign.Center)
-                        Text(text = if (sub.hasRecord) sub.points.toString() else "-", fontSize = 12.sp, color = Color.Black, modifier = Modifier.weight(0.8f), textAlign = TextAlign.Center)
-                        Text(text = if (isGraded) "✓" else "-", fontWeight = FontWeight.Bold, fontSize = 14.sp, color = if (isGraded) Color(0xFF137333) else Color.Gray, modifier = Modifier.weight(0.8f), textAlign = TextAlign.Center)
+                        Text(text = sub.subjectName, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.weight(2f))
+                        Text(text = if (sub.hasRecord) String.format("%.1f", sub.marks) else "-", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.weight(1f), textAlign = TextAlign.Center)
+                        Text(text = if (sub.hasRecord) sub.grade else "-", fontWeight = FontWeight.Bold, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.weight(1f), textAlign = TextAlign.Center)
+                        Text(text = if (sub.hasRecord) sub.points.toString() else "-", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.weight(0.8f), textAlign = TextAlign.Center)
+                        Text(text = if (isGraded) "✓" else "-", fontWeight = FontWeight.Bold, fontSize = 14.sp, color = if (isGraded) Color(0xFF137333) else MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.weight(0.8f), textAlign = TextAlign.Center)
                     }
                 }
             }
 
             // Summary Footer
-            HorizontalDivider(color = Color.LightGray)
+            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text(text = "Total Marks", fontSize = 10.sp, color = Color.Gray)
-                    Text(text = String.format("%.1f", report.totalMarks), fontWeight = FontWeight.Bold, fontSize = 13.sp, color = Color.Black)
+                    Text(text = "Total Marks", fontSize = 10.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(text = String.format("%.1f", report.totalMarks), fontWeight = FontWeight.Bold, fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurface)
                 }
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text(text = "Average", fontSize = 10.sp, color = Color.Gray)
-                    Text(text = String.format("%.1f", report.average), fontWeight = FontWeight.Bold, fontSize = 13.sp, color = Color.Black)
+                    Text(text = "Average", fontSize = 10.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(text = String.format("%.1f", report.average), fontWeight = FontWeight.Bold, fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurface)
                 }
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text(text = "Total Points", fontSize = 10.sp, color = Color.Gray)
-                    Text(text = report.totalPoints.toString(), fontWeight = FontWeight.Bold, fontSize = 13.sp, color = Color.Black)
+                    Text(text = "Total Points", fontSize = 10.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(text = report.totalPoints.toString(), fontWeight = FontWeight.Bold, fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurface)
                 }
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text(text = "Grade", fontSize = 10.sp, color = Color.Gray)
+                    Text(text = "Grade", fontSize = 10.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     Text(text = report.aggregateGrade, fontWeight = FontWeight.Bold, fontSize = 13.sp, color = Color(0xFF137333))
                 }
             }

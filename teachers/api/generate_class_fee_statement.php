@@ -1,35 +1,105 @@
 <?php
-// Class Fee Statement Generation API for Teachers
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
-require_once __DIR__ . '/../../config.php';
+// Class Fee Statement Generation API for Teachers (PDF Output)
+ob_start();
+error_reporting(0);
+ini_set('display_errors', 0);
 
 header('Content-Type: application/json');
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
+header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Session-Token');
 
-// Check if teacher is logged in
-if (!isset($_SESSION['teacher_id'])) {
-    echo json_encode(['success' => false, 'error' => 'Unauthorized']);
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    if (ob_get_length()) ob_clean();
+    http_response_code(200);
     exit;
 }
 
-$teacher_id = $_SESSION['teacher_id'];
-$school_id = $_SESSION['school_id'];
-$class_id = $_SESSION['class_id'] ?? null;
-$stream_id = $_SESSION['stream_id'] ?? null;
-$class_name = $_SESSION['class_name'] ?? '';
-$stream_name = $_SESSION['stream_name'] ?? '';
+function sendJsonResponse($data, $code = 200) {
+    if (ob_get_length()) ob_clean();
+    http_response_code($code);
+    echo json_encode($data);
+    exit;
+}
+
+require_once __DIR__ . '/../../config.php';
+
+if (file_exists(__DIR__ . '/../../tools/fpdf/fpdf.php')) {
+    require_once __DIR__ . '/../../tools/fpdf/fpdf.php';
+} elseif (file_exists(__DIR__ . '/../../libraries/fpdf/fpdf.php')) {
+    require_once __DIR__ . '/../../libraries/fpdf/fpdf.php';
+} else {
+    sendJsonResponse(['success' => false, 'error' => 'FPDF library not found']);
+}
+
+function getAuthSessionToken() {
+    $headers = function_exists('getallheaders') ? getallheaders() : [];
+    foreach ($headers as $key => $val) {
+        if (strcasecmp($key, 'X-Session-Token') === 0 && !empty($val)) return trim($val);
+        if (strcasecmp($key, 'Authorization') === 0 && !empty($val)) {
+            if (preg_match('/Bearer\s+(.*)$/i', $val, $matches)) return trim($matches[1]);
+            return trim($val);
+        }
+    }
+    if (!empty($_SERVER['HTTP_X_SESSION_TOKEN'])) return trim($_SERVER['HTTP_X_SESSION_TOKEN']);
+    if (!empty($_SERVER['HTTP_AUTHORIZATION'])) {
+        $val = $_SERVER['HTTP_AUTHORIZATION'];
+        if (preg_match('/Bearer\s+(.*)$/i', $val, $matches)) return trim($matches[1]);
+        return trim($val);
+    }
+    if (!empty($_SERVER['REDIRECT_HTTP_AUTHORIZATION'])) {
+        $val = $_SERVER['REDIRECT_HTTP_AUTHORIZATION'];
+        if (preg_match('/Bearer\s+(.*)$/i', $val, $matches)) return trim($matches[1]);
+        return trim($val);
+    }
+    if (!empty($_GET['session_token'])) return trim($_GET['session_token']);
+    if (!empty($_POST['session_token'])) return trim($_POST['session_token']);
+    return '';
+}
+
+$session_token = getAuthSessionToken();
+
+if (empty($session_token)) {
+    if (session_status() === PHP_SESSION_NONE) session_start();
+    if (isset($_SESSION['teacher_id'])) {
+        $teacher_id = $_SESSION['teacher_id'];
+        $school_id = $_SESSION['school_id'];
+        $class_id = $_SESSION['class_id'] ?? null;
+        $stream_id = $_SESSION['stream_id'] ?? null;
+        $class_name = $_SESSION['class_name'] ?? '';
+        $stream_name = $_SESSION['stream_name'] ?? '';
+    } else {
+        sendJsonResponse(['success' => false, 'error' => 'Unauthorized: No session token provided']);
+    }
+} else {
+    $stmt = $pdo->prepare("SELECT ts.*, t.*, s.school_name, c.class_name
+                          FROM teacher_sessions ts
+                          JOIN teachers t ON ts.teacher_id = t.id
+                          JOIN schools s ON t.school_id = s.id
+                          LEFT JOIN classes c ON t.class_id = c.id
+                          WHERE ts.session_token = ? AND ts.expires_at > NOW()");
+    $stmt->execute([$session_token]);
+    $session = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$session) {
+        sendJsonResponse(['success' => false, 'error' => 'Invalid or expired session token']);
+    }
+
+    $teacher_id = $session['teacher_id'];
+    $school_id = $session['school_id'];
+    $class_id = $session['class_id'] ?? null;
+    $stream_id = null;
+    $class_name = $session['class_name'] ?? '';
+    $stream_name = '';
+}
 
 // Load calendar helpers
 require_once __DIR__ . '/../../includes/calendar_helpers.php';
 
 // Get calendar status
 $calendar_status = getSchoolCalendarStatus($pdo, $school_id);
-
-// Get active term from calendar status
 $active_term = $calendar_status['current_term']['term_name'] ?? null;
 
-// Get terms from database for current year
 $terms = [];
 try {
     $current_year = date('Y');
@@ -40,7 +110,6 @@ try {
         $terms[] = $term['term_name'];
     }
 } catch (PDOException $e) {
-    error_log("Failed to fetch terms: " . $e->getMessage());
     $terms = ['Term 1', 'Term 2', 'Term 3'];
 }
 
@@ -48,32 +117,24 @@ if (empty($terms)) {
     $terms = ['Term 1', 'Term 2', 'Term 3'];
 }
 
-// Use active term if available, otherwise use first term
 $current_term = $active_term ?? ($terms[0] ?? 'Term 1');
-
-// Only allow POST requests
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    echo json_encode(['success' => false, 'error' => 'Invalid request method']);
-    exit;
-}
 
 try {
     if (!$class_id) {
-        echo json_encode(['success' => false, 'error' => 'No class assigned']);
-        exit;
+        sendJsonResponse(['success' => false, 'error' => 'No class assigned to teacher']);
     }
     
     // Get school information
     $stmt = $pdo->prepare("SELECT * FROM schools WHERE id = ?");
     $stmt->execute([$school_id]);
-    $school = $stmt->fetch();
+    $school = $stmt->fetch(PDO::FETCH_ASSOC);
     
     // Get teacher information
     $stmt = $pdo->prepare("SELECT CONCAT(t.first_name, ' ', t.last_name) as teacher_name FROM teachers t WHERE t.id = ?");
     $stmt->execute([$teacher_id]);
-    $teacher = $stmt->fetch();
+    $teacher = $stmt->fetch(PDO::FETCH_ASSOC);
     
-    // Get all students in the class
+    // Get all students in class
     $query = "SELECT s.*, c.class_name, st.stream_name 
               FROM students s
               LEFT JOIN classes c ON s.class_id = c.id
@@ -90,16 +151,13 @@ try {
     
     $stmt = $pdo->prepare($query);
     $stmt->execute($params);
-    $students = $stmt->fetchAll();
+    $students = $stmt->fetchAll(PDO::FETCH_ASSOC);
     
     if (empty($students)) {
-        echo json_encode(['success' => false, 'error' => 'No students found in class']);
-        exit;
+        sendJsonResponse(['success' => false, 'error' => 'No active students found in class']);
     }
     
-    // Get current year fee data for all students
     $current_year = date('Y');
-    
     $class_fee_data = [];
     $total_class_fees = 0;
     $total_class_paid = 0;
@@ -107,62 +165,30 @@ try {
     foreach ($students as $student) {
         $student_id = $student['id'];
         
-        // Get fee structure for this student's class
         $stmt = $pdo->prepare("SELECT * FROM fee_structure WHERE school_id = ? AND class_id = ? AND year = ? ORDER BY term, fee_type");
         $stmt->execute([$school_id, $class_id, $current_year]);
-        $fee_structures = $stmt->fetchAll();
+        $fee_structures = $stmt->fetchAll(PDO::FETCH_ASSOC);
         
-        // Get payments for this student
         $stmt = $pdo->prepare("SELECT * FROM fee_payments WHERE student_id = ? AND year = ? AND status = 'completed' ORDER BY payment_date DESC");
         $stmt->execute([$student_id, $current_year]);
-        $payments = $stmt->fetchAll();
+        $payments = $stmt->fetchAll(PDO::FETCH_ASSOC);
         
-        // Calculate term-wise balances
-        $term_data = [];
         $student_total_fees = 0;
         $student_total_paid = 0;
         
-        foreach ($terms as $term) {
-            $term_fees = 0;
-            $term_paid = 0;
-            $term_payments = [];
-            
-            // Get fee structure for this term
-            foreach ($fee_structures as $fs) {
-                if ($fs['term'] === $term) {
-                    $term_fees += $fs['amount'];
-                }
-            }
-            
-            // Get payments for this term
-            foreach ($payments as $payment) {
-                if ($payment['term'] === $term) {
-                    $term_paid += $payment['amount'];
-                    $term_payments[] = $payment;
-                }
-            }
-            
-            $term_balance = $term_fees - $term_paid;
-            
-            $term_data[$term] = [
-                'fees' => $term_fees,
-                'paid' => $term_paid,
-                'balance' => $term_balance,
-                'payments' => $term_payments
-            ];
-            
-            $student_total_fees += $term_fees;
-            $student_total_paid += $term_paid;
+        foreach ($fee_structures as $fs) {
+            $student_total_fees += floatval($fs['amount'] ?? 0);
         }
-        
-        $student_balance = $student_total_fees - $student_total_paid;
-        
+
+        foreach ($payments as $payment) {
+            $student_total_paid += floatval($payment['amount'] ?? 0);
+        }
+
         $class_fee_data[] = [
             'student' => $student,
-            'term_data' => $term_data,
             'total_fees' => $student_total_fees,
             'total_paid' => $student_total_paid,
-            'total_balance' => $student_balance
+            'balance' => $student_total_fees - $student_total_paid
         ];
         
         $total_class_fees += $student_total_fees;
@@ -170,268 +196,134 @@ try {
     }
     
     $total_class_balance = $total_class_fees - $total_class_paid;
-    
-    // Generate PDF class fee statement
-    require_once __DIR__ . '/../../vendor/tecnickcom/tcpdf/tcpdf.php';
-    
-    // Create new PDF document
-    $pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
-    
-    // Set document information
-    $pdf->SetCreator('Kenya EduHub');
-    $pdf->SetAuthor($school['school_name']);
-    $pdf->SetTitle('Class Fee Statement - ' . $class_name);
-    
-    // Set margins
-    $pdf->SetMargins(15, 15, 15);
-    $pdf->SetHeaderMargin(5);
-    $pdf->SetFooterMargin(10);
-    
-    // Set auto page breaks
-    $pdf->SetAutoPageBreak(TRUE, 15);
-    
-    // Add a page
+
+    $filename = "class_fee_statement_" . strtolower(str_replace(' ', '_', $class_name ?: "class")) . "_" . date('Y_m_d_His') . ".pdf";
+
+    $receipts_dir = __DIR__ . "/../receipts";
+    if (!is_dir($receipts_dir)) {
+        mkdir($receipts_dir, 0777, true);
+    }
+    $filepath = $receipts_dir . "/" . $filename;
+
+    // FPDF Class
+    if (!class_exists('ClassFeePDF')) {
+        class ClassFeePDF extends FPDF {
+            public $schoolName;
+            public $className;
+            public $streamName;
+            public $currentYear;
+            public $currentTerm;
+            public $teacherName;
+
+            function Header() {
+                $this->SetFont('Arial', 'B', 16);
+                $this->SetTextColor(255, 107, 53);
+                $this->Cell(0, 8, strtoupper($this->schoolName), 0, 1, 'C');
+
+                $this->SetFont('Arial', 'B', 12);
+                $this->SetTextColor(32, 33, 36);
+                $titleStr = "CLASS FEE STATEMENT - " . strtoupper($this->className . ($this->streamName ? " ({$this->streamName})" : ""));
+                $this->Cell(0, 6, $titleStr, 0, 1, 'C');
+
+                $this->SetFont('Arial', '', 10);
+                $this->SetTextColor(95, 99, 104);
+                $this->Cell(0, 5, "Academic Year: {$this->currentYear} | Term: {$this->currentTerm} | Date: " . date('F j, Y'), 0, 1, 'C');
+
+                $this->Ln(3);
+                $this->SetDrawColor(255, 107, 53);
+                $this->SetLineWidth(0.8);
+                $this->Line(10, $this->GetY(), 200, $this->GetY());
+                $this->Ln(5);
+            }
+
+            function Footer() {
+                $this->SetY(-15);
+                $this->SetFont('Arial', 'I', 8);
+                $this->SetTextColor(128, 128, 128);
+                $this->Cell(0, 10, 'KENYA EDUHUB TEACHER PORTAL - OFFICIAL CLASS STATEMENT | Page ' . $this->PageNo() . '/{nb}', 0, 0, 'C');
+            }
+        }
+    }
+
+    $pdf = new ClassFeePDF('P', 'mm', 'A4');
+    $pdf->schoolName = $school['school_name'] ?? 'Kenya EduHub';
+    $pdf->className = $class_name ?: 'Class';
+    $pdf->streamName = $stream_name;
+    $pdf->currentYear = $current_year;
+    $pdf->currentTerm = $current_term;
+    $pdf->teacherName = $teacher['teacher_name'] ?? '';
+
+    $pdf->AliasNbPages();
     $pdf->AddPage();
-    
-    // Set font
-    $pdf->SetFont('helvetica', '', 10);
-    
-    // Professional Header Box
-    $pdf->SetFillColor(240, 240, 240);
-    $pdf->Rect(15, 15, 180, 35, 'F');
-    $pdf->SetDrawColor(200, 200, 200);
-    $pdf->Rect(15, 15, 180, 35, 'D');
-    
-    // School Header
-    $pdf->SetFont('helvetica', 'B', 18);
-    $pdf->Cell(0, 8, $school['school_name'], 0, 1, 'C');
-    
-    $pdf->SetFont('helvetica', '', 9);
-    $pdf->Cell(0, 5, $school['address'], 0, 1, 'C');
-    $pdf->Cell(0, 5, 'Phone: ' . $school['phone'] . ' | Email: ' . $school['email'], 0, 1, 'C');
-    
-    $pdf->Ln(8);
-    
-    // Statement Title with border
-    $pdf->SetFont('helvetica', 'B', 16);
-    $pdf->SetFillColor(255, 102, 0);
-    $pdf->SetTextColor(255, 255, 255);
-    $pdf->Cell(0, 12, 'CLASS FEE STATEMENT', 0, 1, 'C', true);
-    $pdf->SetTextColor(0, 0, 0);
-    
-    $pdf->Ln(5);
-    
-    // Statement Date and Class Info
-    $pdf->SetFillColor(248, 249, 250);
-    $pdf->Rect(15, 65, 180, 20, 'F');
-    $pdf->SetDrawColor(220, 220, 220);
-    $pdf->Rect(15, 65, 180, 20, 'D');
-    
-    $pdf->SetFont('helvetica', '', 10);
-    $pdf->Cell(50, 7, 'Statement Date:', 0, 0, 'L');
-    $pdf->SetFont('helvetica', 'B', 11);
-    $pdf->Cell(80, 7, date('d M Y'), 0, 0, 'L');
-    $pdf->SetFont('helvetica', '', 10);
-    $pdf->Cell(30, 7, 'Academic Year:', 0, 0, 'R');
-    $pdf->SetFont('helvetica', 'B', 11);
-    $pdf->Cell(20, 7, $current_year, 0, 1, 'R');
-    
-    $pdf->Ln(10);
-    
-    // Class Information Section
-    $pdf->SetFont('helvetica', 'B', 12);
-    $pdf->SetTextColor(255, 102, 0);
-    $pdf->Cell(0, 8, 'CLASS INFORMATION', 0, 1, 'L');
-    $pdf->SetTextColor(0, 0, 0);
-    
-    $pdf->SetDrawColor(200, 200, 200);
-    $pdf->Line(15, $pdf->GetY(), 195, $pdf->GetY());
-    $pdf->Ln(3);
-    
-    $pdf->SetFont('helvetica', '', 10);
-    $pdf->Cell(40, 7, 'Class:', 0, 0, 'L');
-    $pdf->SetFont('helvetica', 'B', 10);
-    $pdf->Cell(140, 7, $class_name . ($stream_name ? ' - ' . $stream_name : ''), 0, 1, 'L');
-    
-    $pdf->SetFont('helvetica', '', 10);
-    $pdf->Cell(40, 7, 'Teacher:', 0, 0, 'L');
-    $pdf->SetFont('helvetica', 'B', 10);
-    $pdf->Cell(140, 7, $teacher['teacher_name'], 0, 1, 'L');
-    
-    $pdf->SetFont('helvetica', '', 10);
-    $pdf->Cell(40, 7, 'Total Students:', 0, 0, 'L');
-    $pdf->SetFont('helvetica', 'B', 10);
-    $pdf->Cell(140, 7, count($students), 0, 1, 'L');
-    
-    $pdf->Ln(8);
-    
-    // Class Summary Section
-    $pdf->SetFont('helvetica', 'B', 12);
-    $pdf->SetTextColor(255, 102, 0);
-    $pdf->Cell(0, 8, 'CLASS SUMMARY', 0, 1, 'L');
-    $pdf->SetTextColor(0, 0, 0);
-    
-    $pdf->SetDrawColor(200, 200, 200);
-    $pdf->Line(15, $pdf->GetY(), 195, $pdf->GetY());
-    $pdf->Ln(3);
-    
-    // Summary table header
-    $pdf->SetFillColor(255, 102, 0);
-    $pdf->SetTextColor(255, 255, 255);
-    $pdf->SetFont('helvetica', 'B', 10);
-    $pdf->Cell(50, 8, 'Term', 1, 0, 'C', true);
-    $pdf->Cell(40, 8, 'Total Fees', 1, 0, 'C', true);
-    $pdf->Cell(40, 8, 'Total Paid', 1, 0, 'C', true);
-    $pdf->Cell(50, 8, 'Total Balance', 1, 1, 'C', true);
-    $pdf->SetTextColor(0, 0, 0);
-    
-    // Calculate class term totals
-    $class_term_totals = [];
-    foreach ($terms as $term) {
-        $class_term_totals[$term] = ['fees' => 0, 'paid' => 0, 'balance' => 0];
-    }
-    
-    foreach ($class_fee_data as $student_data) {
-        foreach ($terms as $term) {
-            $class_term_totals[$term]['fees'] += $student_data['term_data'][$term]['fees'];
-            $class_term_totals[$term]['paid'] += $student_data['term_data'][$term]['paid'];
-            $class_term_totals[$term]['balance'] += $student_data['term_data'][$term]['balance'];
+
+    // Table Header
+    $pdf->SetFont('Arial', 'B', 9);
+    $pdf->SetFillColor(232, 236, 239);
+    $pdf->SetDrawColor(0, 0, 0);
+    $pdf->SetLineWidth(0.3);
+
+    $pdf->Cell(10, 8, '#', 1, 0, 'C', true);
+    $pdf->Cell(30, 8, 'Admission No', 1, 0, 'C', true);
+    $pdf->Cell(55, 8, 'Student Name', 1, 0, 'L', true);
+    $pdf->Cell(25, 8, 'Stream', 1, 0, 'C', true);
+    $pdf->Cell(23, 8, 'Total Fees', 1, 0, 'R', true);
+    $pdf->Cell(23, 8, 'Total Paid', 1, 0, 'R', true);
+    $pdf->Cell(24, 8, 'Balance', 1, 1, 'R', true);
+
+    $pdf->SetFont('Arial', '', 9);
+
+    foreach ($class_fee_data as $index => $data) {
+        $fill = ($index % 2 == 1);
+        if ($fill) {
+            $pdf->SetFillColor(250, 250, 250);
+        } else {
+            $pdf->SetFillColor(255, 255, 255);
         }
-    }
-    
-    // Summary table data
-    $pdf->SetFont('helvetica', '', 9);
-    foreach ($terms as $term) {
-        $totals = $class_term_totals[$term];
-        $pdf->Cell(50, 7, $term, 1, 0, 'C');
-        $pdf->Cell(40, 7, 'KES ' . number_format($totals['fees'], 2), 1, 0, 'R');
-        $pdf->Cell(40, 7, 'KES ' . number_format($totals['paid'], 2), 1, 0, 'R');
-        $pdf->Cell(50, 7, 'KES ' . number_format($totals['balance'], 2), 1, 1, 'R');
-    }
-    
-    // Total row
-    $pdf->SetFillColor(240, 240, 240);
-    $pdf->SetFont('helvetica', 'B', 10);
-    $pdf->Cell(50, 8, 'GRAND TOTAL', 1, 0, 'C', true);
-    $pdf->Cell(40, 8, 'KES ' . number_format($total_class_fees, 2), 1, 0, 'R', true);
-    $pdf->Cell(40, 8, 'KES ' . number_format($total_class_paid, 2), 1, 0, 'R', true);
-    $pdf->Cell(50, 8, 'KES ' . number_format($total_class_balance, 2), 1, 1, 'R', true);
-    
-    $pdf->Ln(8);
-    
-    // Student-wise Details Section
-    $pdf->SetFont('helvetica', 'B', 12);
-    $pdf->SetTextColor(255, 102, 0);
-    $pdf->Cell(0, 8, 'STUDENT-WISE DETAILS', 0, 1, 'L');
-    $pdf->SetTextColor(0, 0, 0);
-    
-    $pdf->SetDrawColor(200, 200, 200);
-    $pdf->Line(15, $pdf->GetY(), 195, $pdf->GetY());
-    $pdf->Ln(3);
-    
-    // Student details table header
-    $pdf->SetFillColor(255, 102, 0);
-    $pdf->SetTextColor(255, 255, 255);
-    $pdf->SetFont('helvetica', 'B', 9);
-    $pdf->Cell(60, 8, 'Student', 1, 0, 'C', true);
-    foreach ($terms as $term) {
-        $pdf->Cell(35, 8, $term, 1, 0, 'C', true);
-    }
-    $pdf->Cell(30, 8, 'Total', 1, 1, 'C', true);
-    $pdf->SetTextColor(0, 0, 0);
-    
-    // Student details data
-    $pdf->SetFont('helvetica', '', 8);
-    foreach ($class_fee_data as $student_data) {
-        $student = $student_data['student'];
-        $student_name = $student['first_name'] . ' ' . $student['last_name'];
-        $admission = $student['admission_number'];
-        
-        $pdf->Cell(60, 7, $admission . ' - ' . substr($student_name, 0, 20), 1, 0, 'L');
-        foreach ($terms as $term) {
-            $pdf->Cell(35, 7, number_format($student_data['term_data'][$term]['balance'] ?? 0, 2), 1, 0, 'R');
+
+        $pdf->Cell(10, 7, ($index + 1), 1, 0, 'C', true);
+        $pdf->Cell(30, 7, $data['student']['admission_number'], 1, 0, 'C', true);
+        $pdf->Cell(55, 7, strtoupper($data['student']['first_name'] . ' ' . $data['student']['last_name']), 1, 0, 'L', true);
+        $pdf->Cell(25, 7, $data['student']['stream_name'] ?? '-', 1, 0, 'C', true);
+        $pdf->Cell(23, 7, number_format($data['total_fees']), 1, 0, 'R', true);
+        $pdf->Cell(23, 7, number_format($data['total_paid']), 1, 0, 'R', true);
+
+        if ($data['balance'] > 0) {
+            $pdf->SetTextColor(197, 34, 31);
+        } else {
+            $pdf->SetTextColor(19, 115, 51);
         }
-        $pdf->Cell(30, 7, number_format($student_data['total_balance'], 2), 1, 1, 'R');
+        $pdf->Cell(24, 7, number_format($data['balance']), 1, 1, 'R', true);
+        $pdf->SetTextColor(0, 0, 0);
     }
-    
-    $pdf->Ln(15);
-    
-    // Add QR Code for verification
-    // Format for class fee statement
-    $student_count = count($class_fee_data);
-    $verification_data = "CLASS FEE STATEMENT\n" .
-        "School: " . $school['school_name'] . "\n" .
-        "Class: " . $class_name . ($stream_name ? ' - ' . $stream_name : '') . "\n" .
-        "Date: " . date('d M Y') . "\n" .
-        "Year: " . $current_year . "\n" .
-        "Students: " . $student_count . "\n" .
-        "Ref: " . substr(md5($class_id . $stream_id . time()), 0, 6);
-    
-    // QR Code Section
-    $pdf->SetFont('helvetica', 'B', 12);
-    $pdf->SetTextColor(255, 102, 0);
-    $pdf->Cell(0, 8, 'VERIFICATION', 0, 1, 'L');
-    $pdf->SetTextColor(0, 0, 0);
-    
-    $pdf->SetDrawColor(200, 200, 200);
-    $pdf->Line(15, $pdf->GetY(), 195, $pdf->GetY());
-    $pdf->Ln(5);
-    
-    // Save current position
-    $qr_y = $pdf->GetY();
-    
-    // Add QR code using TCPDF's 2D barcode - centered on page
-    $style = [
-        'border' => 2,
-        'vpadding' => 'auto',
-        'hpadding' => 'auto',
-        'fgcolor' => array(0,0,0),
-        'bgcolor' => false,
-        'module_width' => 5,
-        'module_height' => 5
-    ];
-    
-    // Center QR code on page
-    $pdf->write2DBarcode($verification_data, 'QRCODE,M', 80, $qr_y, 50, 50, $style, 'N');
-    
-    // Add explanatory text below QR code
-    $pdf->Ln(55);
-    $pdf->SetFont('helvetica', '', 8);
-    $pdf->Cell(0, 5, 'Scan this QR code to view class fee statement details.', 0, 1, 'C');
-    $pdf->Cell(0, 5, 'Contains: School, Class, Date, Academic Year, and Student Count', 0, 1, 'C');
-    
-    $pdf->Ln(15);
-    
-    // Professional Footer
-    $pdf->SetDrawColor(200, 200, 200);
-    $pdf->Line(15, $pdf->GetY(), 195, $pdf->GetY());
+
     $pdf->Ln(8);
-    
-    $pdf->SetFont('helvetica', 'I', 8);
-    $pdf->Cell(0, 5, 'This is an official class fee statement generated by Kenya EduHub School Management System', 0, 1, 'C');
-    $pdf->Cell(0, 5, 'Generated on: ' . date('d M Y H:i:s'), 0, 1, 'C');
-    $pdf->Cell(0, 5, 'For inquiries, please contact the school administration', 0, 1, 'C');
-    
-    // Output PDF
-    $safe_class_name = preg_replace('/[^a-zA-Z0-9]/', '_', $class_name);
-    $safe_stream = $stream_name ? '_' . preg_replace('/[^a-zA-Z0-9]/', '_', $stream_name) : '';
-    $statement_filename = 'class_fee_statement_' . $safe_class_name . $safe_stream . '_' . $current_year . '.pdf';
-    $statement_path = __DIR__ . '/../receipts/' . $statement_filename;
-    
-    // Create receipts directory if not exists
-    if (!is_dir(__DIR__ . '/../receipts')) {
-        mkdir(__DIR__ . '/../receipts', 0777, true);
-    }
-    
-    $pdf->Output($statement_path, 'F');
-    
-    echo json_encode([
+
+    // Summary Box
+    $pdf->SetFillColor(240, 244, 249);
+    $pdf->SetDrawColor(255, 107, 53);
+    $pdf->Rect(10, $pdf->GetY(), 190, 22, 'DF');
+
+    $pdf->SetY($pdf->GetY() + 3);
+    $pdf->SetX(15);
+    $pdf->SetFont('Arial', 'B', 10);
+    $pdf->Cell(0, 5, 'Class Financial Summary', 0, 1, 'L');
+
+    $pdf->SetFont('Arial', '', 9);
+    $pdf->SetX(15);
+    $summaryLine = "Total Candidates: " . count($class_fee_data) .
+                   " | Fees: KES " . number_format($total_class_fees) .
+                   " | Paid: KES " . number_format($total_class_paid) .
+                   " | Balance: KES " . number_format($total_class_balance);
+    $pdf->Cell(0, 5, $summaryLine, 0, 1, 'L');
+
+    $pdf->Output('F', $filepath);
+
+    sendJsonResponse([
         'success' => true,
-        'statement_url' => '/teachers/receipts/' . $statement_filename,
-        'statement_filename' => $statement_filename
+        'statement_url' => '/teachers/receipts/' . $filename,
+        'statement_filename' => $filename
     ]);
-    
+
 } catch (Exception $e) {
-    error_log("Class fee statement generation error: " . $e->getMessage());
-    echo json_encode(['success' => false, 'error' => 'Failed to generate class fee statement']);
+    sendJsonResponse(['success' => false, 'error' => $e->getMessage()]);
 }
