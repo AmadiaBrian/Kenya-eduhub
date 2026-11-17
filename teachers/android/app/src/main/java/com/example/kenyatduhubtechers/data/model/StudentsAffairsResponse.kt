@@ -21,6 +21,9 @@ data class StudentAffairsItemDto(
     @SerializedName("stream_id") val streamId: Int? = null,
     @SerializedName("class_name") val className: String? = null,
     @SerializedName("stream_name") val streamName: String? = null,
+    @SerializedName("total_fees") val totalFees: Double? = 0.0,
+    @SerializedName("total_paid") val totalPaid: Double? = 0.0,
+    @SerializedName("total_balance") val totalBalance: Double? = 0.0,
     @SerializedName("fee_balances") val feeBalances: Map<String, FeeBalanceDetailDto>? = emptyMap()
 ) {
     val fullName: String

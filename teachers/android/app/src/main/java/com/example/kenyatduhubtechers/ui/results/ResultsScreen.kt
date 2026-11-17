@@ -60,6 +60,7 @@ import com.example.kenyatduhubtechers.data.model.AggregateDistributionDto
 import com.example.kenyatduhubtechers.data.model.GradingScaleDto
 import com.example.kenyatduhubtechers.data.model.PerformanceRecordDto
 import com.example.kenyatduhubtechers.data.model.StudentSubjectAssignmentDto
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import com.example.kenyatduhubtechers.ui.theme.EduHubBackground
 import com.example.kenyatduhubtechers.ui.theme.EduHubBorder
 import com.example.kenyatduhubtechers.ui.theme.EduHubOrange
@@ -75,15 +76,19 @@ fun ResultsScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
-    if (uiState.isLoading) {
-        Box(
-            modifier = modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
-        ) {
-            CircularProgressIndicator(color = EduHubOrange)
-        }
-        return
-    }
+    PullToRefreshBox(
+        isRefreshing = uiState.isLoading,
+        onRefresh = { viewModel.loadResultsData() },
+        modifier = modifier.fillMaxSize()
+    ) {
+        if (uiState.isLoading && uiState.performanceRecords.isEmpty() && uiState.examTypes.isEmpty()) {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator(color = EduHubOrange)
+            }
+        } else {
 
     // Filter performance records
     val filteredRecords = remember(
@@ -227,17 +232,25 @@ fun ResultsScreen(
             Spacer(modifier = Modifier.height(16.dp))
         }
 
-        // 2. Full-Screen Edge-to-Edge Results Sheet
-        PdfResultsTranscriptSheet(
-            schoolName = uiState.teacher?.schoolName ?: "KENYA EDUHUB TEACHER PORTAL",
-            filteredRecords = filteredRecords,
-            studentAssignments = uiState.studentSubjectAssignments,
-            gradingScales = uiState.gradingScales,
-            aggregateDistribution = uiState.aggregateDistribution,
-            minSubjects = uiState.minSubjects
-        )
+        // 2. Results Transcript Sheet (Slight 4.dp horizontal margin)
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 4.dp)
+        ) {
+            PdfResultsTranscriptSheet(
+                schoolName = uiState.teacher?.schoolName ?: "KENYA EDUHUB TEACHER PORTAL",
+                filteredRecords = filteredRecords,
+                studentAssignments = uiState.studentSubjectAssignments,
+                gradingScales = uiState.gradingScales,
+                aggregateDistribution = uiState.aggregateDistribution,
+                minSubjects = uiState.minSubjects
+            )
+        }
 
         Spacer(modifier = Modifier.height(24.dp))
+    }
+    }
     }
 }
 
@@ -254,7 +267,7 @@ private fun PdfResultsTranscriptSheet(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(containerColor = Color.White),
         border = BorderStroke(1.5.dp, Color(0xFF1E1E1E)),
-        shape = RoundedCornerShape(0.dp),
+        shape = RoundedCornerShape(4.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Column(

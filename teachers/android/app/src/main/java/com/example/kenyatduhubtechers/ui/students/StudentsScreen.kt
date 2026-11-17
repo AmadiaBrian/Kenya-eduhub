@@ -30,14 +30,19 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountBalanceWallet
 import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material.icons.filled.Cancel
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.Event
+import androidx.compose.material.icons.filled.Man
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.School
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.Woman
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -72,6 +77,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.core.content.FileProvider
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.ui.graphics.vector.ImageVector
 import com.example.kenyatduhubtechers.data.model.StudentAffairsItemDto
 import com.example.kenyatduhubtechers.ui.theme.EduHubBackground
 import com.example.kenyatduhubtechers.ui.theme.EduHubBorder
@@ -95,15 +102,19 @@ fun StudentsScreen(
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
 
-    if (uiState.isLoading) {
-        Box(
-            modifier = modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
-        ) {
-            CircularProgressIndicator(color = EduHubOrange)
-        }
-        return
-    }
+    PullToRefreshBox(
+        isRefreshing = uiState.isLoading,
+        onRefresh = { viewModel.loadStudentsData() },
+        modifier = modifier.fillMaxSize()
+    ) {
+        if (uiState.isLoading && uiState.students.isEmpty()) {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator(color = EduHubOrange)
+            }
+        } else {
 
     // Filter students based on state
     val filteredStudents = remember(
@@ -388,8 +399,13 @@ fun StudentsScreen(
 
         var totalBalance = 0.0
         filteredStudents.forEach { student ->
-            student.feeBalances?.values?.forEach { fee ->
-                totalBalance += fee.balance
+            val bal = student.totalBalance ?: 0.0
+            if (bal != 0.0) {
+                totalBalance += bal
+            } else {
+                student.feeBalances?.values?.forEach { fee ->
+                    totalBalance += fee.balance
+                }
             }
         }
 
@@ -405,15 +421,17 @@ fun StudentsScreen(
                     modifier = Modifier.weight(1f),
                     label = "Total Students",
                     value = totalCount.toString(),
-                    bgColor = Color(0xFFE8F0FE),
-                    textColor = Color(0xFF1967D2)
+                    subtext = "Enrolled Students",
+                    icon = Icons.Default.School,
+                    iconTint = EduHubOrange
                 )
                 MetricCard(
                     modifier = Modifier.weight(1f),
-                    label = "Active",
+                    label = "Active Students",
                     value = activeCount.toString(),
-                    bgColor = Color(0xFFE6F4EA),
-                    textColor = EduHubSuccess
+                    subtext = "Active Status",
+                    icon = Icons.Default.CheckCircle,
+                    iconTint = EduHubOrange
                 )
             }
 
@@ -425,15 +443,17 @@ fun StudentsScreen(
                     modifier = Modifier.weight(1f),
                     label = "Inactive",
                     value = inactiveCount.toString(),
-                    bgColor = Color(0xFFFCE8E6),
-                    textColor = EduHubError
+                    subtext = "Inactive Status",
+                    icon = Icons.Default.Cancel,
+                    iconTint = EduHubOrange
                 )
                 MetricCard(
                     modifier = Modifier.weight(1f),
                     label = "Total Balance",
                     value = "KES ${String.format(Locale.US, "%.0f", totalBalance)}",
-                    bgColor = Color(0xFFFEF7E0),
-                    textColor = Color(0xFFB06000)
+                    subtext = "Fee Balance",
+                    icon = Icons.Default.AccountBalanceWallet,
+                    iconTint = EduHubOrange
                 )
             }
 
@@ -445,15 +465,17 @@ fun StudentsScreen(
                     modifier = Modifier.weight(1f),
                     label = "Male",
                     value = maleCount.toString(),
-                    bgColor = Color(0xFFF1F3F4),
-                    textColor = EduHubTextDark
+                    subtext = "Male Students",
+                    icon = Icons.Default.Man,
+                    iconTint = EduHubOrange
                 )
                 MetricCard(
                     modifier = Modifier.weight(1f),
                     label = "Female",
                     value = femaleCount.toString(),
-                    bgColor = Color(0xFFE8F0FE),
-                    textColor = Color(0xFF1967D2)
+                    subtext = "Female Students",
+                    icon = Icons.Default.Woman,
+                    iconTint = EduHubOrange
                 )
             }
         }
@@ -524,13 +546,22 @@ fun StudentsScreen(
                         // Data Rows
                         filteredStudents.forEachIndexed { index, student ->
                             val bg = if (index % 2 == 0) Color.White else Color(0xFFFAFAFA)
-                            var studentTotalFees = 0.0
-                            var studentTotalPaid = 0.0
-                            var studentBalance = 0.0
-                            student.feeBalances?.values?.forEach {
-                                studentTotalFees += it.totalFees
-                                studentTotalPaid += it.totalPaid
-                                studentBalance += it.balance
+                            var studentTotalFees = student.totalFees ?: 0.0
+                            var studentTotalPaid = student.totalPaid ?: 0.0
+                            var studentBalance = student.totalBalance ?: 0.0
+
+                            if (studentTotalFees == 0.0 && studentTotalPaid == 0.0 && !student.feeBalances.isNullOrEmpty()) {
+                                var sumFees = 0.0
+                                var sumPaid = 0.0
+                                var sumBal = 0.0
+                                student.feeBalances.values.forEach {
+                                    sumFees += it.totalFees
+                                    sumPaid += it.totalPaid
+                                    sumBal += it.balance
+                                }
+                                studentTotalFees = sumFees
+                                studentTotalPaid = sumPaid
+                                studentBalance = sumBal
                             }
 
                             val balanceText = if (studentBalance > 0) {
@@ -744,6 +775,8 @@ fun StudentsScreen(
             }
         }
     }
+    }
+    }
 }
 
 private fun downloadAndShareCsv(context: Context, csvContent: String) {
@@ -795,21 +828,42 @@ private fun MetricCard(
     modifier: Modifier = Modifier,
     label: String,
     value: String,
-    bgColor: Color,
-    textColor: Color
+    subtext: String = "",
+    icon: ImageVector,
+    iconTint: Color
 ) {
-    Box(
-        modifier = modifier
-            .clip(RoundedCornerShape(8.dp))
-            .background(bgColor)
-            .border(1.dp, textColor.copy(alpha = 0.3f), RoundedCornerShape(8.dp))
-            .padding(12.dp),
-        contentAlignment = Alignment.Center
+    Card(
+        modifier = modifier,
+        shape = RoundedCornerShape(8.dp),
+        colors = CardDefaults.cardColors(containerColor = EduHubBackground),
+        border = BorderStroke(1.dp, EduHubBorder),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(text = value, fontSize = 20.sp, fontWeight = FontWeight.Bold, color = textColor)
-            Spacer(modifier = Modifier.height(2.dp))
-            Text(text = label, fontSize = 11.sp, color = EduHubTextMuted)
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = iconTint,
+                modifier = Modifier.size(32.dp)
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(text = label, fontSize = 13.sp, color = EduHubTextMuted, textAlign = TextAlign.Center)
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(text = value, fontSize = 24.sp, fontWeight = FontWeight.Normal, color = EduHubTextDark, textAlign = TextAlign.Center)
+            if (subtext.isNotEmpty()) {
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = subtext,
+                    fontSize = 11.sp,
+                    color = EduHubTextMuted,
+                    textAlign = TextAlign.Center
+                )
+            }
         }
     }
 }

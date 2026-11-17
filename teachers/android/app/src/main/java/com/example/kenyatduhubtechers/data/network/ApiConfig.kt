@@ -8,6 +8,7 @@ object ApiConfig {
      * Or local XAMPP emulator URL: "http://10.0.2.2/kenyaeduhub/teachers/api/"
      */
     const val DEFAULT_BASE_URL = "https://unexplaining-lesli-nonabsolutely.ngrok-free.dev/kenyaeduhub/teachers/api/"
+    const val NETWORK_ERROR_MSG = "Network error, check your internet connection and try again"
 
     object Endpoints {
         const val LOGIN = "login.php"

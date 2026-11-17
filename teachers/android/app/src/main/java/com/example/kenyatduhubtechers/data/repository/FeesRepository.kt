@@ -1,11 +1,13 @@
 package com.example.kenyatduhubtechers.data.repository
 
+import com.example.kenyatduhubtechers.data.local.LocalCacheManager
 import com.example.kenyatduhubtechers.data.local.SessionManager
 import com.example.kenyatduhubtechers.data.model.FeesResponse
 import com.example.kenyatduhubtechers.data.model.SendFeeReminderRequest
 import com.example.kenyatduhubtechers.data.model.SendFeeReminderResponse
 import com.example.kenyatduhubtechers.data.model.StatementResponse
 import com.example.kenyatduhubtechers.data.model.StudentStatementRequest
+import com.example.kenyatduhubtechers.data.network.ApiConfig
 import com.example.kenyatduhubtechers.data.network.RetrofitClient
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -25,15 +27,31 @@ class FeesRepository(private val sessionManager: SessionManager) {
                 if (response.isSuccessful) {
                     val feesResponse = response.body()
                     if (feesResponse != null && feesResponse.success) {
+                        sessionManager.cacheManager.saveCache(LocalCacheManager.KEY_FEES, feesResponse)
                         Result.Success(feesResponse)
                     } else {
-                        Result.Error(feesResponse?.error ?: "Failed to fetch fee data")
+                        val cached = sessionManager.cacheManager.getCache(LocalCacheManager.KEY_FEES, FeesResponse::class.java)
+                        if (cached != null) {
+                            Result.Success(cached)
+                        } else {
+                            Result.Error(feesResponse?.error ?: ApiConfig.NETWORK_ERROR_MSG)
+                        }
                     }
                 } else {
-                    Result.Error("Server error (${response.code()})")
+                    val cached = sessionManager.cacheManager.getCache(LocalCacheManager.KEY_FEES, FeesResponse::class.java)
+                    if (cached != null) {
+                        Result.Success(cached)
+                    } else {
+                        Result.Error(ApiConfig.NETWORK_ERROR_MSG)
+                    }
                 }
             } catch (e: Exception) {
-                Result.Error(e.localizedMessage ?: "Network error occurred")
+                val cached = sessionManager.cacheManager.getCache(LocalCacheManager.KEY_FEES, FeesResponse::class.java)
+                if (cached != null) {
+                    Result.Success(cached)
+                } else {
+                    Result.Error(ApiConfig.NETWORK_ERROR_MSG)
+                }
             }
         }
     }
@@ -49,13 +67,13 @@ class FeesRepository(private val sessionManager: SessionManager) {
                     if (reminderResponse != null && reminderResponse.success) {
                         Result.Success(reminderResponse)
                     } else {
-                        Result.Error(reminderResponse?.error ?: "Failed to send fee reminders")
+                        Result.Error(reminderResponse?.error ?: ApiConfig.NETWORK_ERROR_MSG)
                     }
                 } else {
-                    Result.Error("Server error (${response.code()})")
+                    Result.Error(ApiConfig.NETWORK_ERROR_MSG)
                 }
             } catch (e: Exception) {
-                Result.Error(e.localizedMessage ?: "Network error occurred")
+                Result.Error(ApiConfig.NETWORK_ERROR_MSG)
             }
         }
     }
@@ -71,13 +89,13 @@ class FeesRepository(private val sessionManager: SessionManager) {
                     if (stmtResponse != null && stmtResponse.success) {
                         Result.Success(stmtResponse)
                     } else {
-                        Result.Error(stmtResponse?.error ?: "Failed to generate class statement")
+                        Result.Error(stmtResponse?.error ?: ApiConfig.NETWORK_ERROR_MSG)
                     }
                 } else {
-                    Result.Error("Server error (${response.code()})")
+                    Result.Error(ApiConfig.NETWORK_ERROR_MSG)
                 }
             } catch (e: Exception) {
-                Result.Error(e.localizedMessage ?: "Network error occurred")
+                Result.Error(ApiConfig.NETWORK_ERROR_MSG)
             }
         }
     }
@@ -93,13 +111,13 @@ class FeesRepository(private val sessionManager: SessionManager) {
                     if (stmtResponse != null && stmtResponse.success) {
                         Result.Success(stmtResponse)
                     } else {
-                        Result.Error(stmtResponse?.error ?: "Failed to generate student statement")
+                        Result.Error(stmtResponse?.error ?: ApiConfig.NETWORK_ERROR_MSG)
                     }
                 } else {
-                    Result.Error("Server error (${response.code()})")
+                    Result.Error(ApiConfig.NETWORK_ERROR_MSG)
                 }
             } catch (e: Exception) {
-                Result.Error(e.localizedMessage ?: "Network error occurred")
+                Result.Error(ApiConfig.NETWORK_ERROR_MSG)
             }
         }
     }

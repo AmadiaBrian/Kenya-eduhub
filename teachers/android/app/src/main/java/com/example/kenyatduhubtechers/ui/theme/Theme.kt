@@ -17,11 +17,13 @@ private val DarkColorScheme = darkColorScheme(
     onPrimary = Color.White,
     primaryContainer = EduHubOrangeDark,
     secondary = EduHubGold,
-    onSecondary = EduHubTextDark,
+    onSecondary = Color.White,
     background = Color(0xFF121212),
     surface = Color(0xFF1E1E1E),
+    onBackground = Color.White,
+    onSurface = Color.White,
     error = EduHubError,
-    errorContainer = EduHubErrorContainer
+    errorContainer = Color(0xFF3C1818)
 )
 
 private val LightColorScheme = lightColorScheme(
@@ -29,11 +31,11 @@ private val LightColorScheme = lightColorScheme(
     onPrimary = Color.White,
     primaryContainer = EduHubOrange,
     secondary = EduHubGold,
-    onSecondary = EduHubTextDark,
-    background = EduHubBackground,
+    onSecondary = Color(0xFF202124),
+    background = Color(0xFFF0F4F9),
     surface = Color.White,
-    onBackground = EduHubTextDark,
-    onSurface = EduHubTextDark,
+    onBackground = Color(0xFF202124),
+    onSurface = Color(0xFF202124),
     error = EduHubError,
     errorContainer = EduHubErrorContainer
 )

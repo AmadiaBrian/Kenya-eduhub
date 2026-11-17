@@ -1,7 +1,9 @@
 package com.example.kenyatduhubtechers.data.repository
 
+import com.example.kenyatduhubtechers.data.local.LocalCacheManager
 import com.example.kenyatduhubtechers.data.local.SessionManager
 import com.example.kenyatduhubtechers.data.model.ResultsResponse
+import com.example.kenyatduhubtechers.data.network.ApiConfig
 import com.example.kenyatduhubtechers.data.network.RetrofitClient
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -21,15 +23,31 @@ class ResultsRepository(private val sessionManager: SessionManager) {
                 if (response.isSuccessful) {
                     val resultsResponse = response.body()
                     if (resultsResponse != null && resultsResponse.success) {
+                        sessionManager.cacheManager.saveCache(LocalCacheManager.KEY_RESULTS, resultsResponse)
                         Result.Success(resultsResponse)
                     } else {
-                        Result.Error(resultsResponse?.error ?: "Failed to fetch results data")
+                        val cached = sessionManager.cacheManager.getCache(LocalCacheManager.KEY_RESULTS, ResultsResponse::class.java)
+                        if (cached != null) {
+                            Result.Success(cached)
+                        } else {
+                            Result.Error(resultsResponse?.error ?: ApiConfig.NETWORK_ERROR_MSG)
+                        }
                     }
                 } else {
-                    Result.Error("Server error (${response.code()})")
+                    val cached = sessionManager.cacheManager.getCache(LocalCacheManager.KEY_RESULTS, ResultsResponse::class.java)
+                    if (cached != null) {
+                        Result.Success(cached)
+                    } else {
+                        Result.Error(ApiConfig.NETWORK_ERROR_MSG)
+                    }
                 }
             } catch (e: Exception) {
-                Result.Error(e.localizedMessage ?: "Network error occurred")
+                val cached = sessionManager.cacheManager.getCache(LocalCacheManager.KEY_RESULTS, ResultsResponse::class.java)
+                if (cached != null) {
+                    Result.Success(cached)
+                } else {
+                    Result.Error(ApiConfig.NETWORK_ERROR_MSG)
+                }
             }
         }
     }

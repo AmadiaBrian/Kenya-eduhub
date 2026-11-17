@@ -1,10 +1,12 @@
 package com.example.kenyatduhubtechers.data.repository
 
+import com.example.kenyatduhubtechers.data.local.LocalCacheManager
 import com.example.kenyatduhubtechers.data.local.SessionManager
 import com.example.kenyatduhubtechers.data.model.PerformanceResponse
 import com.example.kenyatduhubtechers.data.model.SavePerformanceRequest
 import com.example.kenyatduhubtechers.data.model.SavePerformanceResponse
 import com.example.kenyatduhubtechers.data.model.StudentsResponse
+import com.example.kenyatduhubtechers.data.network.ApiConfig
 import com.example.kenyatduhubtechers.data.network.RetrofitClient
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -24,15 +26,31 @@ class PerformanceRepository(private val sessionManager: SessionManager) {
                 if (response.isSuccessful) {
                     val perfResponse = response.body()
                     if (perfResponse != null && perfResponse.success) {
+                        sessionManager.cacheManager.saveCache(LocalCacheManager.KEY_PERFORMANCE, perfResponse)
                         Result.Success(perfResponse)
                     } else {
-                        Result.Error(perfResponse?.error ?: "Failed to fetch performance data")
+                        val cached = sessionManager.cacheManager.getCache(LocalCacheManager.KEY_PERFORMANCE, PerformanceResponse::class.java)
+                        if (cached != null) {
+                            Result.Success(cached)
+                        } else {
+                            Result.Error(perfResponse?.error ?: ApiConfig.NETWORK_ERROR_MSG)
+                        }
                     }
                 } else {
-                    Result.Error("Server error (${response.code()})")
+                    val cached = sessionManager.cacheManager.getCache(LocalCacheManager.KEY_PERFORMANCE, PerformanceResponse::class.java)
+                    if (cached != null) {
+                        Result.Success(cached)
+                    } else {
+                        Result.Error(ApiConfig.NETWORK_ERROR_MSG)
+                    }
                 }
             } catch (e: Exception) {
-                Result.Error(e.localizedMessage ?: "Network error occurred")
+                val cached = sessionManager.cacheManager.getCache(LocalCacheManager.KEY_PERFORMANCE, PerformanceResponse::class.java)
+                if (cached != null) {
+                    Result.Success(cached)
+                } else {
+                    Result.Error(ApiConfig.NETWORK_ERROR_MSG)
+                }
             }
         }
     }
@@ -48,13 +66,13 @@ class PerformanceRepository(private val sessionManager: SessionManager) {
                     if (saveResponse != null && saveResponse.success) {
                         Result.Success(saveResponse)
                     } else {
-                        Result.Error(saveResponse?.error ?: "Failed to save performance")
+                        Result.Error(saveResponse?.error ?: ApiConfig.NETWORK_ERROR_MSG)
                     }
                 } else {
-                    Result.Error("Server error (${response.code()})")
+                    Result.Error(ApiConfig.NETWORK_ERROR_MSG)
                 }
             } catch (e: Exception) {
-                Result.Error(e.localizedMessage ?: "Network error occurred")
+                Result.Error(ApiConfig.NETWORK_ERROR_MSG)
             }
         }
     }
@@ -70,13 +88,13 @@ class PerformanceRepository(private val sessionManager: SessionManager) {
                     if (studentsResponse != null && studentsResponse.success) {
                         Result.Success(studentsResponse)
                     } else {
-                        Result.Error(studentsResponse?.error ?: "Failed to fetch students")
+                        Result.Error(studentsResponse?.error ?: ApiConfig.NETWORK_ERROR_MSG)
                     }
                 } else {
-                    Result.Error("Server error (${response.code()})")
+                    Result.Error(ApiConfig.NETWORK_ERROR_MSG)
                 }
             } catch (e: Exception) {
-                Result.Error(e.localizedMessage ?: "Network error occurred")
+                Result.Error(ApiConfig.NETWORK_ERROR_MSG)
             }
         }
     }

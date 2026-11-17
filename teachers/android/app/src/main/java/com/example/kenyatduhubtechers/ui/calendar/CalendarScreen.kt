@@ -25,9 +25,11 @@ import androidx.compose.material.icons.filled.School
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -52,6 +54,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CalendarScreen(
     viewModel: CalendarViewModel,
@@ -60,22 +63,25 @@ fun CalendarScreen(
     val uiState by viewModel.uiState.collectAsState()
     val currentDateStr = SimpleDateFormat("MMMM d, yyyy", Locale.getDefault()).format(Date())
 
-    if (uiState.isLoading) {
-        Box(
-            modifier = modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
-        ) {
-            CircularProgressIndicator(color = EduHubOrange)
-        }
-        return
-    }
-
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(16.dp)
+    PullToRefreshBox(
+        isRefreshing = uiState.isLoading,
+        onRefresh = { viewModel.loadCalendarData() },
+        modifier = modifier.fillMaxSize()
     ) {
+        if (uiState.isLoading && uiState.currentStatus == null && uiState.terms.isEmpty()) {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator(color = EduHubOrange)
+            }
+        } else {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+                    .padding(16.dp)
+            ) {
         Text(
             text = "School Calendar",
             fontSize = 22.sp,
@@ -307,7 +313,9 @@ fun CalendarScreen(
         }
 
         Spacer(modifier = Modifier.height(24.dp))
+        }
     }
+}
 }
 
 @Composable

@@ -4,6 +4,7 @@ import com.example.kenyatduhubtechers.data.local.SessionManager
 import com.example.kenyatduhubtechers.data.model.LoginRequest
 import com.example.kenyatduhubtechers.data.model.LoginResponse
 import com.example.kenyatduhubtechers.data.model.TeacherDto
+import com.example.kenyatduhubtechers.data.network.ApiConfig
 import com.example.kenyatduhubtechers.data.network.RetrofitClient
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -32,14 +33,10 @@ class AuthRepository(private val sessionManager: SessionManager) {
                         Result.Error(errorMsg)
                     }
                 } else {
-                    Result.Error("Server error (${response.code()}). Please try again.")
+                    Result.Error(ApiConfig.NETWORK_ERROR_MSG)
                 }
-            } catch (e: java.net.ConnectException) {
-                Result.Error("Unable to connect to server. Check your connection or server URL.")
-            } catch (e: java.net.SocketTimeoutException) {
-                Result.Error("Connection timed out. Please try again.")
             } catch (e: Exception) {
-                Result.Error(e.localizedMessage ?: "An unexpected error occurred.")
+                Result.Error(ApiConfig.NETWORK_ERROR_MSG)
             }
         }
     }

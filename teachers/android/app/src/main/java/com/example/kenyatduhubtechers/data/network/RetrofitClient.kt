@@ -31,11 +31,14 @@ object RetrofitClient {
 
             val authInterceptor = Interceptor { chain ->
                 val originalRequest = chain.request()
-                val token = sessionManager?.getSessionToken() ?: ""
+                var rawToken = sessionManager?.getSessionToken() ?: ""
+                if (rawToken.startsWith("Bearer ", ignoreCase = true)) {
+                    rawToken = rawToken.substring(7).trim()
+                }
                 val requestBuilder = originalRequest.newBuilder()
-                if (token.isNotBlank()) {
-                    requestBuilder.header("Authorization", token)
-                    requestBuilder.header("X-Session-Token", token)
+                if (rawToken.isNotBlank()) {
+                    requestBuilder.header("Authorization", "Bearer $rawToken")
+                    requestBuilder.header("X-Session-Token", rawToken)
                 }
                 chain.proceed(requestBuilder.build())
             }
@@ -43,9 +46,9 @@ object RetrofitClient {
             val okHttpClient = OkHttpClient.Builder()
                 .addInterceptor(authInterceptor)
                 .addInterceptor(loggingInterceptor)
-                .connectTimeout(15, TimeUnit.SECONDS)
-                .readTimeout(15, TimeUnit.SECONDS)
-                .writeTimeout(15, TimeUnit.SECONDS)
+                .connectTimeout(2, TimeUnit.MINUTES)
+                .readTimeout(2, TimeUnit.MINUTES)
+                .writeTimeout(2, TimeUnit.MINUTES)
                 .build()
 
             val retrofit = Retrofit.Builder()

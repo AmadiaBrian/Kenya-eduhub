@@ -72,6 +72,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.FileProvider
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import com.example.kenyatduhubtechers.data.model.StudentFeeSummaryItemDto
 import com.example.kenyatduhubtechers.data.network.RetrofitClient
 import com.example.kenyatduhubtechers.ui.theme.EduHubBackground
@@ -101,22 +102,25 @@ fun FeesScreen(
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
 
-    if (uiState.isLoading) {
-        Box(
-            modifier = modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
-        ) {
-            CircularProgressIndicator(color = EduHubOrange)
-        }
-        return
-    }
-
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(12.dp)
+    PullToRefreshBox(
+        isRefreshing = uiState.isLoading,
+        onRefresh = { viewModel.loadFeesData() },
+        modifier = modifier.fillMaxSize()
     ) {
+        if (uiState.isLoading && uiState.students.isEmpty() && uiState.streamFeeSummary.isEmpty()) {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator(color = EduHubOrange)
+            }
+        } else {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+                    .padding(12.dp)
+            ) {
         Text(
             text = "Fee Payments",
             fontSize = 22.sp,
@@ -741,6 +745,8 @@ fun FeesScreen(
 
         Spacer(modifier = Modifier.height(24.dp))
     }
+    }
+    }
 }
 
 private fun downloadStatementToPhoneDownloads(context: Context, relativeUrl: String, filename: String?) {
@@ -758,8 +764,8 @@ private fun downloadStatementToPhoneDownloads(context: Context, relativeUrl: Str
 
             val url = java.net.URL(fullUrl)
             val connection = url.openConnection()
-            connection.connectTimeout = 15000
-            connection.readTimeout = 15000
+            connection.connectTimeout = 120000
+            connection.readTimeout = 120000
             val bytes = connection.getInputStream().use { it.readBytes() }
 
             val outFileName = filename?.ifBlank { null } ?: "fee_statement_${System.currentTimeMillis()}.html"

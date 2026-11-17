@@ -60,6 +60,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -127,15 +128,19 @@ fun PerformanceScreen(
         }
     }
 
-    if (uiState.isLoading) {
-        Box(
-            modifier = modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
-        ) {
-            CircularProgressIndicator(color = EduHubOrange)
-        }
-        return
-    }
+    PullToRefreshBox(
+        isRefreshing = uiState.isLoading,
+        onRefresh = { viewModel.loadPerformanceData() },
+        modifier = modifier.fillMaxSize()
+    ) {
+        if (uiState.isLoading && uiState.performanceRecords.isEmpty() && uiState.examTypes.isEmpty()) {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator(color = EduHubOrange)
+            }
+        } else {
 
     val filteredRecords = remember(
         uiState.performanceRecords,
@@ -565,6 +570,8 @@ fun PerformanceScreen(
             initialExamTypeId = selectedExamTypeId,
             onDismiss = { viewModel.closeCsvEditor() }
         )
+    }
+    }
     }
 }
 

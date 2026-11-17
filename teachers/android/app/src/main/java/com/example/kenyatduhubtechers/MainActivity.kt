@@ -16,11 +16,18 @@ import com.example.kenyatduhubtechers.data.repository.ParentsRepository
 import com.example.kenyatduhubtechers.data.repository.PerformanceRepository
 import com.example.kenyatduhubtechers.data.repository.ProfileRepository
 import com.example.kenyatduhubtechers.data.repository.ResultsRepository
+import com.example.kenyatduhubtechers.data.repository.AssignmentsRepository
+import com.example.kenyatduhubtechers.data.repository.AttendanceRepository
+import com.example.kenyatduhubtechers.data.repository.DutyRepository
+import com.example.kenyatduhubtechers.data.repository.StudentSubjectsRepository
 import com.example.kenyatduhubtechers.data.repository.StudentsRepository
 import com.example.kenyatduhubtechers.data.repository.TimetableRepository
+import com.example.kenyatduhubtechers.ui.assignments.AssignmentsViewModel
+import com.example.kenyatduhubtechers.ui.attendance.AttendanceViewModel
 import com.example.kenyatduhubtechers.ui.calendar.CalendarViewModel
 import com.example.kenyatduhubtechers.ui.dashboard.DashboardScreen
 import com.example.kenyatduhubtechers.ui.dashboard.DashboardViewModel
+import com.example.kenyatduhubtechers.ui.duty.DutyViewModel
 import com.example.kenyatduhubtechers.ui.fees.FeesViewModel
 import com.example.kenyatduhubtechers.ui.login.LoginScreen
 import com.example.kenyatduhubtechers.ui.login.LoginViewModel
@@ -29,6 +36,7 @@ import com.example.kenyatduhubtechers.ui.performance.PerformanceViewModel
 import com.example.kenyatduhubtechers.ui.profile.ProfileViewModel
 import com.example.kenyatduhubtechers.ui.results.ResultsViewModel
 import com.example.kenyatduhubtechers.ui.students.StudentsViewModel
+import com.example.kenyatduhubtechers.ui.studentsubjects.StudentSubjectsViewModel
 import com.example.kenyatduhubtechers.ui.theme.KenyaTduhubTechersTheme
 import com.example.kenyatduhubtechers.ui.timetable.TimetableViewModel
 
@@ -45,6 +53,10 @@ class MainActivity : ComponentActivity() {
     private val studentsRepository by lazy { StudentsRepository(sessionManager) }
     private val parentsRepository by lazy { ParentsRepository(sessionManager) }
     private val feesRepository by lazy { FeesRepository(sessionManager) }
+    private val studentSubjectsRepository by lazy { StudentSubjectsRepository(sessionManager) }
+    private val dutyRepository by lazy { DutyRepository(sessionManager) }
+    private val assignmentsRepository by lazy { AssignmentsRepository(sessionManager) }
+    private val attendanceRepository by lazy { AttendanceRepository(sessionManager) }
 
     private val loginViewModel: LoginViewModel by viewModels {
         LoginViewModel.Factory(application, authRepository)
@@ -93,6 +105,22 @@ class MainActivity : ComponentActivity() {
                         FeesViewModel.Factory(feesRepository)
                     }
 
+                    val studentSubjectsViewModel: StudentSubjectsViewModel by viewModels {
+                        StudentSubjectsViewModel.Factory(studentSubjectsRepository, performanceRepository)
+                    }
+
+                    val dutyViewModel: DutyViewModel by viewModels {
+                        DutyViewModel.Factory(dutyRepository)
+                    }
+
+                    val assignmentsViewModel: AssignmentsViewModel by viewModels {
+                        AssignmentsViewModel.Factory(assignmentsRepository)
+                    }
+
+                    val attendanceViewModel: AttendanceViewModel by viewModels {
+                        AttendanceViewModel.Factory(attendanceRepository)
+                    }
+
                     DashboardScreen(
                         dashboardViewModel = dashboardViewModel,
                         calendarViewModel = calendarViewModel,
@@ -103,6 +131,10 @@ class MainActivity : ComponentActivity() {
                         studentsViewModel = studentsViewModel,
                         parentsViewModel = parentsViewModel,
                         feesViewModel = feesViewModel,
+                        studentSubjectsViewModel = studentSubjectsViewModel,
+                        dutyViewModel = dutyViewModel,
+                        assignmentsViewModel = assignmentsViewModel,
+                        attendanceViewModel = attendanceViewModel,
                         onLogout = { loginViewModel.logout() }
                     )
                 } else {

@@ -116,46 +116,79 @@ try {
     $stmt->execute($params);
     $raw_students = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    // Fetch fee balances per student
+    // Calculate real fee balances per student matching fees API & web code
+    $current_year = date('Y');
+    $student_fee_summary_map = [];
+
+    try {
+        $fee_query = "SELECT s.id as student_id,
+                             COALESCE(fs.fee_type, 'Tuition Fee') as fee_type,
+                             COALESCE(fs.amount, 0) as fee_amount,
+                             COALESCE(SUM(fp.amount), 0) as paid_amount
+                      FROM students s
+                      LEFT JOIN classes c ON s.class_id = c.id
+                      LEFT JOIN fee_structure fs ON c.id = fs.class_id AND fs.year = ?
+                      LEFT JOIN fee_payments fp ON s.id = fp.student_id AND fs.term = fp.term AND fs.year = fp.year AND fp.status = 'completed'
+                          AND (fp.fee_type = fs.fee_type OR (fp.fee_type IS NULL AND fs.fee_type = 'Tuition'))
+                      WHERE s.school_id = ? AND s.status = 'active'
+                      GROUP BY s.id, fs.id, fs.fee_type, fs.amount";
+        $fee_stmt = $pdo->prepare($fee_query);
+        $fee_stmt->execute([$current_year, $school_id]);
+        $fee_rows = $fee_stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        foreach ($fee_rows as $frow) {
+            $sid = $frow['student_id'];
+            $ftype = $frow['fee_type'] ?? 'Tuition Fee';
+            $fee_amt = floatval($frow['fee_amount'] ?? 0);
+            $paid_amt = floatval($frow['paid_amount'] ?? 0);
+
+            if (!isset($student_fee_summary_map[$sid])) {
+                $student_fee_summary_map[$sid] = [];
+            }
+            if (!isset($student_fee_summary_map[$sid][$ftype])) {
+                $student_fee_summary_map[$sid][$ftype] = [
+                    'total_fees' => 0.0,
+                    'total_paid' => 0.0,
+                    'balance' => 0.0
+                ];
+            }
+
+            $student_fee_summary_map[$sid][$ftype]['total_fees'] += $fee_amt;
+            $student_fee_summary_map[$sid][$ftype]['total_paid'] += $paid_amt;
+            $student_fee_summary_map[$sid][$ftype]['balance'] += ($fee_amt - $paid_amt);
+        }
+    } catch (PDOException $e) {
+        error_log("Failed to calculate student fee balances in students API: " . $e->getMessage());
+    }
+
     $students = [];
     foreach ($raw_students as $student) {
         $sid = $student['id'];
-        $fee_balances = [];
+        $fee_balances = $student_fee_summary_map[$sid] ?? [];
 
-        try {
-            $stmt = $pdo->prepare("SELECT fb.*, ft.fee_type_name
-                                  FROM student_fee_balances fb
-                                  LEFT JOIN fee_types ft ON fb.fee_type_id = ft.id
-                                  WHERE fb.student_id = ?");
-            $stmt->execute([$sid]);
-            $fb_rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-            foreach ($fb_rows as $row) {
-                $ft_name = $row['fee_type_name'] ?? 'Tuition Fee';
-                $tot = floatval($row['total_amount'] ?? ($row['amount'] ?? 0));
-                $paid = floatval($row['paid_amount'] ?? 0);
-                $bal = floatval($row['balance'] ?? ($tot - $paid));
-
-                $fee_balances[$ft_name] = [
-                    'total_fees' => $tot,
-                    'total_paid' => $paid,
-                    'balance' => $bal
-                ];
-            }
-        } catch (PDOException $e) {}
-
-        // Fallback default fee structure if no fee balances recorded
         if (empty($fee_balances)) {
             $fee_balances['Tuition Fee'] = [
-                'total_fees' => 15000.0,
-                'total_paid' => 15000.0,
+                'total_fees' => 0.0,
+                'total_paid' => 0.0,
                 'balance' => 0.0
             ];
+        }
+
+        $total_stu_fees = 0.0;
+        $total_stu_paid = 0.0;
+        $total_stu_bal = 0.0;
+        foreach ($fee_balances as $fb) {
+            $total_stu_fees += floatval($fb['total_fees']);
+            $total_stu_paid += floatval($fb['total_paid']);
+            $total_stu_bal += floatval($fb['balance']);
         }
 
         $student['status'] = $student['status'] ?? 'active';
         $student['gender'] = $student['gender'] ?? 'Male';
         $student['fee_balances'] = $fee_balances;
+        $student['total_fees'] = $total_stu_fees;
+        $student['total_paid'] = $total_stu_paid;
+        $student['total_balance'] = $total_stu_bal;
         $students[] = $student;
     }
 

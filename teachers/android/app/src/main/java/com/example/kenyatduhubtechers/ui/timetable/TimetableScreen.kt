@@ -20,17 +20,24 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.BeachAccess
+import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Coffee
+import androidx.compose.material.icons.filled.Event
+import androidx.compose.material.icons.filled.EventBusy
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Schedule
+import androidx.compose.material.icons.filled.School
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -50,8 +57,11 @@ import com.example.kenyatduhubtechers.ui.theme.EduHubOrange
 import com.example.kenyatduhubtechers.ui.theme.EduHubSuccess
 import com.example.kenyatduhubtechers.ui.theme.EduHubTextDark
 import com.example.kenyatduhubtechers.ui.theme.EduHubTextMuted
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
-@OptIn(ExperimentalLayoutApi::class)
+@OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun TimetableScreen(
     viewModel: TimetableViewModel,
@@ -59,22 +69,25 @@ fun TimetableScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
-    if (uiState.isLoading) {
-        Box(
-            modifier = modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
-        ) {
-            CircularProgressIndicator(color = EduHubOrange)
-        }
-        return
-    }
-
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(16.dp)
+    PullToRefreshBox(
+        isRefreshing = uiState.isLoading,
+        onRefresh = { viewModel.loadTimetableData() },
+        modifier = modifier.fillMaxSize()
     ) {
+        if (uiState.isLoading && uiState.timetableAssignments.isEmpty() && uiState.calendarStatus == null) {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator(color = EduHubOrange)
+            }
+        } else {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+                    .padding(16.dp)
+            ) {
         Text(
             text = "My Timetable",
             fontSize = 22.sp,
@@ -83,85 +96,97 @@ fun TimetableScreen(
             modifier = Modifier.padding(bottom = 16.dp)
         )
 
-        // 1. Calendar Status Card
+        // Sleek Orange Session Status Banner
         val status = uiState.calendarStatus
-        val isHoliday = status?.isHoliday ?: false
         val schoolStatus = status?.schoolStatus ?: "in_session"
-
-        val (statusBg, statusBorder, statusIcon, statusTitle, statusTitleColor, statusDetail) = when {
-            isHoliday || schoolStatus == "holiday" -> {
-                val holidayName = status?.currentHoliday?.holidayName ?: "Holiday"
-                val start = status?.currentHoliday?.startDate ?: ""
-                val end = status?.currentHoliday?.endDate ?: ""
-                val dateText = if (start.isNotEmpty()) " ($start - $end)" else ""
-                Tuple6(
-                    Color(0xFFFCE8E6),
-                    EduHubError,
-                    Icons.Default.Warning,
-                    "School is on Holiday",
-                    EduHubError,
-                    "$holidayName$dateText"
-                )
-            }
-            schoolStatus == "break" -> {
-                Tuple6(
-                    Color(0xFFFEF7E0),
-                    Color(0xFFF9AB00),
-                    Icons.Default.Info,
-                    "School is on Break",
-                    Color(0xFFB06000),
-                    "No active term is currently set."
-                )
-            }
-            else -> {
-                val termName = status?.currentTerm?.termName ?: "Active Term"
-                val start = status?.currentTerm?.startDate ?: ""
-                val end = status?.currentTerm?.endDate ?: ""
-                val dateText = if (start.isNotEmpty()) " ($start - $end)" else ""
-                Tuple6(
-                    Color(0xFFE6F4EA),
-                    EduHubSuccess,
-                    Icons.Default.CheckCircle,
-                    "School is In Session",
-                    EduHubSuccess,
-                    "$termName$dateText"
-                )
-            }
-        }
+        val isHoliday = status?.isHoliday ?: false
 
         Card(
-            modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(containerColor = statusBg),
-            border = BorderStroke(1.dp, statusBorder),
-            shape = RoundedCornerShape(8.dp),
-            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 16.dp),
+            shape = RoundedCornerShape(12.dp),
+            colors = CardDefaults.cardColors(containerColor = EduHubOrange),
+            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
         ) {
-            Row(
+            Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp),
-                verticalAlignment = Alignment.CenterVertically
+                    .padding(20.dp)
             ) {
-                Icon(
-                    imageVector = statusIcon,
-                    contentDescription = null,
-                    tint = statusTitleColor,
-                    modifier = Modifier.size(24.dp)
+                Text(
+                    text = "School Session Status",
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White
                 )
-                Spacer(modifier = Modifier.width(12.dp))
-                Column {
-                    Text(
-                        text = statusTitle,
-                        fontSize = 15.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = statusTitleColor
-                    )
-                    Spacer(modifier = Modifier.height(2.dp))
-                    Text(
-                        text = statusDetail,
-                        fontSize = 13.sp,
-                        color = EduHubTextMuted
-                    )
+
+                Spacer(modifier = Modifier.height(14.dp))
+
+                when {
+                    isHoliday || schoolStatus == "holiday" -> {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(Icons.Default.BeachAccess, contentDescription = null, tint = Color.White, modifier = Modifier.size(28.dp))
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Column {
+                                Text("School is on Holiday", fontSize = 15.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                                Text(
+                                    text = "${status?.currentHoliday?.holidayName ?: "Holiday"} (${status?.currentHoliday?.startDate ?: ""} - ${status?.currentHoliday?.endDate ?: ""})",
+                                    fontSize = 13.sp,
+                                    color = Color.White.copy(alpha = 0.9f)
+                                )
+                            }
+                        }
+                    }
+                    schoolStatus == "break" -> {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(Icons.Default.EventBusy, contentDescription = null, tint = Color.White, modifier = Modifier.size(28.dp))
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Column {
+                                Text("School is on Break", fontSize = 15.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                                Text("No active term for current date", fontSize = 13.sp, color = Color.White.copy(alpha = 0.9f))
+                            }
+                        }
+                    }
+                    else -> {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(Icons.Default.School, contentDescription = null, tint = Color.White, modifier = Modifier.size(28.dp))
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Column {
+                                Text("School is in Session", fontSize = 15.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                                Text(status?.currentTerm?.termName ?: "Term 1", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = Color.White)
+                                if (status?.currentTerm?.startDate != null) {
+                                    Text(
+                                        text = "${status.currentTerm.startDate} - ${status.currentTerm.endDate}",
+                                        fontSize = 12.sp,
+                                        color = Color.White.copy(alpha = 0.85f)
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(14.dp))
+                HorizontalDivider(color = Color.White.copy(alpha = 0.35f))
+                Spacer(modifier = Modifier.height(12.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(Icons.Default.CalendarMonth, contentDescription = null, tint = Color.White, modifier = Modifier.size(16.dp))
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text("Academic Year: ${status?.currentYear ?: SimpleDateFormat("yyyy", Locale.getDefault()).format(Date())}", fontSize = 12.sp, color = Color.White)
+                    }
+
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(Icons.Default.Event, contentDescription = null, tint = Color.White, modifier = Modifier.size(16.dp))
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text("Today: ${SimpleDateFormat("MMMM d, yyyy", Locale.getDefault()).format(Date())}", fontSize = 12.sp, color = Color.White)
+                    }
                 }
             }
         }
@@ -307,7 +332,9 @@ fun TimetableScreen(
         }
 
         Spacer(modifier = Modifier.height(24.dp))
+        }
     }
+}
 }
 
 @Composable

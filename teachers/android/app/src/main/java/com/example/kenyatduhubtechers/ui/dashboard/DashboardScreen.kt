@@ -44,6 +44,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -76,11 +77,19 @@ import com.example.kenyatduhubtechers.ui.parents.ParentsViewModel
 import com.example.kenyatduhubtechers.ui.performance.PerformanceScreen
 import com.example.kenyatduhubtechers.ui.performance.PerformanceViewModel
 import com.example.kenyatduhubtechers.ui.profile.ProfileScreen
+import com.example.kenyatduhubtechers.ui.assignments.AssignmentsScreen
+import com.example.kenyatduhubtechers.ui.assignments.AssignmentsViewModel
+import com.example.kenyatduhubtechers.ui.attendance.AttendanceScreen
+import com.example.kenyatduhubtechers.ui.attendance.AttendanceViewModel
+import com.example.kenyatduhubtechers.ui.duty.DutyScreen
+import com.example.kenyatduhubtechers.ui.duty.DutyViewModel
 import com.example.kenyatduhubtechers.ui.profile.ProfileViewModel
 import com.example.kenyatduhubtechers.ui.results.ResultsScreen
 import com.example.kenyatduhubtechers.ui.results.ResultsViewModel
 import com.example.kenyatduhubtechers.ui.students.StudentsScreen
 import com.example.kenyatduhubtechers.ui.students.StudentsViewModel
+import com.example.kenyatduhubtechers.ui.studentsubjects.StudentSubjectsScreen
+import com.example.kenyatduhubtechers.ui.studentsubjects.StudentSubjectsViewModel
 import com.example.kenyatduhubtechers.ui.theme.EduHubBackground
 import com.example.kenyatduhubtechers.ui.theme.EduHubBorder
 import com.example.kenyatduhubtechers.ui.theme.EduHubOrange
@@ -106,6 +115,10 @@ fun DashboardScreen(
     studentsViewModel: StudentsViewModel,
     parentsViewModel: ParentsViewModel,
     feesViewModel: FeesViewModel,
+    studentSubjectsViewModel: StudentSubjectsViewModel,
+    dutyViewModel: DutyViewModel,
+    assignmentsViewModel: AssignmentsViewModel,
+    attendanceViewModel: AttendanceViewModel,
     onLogout: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -170,6 +183,7 @@ fun DashboardScreen(
                 when (selectedRoute) {
                     NavItem.Dashboard.route -> DashboardMainContent(
                         uiState = dashboardUiState,
+                        onRefresh = { dashboardViewModel.loadDashboardData() },
                         onNavigate = { route -> selectedRoute = route }
                     )
                     NavItem.Calendar.route -> CalendarScreen(
@@ -177,6 +191,9 @@ fun DashboardScreen(
                     )
                     NavItem.Timetable.route -> TimetableScreen(
                         viewModel = timetableViewModel
+                    )
+                    NavItem.Attendance.route -> AttendanceScreen(
+                        viewModel = attendanceViewModel
                     )
                     NavItem.Performance.route -> PerformanceScreen(
                         viewModel = performanceViewModel
@@ -190,8 +207,17 @@ fun DashboardScreen(
                     NavItem.Students.route -> StudentsScreen(
                         viewModel = studentsViewModel
                     )
+                    NavItem.StudentSubjects.route -> StudentSubjectsScreen(
+                        viewModel = studentSubjectsViewModel
+                    )
+                    NavItem.Assignments.route -> AssignmentsScreen(
+                        viewModel = assignmentsViewModel
+                    )
                     NavItem.Parents.route -> ParentsScreen(
                         viewModel = parentsViewModel
+                    )
+                    NavItem.Duty.route -> DutyScreen(
+                        viewModel = dutyViewModel
                     )
                     NavItem.Fees.route -> FeesScreen(
                         viewModel = feesViewModel
@@ -200,7 +226,8 @@ fun DashboardScreen(
                         title = NavItems.getMainItems().find { it.route == selectedRoute }?.title
                             ?: NavItems.getAccountItems().find { it.route == selectedRoute }?.title
                             ?: "Screen",
-                        teacher = dashboardUiState.teacher
+                        teacher = dashboardUiState.teacher,
+                        onRefresh = { dashboardViewModel.loadDashboardData() }
                     )
                 }
             }
@@ -208,30 +235,35 @@ fun DashboardScreen(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun DashboardMainContent(
     uiState: DashboardUiState,
+    onRefresh: () -> Unit,
     onNavigate: (String) -> Unit
 ) {
-    if (uiState.isLoading) {
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
-        ) {
-            CircularProgressIndicator(color = EduHubOrange)
-        }
-        return
-    }
+    PullToRefreshBox(
+        isRefreshing = uiState.isLoading,
+        onRefresh = onRefresh,
+        modifier = Modifier.fillMaxSize()
+    ) {
+        if (uiState.isLoading && uiState.stats == null && uiState.teacher == null) {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator(color = EduHubOrange)
+            }
+        } else {
+            val teacher = uiState.teacher
+            val stats = uiState.stats
+            val calendarStatus = uiState.calendarStatus
 
-    val teacher = uiState.teacher
-    val stats = uiState.stats
-    val calendarStatus = uiState.calendarStatus
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(16.dp)
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+                    .padding(16.dp)
     ) {
         // 1. Welcome Container Card
         Card(
@@ -533,6 +565,8 @@ private fun DashboardMainContent(
         }
     }
 }
+}
+}
 
 @Composable
 private fun WebStatCard(
@@ -676,30 +710,39 @@ private fun ActivityRowItem(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun GenericScreenContent(
     title: String,
-    teacher: TeacherDto?
+    teacher: TeacherDto?,
+    onRefresh: () -> Unit
 ) {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        contentAlignment = Alignment.Center
+    PullToRefreshBox(
+        isRefreshing = false,
+        onRefresh = onRefresh,
+        modifier = Modifier.fillMaxSize()
     ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(
-                text = title,
-                fontSize = 22.sp,
-                fontWeight = FontWeight.Bold,
-                color = EduHubTextDark
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = "Feature module for $title is connected.",
-                fontSize = 14.sp,
-                color = EduHubTextMuted
-            )
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .padding(16.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text(
+                    text = title,
+                    fontSize = 22.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = EduHubTextDark
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = "Feature module for $title is connected.",
+                    fontSize = 14.sp,
+                    color = EduHubTextMuted
+                )
+            }
         }
     }
 }

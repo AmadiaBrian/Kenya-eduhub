@@ -1,9 +1,13 @@
 <?php
 // Teachers Assignments API
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type, Authorization');
+header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Session-Token');
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
@@ -12,63 +16,88 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 
 require_once '../../config.php';
 
-// Enable error reporting for debugging
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
+function getAuthSessionToken() {
+    $headers = function_exists('getallheaders') ? getallheaders() : [];
+    foreach ($headers as $key => $val) {
+        if (strcasecmp($key, 'X-Session-Token') === 0 && !empty($val)) {
+            return trim($val);
+        }
+        if (strcasecmp($key, 'Authorization') === 0 && !empty($val)) {
+            if (preg_match('/Bearer\s+(.*)$/i', $val, $matches)) {
+                return trim($matches[1]);
+            }
+            return trim($val);
+        }
+    }
+    if (!empty($_SERVER['HTTP_X_SESSION_TOKEN'])) return trim($_SERVER['HTTP_X_SESSION_TOKEN']);
+    if (!empty($_SERVER['HTTP_AUTHORIZATION'])) {
+        $val = $_SERVER['HTTP_AUTHORIZATION'];
+        if (preg_match('/Bearer\s+(.*)$/i', $val, $matches)) return trim($matches[1]);
+        return trim($val);
+    }
+    if (!empty($_SERVER['REDIRECT_HTTP_AUTHORIZATION'])) {
+        $val = $_SERVER['REDIRECT_HTTP_AUTHORIZATION'];
+        if (preg_match('/Bearer\s+(.*)$/i', $val, $matches)) return trim($matches[1]);
+        return trim($val);
+    }
+    if (!empty($_GET['session_token'])) return trim($_GET['session_token']);
+    if (!empty($_POST['session_token'])) return trim($_POST['session_token']);
+    return '';
+}
 
-// Get session token from header
-$headers = getallheaders();
-$session_token = $headers['Authorization'] ?? '';
+$school_id = null;
+$teacher_id = null;
+$session = null;
 
-if (empty($session_token)) {
+$session_token = getAuthSessionToken();
+
+if (!empty($session_token)) {
+    try {
+        $stmt = $pdo->prepare("SELECT ts.*, t.*, s.school_name
+                              FROM teacher_sessions ts
+                              JOIN teachers t ON ts.teacher_id = t.id
+                              JOIN schools s ON t.school_id = s.id
+                              WHERE ts.session_token = ? AND ts.expires_at > NOW()");
+        $stmt->execute([$session_token]);
+        $session = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($session) {
+            $teacher_id = $session['teacher_id'];
+            $school_id = $session['school_id'];
+        }
+    } catch (PDOException $e) {
+        error_log("Failed to verify session token: " . $e->getMessage());
+    }
+}
+
+if (!$school_id && isset($_SESSION['school_id'])) {
+    $school_id = $_SESSION['school_id'];
+    $teacher_id = $_SESSION['teacher_id'] ?? null;
+    if ($teacher_id) {
+        $stmt = $pdo->prepare("SELECT t.*, s.school_name FROM teachers t JOIN schools s ON t.school_id = s.id WHERE t.id = ?");
+        $stmt->execute([$teacher_id]);
+        $session = $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+}
+
+if (!$school_id || !$teacher_id) {
     http_response_code(401);
-    echo json_encode(['error' => 'No session token provided']);
+    echo json_encode(['success' => false, 'error' => 'Unauthorized or missing session token']);
     exit;
 }
 
-try {
-    // Verify session token
-    $stmt = $pdo->prepare("SELECT ts.*, t.*, s.school_name 
-                          FROM teacher_sessions ts
-                          JOIN teachers t ON ts.teacher_id = t.id
-                          JOIN schools s ON t.school_id = s.id
-                          WHERE ts.session_token = ? AND ts.expires_at > NOW()");
-    $stmt->execute([$session_token]);
-    $session = $stmt->fetch();
+$class_id = $session['class_id'] ?? ($_SESSION['class_id'] ?? null);
+$stream_id = $session['stream_id'] ?? ($_SESSION['stream_id'] ?? null);
+$teacher_type = $session['teacher_type'] ?? ($_SESSION['teacher_type'] ?? 'subject_teacher');
 
-    if (!$session) {
-        http_response_code(401);
-        echo json_encode(['error' => 'Invalid or expired session']);
-        exit;
-    }
-
-    $teacher_id = $session['teacher_id'];
-    $teacher_name = $session['first_name'] . ' ' . $session['last_name'];
-    $school_id = $session['school_id'];
-    $class_id = $session['class_id'] ?? null;
-    $stream_id = $session['stream_id'] ?? null;
-    $teacher_type = $session['teacher_type'];
-
-    // Get class and stream names
-    $class_name = null;
-    $stream_name = null;
-    if ($class_id) {
-        $stmt = $pdo->prepare("SELECT class_name FROM classes WHERE id = ?");
-        $stmt->execute([$class_id]);
-        $class = $stmt->fetch();
-        $class_name = $class['class_name'] ?? null;
-    }
-    if ($stream_id) {
-        $stmt = $pdo->prepare("SELECT stream_name FROM streams WHERE id = ?");
-        $stmt->execute([$stream_id]);
-        $stream = $stmt->fetch();
-        $stream_name = $stream['stream_name'] ?? null;
-    }
-
-} catch (PDOException $e) {
-    http_response_code(500);
-    echo json_encode(['error' => 'Database error']);
-    exit;
+// Get class and stream names
+$class_name = null;
+$stream_name = null;
+if ($class_id) {
+    $stmt = $pdo->prepare("SELECT class_name FROM classes WHERE id = ?");
+    $stmt->execute([$class_id]);
+    $class = $stmt->fetch(PDO::FETCH_ASSOC);
+    $class_name = $class['class_name'] ?? null;
 }
 
 // Get calendar status
@@ -83,7 +112,7 @@ try {
     $current_date = date('Y-m-d');
     $stmt = $pdo->prepare("SELECT * FROM holidays WHERE school_id = ? AND start_date <= ? AND end_date >= ?");
     $stmt->execute([$school_id, $current_date, $current_date]);
-    $holiday = $stmt->fetch();
+    $holiday = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if ($holiday) {
         $calendar_status['is_holiday'] = true;
@@ -96,7 +125,7 @@ try {
         // Check for active term
         $stmt = $pdo->prepare("SELECT * FROM terms WHERE school_id = ? AND start_date <= ? AND end_date >= ?");
         $stmt->execute([$school_id, $current_date, $current_date]);
-        $term = $stmt->fetch();
+        $term = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if ($term) {
             $calendar_status['school_status'] = 'in_session';
@@ -123,7 +152,7 @@ if ($teacher_type === 'subject_teacher') {
                              JOIN subjects sub ON ts.subject_id = sub.id
                              WHERE ts.teacher_id = ?");
         $stmt->execute([$teacher_id]);
-        $subject_assignments = $stmt->fetchAll();
+        $subject_assignments = $stmt->fetchAll(PDO::FETCH_ASSOC);
     } catch (PDOException $e) {
         error_log("Failed to fetch subject assignments: " . $e->getMessage());
     }
@@ -133,19 +162,14 @@ if ($teacher_type === 'subject_teacher') {
 $classes = [];
 try {
     if ($teacher_type === 'class_teacher' && $class_id) {
-        // Class teacher sees only their assigned class
         $stmt = $pdo->prepare("SELECT id, class_name FROM classes WHERE id = ?");
         $stmt->execute([$class_id]);
-        $classes = $stmt->fetchAll();
-    } elseif ($teacher_type === 'subject_teacher' && !empty($subject_assignments)) {
-        // Subject teacher sees classes they teach
-        $class_ids = array_unique(array_column($subject_assignments, 'class_id'));
-        $placeholders = str_repeat('?,', count($class_ids) - 1) . '?';
-        $stmt = $pdo->prepare("SELECT id, class_name FROM classes WHERE id IN ($placeholders)");
-        $stmt->execute($class_ids);
-        $classes = $stmt->fetchAll();
+        $classes = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } else {
+        $stmt = $pdo->prepare("SELECT id, class_name FROM classes WHERE school_id = ? ORDER BY class_name");
+        $stmt->execute([$school_id]);
+        $classes = $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
-    // For other teacher types, don't return any classes
 } catch (PDOException $e) {
     error_log("Failed to fetch classes: " . $e->getMessage());
 }
@@ -154,19 +178,19 @@ try {
 $subjects = [];
 try {
     if ($teacher_type === 'subject_teacher' && !empty($subject_assignments)) {
-        // Subject teacher sees only subjects they teach
         $subject_ids = array_unique(array_column($subject_assignments, 'subject_id'));
-        $placeholders = str_repeat('?,', count($subject_ids) - 1) . '?';
-        $stmt = $pdo->prepare("SELECT id, subject_name FROM subjects WHERE id IN ($placeholders)");
-        $stmt->execute($subject_ids);
-        $subjects = $stmt->fetchAll();
-    } elseif ($teacher_type === 'class_teacher') {
-        // Class teacher sees all subjects in the school
-        $stmt = $pdo->prepare("SELECT id, subject_name FROM subjects WHERE school_id = ?");
-        $stmt->execute([$school_id]);
-        $subjects = $stmt->fetchAll();
+        if (!empty($subject_ids)) {
+            $placeholders = str_repeat('?,', count($subject_ids) - 1) . '?';
+            $stmt = $pdo->prepare("SELECT id, subject_name FROM subjects WHERE id IN ($placeholders)");
+            $stmt->execute($subject_ids);
+            $subjects = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        }
     }
-    // For other teacher types, don't return any subjects
+    if (empty($subjects)) {
+        $stmt = $pdo->prepare("SELECT id, subject_name FROM subjects WHERE school_id = ? ORDER BY subject_name");
+        $stmt->execute([$school_id]);
+        $subjects = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 } catch (PDOException $e) {
     error_log("Failed to fetch subjects: " . $e->getMessage());
 }
@@ -182,34 +206,21 @@ try {
               JOIN teachers t ON a.teacher_id = t.id
               WHERE a.school_id = ?";
     $params = [$school_id];
-    
-    // Filter by teacher's assigned classes/subjects
-    if ($teacher_type === 'class_teacher' && $class_id) {
-        $query .= " AND (a.class_id = ? OR a.class_id IS NULL)";
-        $params[] = $class_id;
-    } elseif ($teacher_type === 'subject_teacher' && !empty($subject_assignments)) {
-        $subject_ids = array_column($subject_assignments, 'subject_id');
-        $placeholders = str_repeat('?,', count($subject_ids) - 1) . '?';
-        $query .= " AND (a.subject_id IN ($placeholders) OR a.subject_id IS NULL)";
-        $params = array_merge($params, $subject_ids);
-    }
-    
+
     $query .= " ORDER BY a.created_at DESC LIMIT 50";
     
     $stmt = $pdo->prepare($query);
     $stmt->execute($params);
     $assignments = $stmt->fetchAll(PDO::FETCH_ASSOC);
     
-    // Get download counts and details
     foreach ($assignments as $key => $assignment) {
         $stmt = $pdo->prepare("SELECT COUNT(*) as count FROM assignment_downloads WHERE assignment_id = ?");
         $stmt->execute([$assignment['id']]);
-        $assignments[$key]['download_count'] = $stmt->fetch()['count'];
+        $assignments[$key]['download_count'] = intval($stmt->fetch(PDO::FETCH_ASSOC)['count'] ?? 0);
         
-        // Get comment count
         $stmt = $pdo->prepare("SELECT COUNT(*) as count FROM assignment_comments WHERE assignment_id = ?");
         $stmt->execute([$assignment['id']]);
-        $assignments[$key]['comment_count'] = $stmt->fetch()['count'];
+        $assignments[$key]['comment_count'] = intval($stmt->fetch(PDO::FETCH_ASSOC)['count'] ?? 0);
     }
 } catch (PDOException $e) {
     error_log("Failed to fetch assignments: " . $e->getMessage());
@@ -219,10 +230,10 @@ try {
 $response = [
     'success' => true,
     'teacher' => [
-        'id' => $session['teacher_id'],
-        'name' => $session['first_name'] . ' ' . $session['last_name'],
-        'school_name' => $session['school_name'],
-        'teacher_type' => $session['teacher_type'],
+        'id' => $teacher_id,
+        'name' => ($session['first_name'] ?? '') . ' ' . ($session['last_name'] ?? ''),
+        'school_name' => $session['school_name'] ?? '',
+        'teacher_type' => $teacher_type,
         'class_name' => $class_name,
     ],
     'calendar_status' => [
@@ -236,19 +247,21 @@ $response = [
     'subjects' => $subjects,
     'assignments' => array_map(function($assignment) {
         return [
-            'id' => $assignment['id'],
+            'id' => intval($assignment['id']),
             'title' => $assignment['title'],
             'description' => $assignment['description'],
             'assignment_type' => $assignment['assignment_type'],
             'file_name' => $assignment['file_name'],
             'file_path' => $assignment['file_path'],
+            'class_id' => $assignment['class_id'] ? intval($assignment['class_id']) : null,
+            'subject_id' => $assignment['subject_id'] ? intval($assignment['subject_id']) : null,
             'class_name' => $assignment['class_name'],
             'subject_name' => $assignment['subject_name'],
             'teacher_name' => $assignment['teacher_name'],
             'due_date' => $assignment['due_date'],
             'created_at' => $assignment['created_at'],
-            'download_count' => $assignment['download_count'],
-            'comment_count' => $assignment['comment_count'],
+            'download_count' => intval($assignment['download_count']),
+            'comment_count' => intval($assignment['comment_count']),
         ];
     }, $assignments),
 ];

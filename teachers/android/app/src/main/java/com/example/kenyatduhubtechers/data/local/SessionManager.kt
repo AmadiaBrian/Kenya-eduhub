@@ -6,9 +6,10 @@ import com.example.kenyatduhubtechers.data.model.TeacherDto
 import com.example.kenyatduhubtechers.data.network.ApiConfig
 import com.example.kenyatduhubtechers.data.network.RetrofitClient
 
-class SessionManager(context: Context) {
+class SessionManager(val context: Context) {
 
     private val prefs: SharedPreferences = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
+    val cacheManager: LocalCacheManager by lazy { LocalCacheManager(context) }
 
     companion object {
         private const val PREF_NAME = "teacher_session_prefs"

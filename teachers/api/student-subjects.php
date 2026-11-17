@@ -3,9 +3,18 @@
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
-require_once __DIR__ . '/../../config.php';
 
 header('Content-Type: application/json');
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: GET, POST, DELETE, OPTIONS');
+header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Session-Token');
+
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit;
+}
+
+require_once __DIR__ . '/../../config.php';
 
 function success_response($data, $message = 'Success') {
     echo json_encode(['success' => true, 'message' => $message, 'data' => $data]);
@@ -22,18 +31,65 @@ function sanitize_input($data) {
     return htmlspecialchars(strip_tags(trim($data)));
 }
 
-function require_auth() {
-    if (!isset($_SESSION['teacher_id']) && !isset($_SESSION['school_id'])) {
-        error_response('Unauthorized', 401);
+function getAuthSessionToken() {
+    $headers = function_exists('getallheaders') ? getallheaders() : [];
+    foreach ($headers as $key => $val) {
+        if (strcasecmp($key, 'X-Session-Token') === 0 && !empty($val)) {
+            return trim($val);
+        }
+        if (strcasecmp($key, 'Authorization') === 0 && !empty($val)) {
+            if (preg_match('/Bearer\s+(.*)$/i', $val, $matches)) {
+                return trim($matches[1]);
+            }
+            return trim($val);
+        }
+    }
+    if (!empty($_SERVER['HTTP_X_SESSION_TOKEN'])) return trim($_SERVER['HTTP_X_SESSION_TOKEN']);
+    if (!empty($_SERVER['HTTP_AUTHORIZATION'])) {
+        $val = $_SERVER['HTTP_AUTHORIZATION'];
+        if (preg_match('/Bearer\s+(.*)$/i', $val, $matches)) return trim($matches[1]);
+        return trim($val);
+    }
+    if (!empty($_SERVER['REDIRECT_HTTP_AUTHORIZATION'])) {
+        $val = $_SERVER['REDIRECT_HTTP_AUTHORIZATION'];
+        if (preg_match('/Bearer\s+(.*)$/i', $val, $matches)) return trim($matches[1]);
+        return trim($val);
+    }
+    if (!empty($_GET['session_token'])) return trim($_GET['session_token']);
+    if (!empty($_POST['session_token'])) return trim($_POST['session_token']);
+    return '';
+}
+
+$school_id = null;
+$teacher_id = null;
+
+$session_token = getAuthSessionToken();
+
+if (!empty($session_token)) {
+    try {
+        $stmt = $pdo->prepare("SELECT ts.*, t.school_id
+                              FROM teacher_sessions ts
+                              JOIN teachers t ON ts.teacher_id = t.id
+                              WHERE ts.session_token = ? AND ts.expires_at > NOW()");
+        $stmt->execute([$session_token]);
+        $session = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($session) {
+            $teacher_id = $session['teacher_id'];
+            $school_id = $session['school_id'];
+        }
+    } catch (PDOException $e) {
+        error_log("Failed to verify session token: " . $e->getMessage());
     }
 }
 
-require_auth();
-
-$school_id = $_SESSION['school_id'] ?? null;
+if (!$school_id && isset($_SESSION['school_id'])) {
+    $school_id = $_SESSION['school_id'];
+    $teacher_id = $_SESSION['teacher_id'] ?? null;
+}
 
 if (!$school_id) {
-    error_response('School ID required', 400);
+    error_response('Unauthorized or invalid session token', 401);
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
@@ -49,7 +105,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 
             $stmt = $pdo->prepare($query);
             $stmt->execute([$student_id, $school_id]);
-            $subjects = $stmt->fetchAll();
+            $subjects = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
             success_response($subjects, 'Student subject IDs retrieved successfully');
         }
@@ -61,32 +117,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             success_response([], 'No student IDs provided');
         }
 
-        $placeholders = str_repeat('?,', count($student_ids) - 1) . '?';
+        $clean_ids = array_filter(array_map('intval', $student_ids));
+        if (empty($clean_ids)) {
+            success_response([], 'No valid student IDs provided');
+        }
 
-        $query = "SELECT ss.student_id, GROUP_CONCAT(s.subject_name) as subject_names
+        $placeholders = str_repeat('?,', count($clean_ids) - 1) . '?';
+
+        $query = "SELECT ss.student_id, GROUP_CONCAT(s.subject_name SEPARATOR ', ') as subject_names
                   FROM student_subjects ss
                   JOIN subjects s ON ss.subject_id = s.id
                   WHERE ss.student_id IN ($placeholders) AND ss.school_id = ? GROUP BY ss.student_id";
 
-        $params = array_merge($student_ids, [$school_id]);
+        $params = array_merge($clean_ids, [$school_id]);
 
         $stmt = $pdo->prepare($query);
         $stmt->execute($params);
-        $assignments = $stmt->fetchAll();
+        $assignments = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         success_response($assignments, 'Student subjects retrieved successfully');
 
     } catch (PDOException $e) {
         error_log("Failed to fetch student subjects: " . $e->getMessage());
-        error_response('Failed to fetch student subjects', 500);
+        error_response('Failed to fetch student subjects: ' . $e->getMessage(), 500);
     }
 
 } elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Check if this is auto-assign compulsory subjects request
-    if (isset($_POST['auto_assign_compulsory'])) {
+    $input_json = json_decode(file_get_contents('php://input'), true);
+
+    $is_auto_assign = isset($_POST['auto_assign_compulsory']) || isset($_GET['auto_assign_compulsory']) || (is_array($input_json) && !empty($input_json['auto_assign_compulsory']));
+
+    if ($is_auto_assign) {
         // Auto-assign compulsory subjects to students in a class
-        $class_id = intval($_POST['class_id'] ?? 0);
-        $stream_id = isset($_POST['stream_id']) ? intval($_POST['stream_id']) : null;
+        $class_id = intval($_POST['class_id'] ?? $_GET['class_id'] ?? ($input_json['class_id'] ?? 0));
+        $stream_id = isset($_POST['stream_id']) ? intval($_POST['stream_id']) : (isset($_GET['stream_id']) ? intval($_GET['stream_id']) : (isset($input_json['stream_id']) ? intval($input_json['stream_id']) : null));
 
         if (!$class_id) {
             error_response('Class ID is required');
@@ -102,7 +167,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 
             if (empty($compulsory_categories)) {
                 $pdo->rollBack();
-                success_response([], 'No compulsory categories found');
+                success_response(['assigned_count' => 0], 'No compulsory categories found');
             }
 
             // Get all subjects in compulsory categories
@@ -114,7 +179,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 
             if (empty($compulsory_subjects)) {
                 $pdo->rollBack();
-                success_response([], 'No compulsory subjects found');
+                success_response(['assigned_count' => 0], 'No compulsory subjects found');
             }
 
             // Get all students in the class/stream
@@ -132,17 +197,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 
             if (empty($students)) {
                 $pdo->rollBack();
-                success_response([], 'No students found in class');
+                success_response(['assigned_count' => 0], 'No students found in class');
             }
 
             // Assign all compulsory subjects to all students
             $stmt = $pdo->prepare("INSERT INTO student_subjects (student_id, subject_id, school_id) VALUES (?, ?, ?)");
             $assigned_count = 0;
 
-            foreach ($students as $student_id) {
-                foreach ($compulsory_subjects as $subject_id) {
+            foreach ($students as $s_id) {
+                foreach ($compulsory_subjects as $sub_id) {
                     try {
-                        $stmt->execute([$student_id, $subject_id, $school_id]);
+                        $stmt->execute([$s_id, $sub_id, $school_id]);
                         $assigned_count++;
                     } catch (PDOException $e) {
                         // Ignore duplicate entries
@@ -158,13 +223,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             success_response(['assigned_count' => $assigned_count], "Successfully assigned compulsory subjects to students");
 
         } catch (PDOException $e) {
-            $pdo->rollBack();
+            if ($pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
             error_log("Failed to auto-assign compulsory subjects: " . $e->getMessage());
             error_response('Failed to auto-assign compulsory subjects', 500);
         }
     } else {
         // Regular subject assignment (JSON input)
-        $input = json_decode(file_get_contents('php://input'), true);
+        $input = $input_json;
 
         if (!$input) {
             error_response('Invalid JSON input');
@@ -185,7 +252,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             // Get school subject limits
             $stmt = $pdo->prepare("SELECT min_subjects, max_subjects FROM schools WHERE id = ?");
             $stmt->execute([$school_id]);
-            $school_limits = $stmt->fetch();
+            $school_limits = $stmt->fetch(PDO::FETCH_ASSOC);
 
             $min_subjects = $school_limits['min_subjects'] ?? 7;
             $max_subjects = $school_limits['max_subjects'] ?? 8;
@@ -197,20 +264,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             $assigned_count = 0;
             $violations = [];
 
-            foreach ($student_ids as $student_id) {
+            foreach ($student_ids as $s_id) {
                 // Check current subject count for this student
                 $check_stmt = $pdo->prepare("SELECT COUNT(*) as count FROM student_subjects WHERE student_id = ? AND school_id = ?");
-                $check_stmt->execute([intval($student_id), $school_id]);
-                $current_count = $check_stmt->fetch()['count'];
+                $check_stmt->execute([intval($s_id), $school_id]);
+                $current_count = $check_stmt->fetch(PDO::FETCH_ASSOC)['count'];
 
                 // Check if adding this subject would exceed max
                 if ($current_count >= $max_subjects) {
-                    $violations[] = "Student ID $student_id already has maximum subjects ($max_subjects)";
+                    $violations[] = "Student ID $s_id already has maximum subjects ($max_subjects)";
                     continue;
                 }
 
                 try {
-                    $stmt->execute([intval($student_id), $subject_id, $school_id]);
+                    $stmt->execute([intval($s_id), $subject_id, $school_id]);
                     $assigned_count++;
                 } catch (PDOException $e) {
                     // Ignore duplicate entries (unique constraint)
@@ -230,7 +297,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             }
 
         } catch (PDOException $e) {
-            $pdo->rollBack();
+            if ($pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
             error_log("Failed to assign subjects: " . $e->getMessage());
             error_response('Failed to assign subjects', 500);
         }

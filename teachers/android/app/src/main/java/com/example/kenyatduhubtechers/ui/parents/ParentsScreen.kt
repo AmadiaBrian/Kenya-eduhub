@@ -81,6 +81,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.core.content.FileProvider
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import com.example.kenyatduhubtechers.data.model.ParentItemDto
 import com.example.kenyatduhubtechers.ui.theme.EduHubBackground
 import com.example.kenyatduhubtechers.ui.theme.EduHubBorder
@@ -105,15 +106,19 @@ fun ParentsScreen(
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
 
-    if (uiState.isLoading) {
-        Box(
-            modifier = modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
-        ) {
-            CircularProgressIndicator(color = EduHubOrange)
-        }
-        return
-    }
+    PullToRefreshBox(
+        isRefreshing = uiState.isLoading,
+        onRefresh = { viewModel.loadParentsData() },
+        modifier = modifier.fillMaxSize()
+    ) {
+        if (uiState.isLoading && uiState.parents.isEmpty()) {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator(color = EduHubOrange)
+            }
+        } else {
 
     // Filter parents
     val filteredParents = remember(
@@ -313,15 +318,17 @@ fun ParentsScreen(
                     modifier = Modifier.weight(1f),
                     label = "Total Parents",
                     value = totalParents.toString(),
+                    subtext = "Registered Parents",
                     icon = Icons.Default.Groups,
-                    iconTint = Color(0xFF1967D2)
+                    iconTint = EduHubOrange
                 )
                 StatCard(
                     modifier = Modifier.weight(1f),
                     label = "Linked Students",
                     value = linkedStudentsCount.toString(),
+                    subtext = "Connected Students",
                     icon = Icons.Default.School,
-                    iconTint = EduHubSuccess
+                    iconTint = EduHubOrange
                 )
             }
 
@@ -333,15 +340,17 @@ fun ParentsScreen(
                     modifier = Modifier.weight(1f),
                     label = "Fathers",
                     value = fathers.toString(),
+                    subtext = "Father Guardians",
                     icon = Icons.Default.Man,
-                    iconTint = EduHubError
+                    iconTint = EduHubOrange
                 )
                 StatCard(
                     modifier = Modifier.weight(1f),
                     label = "Mothers",
                     value = mothers.toString(),
+                    subtext = "Mother Guardians",
                     icon = Icons.Default.Woman,
-                    iconTint = Color(0xFFB06000)
+                    iconTint = EduHubOrange
                 )
             }
         }
@@ -730,6 +739,8 @@ fun ParentsScreen(
             }
         }
     }
+    }
+    }
 }
 
 private fun downloadAndShareParentsCsv(context: Context, csvContent: String) {
@@ -781,23 +792,42 @@ private fun StatCard(
     modifier: Modifier = Modifier,
     label: String,
     value: String,
+    subtext: String = "",
     icon: ImageVector,
     iconTint: Color
 ) {
-    Box(
-        modifier = modifier
-            .clip(RoundedCornerShape(8.dp))
-            .background(Color.White)
-            .border(1.dp, EduHubBorder, RoundedCornerShape(8.dp))
-            .padding(14.dp),
-        contentAlignment = Alignment.Center
+    Card(
+        modifier = modifier,
+        shape = RoundedCornerShape(8.dp),
+        colors = CardDefaults.cardColors(containerColor = EduHubBackground),
+        border = BorderStroke(1.dp, EduHubBorder),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Icon(imageVector = icon, contentDescription = null, tint = iconTint, modifier = Modifier.size(24.dp))
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = iconTint,
+                modifier = Modifier.size(32.dp)
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(text = label, fontSize = 13.sp, color = EduHubTextMuted, textAlign = TextAlign.Center)
             Spacer(modifier = Modifier.height(4.dp))
-            Text(text = value, fontSize = 22.sp, fontWeight = FontWeight.Bold, color = EduHubTextDark)
-            Spacer(modifier = Modifier.height(2.dp))
-            Text(text = label, fontSize = 11.sp, color = EduHubTextMuted)
+            Text(text = value, fontSize = 26.sp, fontWeight = FontWeight.Normal, color = EduHubTextDark, textAlign = TextAlign.Center)
+            if (subtext.isNotEmpty()) {
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = subtext,
+                    fontSize = 11.sp,
+                    color = EduHubTextMuted,
+                    textAlign = TextAlign.Center
+                )
+            }
         }
     }
 }
