@@ -650,7 +650,7 @@ fun AttendanceScreen(
                                 Column {
                                     Row(
                                         modifier = Modifier
-                                            .background(Color(0xFFF8F9FA))
+                                            .background(EduHubTableHeaderBg)
                                             .padding(vertical = 10.dp, horizontal = 12.dp),
                                         verticalAlignment = Alignment.CenterVertically
                                     ) {
@@ -661,7 +661,7 @@ fun AttendanceScreen(
                                     HorizontalDivider(color = EduHubBorder)
 
                                     uiState.historyList.forEachIndexed { index, hist ->
-                                        val bg = if (index % 2 == 0) Color.White else Color(0xFFFAFAFA)
+                                        val bg = if (index % 2 == 0) EduHubRowEvenBg else EduHubRowOddBg
                                         Row(
                                             modifier = Modifier
                                                 .background(bg)
@@ -731,7 +731,7 @@ private fun StatusChip(
 ) {
     Surface(
         onClick = onClick,
-        color = if (isSelected) activeColor else Color.White,
+        color = if (isSelected) activeColor else EduHubCardSurface,
         shape = RoundedCornerShape(4.dp),
         border = BorderStroke(1.dp, if (isSelected) activeColor else EduHubBorder)
     ) {

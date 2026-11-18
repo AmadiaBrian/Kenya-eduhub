@@ -33,13 +33,18 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.TrendingUp
+import androidx.compose.material.icons.filled.Assessment
 import androidx.compose.material.icons.filled.Book
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.CloudUpload
 import androidx.compose.material.icons.filled.Download
+import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.Fullscreen
 import androidx.compose.material.icons.filled.Save
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Speed
 import androidx.compose.material.icons.filled.TableChart
 import androidx.compose.material.icons.filled.Undo
 import androidx.compose.material.icons.filled.Warning
@@ -72,6 +77,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -84,11 +90,15 @@ import androidx.core.content.FileProvider
 import com.example.kenyatduhubtechers.data.model.PerformanceRecordDto
 import com.example.kenyatduhubtechers.ui.theme.EduHubBackground
 import com.example.kenyatduhubtechers.ui.theme.EduHubBorder
+import com.example.kenyatduhubtechers.ui.theme.EduHubCardSurface
 import com.example.kenyatduhubtechers.ui.theme.EduHubError
 import com.example.kenyatduhubtechers.ui.theme.EduHubErrorContainer
 import com.example.kenyatduhubtechers.ui.theme.EduHubOrange
+import com.example.kenyatduhubtechers.ui.theme.EduHubRowEvenBg
+import com.example.kenyatduhubtechers.ui.theme.EduHubRowOddBg
 import com.example.kenyatduhubtechers.ui.theme.EduHubSuccess
 import com.example.kenyatduhubtechers.ui.theme.EduHubSuccessContainer
+import com.example.kenyatduhubtechers.ui.theme.EduHubTableHeaderBg
 import com.example.kenyatduhubtechers.ui.theme.EduHubTextDark
 import com.example.kenyatduhubtechers.ui.theme.EduHubTextMuted
 import java.io.File
@@ -349,15 +359,17 @@ fun PerformanceScreen(
                         modifier = Modifier.weight(1f),
                         label = "Total Records",
                         value = totalCount.toString(),
-                        bgColor = Color(0xFFE8F0FE),
-                        textColor = Color(0xFF1967D2)
+                        subtext = "Evaluated Records",
+                        icon = Icons.Default.Assessment,
+                        iconTint = EduHubOrange
                     )
                     MetricCard(
                         modifier = Modifier.weight(1f),
                         label = "Average Score",
                         value = avgScore,
-                        bgColor = Color(0xFFE6F4EA),
-                        textColor = EduHubSuccess
+                        subtext = "Mean Score",
+                        icon = Icons.AutoMirrored.Filled.TrendingUp,
+                        iconTint = EduHubOrange
                     )
                 }
 
@@ -369,22 +381,25 @@ fun PerformanceScreen(
                         modifier = Modifier.weight(1f),
                         label = "Highest Score",
                         value = highestScore,
-                        bgColor = Color(0xFFFCE8E6),
-                        textColor = EduHubError
+                        subtext = "Top Marks",
+                        icon = Icons.Default.EmojiEvents,
+                        iconTint = EduHubOrange
                     )
                     MetricCard(
                         modifier = Modifier.weight(1f),
                         label = "Lowest Score",
                         value = lowestScore,
-                        bgColor = Color(0xFFFEF7E0),
-                        textColor = Color(0xFFB06000)
+                        subtext = "Minimum Marks",
+                        icon = Icons.Default.Speed,
+                        iconTint = EduHubOrange
                     )
                     MetricCard(
                         modifier = Modifier.weight(1f),
                         label = "Pass Rate",
                         value = "$passRate%",
-                        bgColor = Color(0xFFF1F3F4),
-                        textColor = EduHubTextDark
+                        subtext = "Class Pass %",
+                        icon = Icons.Default.CheckCircle,
+                        iconTint = EduHubOrange
                     )
                 }
             }
@@ -714,22 +729,22 @@ private fun BuiltInCsvSheetDialog(
 
                     // Table Rows
                     uiState.csvEditorRows.forEachIndexed { index, row ->
-                        val bg = if (index % 2 == 0) Color.White else Color(0xFFF6F8FA)
+                        val bg = if (index % 2 == 0) EduHubRowEvenBg else EduHubRowOddBg
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .background(bg)
-                                .border(BorderStroke(0.5.dp, Color(0xFFD0D7DE)))
+                                .border(BorderStroke(0.5.dp, EduHubBorder))
                                 .padding(vertical = 4.dp, horizontal = 4.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text("${index + 1}", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = Color.Gray, modifier = Modifier.width(28.dp), textAlign = TextAlign.Center)
+                            Text("${index + 1}", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = EduHubTextMuted, modifier = Modifier.width(28.dp), textAlign = TextAlign.Center)
 
                             Box(
                                 modifier = Modifier
                                     .weight(1.2f)
                                     .clip(RoundedCornerShape(4.dp))
-                                    .background(Color(0xFFF0F4F9))
+                                    .background(EduHubBackground)
                                     .padding(horizontal = 6.dp, vertical = 4.dp)
                             ) {
                                 Text(row.admissionNumber, fontSize = 11.sp, fontWeight = FontWeight.Bold, color = EduHubTextDark)
@@ -751,8 +766,10 @@ private fun BuiltInCsvSheetDialog(
                                 colors = OutlinedTextFieldDefaults.colors(
                                     focusedBorderColor = EduHubOrange,
                                     unfocusedBorderColor = EduHubBorder,
-                                    focusedContainerColor = Color.White,
-                                    unfocusedContainerColor = Color.White
+                                    focusedContainerColor = EduHubBackground,
+                                    unfocusedContainerColor = EduHubBackground,
+                                    focusedTextColor = EduHubTextDark,
+                                    unfocusedTextColor = EduHubTextDark
                                 )
                             )
 
@@ -762,7 +779,7 @@ private fun BuiltInCsvSheetDialog(
                                 modifier = Modifier
                                     .weight(1.3f)
                                     .clip(RoundedCornerShape(6.dp))
-                                    .background(if (row.grade.isNotBlank()) Color(0xFFE8F0FE) else Color(0xFFF1F3F4))
+                                    .background(if (row.grade.isNotBlank()) EduHubSuccessContainer else EduHubBackground)
                                     .padding(horizontal = 4.dp, vertical = 4.dp),
                                 contentAlignment = Alignment.Center
                             ) {
@@ -770,7 +787,7 @@ private fun BuiltInCsvSheetDialog(
                                     text = if (row.grade.isNotBlank()) "${row.grade} (${row.points}p)" else "-",
                                     fontSize = 11.sp,
                                     fontWeight = FontWeight.Bold,
-                                    color = if (row.grade.isNotBlank()) Color(0xFF1967D2) else Color.Gray,
+                                    color = if (row.grade.isNotBlank()) EduHubSuccess else EduHubTextMuted,
                                     textAlign = TextAlign.Center
                                 )
                             }
@@ -837,8 +854,8 @@ private fun PdfResultSheet(
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
-        border = BorderStroke(1.5.dp, Color(0xFF1E1E1E)),
+        colors = CardDefaults.cardColors(containerColor = EduHubCardSurface),
+        border = BorderStroke(1.5.dp, EduHubBorder),
         shape = RoundedCornerShape(0.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
@@ -858,7 +875,7 @@ private fun PdfResultSheet(
                     text = schoolName.uppercase(),
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color.Black,
+                    color = EduHubTextDark,
                     fontFamily = FontFamily.Serif,
                     textAlign = TextAlign.Center
                 )
@@ -873,13 +890,13 @@ private fun PdfResultSheet(
                 Text(
                     text = "OFFICIAL ACADEMIC EVALUATION & RESULT TRANSCRIPT",
                     fontSize = 10.sp,
-                    color = Color.DarkGray,
+                    color = EduHubTextMuted,
                     fontFamily = FontFamily.Serif,
                     textAlign = TextAlign.Center
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
-                HorizontalDivider(color = Color.Black, thickness = 1.5.dp)
+                HorizontalDivider(color = EduHubBorder, thickness = 1.5.dp)
                 Spacer(modifier = Modifier.height(2.dp))
                 HorizontalDivider(color = EduHubOrange, thickness = 1.dp)
                 Spacer(modifier = Modifier.height(12.dp))
@@ -890,7 +907,7 @@ private fun PdfResultSheet(
                     text = "NO PERFORMANCE RECORDS AVAILABLE FOR THIS REPORT",
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color.Red,
+                    color = EduHubError,
                     fontFamily = FontFamily.Serif,
                     modifier = Modifier
                         .fillMaxWidth()
@@ -946,26 +963,26 @@ private fun PdfResultSheet(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .background(Color(0xFFE8ECEF))
-                            .border(BorderStroke(1.dp, Color.Black))
+                            .background(EduHubTableHeaderBg)
+                            .border(BorderStroke(1.dp, EduHubBorder))
                             .padding(vertical = 8.dp, horizontal = 2.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text("RANK", fontSize = 10.sp, fontWeight = FontWeight.Bold, fontFamily = FontFamily.Serif, modifier = Modifier.weight(0.7f), textAlign = TextAlign.Center)
-                        Text("CANDIDATE / ADM", fontSize = 10.sp, fontWeight = FontWeight.Bold, fontFamily = FontFamily.Serif, modifier = Modifier.weight(2.3f))
-                        Text("CLASS/STREAM", fontSize = 10.sp, fontWeight = FontWeight.Bold, fontFamily = FontFamily.Serif, modifier = Modifier.weight(1.3f), textAlign = TextAlign.Center)
-                        Text("MARKS", fontSize = 10.sp, fontWeight = FontWeight.Bold, fontFamily = FontFamily.Serif, modifier = Modifier.weight(1.1f), textAlign = TextAlign.Center)
-                        Text("GRADE (PTS)", fontSize = 10.sp, fontWeight = FontWeight.Bold, fontFamily = FontFamily.Serif, modifier = Modifier.weight(1.4f), textAlign = TextAlign.Center)
+                        Text("RANK", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = EduHubTextDark, fontFamily = FontFamily.Serif, modifier = Modifier.weight(0.7f), textAlign = TextAlign.Center)
+                        Text("CANDIDATE / ADM", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = EduHubTextDark, fontFamily = FontFamily.Serif, modifier = Modifier.weight(2.3f))
+                        Text("CLASS/STREAM", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = EduHubTextDark, fontFamily = FontFamily.Serif, modifier = Modifier.weight(1.3f), textAlign = TextAlign.Center)
+                        Text("MARKS", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = EduHubTextDark, fontFamily = FontFamily.Serif, modifier = Modifier.weight(1.1f), textAlign = TextAlign.Center)
+                        Text("GRADE (PTS)", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = EduHubTextDark, fontFamily = FontFamily.Serif, modifier = Modifier.weight(1.4f), textAlign = TextAlign.Center)
                     }
 
                     // 100% Screen Width Table Rows
                     recordsInGroup.forEachIndexed { rankIndex, record ->
-                        val rowBg = if (rankIndex % 2 == 0) Color.White else Color(0xFFF9FAFC)
+                        val rowBg = if (rankIndex % 2 == 0) EduHubRowEvenBg else EduHubRowOddBg
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .background(rowBg)
-                                .border(BorderStroke(0.5.dp, Color(0xFF333333)))
+                                .border(BorderStroke(0.5.dp, EduHubBorder))
                                 .padding(vertical = 8.dp, horizontal = 2.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
@@ -974,7 +991,7 @@ private fun PdfResultSheet(
                                 fontSize = 11.sp,
                                 fontWeight = FontWeight.Bold,
                                 fontFamily = FontFamily.Serif,
-                                color = if (rankIndex < 3) EduHubOrange else Color.Black,
+                                color = if (rankIndex < 3) EduHubOrange else EduHubTextDark,
                                 modifier = Modifier.weight(0.7f),
                                 textAlign = TextAlign.Center
                             )
@@ -985,13 +1002,13 @@ private fun PdfResultSheet(
                                     fontSize = 11.sp,
                                     fontWeight = FontWeight.Bold,
                                     fontFamily = FontFamily.Serif,
-                                    color = Color.Black
+                                    color = EduHubTextDark
                                 )
                                 Text(
                                     text = "ADM: ${record.admissionNumber ?: "N/A"}",
                                     fontSize = 9.sp,
                                     fontFamily = FontFamily.Serif,
-                                    color = Color.DarkGray
+                                    color = EduHubTextMuted
                                 )
                             }
 
@@ -999,7 +1016,7 @@ private fun PdfResultSheet(
                                 text = "${record.className ?: "-"}\n${record.streamName ?: ""}".trim(),
                                 fontSize = 10.sp,
                                 fontFamily = FontFamily.Serif,
-                                color = Color.Black,
+                                color = EduHubTextDark,
                                 modifier = Modifier.weight(1.3f),
                                 textAlign = TextAlign.Center
                             )
@@ -1009,7 +1026,7 @@ private fun PdfResultSheet(
                                 fontSize = 12.sp,
                                 fontWeight = FontWeight.Bold,
                                 fontFamily = FontFamily.Serif,
-                                color = Color.Black,
+                                color = EduHubTextDark,
                                 modifier = Modifier.weight(1.1f),
                                 textAlign = TextAlign.Center
                             )
@@ -1018,7 +1035,7 @@ private fun PdfResultSheet(
                                 modifier = Modifier
                                     .weight(1.4f)
                                     .clip(RoundedCornerShape(4.dp))
-                                    .background(Color(0xFFE8F0FE))
+                                    .background(if (record.displayGrade.isNotBlank()) EduHubSuccessContainer else EduHubBackground)
                                     .padding(horizontal = 4.dp, vertical = 2.dp),
                                 contentAlignment = Alignment.Center
                             ) {
@@ -1027,7 +1044,7 @@ private fun PdfResultSheet(
                                     fontSize = 10.sp,
                                     fontWeight = FontWeight.Bold,
                                     fontFamily = FontFamily.Serif,
-                                    color = Color(0xFF1967D2),
+                                    color = if (record.displayGrade.isNotBlank()) EduHubSuccess else EduHubTextMuted,
                                     textAlign = TextAlign.Center
                                 )
                             }
@@ -1103,21 +1120,42 @@ private fun MetricCard(
     modifier: Modifier = Modifier,
     label: String,
     value: String,
-    bgColor: Color,
-    textColor: Color
+    subtext: String = "",
+    icon: ImageVector,
+    iconTint: Color = EduHubOrange
 ) {
-    Box(
-        modifier = modifier
-            .clip(RoundedCornerShape(8.dp))
-            .background(bgColor)
-            .border(1.dp, textColor.copy(alpha = 0.3f), RoundedCornerShape(8.dp))
-            .padding(12.dp),
-        contentAlignment = Alignment.Center
+    Card(
+        modifier = modifier,
+        shape = RoundedCornerShape(8.dp),
+        colors = CardDefaults.cardColors(containerColor = EduHubBackground),
+        border = BorderStroke(1.dp, EduHubBorder),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(text = value, fontSize = 20.sp, fontWeight = FontWeight.Bold, color = textColor)
-            Spacer(modifier = Modifier.height(2.dp))
-            Text(text = label, fontSize = 11.sp, color = EduHubTextMuted)
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = iconTint,
+                modifier = Modifier.size(32.dp)
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(text = label, fontSize = 13.sp, color = EduHubTextMuted, textAlign = TextAlign.Center)
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(text = value, fontSize = 24.sp, fontWeight = FontWeight.Normal, color = EduHubTextDark, textAlign = TextAlign.Center)
+            if (subtext.isNotEmpty()) {
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = subtext,
+                    fontSize = 11.sp,
+                    color = EduHubTextMuted,
+                    textAlign = TextAlign.Center
+                )
+            }
         }
     }
 }

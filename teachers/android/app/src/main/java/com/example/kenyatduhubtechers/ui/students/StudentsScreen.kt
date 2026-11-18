@@ -82,10 +82,15 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import com.example.kenyatduhubtechers.data.model.StudentAffairsItemDto
 import com.example.kenyatduhubtechers.ui.theme.EduHubBackground
 import com.example.kenyatduhubtechers.ui.theme.EduHubBorder
+import com.example.kenyatduhubtechers.ui.theme.EduHubCardSurface
 import com.example.kenyatduhubtechers.ui.theme.EduHubError
 import com.example.kenyatduhubtechers.ui.theme.EduHubErrorContainer
 import com.example.kenyatduhubtechers.ui.theme.EduHubOrange
+import com.example.kenyatduhubtechers.ui.theme.EduHubRowEvenBg
+import com.example.kenyatduhubtechers.ui.theme.EduHubRowOddBg
 import com.example.kenyatduhubtechers.ui.theme.EduHubSuccess
+import com.example.kenyatduhubtechers.ui.theme.EduHubSuccessContainer
+import com.example.kenyatduhubtechers.ui.theme.EduHubTableHeaderBg
 import com.example.kenyatduhubtechers.ui.theme.EduHubTextDark
 import com.example.kenyatduhubtechers.ui.theme.EduHubTextMuted
 import java.io.File
@@ -485,8 +490,8 @@ fun StudentsScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 16.dp),
-            colors = CardDefaults.cardColors(containerColor = Color.White),
-            border = BorderStroke(1.5.dp, Color(0xFF1E1E1E)),
+            colors = CardDefaults.cardColors(containerColor = EduHubCardSurface),
+            border = BorderStroke(1.5.dp, EduHubBorder),
             shape = RoundedCornerShape(0.dp),
             elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
         ) {
@@ -528,8 +533,8 @@ fun StudentsScreen(
                         // Table Header Row
                         Row(
                             modifier = Modifier
-                                .background(Color(0xFFE8ECEF))
-                                .border(BorderStroke(1.dp, Color.Black)),
+                                .background(EduHubTableHeaderBg)
+                                .border(BorderStroke(1.dp, EduHubBorder)),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             HeaderCell("ADM NO", width = 80.dp)
@@ -545,7 +550,7 @@ fun StudentsScreen(
 
                         // Data Rows
                         filteredStudents.forEachIndexed { index, student ->
-                            val bg = if (index % 2 == 0) Color.White else Color(0xFFFAFAFA)
+                            val bg = if (index % 2 == 0) EduHubRowEvenBg else EduHubRowOddBg
                             var studentTotalFees = student.totalFees ?: 0.0
                             var studentTotalPaid = student.totalPaid ?: 0.0
                             var studentBalance = student.totalBalance ?: 0.0
@@ -577,7 +582,7 @@ fun StudentsScreen(
                             Row(
                                 modifier = Modifier
                                     .background(bg)
-                                    .border(BorderStroke(0.5.dp, Color.Black)),
+                                    .border(BorderStroke(0.5.dp, EduHubBorder)),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 DataCell(text = student.admissionNumber, width = 80.dp, fontWeight = FontWeight.Bold)
@@ -588,7 +593,7 @@ fun StudentsScreen(
                                 Box(
                                     modifier = Modifier
                                         .width(70.dp)
-                                        .border(BorderStroke(0.5.dp, Color.Black))
+                                        .border(BorderStroke(0.5.dp, EduHubBorder))
                                         .padding(vertical = 6.dp, horizontal = 2.dp),
                                     contentAlignment = Alignment.Center
                                 ) {
@@ -596,7 +601,7 @@ fun StudentsScreen(
                                     Box(
                                         modifier = Modifier
                                             .clip(RoundedCornerShape(4.dp))
-                                            .background(if (isActive) Color(0xFFE6F4EA) else Color(0xFFF1F3F4))
+                                            .background(if (isActive) EduHubSuccessContainer else EduHubBackground)
                                             .padding(horizontal = 6.dp, vertical = 2.dp),
                                         contentAlignment = Alignment.Center
                                     ) {
@@ -604,7 +609,7 @@ fun StudentsScreen(
                                             text = if (isActive) "Active" else "Inactive",
                                             fontSize = 10.sp,
                                             fontWeight = FontWeight.Bold,
-                                            color = if (isActive) EduHubSuccess else Color.Gray
+                                            color = if (isActive) EduHubSuccess else EduHubTextMuted
                                         )
                                     }
                                 }
@@ -616,7 +621,7 @@ fun StudentsScreen(
                                 Box(
                                     modifier = Modifier
                                         .width(60.dp)
-                                        .border(BorderStroke(0.5.dp, Color.Black))
+                                        .border(BorderStroke(0.5.dp, EduHubBorder))
                                         .padding(vertical = 4.dp),
                                     contentAlignment = Alignment.Center
                                 ) {
@@ -642,8 +647,8 @@ fun StudentsScreen(
         // 4. Disciplinary Records Section Card
         Card(
             modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(containerColor = Color.White),
-            border = BorderStroke(1.5.dp, Color(0xFF1E1E1E)),
+            colors = CardDefaults.cardColors(containerColor = EduHubCardSurface),
+            border = BorderStroke(1.5.dp, EduHubBorder),
             shape = RoundedCornerShape(0.dp),
             elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
         ) {
@@ -684,8 +689,8 @@ fun StudentsScreen(
                     ) {
                         Row(
                             modifier = Modifier
-                                .background(Color(0xFFE8ECEF))
-                                .border(BorderStroke(1.dp, Color.Black)),
+                                .background(EduHubTableHeaderBg)
+                                .border(BorderStroke(1.dp, EduHubBorder)),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             HeaderCell("ADM NO", width = 80.dp)
@@ -698,7 +703,7 @@ fun StudentsScreen(
                         }
 
                         uiState.disciplinaryRecords.forEachIndexed { index, record ->
-                            val bg = if (index % 2 == 0) Color.White else Color(0xFFFAFAFA)
+                            val bg = if (index % 2 == 0) EduHubRowEvenBg else EduHubRowOddBg
                             Row(
                                 modifier = Modifier
                                     .background(bg)
@@ -877,7 +882,7 @@ private fun HeaderCell(
     Box(
         modifier = Modifier
             .width(width)
-            .border(BorderStroke(0.5.dp, Color.Black))
+            .border(BorderStroke(0.5.dp, EduHubBorder))
             .padding(vertical = 10.dp, horizontal = 4.dp),
         contentAlignment = Alignment.Center
     ) {
@@ -886,7 +891,7 @@ private fun HeaderCell(
             fontSize = 10.sp,
             fontWeight = FontWeight.Bold,
             fontFamily = FontFamily.Serif,
-            color = Color.Black,
+            color = EduHubTextDark,
             textAlign = align
         )
     }
@@ -897,13 +902,13 @@ private fun DataCell(
     text: String,
     width: androidx.compose.ui.unit.Dp,
     fontWeight: FontWeight = FontWeight.Normal,
-    textColor: Color = Color.Black,
+    textColor: Color = EduHubTextDark,
     align: TextAlign = TextAlign.Center
 ) {
     Box(
         modifier = Modifier
             .width(width)
-            .border(BorderStroke(0.5.dp, Color.Black))
+            .border(BorderStroke(0.5.dp, EduHubBorder))
             .padding(vertical = 8.dp, horizontal = 4.dp),
         contentAlignment = Alignment.Center
     ) {

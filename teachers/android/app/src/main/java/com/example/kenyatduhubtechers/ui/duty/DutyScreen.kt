@@ -71,6 +71,7 @@ import androidx.compose.ui.window.DialogProperties
 import com.example.kenyatduhubtechers.data.model.LeaveoutChitDto
 import com.example.kenyatduhubtechers.ui.theme.EduHubBackground
 import com.example.kenyatduhubtechers.ui.theme.EduHubBorder
+import com.example.kenyatduhubtechers.ui.theme.EduHubCardSurface
 import com.example.kenyatduhubtechers.ui.theme.EduHubError
 import com.example.kenyatduhubtechers.ui.theme.EduHubErrorContainer
 import com.example.kenyatduhubtechers.ui.theme.EduHubOrange
@@ -452,7 +453,7 @@ fun DutyScreen(
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .padding(vertical = 4.dp),
-                                    colors = CardDefaults.cardColors(containerColor = Color.White),
+                                    colors = CardDefaults.cardColors(containerColor = EduHubCardSurface),
                                     border = BorderStroke(1.dp, EduHubBorder)
                                 ) {
                                     Row(
@@ -515,7 +516,7 @@ fun DutyScreen(
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .padding(vertical = 4.dp),
-                                    colors = CardDefaults.cardColors(containerColor = Color.White),
+                                    colors = CardDefaults.cardColors(containerColor = EduHubCardSurface),
                                     border = BorderStroke(1.dp, EduHubBorder)
                                 ) {
                                     Column(modifier = Modifier.padding(12.dp)) {
@@ -575,7 +576,7 @@ fun DutyScreen(
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .padding(vertical = 4.dp),
-                                    colors = CardDefaults.cardColors(containerColor = Color.White),
+                                    colors = CardDefaults.cardColors(containerColor = EduHubCardSurface),
                                     border = BorderStroke(1.dp, EduHubBorder)
                                 ) {
                                     Column(modifier = Modifier.padding(12.dp)) {

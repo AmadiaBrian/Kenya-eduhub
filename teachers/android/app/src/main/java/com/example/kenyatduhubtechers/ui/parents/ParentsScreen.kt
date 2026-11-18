@@ -85,11 +85,15 @@ import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import com.example.kenyatduhubtechers.data.model.ParentItemDto
 import com.example.kenyatduhubtechers.ui.theme.EduHubBackground
 import com.example.kenyatduhubtechers.ui.theme.EduHubBorder
+import com.example.kenyatduhubtechers.ui.theme.EduHubCardSurface
 import com.example.kenyatduhubtechers.ui.theme.EduHubError
 import com.example.kenyatduhubtechers.ui.theme.EduHubErrorContainer
 import com.example.kenyatduhubtechers.ui.theme.EduHubOrange
+import com.example.kenyatduhubtechers.ui.theme.EduHubRowEvenBg
+import com.example.kenyatduhubtechers.ui.theme.EduHubRowOddBg
 import com.example.kenyatduhubtechers.ui.theme.EduHubSuccess
 import com.example.kenyatduhubtechers.ui.theme.EduHubSuccessContainer
+import com.example.kenyatduhubtechers.ui.theme.EduHubTableHeaderBg
 import com.example.kenyatduhubtechers.ui.theme.EduHubTextDark
 import com.example.kenyatduhubtechers.ui.theme.EduHubTextMuted
 import java.io.File
@@ -569,8 +573,8 @@ fun ParentsScreen(
         // 4. Full 100% Screen-Width All Parents Table Card
         Card(
             modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(containerColor = Color.White),
-            border = BorderStroke(1.5.dp, Color(0xFF1E1E1E)),
+            colors = CardDefaults.cardColors(containerColor = EduHubCardSurface),
+            border = BorderStroke(1.5.dp, EduHubBorder),
             shape = RoundedCornerShape(0.dp),
             elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
         ) {
@@ -612,8 +616,8 @@ fun ParentsScreen(
                         // Header Row
                         Row(
                             modifier = Modifier
-                                .background(Color(0xFFE8ECEF))
-                                .border(BorderStroke(1.dp, Color.Black)),
+                                .background(EduHubTableHeaderBg)
+                                .border(BorderStroke(1.dp, EduHubBorder)),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             HeaderCell("NAME", width = 135.dp, align = TextAlign.Start)
@@ -627,11 +631,11 @@ fun ParentsScreen(
 
                         // Data Rows
                         filteredParents.forEachIndexed { index, parent ->
-                            val bg = if (index % 2 == 0) Color.White else Color(0xFFFAFAFA)
+                            val bg = if (index % 2 == 0) EduHubRowEvenBg else EduHubRowOddBg
                             Row(
                                 modifier = Modifier
                                     .background(bg)
-                                    .border(BorderStroke(0.5.dp, Color.Black)),
+                                    .border(BorderStroke(0.5.dp, EduHubBorder)),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 DataCell(text = parent.fullName.uppercase(), width = 135.dp, fontWeight = FontWeight.Bold, align = TextAlign.Start)
@@ -644,7 +648,7 @@ fun ParentsScreen(
                                 Box(
                                     modifier = Modifier
                                         .width(110.dp)
-                                        .border(BorderStroke(0.5.dp, Color.Black))
+                                        .border(BorderStroke(0.5.dp, EduHubBorder))
                                         .padding(vertical = 4.dp),
                                     contentAlignment = Alignment.Center
                                 ) {
@@ -841,7 +845,7 @@ private fun HeaderCell(
     Box(
         modifier = Modifier
             .width(width)
-            .border(BorderStroke(0.5.dp, Color.Black))
+            .border(BorderStroke(0.5.dp, EduHubBorder))
             .padding(vertical = 10.dp, horizontal = 4.dp),
         contentAlignment = Alignment.Center
     ) {
@@ -850,7 +854,7 @@ private fun HeaderCell(
             fontSize = 10.sp,
             fontWeight = FontWeight.Bold,
             fontFamily = FontFamily.Serif,
-            color = Color.Black,
+            color = EduHubTextDark,
             textAlign = align
         )
     }
@@ -861,13 +865,13 @@ private fun DataCell(
     text: String,
     width: androidx.compose.ui.unit.Dp,
     fontWeight: FontWeight = FontWeight.Normal,
-    textColor: Color = Color.Black,
+    textColor: Color = EduHubTextDark,
     align: TextAlign = TextAlign.Center
 ) {
     Box(
         modifier = Modifier
             .width(width)
-            .border(BorderStroke(0.5.dp, Color.Black))
+            .border(BorderStroke(0.5.dp, EduHubBorder))
             .padding(vertical = 8.dp, horizontal = 4.dp),
         contentAlignment = Alignment.Center
     ) {

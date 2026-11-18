@@ -75,8 +75,11 @@ import com.example.kenyatduhubtechers.ui.theme.EduHubBorder
 import com.example.kenyatduhubtechers.ui.theme.EduHubError
 import com.example.kenyatduhubtechers.ui.theme.EduHubErrorContainer
 import com.example.kenyatduhubtechers.ui.theme.EduHubOrange
+import com.example.kenyatduhubtechers.ui.theme.EduHubRowEvenBg
+import com.example.kenyatduhubtechers.ui.theme.EduHubRowOddBg
 import com.example.kenyatduhubtechers.ui.theme.EduHubSuccess
 import com.example.kenyatduhubtechers.ui.theme.EduHubSuccessContainer
+import com.example.kenyatduhubtechers.ui.theme.EduHubTableHeaderBg
 import com.example.kenyatduhubtechers.ui.theme.EduHubTextDark
 import com.example.kenyatduhubtechers.ui.theme.EduHubTextMuted
 
@@ -367,7 +370,7 @@ fun StudentSubjectsScreen(
                                     // Table Header
                                     Row(
                                         modifier = Modifier
-                                            .background(Color(0xFFF8F9FA))
+                                            .background(EduHubTableHeaderBg)
                                             .padding(vertical = 10.dp, horizontal = 12.dp),
                                         verticalAlignment = Alignment.CenterVertically
                                     ) {
@@ -381,7 +384,7 @@ fun StudentSubjectsScreen(
 
                                     // Table Rows
                                     filteredStudents.forEachIndexed { index, student ->
-                                        val bg = if (index % 2 == 0) Color.White else Color(0xFFFAFAFA)
+                                        val bg = if (index % 2 == 0) EduHubRowEvenBg else EduHubRowOddBg
                                         val assignedStr = uiState.subjectAssignmentsMap[student.id] ?: "No subjects assigned"
 
                                         Row(

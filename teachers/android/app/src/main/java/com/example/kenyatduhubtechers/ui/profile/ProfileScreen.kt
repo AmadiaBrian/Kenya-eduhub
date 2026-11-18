@@ -179,7 +179,11 @@ fun ProfileScreen(
                         shape = RoundedCornerShape(25.dp),
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = EduHubOrange,
-                            unfocusedBorderColor = EduHubBorder
+                            unfocusedBorderColor = EduHubBorder,
+                            focusedContainerColor = EduHubBackground,
+                            unfocusedContainerColor = EduHubBackground,
+                            focusedTextColor = EduHubTextDark,
+                            unfocusedTextColor = EduHubTextDark
                         )
                     )
 
@@ -192,7 +196,11 @@ fun ProfileScreen(
                         shape = RoundedCornerShape(25.dp),
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = EduHubOrange,
-                            unfocusedBorderColor = EduHubBorder
+                            unfocusedBorderColor = EduHubBorder,
+                            focusedContainerColor = EduHubBackground,
+                            unfocusedContainerColor = EduHubBackground,
+                            focusedTextColor = EduHubTextDark,
+                            unfocusedTextColor = EduHubTextDark
                         )
                     )
                 }
@@ -213,7 +221,11 @@ fun ProfileScreen(
                         shape = RoundedCornerShape(25.dp),
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = EduHubOrange,
-                            unfocusedBorderColor = EduHubBorder
+                            unfocusedBorderColor = EduHubBorder,
+                            focusedContainerColor = EduHubBackground,
+                            unfocusedContainerColor = EduHubBackground,
+                            focusedTextColor = EduHubTextDark,
+                            unfocusedTextColor = EduHubTextDark
                         )
                     )
 
@@ -227,7 +239,11 @@ fun ProfileScreen(
                         shape = RoundedCornerShape(25.dp),
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = EduHubOrange,
-                            unfocusedBorderColor = EduHubBorder
+                            unfocusedBorderColor = EduHubBorder,
+                            focusedContainerColor = EduHubBackground,
+                            unfocusedContainerColor = EduHubBackground,
+                            focusedTextColor = EduHubTextDark,
+                            unfocusedTextColor = EduHubTextDark
                         )
                     )
                 }
@@ -248,7 +264,11 @@ fun ProfileScreen(
                         shape = RoundedCornerShape(25.dp),
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = EduHubOrange,
-                            unfocusedBorderColor = EduHubBorder
+                            unfocusedBorderColor = EduHubBorder,
+                            focusedContainerColor = EduHubBackground,
+                            unfocusedContainerColor = EduHubBackground,
+                            focusedTextColor = EduHubTextDark,
+                            unfocusedTextColor = EduHubTextDark
                         )
                     )
 
@@ -277,7 +297,11 @@ fun ProfileScreen(
                     shape = RoundedCornerShape(12.dp),
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = EduHubOrange,
-                        unfocusedBorderColor = EduHubBorder
+                        unfocusedBorderColor = EduHubBorder,
+                        focusedContainerColor = EduHubBackground,
+                        unfocusedContainerColor = EduHubBackground,
+                        focusedTextColor = EduHubTextDark,
+                        unfocusedTextColor = EduHubTextDark
                     )
                 )
 
@@ -294,8 +318,10 @@ fun ProfileScreen(
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = EduHubBorder,
                         unfocusedBorderColor = EduHubBorder,
-                        focusedContainerColor = Color(0xFFF2F4F8),
-                        unfocusedContainerColor = Color(0xFFF2F4F8)
+                        focusedContainerColor = EduHubBackground,
+                        unfocusedContainerColor = EduHubBackground,
+                        focusedTextColor = EduHubTextDark,
+                        unfocusedTextColor = EduHubTextDark
                     )
                 )
 
@@ -317,8 +343,10 @@ fun ProfileScreen(
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = EduHubBorder,
                         unfocusedBorderColor = EduHubBorder,
-                        focusedContainerColor = Color(0xFFF2F4F8),
-                        unfocusedContainerColor = Color(0xFFF2F4F8)
+                        focusedContainerColor = EduHubBackground,
+                        unfocusedContainerColor = EduHubBackground,
+                        focusedTextColor = EduHubTextDark,
+                        unfocusedTextColor = EduHubTextDark
                     )
                 )
 

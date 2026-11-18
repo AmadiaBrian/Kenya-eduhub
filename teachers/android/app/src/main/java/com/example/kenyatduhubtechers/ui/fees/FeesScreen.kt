@@ -30,12 +30,16 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountBalanceWallet
 import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material.icons.filled.Cancel
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.Event
 import androidx.compose.material.icons.filled.FileDownload
 import androidx.compose.material.icons.filled.Mail
+import androidx.compose.material.icons.filled.Payments
 import androidx.compose.material.icons.filled.RequestPage
 import androidx.compose.material.icons.filled.School
 import androidx.compose.material.icons.filled.Search
@@ -73,11 +77,22 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.FileProvider
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.ui.graphics.vector.ImageVector
 import com.example.kenyatduhubtechers.data.model.StudentFeeSummaryItemDto
 import com.example.kenyatduhubtechers.data.network.RetrofitClient
 import com.example.kenyatduhubtechers.ui.theme.EduHubBackground
 import com.example.kenyatduhubtechers.ui.theme.EduHubBorder
+import com.example.kenyatduhubtechers.ui.theme.EduHubCardSurface
 import com.example.kenyatduhubtechers.ui.theme.EduHubError
+import com.example.kenyatduhubtechers.ui.theme.EduHubErrorContainer
+import com.example.kenyatduhubtechers.ui.theme.EduHubOrange
+import com.example.kenyatduhubtechers.ui.theme.EduHubRowEvenBg
+import com.example.kenyatduhubtechers.ui.theme.EduHubRowOddBg
+import com.example.kenyatduhubtechers.ui.theme.EduHubSuccess
+import com.example.kenyatduhubtechers.ui.theme.EduHubSuccessContainer
+import com.example.kenyatduhubtechers.ui.theme.EduHubTableHeaderBg
+import com.example.kenyatduhubtechers.ui.theme.EduHubTextDark
+import com.example.kenyatduhubtechers.ui.theme.EduHubTextMuted
 import com.example.kenyatduhubtechers.ui.theme.EduHubErrorContainer
 import com.example.kenyatduhubtechers.ui.theme.EduHubOrange
 import com.example.kenyatduhubtechers.ui.theme.EduHubSuccess
@@ -396,15 +411,17 @@ fun FeesScreen(
                     modifier = Modifier.weight(1f),
                     label = "Total Students",
                     value = allStudentsCount.toString(),
-                    bgColor = Color(0xFFE8F0FE),
-                    textColor = Color(0xFF1967D2)
+                    subtext = "Enrolled Class Students",
+                    icon = Icons.Default.School,
+                    iconTint = EduHubOrange
                 )
                 MetricCard(
                     modifier = Modifier.weight(1f),
                     label = "Total Collected",
                     value = "KES ${String.format(Locale.US, "%.0f", totalPaidSum)}",
-                    bgColor = Color(0xFFE6F4EA),
-                    textColor = EduHubSuccess
+                    subtext = "Completed Payments",
+                    icon = Icons.Default.Payments,
+                    iconTint = EduHubOrange
                 )
             }
 
@@ -416,15 +433,17 @@ fun FeesScreen(
                     modifier = Modifier.weight(1f),
                     label = "Total Balance",
                     value = "KES ${String.format(Locale.US, "%.0f", totalBalanceSum)}",
-                    bgColor = Color(0xFFFCE8E6),
-                    textColor = EduHubError
+                    subtext = "Fee Due Balance",
+                    icon = Icons.Default.AccountBalanceWallet,
+                    iconTint = EduHubOrange
                 )
                 MetricCard(
                     modifier = Modifier.weight(1f),
                     label = "Collection Rate",
                     value = "$collectionRate%",
-                    bgColor = Color(0xFFFEF7E0),
-                    textColor = Color(0xFFB06000)
+                    subtext = "Percentage Collected",
+                    icon = Icons.Default.CheckCircle,
+                    iconTint = EduHubOrange
                 )
             }
 
@@ -436,15 +455,17 @@ fun FeesScreen(
                     modifier = Modifier.weight(1f),
                     label = "Fully Paid",
                     value = paidCount.toString(),
-                    bgColor = Color(0xFFF1F3F4),
-                    textColor = EduHubTextDark
+                    subtext = "Paid In Full",
+                    icon = Icons.Default.CheckCircle,
+                    iconTint = EduHubOrange
                 )
                 MetricCard(
                     modifier = Modifier.weight(1f),
                     label = "Not Paid",
                     value = unpaidCount.toString(),
-                    bgColor = Color(0xFFE8F0FE),
-                    textColor = Color(0xFF1967D2)
+                    subtext = "Pending Balance",
+                    icon = Icons.Default.Cancel,
+                    iconTint = EduHubOrange
                 )
             }
         }
@@ -559,8 +580,8 @@ fun FeesScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(bottom = 16.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color.White),
-                    border = BorderStroke(1.5.dp, Color(0xFF1E1E1E)),
+                    colors = CardDefaults.cardColors(containerColor = EduHubCardSurface),
+                    border = BorderStroke(1.5.dp, EduHubBorder),
                     shape = RoundedCornerShape(0.dp),
                     elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
                 ) {
@@ -589,8 +610,8 @@ fun FeesScreen(
                             // Header Row
                             Row(
                                 modifier = Modifier
-                                    .background(Color(0xFFE8ECEF))
-                                    .border(BorderStroke(1.dp, Color.Black)),
+                                    .background(EduHubTableHeaderBg)
+                                    .border(BorderStroke(1.dp, EduHubBorder)),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 HeaderCell("ADM NO", width = 80.dp)
@@ -609,14 +630,14 @@ fun FeesScreen(
                             }
 
                             studentRows.forEachIndexed { index, stu ->
-                                val bg = if (index % 2 == 0) Color.White else Color(0xFFFAFAFA)
+                                val bg = if (index % 2 == 0) EduHubRowEvenBg else EduHubRowOddBg
                                 val statusText = if (stu.totalBalance <= 0) "Paid" else if (stu.totalPaid > 0) "Partial" else "Not Paid"
                                 val statusColor = if (stu.totalBalance <= 0) EduHubSuccess else if (stu.totalPaid > 0) Color(0xFFB06000) else EduHubError
 
                                 Row(
                                     modifier = Modifier
                                         .background(bg)
-                                        .border(BorderStroke(0.5.dp, Color.Black)),
+                                        .border(BorderStroke(0.5.dp, EduHubBorder)),
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     DataCell(text = stu.admissionNumber, width = 80.dp, fontWeight = FontWeight.Bold)
@@ -629,7 +650,7 @@ fun FeesScreen(
                                     Box(
                                         modifier = Modifier
                                             .width(80.dp)
-                                            .border(BorderStroke(0.5.dp, Color.Black))
+                                            .border(BorderStroke(0.5.dp, EduHubBorder))
                                             .padding(vertical = 6.dp, horizontal = 2.dp),
                                         contentAlignment = Alignment.Center
                                     ) {
@@ -655,8 +676,8 @@ fun FeesScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(bottom = 16.dp),
-                colors = CardDefaults.cardColors(containerColor = Color.White),
-                border = BorderStroke(1.5.dp, Color(0xFF1E1E1E)),
+                colors = CardDefaults.cardColors(containerColor = EduHubCardSurface),
+                border = BorderStroke(1.5.dp, EduHubBorder),
                 shape = RoundedCornerShape(0.dp),
                 elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
             ) {
@@ -672,7 +693,7 @@ fun FeesScreen(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .background(Color(0xFFF0F4F9))
+                            .background(EduHubBackground)
                             .border(1.dp, EduHubBorder, RoundedCornerShape(8.dp))
                             .padding(12.dp),
                         horizontalArrangement = Arrangement.SpaceBetween,
@@ -709,8 +730,8 @@ fun FeesScreen(
                         ) {
                             Row(
                                 modifier = Modifier
-                                    .background(Color(0xFFE8ECEF))
-                                    .border(BorderStroke(1.dp, Color.Black)),
+                                    .background(EduHubTableHeaderBg)
+                                    .border(BorderStroke(1.dp, EduHubBorder)),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 HeaderCell("DATE", width = 85.dp)
@@ -722,11 +743,11 @@ fun FeesScreen(
                             }
 
                             feeDetails.payments.forEachIndexed { index, p ->
-                                val bg = if (index % 2 == 0) Color.White else Color(0xFFFAFAFA)
+                                val bg = if (index % 2 == 0) EduHubRowEvenBg else EduHubRowOddBg
                                 Row(
                                     modifier = Modifier
                                         .background(bg)
-                                        .border(BorderStroke(0.5.dp, Color.Black)),
+                                        .border(BorderStroke(0.5.dp, EduHubBorder)),
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     DataCell(text = p.paymentDate ?: "-", width = 85.dp)
@@ -847,21 +868,42 @@ private fun MetricCard(
     modifier: Modifier = Modifier,
     label: String,
     value: String,
-    bgColor: Color,
-    textColor: Color
+    subtext: String = "",
+    icon: ImageVector,
+    iconTint: Color
 ) {
-    Box(
-        modifier = modifier
-            .clip(RoundedCornerShape(8.dp))
-            .background(bgColor)
-            .border(1.dp, textColor.copy(alpha = 0.3f), RoundedCornerShape(8.dp))
-            .padding(12.dp),
-        contentAlignment = Alignment.Center
+    Card(
+        modifier = modifier,
+        shape = RoundedCornerShape(8.dp),
+        colors = CardDefaults.cardColors(containerColor = EduHubBackground),
+        border = BorderStroke(1.dp, EduHubBorder),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(text = value, fontSize = 20.sp, fontWeight = FontWeight.Bold, color = textColor)
-            Spacer(modifier = Modifier.height(2.dp))
-            Text(text = label, fontSize = 11.sp, color = EduHubTextMuted)
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = iconTint,
+                modifier = Modifier.size(32.dp)
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(text = label, fontSize = 13.sp, color = EduHubTextMuted, textAlign = TextAlign.Center)
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(text = value, fontSize = 24.sp, fontWeight = FontWeight.Normal, color = EduHubTextDark, textAlign = TextAlign.Center)
+            if (subtext.isNotEmpty()) {
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = subtext,
+                    fontSize = 11.sp,
+                    color = EduHubTextMuted,
+                    textAlign = TextAlign.Center
+                )
+            }
         }
     }
 }
@@ -875,7 +917,7 @@ private fun HeaderCell(
     Box(
         modifier = Modifier
             .width(width)
-            .border(BorderStroke(0.5.dp, Color.Black))
+            .border(BorderStroke(0.5.dp, EduHubBorder))
             .padding(vertical = 10.dp, horizontal = 4.dp),
         contentAlignment = Alignment.Center
     ) {
@@ -884,7 +926,7 @@ private fun HeaderCell(
             fontSize = 10.sp,
             fontWeight = FontWeight.Bold,
             fontFamily = FontFamily.Serif,
-            color = Color.Black,
+            color = EduHubTextDark,
             textAlign = align
         )
     }
@@ -895,13 +937,13 @@ private fun DataCell(
     text: String,
     width: androidx.compose.ui.unit.Dp,
     fontWeight: FontWeight = FontWeight.Normal,
-    textColor: Color = Color.Black,
+    textColor: Color = EduHubTextDark,
     align: TextAlign = TextAlign.Center
 ) {
     Box(
         modifier = Modifier
             .width(width)
-            .border(BorderStroke(0.5.dp, Color.Black))
+            .border(BorderStroke(0.5.dp, EduHubBorder))
             .padding(vertical = 8.dp, horizontal = 4.dp),
         contentAlignment = Alignment.Center
     ) {
